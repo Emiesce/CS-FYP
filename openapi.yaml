@@ -1,0 +1,612 @@
+openapi: 3.1.0
+info:
+  title: AI Grader API
+  description: |
+    API for managing student submissions, rubric-based grading, and AI-assisted scoring.
+    
+    ## Features
+    - Student submission management
+    - Rubric-based scoring system
+    - AI-suggested grades
+    - Real-time grade updates
+    - Batch grade submission
+    
+    ## Authentication
+    All endpoints require Bearer token authentication.
+  version: 1.0.0
+  contact:
+    name: AI Grader Support
+    email: api-support@aigrader.com
+    url: https://docs.aigrader.com
+  license:
+    name: MIT
+    identifier: MIT
+
+servers:
+  - url: https://api.aigrader.com/v1
+    description: Production server
+  - url: https://api-test.aigrader.com/v1
+    description: Test server
+
+security:
+  - bearerAuth: []
+
+paths:
+  /students:
+    get:
+      summary: Get all students
+      description: Retrieve all students for a specific course and assignment with optional filtering
+      operationId: getStudents
+      tags:
+        - Students
+      parameters:
+        - name: courseId
+          in: query
+          description: Filter by course ID
+          required: false
+          schema:
+            type: string
+            example: "CS101"
+        - name: assignmentId
+          in: query
+          description: Filter by assignment ID
+          required: false
+          schema:
+            type: string
+            example: "essay1"
+      responses:
+        '200':
+          description: Students retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StudentsResponse'
+              example:
+                data:
+                  - id: "1"
+                    studentNumber: "2084 1234"
+                    name: "John Smith"
+                    essay: "Several factors contribute to the planning fallacy..."
+                    rubrics:
+                      - id: "content1"
+                        title: "Content 1: Explain the concept of planning fallacy"
+                        description: "AI: The student answer elaborated on the idea of planning fallacy causes"
+                        score: 8
+                        maxScore: 10
+                        aiSuggestedScore: 7
+                        highlightedText: "complexity of tasks can obscure the true time and cost"
+                success: true
+                message: "Students retrieved successfully"
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /students/paginated:
+    get:
+      summary: Get students with pagination
+      description: Retrieve students with pagination support for large datasets
+      operationId: getStudentsPaginated
+      tags:
+        - Students
+      parameters:
+        - name: page
+          in: query
+          description: Page number (1-based)
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+            example: 1
+        - name: limit
+          in: query
+          description: Number of items per page
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 10
+            example: 10
+        - name: courseId
+          in: query
+          description: Filter by course ID
+          required: false
+          schema:
+            type: string
+            example: "CS101"
+      responses:
+        '200':
+          description: Paginated students retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedStudentsResponse'
+              example:
+                data:
+                  - id: "1"
+                    studentNumber: "2084 1234"
+                    name: "John Smith"
+                    essay: "Several factors contribute to the planning fallacy..."
+                    rubrics: []
+                total: 25
+                page: 1
+                limit: 10
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /students/{studentId}:
+    get:
+      summary: Get student by ID
+      description: Retrieve a specific student by their unique identifier
+      operationId: getStudentById
+      tags:
+        - Students
+      parameters:
+        - name: studentId
+          in: path
+          description: Unique student identifier
+          required: true
+          schema:
+            type: string
+            example: "1"
+      responses:
+        '200':
+          description: Student found successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StudentResponse'
+              example:
+                data:
+                  id: "1"
+                  studentNumber: "2084 1234"
+                  name: "John Smith"
+                  essay: "Several factors contribute to the planning fallacy..."
+                  rubrics:
+                    - id: "content1"
+                      title: "Content 1: Explain the concept of planning fallacy"
+                      description: "AI: The student answer elaborated on the idea of planning fallacy causes"
+                      score: 8
+                      maxScore: 10
+                      aiSuggestedScore: 7
+                      highlightedText: "complexity of tasks can obscure the true time and cost"
+                success: true
+                message: "Student found"
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /students/{studentId}/rubrics/{rubricId}:
+    put:
+      summary: Update rubric score
+      description: Update the score for a specific rubric of a student
+      operationId: updateRubricScore
+      tags:
+        - Grading
+      parameters:
+        - name: studentId
+          in: path
+          description: Unique student identifier
+          required: true
+          schema:
+            type: string
+            example: "1"
+        - name: rubricId
+          in: path
+          description: Unique rubric identifier
+          required: true
+          schema:
+            type: string
+            example: "content1"
+      requestBody:
+        description: New score for the rubric
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ScoreUpdateRequest'
+            example:
+              score: 8
+      responses:
+        '200':
+          description: Score updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BooleanResponse'
+              example:
+                data: true
+                success: true
+                message: "Score updated successfully"
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /students/{studentId}/grades:
+    post:
+      summary: Save student grades
+      description: Save all current grades for a specific student
+      operationId: saveStudentGrades
+      tags:
+        - Grading
+      parameters:
+        - name: studentId
+          in: path
+          description: Unique student identifier
+          required: true
+          schema:
+            type: string
+            example: "1"
+      requestBody:
+        description: Student grades to save
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SaveGradesRequest'
+            example:
+              rubrics:
+                - id: "content1"
+                  score: 8
+                - id: "content2"
+                  score: 7
+                - id: "organization"
+                  score: 9
+      responses:
+        '200':
+          description: Grades saved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BooleanResponse'
+              example:
+                data: true
+                success: true
+                message: "Grades saved successfully"
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /grades/submit:
+    post:
+      summary: Submit final grades
+      description: Submit final grades for multiple students (batch operation)
+      operationId: submitGrades
+      tags:
+        - Grading
+      requestBody:
+        description: List of student IDs to submit grades for
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SubmitGradesRequest'
+            example:
+              studentIds: ["1", "2", "3"]
+      responses:
+        '200':
+          description: Grades submitted successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BooleanResponse'
+              example:
+                data: true
+                success: true
+                message: "Grades submitted successfully"
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: JWT token for API authentication
+
+  schemas:
+    Student:
+      type: object
+      required:
+        - id
+        - studentNumber
+        - name
+        - essay
+        - rubrics
+      properties:
+        id:
+          type: string
+          description: Unique student identifier
+          example: "1"
+        studentNumber:
+          type: string
+          description: Student's institutional number
+          example: "2084 1234"
+        name:
+          type: string
+          description: Student's full name
+          example: "John Smith"
+        essay:
+          type: string
+          description: Student's essay submission
+          example: "Several factors contribute to the planning fallacy..."
+        rubrics:
+          type: array
+          description: List of rubric criteria and scores
+          items:
+            $ref: '#/components/schemas/RubricCriteria'
+
+    RubricCriteria:
+      type: object
+      required:
+        - id
+        - title
+        - description
+        - score
+        - maxScore
+        - aiSuggestedScore
+      properties:
+        id:
+          type: string
+          description: Unique rubric identifier
+          example: "content1"
+        title:
+          type: string
+          description: Rubric title/name
+          example: "Content 1: Explain the concept of planning fallacy"
+        description:
+          type: string
+          description: Detailed rubric description
+          example: "AI: The student answer elaborated on the idea of planning fallacy causes"
+        score:
+          type: number
+          description: Current assigned score
+          minimum: 0
+          example: 8
+        maxScore:
+          type: number
+          description: Maximum possible score
+          minimum: 1
+          example: 10
+        aiSuggestedScore:
+          type: number
+          description: AI-recommended score
+          minimum: 0
+          example: 7
+        highlightedText:
+          type: 
+            - string
+            - "null"
+          description: Text excerpt from essay relevant to this rubric
+          example: "complexity of tasks can obscure the true time and cost"
+
+    ApiResponse:
+      type: object
+      required:
+        - success
+      properties:
+        success:
+          type: boolean
+          description: Indicates if the request was successful
+        message:
+          type: 
+            - string
+            - "null"
+          description: Human-readable message
+
+    StudentsResponse:
+      allOf:
+        - $ref: '#/components/schemas/ApiResponse'
+        - type: object
+          required:
+            - data
+          properties:
+            data:
+              type: array
+              items:
+                $ref: '#/components/schemas/Student'
+
+    StudentResponse:
+      allOf:
+        - $ref: '#/components/schemas/ApiResponse'
+        - type: object
+          required:
+            - data
+          properties:
+            data:
+              anyOf:
+                - $ref: '#/components/schemas/Student'
+                - type: "null"
+
+    PaginatedStudentsResponse:
+      type: object
+      required:
+        - data
+        - total
+        - page
+        - limit
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Student'
+        total:
+          type: integer
+          description: Total number of students
+          minimum: 0
+          example: 25
+        page:
+          type: integer
+          description: Current page number
+          minimum: 1
+          example: 1
+        limit:
+          type: integer
+          description: Number of items per page
+          minimum: 1
+          example: 10
+
+    BooleanResponse:
+      allOf:
+        - $ref: '#/components/schemas/ApiResponse'
+        - type: object
+          required:
+            - data
+          properties:
+            data:
+              type: boolean
+
+    ScoreUpdateRequest:
+      type: object
+      required:
+        - score
+      properties:
+        score:
+          type: number
+          description: New score value
+          minimum: 0
+          example: 8
+
+    SaveGradesRequest:
+      type: object
+      required:
+        - rubrics
+      properties:
+        rubrics:
+          type: array
+          description: List of rubric scores to save
+          items:
+            type: object
+            required:
+              - id
+              - score
+            properties:
+              id:
+                type: string
+                description: Rubric identifier
+                example: "content1"
+              score:
+                type: number
+                description: Score value
+                minimum: 0
+                example: 8
+
+    SubmitGradesRequest:
+      type: object
+      required:
+        - studentIds
+      properties:
+        studentIds:
+          type: array
+          description: List of student IDs to submit grades for
+          items:
+            type: string
+          example: ["1", "2", "3"]
+
+    Error:
+      type: object
+      required:
+        - success
+        - message
+      properties:
+        success:
+          type: boolean
+          example: false
+        message:
+          type: string
+          description: Error message
+        data:
+          type: "null"
+          example: null
+        error:
+          type: object
+          properties:
+            code:
+              type: string
+              description: Error code
+              example: "STUDENT_NOT_FOUND"
+            details:
+              type: string
+              description: Additional error details
+              example: "Student with ID '999' does not exist"
+
+  responses:
+    BadRequest:
+      description: Bad Request - Invalid input parameters
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            success: false
+            message: "Invalid request parameters"
+            data: null
+            error:
+              code: "VALIDATION_ERROR"
+              details: "Score must be between 0 and maxScore"
+
+    Unauthorized:
+      description: Unauthorized - Invalid or missing authentication token
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            success: false
+            message: "Authentication required"
+            data: null
+            error:
+              code: "INVALID_TOKEN"
+              details: "Bearer token is invalid or expired"
+
+    NotFound:
+      description: Not Found - Requested resource does not exist
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            success: false
+            message: "Resource not found"
+            data: null
+            error:
+              code: "STUDENT_NOT_FOUND"
+              details: "Student with ID '999' does not exist"
+
+    InternalServerError:
+      description: Internal Server Error - Unexpected server error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            success: false
+            message: "Internal server error"
+            data: null
+            error:
+              code: "INTERNAL_ERROR"
+              details: "An unexpected error occurred"
+
+tags:
+  - name: Students
+    description: Operations related to student management
+  - name: Grading
+    description: Operations related to grading and scoring
