@@ -72,17 +72,17 @@ Accept: application/json
 
 **GET** `/students`
 
-Retrieve all students for a specific course and assignment.
+Retrieve all students for a specific course and exam.
 
 #### Query Parameters
 | Parameter | Type | Required | Description |
 |-----------|------|----------|-------------|
 | courseId | string | No | Filter by course ID |
-| assignmentId | string | No | Filter by assignment ID |
+| examId | string | No | Filter by exam ID |
 
 #### Example Request
 ```bash
-curl -X GET "https://api.aigrader.com/v1/students?courseId=CS101&assignmentId=essay1" \
+curl -X GET "https://api.aigrader.com/v1/students?courseId=CS101&examId=essay1" \
   -H "Authorization: Bearer your-token" \
   -H "Content-Type: application/json"
 ```
@@ -432,7 +432,7 @@ from aigrader import GradingClient
 client = GradingClient('your-api-token')
 
 # Get students
-students = client.get_students(course_id='CS101', assignment_id='essay1')
+students = client.get_students(course_id='CS101', exam_id='essay1')
 
 # Update score
 client.update_rubric_score('1', 'content1', 8)

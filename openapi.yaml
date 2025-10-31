@@ -35,7 +35,7 @@ paths:
   /students:
     get:
       summary: Get all students
-      description: Retrieve all students for a specific course and assignment with optional filtering
+      description: Retrieve all students for a specific course and exam with optional filtering
       operationId: getStudents
       tags:
         - Students
@@ -47,9 +47,9 @@ paths:
           schema:
             type: string
             example: "CS101"
-        - name: assignmentId
+        - name: examId
           in: query
-          description: Filter by assignment ID
+          description: Filter by exam ID
           required: false
           schema:
             type: string
@@ -338,7 +338,7 @@ components:
           example: "1"
         studentNumber:
           type: string
-          description: Student's institutional number
+          description: Student number
           example: "2084 1234"
         name:
           type: string
