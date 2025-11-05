@@ -59,7 +59,24 @@ This object represents a specific course in the university. Used for grouping ex
 | status | Course Status: `active` or `archived` |
 
 
-
 ## Examination
+
 ### Examination Object
+```json
+{
+    "exam_id": "string",
+    "course_id": "string",
+    "created_at": "string (ISO 8601)",
+    "updated_at": "string (ISO 8601)",
+    "start_time": "string (ISO 8601)",
+    "end_time": "string (ISO 8601)",
+    "questions": "Question[]",
+}
 ```
+| Attributes | Description |
+| --- | --- |
+| exam_id | UUID of the examination paper |
+| course_id | ID of the course that the examination is assigned to
+| start_time | Starting time when examiantion is open
+| end_time | Ending time of examination for automatic submission
+| questions | Array of Question objects to be solved for a specific exam
