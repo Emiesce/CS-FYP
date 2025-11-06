@@ -1,0 +1,168 @@
+# Analytics API Specification
+
+## Base URL
+```
+https://api.analytics.com/v1
+```
+
+## Authentication
+All API requests require authentication via Bearer token:
+```
+Authorization: Bearer <your-api-token>
+```
+
+## Common Headers
+```
+Content-Type: application/json
+Accept: application/json
+```
+
+## Data Models
+
+### Student
+```json
+{
+  "studentId": "string",
+  "name": "string", 
+}
+```
+### Question
+```json
+ {
+  "studentId": "string",
+  "examId": "string";
+  "questionId": "string";
+  "questionType": "string";
+  "topicId": "string";
+  "answer": "string";
+  "answerChangeCount": "integer";   // Number of answer changes
+  "flagged": "boolean";
+}
+```
+### Exam
+```json
+ {
+  "studentId": "string",
+  "examId": "string";
+  "totalDuration": "float";         // In seconds
+  "flaggedCount": "integer";
+  "questions": Question[];
+}
+```
+
+---
+
+## Endpoints
+
+### 1. Get Student Exam Information
+
+**GET** `/examInfo/{studentId}/{examId}`
+
+Retrieve specific basic information exam of a student.
+
+#### Query Parameters
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| studentId | string | Yes | Filter by student ID |
+| examId | string | Yes | Filter by exam ID |
+
+#### Example Request
+```bash
+curl -X GET "https://api.analytics.com/v1/examInfo/20719437/exam1" \
+  -H "Authorization: Bearer your-token" \
+  -H "Content-Type: application/json"
+```
+
+#### Example Response
+```json
+{
+  "data": [
+    {
+    "studentId": "20719437",
+    "examId": "exam1";
+    "totalDuration": 3509.3;
+    "flaggedCount": 3;
+    "questions": [
+        {
+          "studentId": "20719437",
+          "examId": "exam1";
+          "questionId": "1";
+          "questionType": "essay";
+          "topicId": "Heat";
+          "answer": "The temperature is decreasing by 20%.";
+          "answerChangeCount": 2;
+          "flagged": true;
+        },
+        {
+          "studentId": "20719437",
+          "examId": "exam1";
+          "questionId": "2";
+          "questionType": "essay";
+          "topicId": "Wavelength";
+          "answer": "The sound is traversing at 350 km/h.";
+          "answerChangeCount": 0;
+          "flagged": false;
+        }
+      ]
+    }
+  ],
+  "success": true,
+  "message": "Exam information retrieved successfully"
+}
+```
+
+#### Response Codes
+- `200` - Success
+- `400` - Bad Request
+- `401` - Unauthorized
+- `404` - Student or exam not found
+- `500` - Internal Server Error
+
+---
+
+### 2. Get Question Grade
+
+**GET** `/questionGrade/{studentId}/{examId}/{questionId}`
+
+Retrieve a student's grade for a question in an exam from the AI grader.
+
+#### Query Parameters
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| studentId | string | Yes | Filter by student ID |
+| examId | string | Yes | Filter by exam ID |
+| questionId | string | Yes | Filter by question ID |
+
+#### Example Request
+```bash
+curl -X GET "https://api.analytics.com/v1/questionGrade/20719437/exam1/1" \
+  -H "Authorization: Bearer your-token" \
+  -H "Content-Type: application/json"
+```
+
+#### Example Response
+```json
+{
+  "data": [
+    {
+    "studentId": "20719437",
+    "examId": "exam1";
+    "questionId": "1";
+    "answer": "The temperature is decreasing by 20%.";
+    "score": 10;
+    "analysis": "The analysis clearly follows the logic and gives the correct answer.";
+    }
+  ],
+  "success": true,
+  "message": "Grade for the question is retrieved successfully"
+}
+```
+
+#### Response Codes
+- `200` - Success
+- `400` - Bad Request
+- `401` - Unauthorized
+- `404` - Student or exam or question not found
+- `500` - Internal Server Error
+
+
