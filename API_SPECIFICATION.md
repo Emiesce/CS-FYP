@@ -41,7 +41,47 @@ Accept: application/json
   "score": "number",
   "maxScore": "number", 
   "aiSuggestedScore": "number",
-  "highlightedText": "string?" // optional
+  "highlightedText": "string?", // optional
+  "aiJustification": "string?", // optional - AI's reasoning for the score
+  "aiSuggestion": "string?" // optional - AI's improvement suggestion
+}
+```
+
+### MarkingScheme
+```json
+{
+  "id": "string",
+  "questionId": "string",
+  "questionType": "string", // "essay", "multiple_choice", "short_answer"
+  "criteria": [GradingCriterion],
+  "rawText": "string", // original rubric text
+  "createdBy": "string",
+  "createdAt": "string" // ISO 8601 datetime
+}
+```
+
+### GradingCriterion
+```json
+{
+  "id": "string",
+  "name": "string", // e.g., "Content", "Organization"
+  "description": "string",
+  "maxScore": "number",
+  "weight": "number?" // optional, default 1.0
+}
+```
+
+### AIGradingResult
+```json
+{
+  "criterionId": "string",
+  "criterionName": "string",
+  "score": "number",
+  "maxScore": "number",
+  "justification": "string",
+  "suggestionForImprovement": "string",
+  "highlightedText": "string?", // optional
+  "confidence": "number" // 0-1 confidence level
 }
 ```
 
@@ -345,6 +385,286 @@ curl -X POST "https://api.aigrader.com/v1/grades/submit" \
 
 ---
 
+## RAG-Based AI Grading Endpoints
+
+### 7. Create Marking Scheme
+
+**POST** `/marking-schemes`
+
+Create a new marking scheme for an essay question with custom criteria.
+
+#### Request Body
+```json
+{
+  "questionId": "string",
+  "questionType": "string", // "essay", "multiple_choice", "short_answer"
+  "rubricText": "string", // detailed rubric description
+  "criteria": [
+    {
+      "name": "string", // e.g., "Content"
+      "description": "string",
+      "maxScore": "number",
+      "weight": "number?" // optional, default 1.0
+    }
+  ]
+}
+```
+
+#### Example Request
+```bash
+curl -X POST "https://api.aigrader.com/v1/marking-schemes" \
+  -H "Authorization: Bearer your-token" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "questionId": "essay1",
+    "questionType": "essay",
+    "rubricText": "**Content (Max 10 points)** - Excellent (9-10 pts): Clear, insightful analysis...",
+    "criteria": [
+      {
+        "name": "Content",
+        "description": "Quality of ideas and analysis",
+        "maxScore": 10,
+        "weight": 1.0
+      },
+      {
+        "name": "Organization",
+        "description": "Structure and flow of essay",
+        "maxScore": 5,
+        "weight": 0.8
+      }
+    ]
+  }'
+```
+
+#### Example Response
+```json
+{
+  "data": {
+    "id": "scheme123",
+    "questionId": "essay1",
+    "questionType": "essay",
+    "criteria": [
+      {
+        "id": "content",
+        "name": "Content",
+        "description": "Quality of ideas and analysis",
+        "maxScore": 10,
+        "weight": 1.0
+      }
+    ],
+    "rawText": "**Content (Max 10 points)** - Excellent (9-10 pts): Clear, insightful analysis...",
+    "createdBy": "ta123",
+    "createdAt": "2024-01-15T10:30:00Z"
+  },
+  "success": true,
+  "message": "Marking scheme created successfully"
+}
+```
+
+#### Response Codes
+- `201` - Created successfully
+- `400` - Bad Request (invalid data)
+- `401` - Unauthorized
+
+---
+
+### 8. Get Marking Scheme
+
+**GET** `/marking-schemes/{id}`
+
+Retrieve a specific marking scheme by ID.
+
+#### Path Parameters
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| id | string | Yes | Marking scheme ID |
+
+#### Example Request
+```bash
+curl -X GET "https://api.aigrader.com/v1/marking-schemes/scheme123" \
+  -H "Authorization: Bearer your-token" \
+  -H "Content-Type: application/json"
+```
+
+#### Example Response
+```json
+{
+  "data": {
+    "id": "scheme123",
+    "questionId": "essay1",
+    "questionType": "essay",
+    "criteria": [...],
+    "rawText": "**Content (Max 10 points)** - Excellent (9-10 pts): Clear, insightful analysis...",
+    "createdBy": "ta123",
+    "createdAt": "2024-01-15T10:30:00Z"
+  },
+  "success": true,
+  "message": "Marking scheme retrieved successfully"
+}
+```
+
+#### Response Codes
+- `200` - Success
+- `404` - Marking scheme not found
+- `401` - Unauthorized
+
+---
+
+### 9. Get Marking Schemes by Question
+
+**GET** `/questions/{questionId}/marking-schemes`
+
+Retrieve all marking schemes for a specific question.
+
+#### Path Parameters
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| questionId | string | Yes | Question ID |
+
+#### Example Request
+```bash
+curl -X GET "https://api.aigrader.com/v1/questions/essay1/marking-schemes" \
+  -H "Authorization: Bearer your-token" \
+  -H "Content-Type: application/json"
+```
+
+#### Example Response
+```json
+{
+  "data": [
+    {
+      "id": "scheme123",
+      "questionId": "essay1",
+      "questionType": "essay",
+      "criteria": [...],
+      "rawText": "**Content (Max 10 points)** - Excellent (9-10 pts): Clear, insightful analysis...",
+      "createdBy": "ta123",
+      "createdAt": "2024-01-15T10:30:00Z"
+    }
+  ],
+  "success": true,
+  "message": "Marking schemes retrieved successfully"
+}
+```
+
+#### Response Codes
+- `200` - Success
+- `404` - Question not found
+- `401` - Unauthorized
+
+---
+
+### 10. Generate AI Grades
+
+**POST** `/students/{studentId}/ai-grade`
+
+Use RAG-based AI system to generate suggested grades for student essay.
+
+#### Path Parameters
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| studentId | string | Yes | Student ID |
+
+#### Request Body
+```json
+{
+  "markingSchemeId": "string",
+  "criteriaIds": ["string"] // optional - specific criteria to grade
+}
+```
+
+#### Example Request
+```bash
+curl -X POST "https://api.aigrader.com/v1/students/1/ai-grade" \
+  -H "Authorization: Bearer your-token" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "markingSchemeId": "scheme123",
+    "criteriaIds": ["content", "organization"]
+  }'
+```
+
+#### Example Response
+```json
+{
+  "data": {
+    "studentId": "1",
+    "results": [
+      {
+        "criterionId": "content",
+        "criterionName": "Content",
+        "score": 8,
+        "maxScore": 10,
+        "justification": "The essay demonstrates strong understanding with clear examples and analysis",
+        "suggestionForImprovement": "Consider adding more empirical evidence to strengthen arguments",
+        "highlightedText": "The planning fallacy occurs when people underestimate the time needed",
+        "confidence": 0.85
+      }
+    ],
+    "totalScore": 23,
+    "maxTotalScore": 30,
+    "overallFeedback": "Strong essay with good analysis, could benefit from more evidence",
+    "processedAt": "2024-01-15T10:30:00Z"
+  },
+  "success": true,
+  "message": "AI grades generated successfully"
+}
+```
+
+#### Response Codes
+- `200` - Success
+- `400` - Bad Request (invalid marking scheme)
+- `404` - Student or marking scheme not found
+- `401` - Unauthorized
+- `500` - AI service error
+
+---
+
+### 11. Populate AI Suggested Score
+
+**PUT** `/students/{studentId}/rubrics/{rubricId}/ai-populate`
+
+Generate and populate AI suggested score for a specific rubric criterion.
+
+#### Path Parameters
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| studentId | string | Yes | Student ID |
+| rubricId | string | Yes | Rubric criterion ID |
+
+#### Request Body
+```json
+{
+  "markingSchemeId": "string"
+}
+```
+
+#### Example Request
+```bash
+curl -X PUT "https://api.aigrader.com/v1/students/1/rubrics/content1/ai-populate" \
+  -H "Authorization: Bearer your-token" \
+  -H "Content-Type: application/json" \
+  -d '{"markingSchemeId": "scheme123"}'
+```
+
+#### Example Response
+```json
+{
+  "data": true,
+  "success": true,
+  "message": "AI suggested score populated successfully"
+}
+```
+
+#### Response Codes
+- `200` - Success
+- `400` - Bad Request (invalid marking scheme)
+- `404` - Student, rubric, or marking scheme not found
+- `401` - Unauthorized
+- `500` - AI service error
+
+---
+
 ## Error Handling
 
 ### Error Response Format
@@ -366,8 +686,13 @@ curl -X POST "https://api.aigrader.com/v1/grades/submit" \
 | `INVALID_TOKEN` | Authentication token is invalid or expired |
 | `STUDENT_NOT_FOUND` | Requested student does not exist |
 | `RUBRIC_NOT_FOUND` | Requested rubric does not exist |
+| `MARKING_SCHEME_NOT_FOUND` | Requested marking scheme does not exist |
+| `QUESTION_NOT_FOUND` | Requested question does not exist |
 | `INVALID_SCORE` | Score is outside valid range |
 | `VALIDATION_ERROR` | Request data validation failed |
+| `AI_SERVICE_ERROR` | AI grading service is unavailable or failed |
+| `RUBRIC_PARSING_ERROR` | Failed to parse rubric text |
+| `VECTOR_STORE_ERROR` | Vector storage operation failed |
 | `RATE_LIMIT_EXCEEDED` | Too many requests |
 
 ---
@@ -418,8 +743,28 @@ const grading = new GradingService('your-api-token');
 // Get students
 const students = await grading.getStudents('CS101', 'essay1');
 
+// Create marking scheme
+const markingScheme = await grading.createMarkingScheme({
+  questionId: 'essay1',
+  questionType: 'essay',
+  rubricText: '**Content (Max 10 points)** - Excellent (9-10 pts): Clear, insightful analysis...',
+  criteria: [
+    { name: 'Content', description: 'Quality of ideas', maxScore: 10 },
+    { name: 'Organization', description: 'Structure and flow', maxScore: 5 }
+  ]
+});
+
+// Generate AI grades
+const aiGrades = await grading.generateAIGrades('1', {
+  markingSchemeId: 'scheme123',
+  criteriaIds: ['content', 'organization']
+});
+
 // Update score
 await grading.updateRubricScore('1', 'content1', 8);
+
+// Populate AI suggested score
+await grading.populateAISuggestedScore('1', 'content1', 'scheme123');
 
 // Submit grades
 await grading.submitGrades(['1', '2', '3']);
@@ -434,8 +779,28 @@ client = GradingClient('your-api-token')
 # Get students
 students = client.get_students(course_id='CS101', exam_id='essay1')
 
+# Create marking scheme
+marking_scheme = client.create_marking_scheme({
+    'questionId': 'essay1',
+    'questionType': 'essay',
+    'rubricText': '**Content (Max 10 points)** - Excellent (9-10 pts): Clear, insightful analysis...',
+    'criteria': [
+        {'name': 'Content', 'description': 'Quality of ideas', 'maxScore': 10},
+        {'name': 'Organization', 'description': 'Structure and flow', 'maxScore': 5}
+    ]
+})
+
+# Generate AI grades
+ai_grades = client.generate_ai_grades('1', {
+    'markingSchemeId': 'scheme123',
+    'criteriaIds': ['content', 'organization']
+})
+
 # Update score
 client.update_rubric_score('1', 'content1', 8)
+
+# Populate AI suggested score
+client.populate_ai_suggested_score('1', 'content1', 'scheme123')
 
 # Submit grades
 client.submit_grades(['1', '2', '3'])
@@ -471,6 +836,15 @@ Download our Postman collection: [AI Grader API.postman_collection.json](./postm
 - Added webhook support
 - Enhanced error handling
 - Rate limiting implementation
+
+### v1.2.0 (2024-03-01)
+- **NEW**: RAG-based AI grading system
+- **NEW**: Marking scheme management endpoints
+- **NEW**: Custom criteria configuration for TAs
+- **NEW**: AI-generated scores with detailed justifications
+- **NEW**: Text highlighting and improvement suggestions
+- **ENHANCED**: Extended RubricCriteria with AI fields
+- **ENHANCED**: Improved error handling for AI services
 
 ---
 
