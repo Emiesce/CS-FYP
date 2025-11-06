@@ -103,7 +103,7 @@ curl -X GET "https://api.analytics.com/v1/examInfo/20719437/exam1" \
           "answerChangeCount": 0;
           "flagged": false;
         }
-      ]
+      ];
     }
   ],
   "success": true,
@@ -148,8 +148,10 @@ curl -X GET "https://api.analytics.com/v1/questionGrade/20719437/exam1/1" \
     "studentId": "20719437",
     "examId": "exam1";
     "questionId": "1";
+    "topicId": "Heat";
     "answer": "The temperature is decreasing by 20%.";
-    "score": 10;
+    "score": 10.0;
+    "maxScore": 10.0;
     "analysis": "The analysis clearly follows the logic and gives the correct answer.";
     }
   ],
@@ -165,4 +167,153 @@ curl -X GET "https://api.analytics.com/v1/questionGrade/20719437/exam1/1" \
 - `404` - Student or exam or question not found
 - `500` - Internal Server Error
 
+---
 
+### 3. Get Class Analytics
+
+**GET** `/classAnalytics/{examId}`
+
+Retrieve a class's exam analytics (pre-computed) after all students' answers are graded.
+
+#### Query Parameters
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| examId | string | Yes | Filter by exam ID |
+
+#### Example Request
+```bash
+curl -X GET "https://api.analytics.com/v1/classAnalytics/exam1" \
+  -H "Authorization: Bearer your-token" \
+  -H "Content-Type: application/json"
+```
+
+#### Example Response
+```json
+{
+  "data": [
+    {
+    "examId": "exam1";
+    "maxScore": 20.0;
+    "averageScore": 14.5;
+    "q1Score: 8.7;
+    "medianScore": 15.0;
+    "q3Score: 18.2;
+    "stdDeviation": 3.2;
+    "maxCompletionTime": 3600.0;
+    "avgCompletionTime": 2520.1;
+    "scoreDistribution": [1, 2, 3, 3, 7, 12, 4, 16, 6, 2];
+    "completionTimeDistribution": [8, 3, 6, 12, 15];
+    "topicScores": [
+      {
+        "topicId": "Heat";
+        "aggregateScore": 0.85;
+      },
+      {
+        "topicId": "Wavelength";
+        "aggregateScore": 0.78;
+      }];
+    "commonMisconception": ["Confusing temperature with heat", "Velocity vs acceleration mix-up"];
+    "recommendations": ["Increase focus on thermodynamics fundamentals—consider additional lab sessions on heat transfer", 
+                        "Review wave physics with more visual demonstrations and interactive simulations"];
+    "rubricBreakdown": [
+        {
+          "rubricId": "1";
+          "aggregateScore": 0.78;
+        },
+        {
+          "rubricId": "2";
+          "aggregateScore": 0.62;
+        }];
+  ],
+  "success": true,
+  "message": "Exam analytics for the class is retrieved successfully"
+}
+```
+
+#### Response Codes
+- `200` - Success
+- `400` - Bad Request
+- `401` - Unauthorized
+- `404` - Exam not found
+- `500` - Internal Server Error
+
+---
+
+### 4. Get Class Question Analytics
+
+**GET** `/classAnalytics/questions/{examId}/{questionId}`
+
+Retrieve the analysis for each exam question (pre-compute) on the class level with AI.
+
+#### Query Parameters
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| examId | string | Yes | Filter by exam ID |
+
+#### Example Request
+```bash
+curl -X GET "https://api.analytics.com/v1/classAnalytics/questions/exam1/{questionId}" \
+  -H "Authorization: Bearer your-token" \
+  -H "Content-Type: application/json"
+```
+
+#### Example Response
+```json
+{
+  "data": [
+    {
+    "examId": "exam1";
+    "questionId": "1";
+    "topicId": "Heat";
+    "aggregateScore": 0.91;
+    "summary": "Some confusion with free body diagrams.";
+    "commonWrongAns": [
+        {
+          "answer": "The answer is 5%."
+          "explanation": "Misread circuit diagram";
+          "distribution": 0.05;
+        },
+        {
+          "answer": "The answer is 17%."
+          "explanation": "Unit conversion error";
+          "distribution": 0.03;
+        }
+    ];
+  ],
+  "success": true,
+  "message": "Class grade for the question is retrieved successfully"
+}
+```
+
+#### Response Codes
+- `200` - Success
+- `400` - Bad Request
+- `401` - Unauthorized
+- `404` - Exam or question not found
+- `500` - Internal Server Error
+
+---
+
+## Error Handling
+
+### Error Response Format
+```json
+{
+  "data": null,
+  "success": false,
+  "message": "Error description",
+  "error": {
+    "code": "ERROR_CODE",
+    "details": "Additional error details"
+  }
+}
+```
+
+### Common Error Codes
+| Code | Description |
+|------|-------------|
+| `INVALID_TOKEN` | Authentication token is invalid or expired |
+| `STUDENT_NOT_FOUND` | Requested student does not exist |
+| `EXAM_NOT_FOUND` | Requested exam does not exist |
+| `QUESTION_NOT_FOUND` | Requested question does not exist |
+| `RATE_LIMIT_EXCEEDED` | Too many requests |
