@@ -240,27 +240,88 @@ Return a JSON object with the following structure:
 
 ## Data Models
 
-### Marking Scheme Structure
+### Data Model Hierarchy
+
+The system follows this hierarchy:
+```
+Exam → Question → MarkingScheme → Criterion → StudentGrade
+```
+
+Each exam has multiple questions. Each question has one marking scheme. Each marking scheme has multiple criteria. Each criterion gets graded for each student.
+
+### Core Domain Models
 
 ```go
-// MarkingScheme represents the overall grading structure for an essay question
-type MarkingScheme struct {
-    ID          string             `json:"id"`
-    QuestionID  string             `json:"question_id"`
-    QuestionType string            `json:"question_type"` // "essay", "multiple_choice", etc.
-    Criteria    []GradingCriterion `json:"criteria"`
-    RawText     string             `json:"raw_text"`      // Original rubric text
-    CreatedBy   string             `json:"created_by"`    // TA who created it
-    CreatedAt   time.Time          `json:"created_at"`
+// Exam represents an examination
+type Exam struct {
+    ID        string    `json:"id"`
+    CourseID  string    `json:"course_id"`
+    Title     string    `json:"title"`
+    Year      int       `json:"year"`
+    Semester  int       `json:"semester"`
+    CreatedBy string    `json:"created_by"`
+    CreatedAt time.Time `json:"created_at"`
 }
 
-// GradingCriterion represents a single grading criterion (e.g., "Content", "Organization")
-type GradingCriterion struct {
-    ID          string  `json:"id"`
-    Name        string  `json:"name"`         // e.g., "Content", "Organization", "Grammar"
-    Description string  `json:"description"`  // What this criterion evaluates
-    MaxScore    int     `json:"max_score"`    // e.g., 10
-    Weight      float64 `json:"weight"`       // Optional weighting (default 1.0)
+// Question represents a single question in an exam
+type Question struct {
+    ID             string `json:"id"`
+    ExamID         string `json:"exam_id"` // Foreign key to Exam
+    QuestionNumber int    `json:"question_number"`
+    QuestionText   string `json:"question_text"`
+    QuestionType   string `json:"question_type"` // "essay", "multiple_choice", "short_answer"
+    TopicID        string `json:"topic_id,omitempty"`
+    TotalMarks     int    `json:"total_marks"` // Sum of all criteria maxScores
+}
+
+// MarkingScheme represents the grading structure for a question
+type MarkingScheme struct {
+    ID         string      `json:"id"`
+    QuestionID string      `json:"question_id"` // Foreign key to Question (1-to-1)
+    Criteria   []Criterion `json:"criteria"`
+    RubricText string      `json:"rubric_text"` // Original rubric text for RAG
+    CreatedBy  string      `json:"created_by"`
+    CreatedAt  time.Time   `json:"created_at"`
+}
+
+// Criterion represents a single grading criterion within a marking scheme
+type Criterion struct {
+    ID              string  `json:"id"`
+    MarkingSchemeID string  `json:"marking_scheme_id"` // Foreign key to MarkingScheme
+    Name            string  `json:"name"`              // e.g., "Content", "Organization"
+    Description     string  `json:"description"`
+    MaxScore        int     `json:"max_score"`
+    Weight          float64 `json:"weight"` // Optional weighting (default 1.0)
+}
+
+// Student represents a student in the system
+type Student struct {
+    StudentID string `json:"student_id"` // Primary identifier - student number (e.g., "20841234")
+    Name      string `json:"name"`
+    ITSC      string `json:"itsc"`
+}
+
+// StudentAnswer represents a student's answer to a question
+type StudentAnswer struct {
+    ID          string    `json:"id"`
+    StudentID   string    `json:"student_id"` // Foreign key to Student
+    QuestionID  string    `json:"question_id"` // Foreign key to Question
+    AnswerText  string    `json:"answer_text"`
+    SubmittedAt time.Time `json:"submitted_at"`
+}
+
+// StudentGrade represents the actual grade for a student on a specific criterion
+type StudentGrade struct {
+    ID               string     `json:"id"`
+    StudentAnswerID  string     `json:"student_answer_id"` // Foreign key to StudentAnswer
+    CriterionID      string     `json:"criterion_id"`      // Foreign key to Criterion
+    ManualScore      *float64   `json:"manual_score"`      // TA's final score
+    AISuggestedScore *float64   `json:"ai_suggested_score"`
+    HighlightedText  *string    `json:"highlighted_text"`
+    AIJustification  *string    `json:"ai_justification"`
+    AISuggestion     *string    `json:"ai_suggestion"`
+    GradedBy         *string    `json:"graded_by"`
+    GradedAt         *time.Time `json:"graded_at"`
 }
 
 // AIGradingResult represents the AI's evaluation of a student's essay for one criterion
