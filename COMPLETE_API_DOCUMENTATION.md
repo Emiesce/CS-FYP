@@ -111,74 +111,9 @@ This object represents a specific course in the university. Used for grouping ex
 
 ---
 
-## AI Grading System
 
-### Data Model Hierarchy
-
-The system follows this hierarchy:
-```
-Exam (e.g., "MGMT2011 Final Exam 2024")
- │
- ├── Question 1 (e.g., "Essay: Explain planning fallacy")
- │    └── MarkingScheme for Question 1
- │         ├── Criterion 1: Content (max 10 points)
- │         │    └── StudentGrade (John: 8/10, AI suggested: 7/10)
- │         ├── Criterion 2: Organization (max 5 points)
- │         │    └── StudentGrade (John: 4/5, AI suggested: 4/5)
- │         └── Criterion 3: Grammar (max 5 points)
- │              └── StudentGrade (John: 3/5, AI suggested: 4/5)
- │
- ├── Question 2 (e.g., "Multiple Choice")
- │    └── MarkingScheme for Question 2
- │         └── Criterion 1: Correctness (max 1 point)
- │
- └── Question 3 (e.g., "Short Answer")
-      └── MarkingScheme for Question 3
-           └── Criterion 1: Accuracy (max 5 points)
-```
-
-**Key Relationships:**
-- **Exam** has many **Questions** (1:N)
-- **Question** has one **MarkingScheme** (1:1)
-- **MarkingScheme** has many **Criteria** (1:N)
-- **Criterion** has many **StudentGrades** (1:N, one per student)
-- **Student** submits **StudentAnswer** for each **Question** (N:M through StudentAnswer)
 
 ### Core Data Models
-
-#### Student
-```json
-{
-  "studentID": "string",
-  "name": "string",
-  "itsc": "string"
-}
-```
-
-#### Question
-```json
-{
-  "id": "string",
-  "examId": "string",
-  "questionNumber": "integer",
-  "questionText": "string",
-  "questionType": "string",
-  "topicId": "string",
-  "totalMarks": "number"
-}
-```
-
-#### MarkingScheme
-```json
-{
-  "id": "string",
-  "questionId": "string",
-  "criteria": [Criterion],
-  "rubricText": "string",
-  "createdBy": "string",
-  "createdAt": "string"
-}
-```
 
 ## AI Grading System
 
