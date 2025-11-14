@@ -420,32 +420,6 @@ func CalculatePercentage(score, maxScore float64) float64 {
     return (score / maxScore) * 100
 }
 
-// CalculateLetterGrade converts percentage to letter grade
-func CalculateLetterGrade(percentage float64) string {
-    switch {
-    case percentage >= 90:
-        return "A+"
-    case percentage >= 85:
-        return "A"
-    case percentage >= 80:
-        return "A-"
-    case percentage >= 75:
-        return "B+"
-    case percentage >= 70:
-        return "B"
-    case percentage >= 65:
-        return "B-"
-    case percentage >= 60:
-        return "C+"
-    case percentage >= 55:
-        return "C"
-    case percentage >= 50:
-        return "C-"
-    default:
-        return "F"
-    }
-}
-
 // CalculateWordCount counts words in answer text
 func CalculateWordCount(text string) int {
     words := strings.Fields(text)
