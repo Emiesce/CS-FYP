@@ -30,7 +30,10 @@ Accept: application/json
 ```json
  {
   "studentId": "string",
-  "examId": "string";
+  "courseId": "string";
+  "year": "integer";
+  "sem"; "integer";
+  "examId": "string";  
   "questionId": "string";
   "questionType": "string";
   "topicId": "string";
@@ -43,6 +46,9 @@ Accept: application/json
 ```json
  {
   "studentId": "string",
+  "courseId": "string";
+  "year": "integer";
+  "sem"; "integer";
   "examId": "string";
   "totalDuration": "float";         // In seconds
   "flaggedCount": "integer";
@@ -56,7 +62,7 @@ Accept: application/json
 
 ### 1. Get Student Exam Information
 
-**GET** `/examInfo/{studentId}/{examId}`
+**GET** `/examInfo/{studentId}/{courseId}/{year}/{sem}/{examId}`
 
 Retrieve specific basic information exam of a student.
 
@@ -64,11 +70,14 @@ Retrieve specific basic information exam of a student.
 | Parameter | Type | Required | Description |
 |-----------|------|----------|-------------|
 | studentId | string | Yes | Filter by student ID |
+| courseID | string | Yes | Filter by course ID |
+| year | integer | Yes | Filter by year the course is taken |
+| sem | integer | Yes | Filter by the semester the course is taken |
 | examId | string | Yes | Filter by exam ID |
 
 #### Example Request
 ```bash
-curl -X GET "https://api.analytics.com/v1/examInfo/20719437/exam1" \
+curl -X GET "https://api.analytics.com/v1/examInfo/20719437/COMP1021/2024/1/midterm" \
   -H "Authorization: Bearer your-token" \
   -H "Content-Type: application/json"
 ```
@@ -78,13 +87,19 @@ curl -X GET "https://api.analytics.com/v1/examInfo/20719437/exam1" \
 {
   "data": [
     {
-    "studentId": "20719437",
-    "examId": "exam1";
+    "studentId": "20719437";
+    "courseId": "COMP1021";
+    "year": 2024;
+    "sem"; 1;
+    "examId": "midterm";
     "totalDuration": 3509.3;
     "flaggedCount": 3;
     "questions": [
         {
-          "studentId": "20719437",
+          "studentId": "20719437";
+          "courseId": "COMP1021";
+          "year": 2024;
+          "sem"; 1;
           "examId": "exam1";
           "questionId": "1";
           "questionType": "essay";
@@ -94,7 +109,10 @@ curl -X GET "https://api.analytics.com/v1/examInfo/20719437/exam1" \
           "flagged": true;
         },
         {
-          "studentId": "20719437",
+          "studentId": "20719437";
+          "courseId": "COMP1021";
+          "year": 2024;
+          "sem"; 1;
           "examId": "exam1";
           "questionId": "2";
           "questionType": "essay";
@@ -103,7 +121,7 @@ curl -X GET "https://api.analytics.com/v1/examInfo/20719437/exam1" \
           "answerChangeCount": 0;
           "flagged": false;
         }
-      ]
+      ];
     }
   ],
   "success": true,
@@ -122,7 +140,7 @@ curl -X GET "https://api.analytics.com/v1/examInfo/20719437/exam1" \
 
 ### 2. Get Question Grade
 
-**GET** `/questionGrade/{studentId}/{examId}/{questionId}`
+**GET** `/questionGrade/{studentId}/{courseId}/{year}/{sem}/{examId}/{questionId}`
 
 Retrieve a student's grade for a question in an exam from the AI grader.
 
@@ -131,11 +149,14 @@ Retrieve a student's grade for a question in an exam from the AI grader.
 |-----------|------|----------|-------------|
 | studentId | string | Yes | Filter by student ID |
 | examId | string | Yes | Filter by exam ID |
+| courseID | string | Yes | Filter by course ID |
+| year | integer | Yes | Filter by year the course is taken |
+| sem | integer | Yes | Filter by the semester the course is taken |
 | questionId | string | Yes | Filter by question ID |
 
 #### Example Request
 ```bash
-curl -X GET "https://api.analytics.com/v1/questionGrade/20719437/exam1/1" \
+curl -X GET "https://api.analytics.com/v1/questionGrade/20719437/COMP1021/2024/1/midterm/1" \
   -H "Authorization: Bearer your-token" \
   -H "Content-Type: application/json"
 ```
@@ -145,12 +166,17 @@ curl -X GET "https://api.analytics.com/v1/questionGrade/20719437/exam1/1" \
 {
   "data": [
     {
-    "studentId": "20719437",
-    "examId": "exam1";
+    "studentId": "20719437";
+    "courseId": "COMP1021";
+    "year": 2024;
+    "sem"; 1;
+    "examId": "midterm";
     "questionId": "1";
+    "topicId": "Heat";
     "answer": "The temperature is decreasing by 20%.";
-    "score": 10;
-    "analysis": "The analysis clearly follows the logic and gives the correct answer.";
+    "score": 10.0;
+    "maxScore": 10.0;
+    "overallFeedback": "The analysis clearly follows the logic and gives the correct answer.";
     }
   ],
   "success": true,
@@ -165,4 +191,283 @@ curl -X GET "https://api.analytics.com/v1/questionGrade/20719437/exam1/1" \
 - `404` - Student or exam or question not found
 - `500` - Internal Server Error
 
+---
 
+### 3. Get Class Analytics
+
+**GET** `/classAnalytics/{courseId}/{year}/{sem}/{examId}`
+
+Retrieve a class's exam analytics (pre-computed) after all students' answers are graded.
+
+#### Query Parameters
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| examId | string | Yes | Filter by exam ID |
+| courseID | string | Yes | Filter by course ID |
+| year | integer | Yes | Filter by year the course is taken |
+| sem | integer | Yes | Filter by the semester the course is taken |
+
+#### Example Request
+```bash
+curl -X GET "https://api.analytics.com/v1/classAnalytics/COMP1021/2024/1/midterm" \
+  -H "Authorization: Bearer your-token" \
+  -H "Content-Type: application/json"
+```
+
+#### Example Response
+```json
+{
+  "data": [
+    {
+    "courseId": "COMP1021";
+    "year": 2024;
+    "sem"; 1;
+    "examId": "midterm";
+    "maxScore": 20.0;
+    "averageScore": 14.5;
+    "q1Score: 8.7;
+    "medianScore": 15.0;
+    "q3Score: 18.2;
+    "stdDeviation": 3.2;
+    "maxCompletionTime": 3600.0;
+    "avgCompletionTime": 2520.1;
+    "scoreDistribution": [1, 2, 3, 3, 7, 12, 4, 16, 6, 2];
+    "completionTimeDistribution": [8, 3, 6, 12, 15];
+    "topicScores": [
+      {
+        "topicId": "Heat";
+        "aggregateScore": 0.85;
+      },
+      {
+        "topicId": "Wavelength";
+        "aggregateScore": 0.78;
+      }];
+    "commonMisconception": ["Confusing temperature with heat", "Velocity vs acceleration mix-up"];
+    "recommendations": ["Increase focus on thermodynamics fundamentals—consider additional lab sessions on heat transfer", 
+                        "Review wave physics with more visual demonstrations and interactive simulations"];
+    "rubricBreakdown": [
+        {
+          "rubricId": "1";
+          "aggregateScore": 0.78;
+        },
+        {
+          "rubricId": "2";
+          "aggregateScore": 0.62;
+        }];
+  ],
+  "success": true,
+  "message": "Exam analytics for the class is retrieved successfully"
+}
+```
+
+#### Response Codes
+- `200` - Success
+- `400` - Bad Request
+- `401` - Unauthorized
+- `404` - Exam not found
+- `500` - Internal Server Error
+
+---
+
+### 4. Get Class Question Analytics
+
+**GET** `/classAnalytics/questions/{courseId}/{year}/{sem}/{examId}/{questionId}`
+
+Retrieve the analysis for each exam question (pre-compute) on the class level with AI.
+
+#### Query Parameters
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| examId | string | Yes | Filter by exam ID |
+| courseID | string | Yes | Filter by course ID |
+| year | integer | Yes | Filter by year the course is taken |
+| sem | integer | Yes | Filter by the semester the course is taken |
+| questionId | string | Yes | Filter by course ID |
+
+#### Example Request
+```bash
+curl -X GET "https://api.analytics.com/v1/classAnalytics/questions/COMP1021/2025/2/midterm/1" \
+  -H "Authorization: Bearer your-token" \
+  -H "Content-Type: application/json"
+```
+
+#### Example Response
+```json
+{
+  "data": [
+    {
+    "courseId": "COMP1021";
+    "year": 2024;
+    "sem"; 1;
+    "examId": "exam1";
+    "questionId": "1";
+    "topicId": "Heat";
+    "aggregateScore": 0.91;
+    "summary": "Some confusion with free body diagrams.";
+    "commonWrongAns": [
+        {
+          "answer": "The answer is 5%."
+          "explanation": "Misread circuit diagram";
+          "distribution": 0.05;
+        },
+        {
+          "answer": "The answer is 17%."
+          "explanation": "Unit conversion error";
+          "distribution": 0.03;
+        }
+    ];
+  ],
+  "success": true,
+  "message": "Class grade for the question is retrieved successfully"
+}
+```
+
+#### Response Codes
+- `200` - Success
+- `400` - Bad Request
+- `401` - Unauthorized
+- `404` - Exam or question not found
+- `500` - Internal Server Error
+
+---
+
+### 5. Get Analysis & Recommendations
+
+**GET** `/studentRecs/{studentId}/{courseId}/{year}/{sem}/{examId}/{questionId}`
+
+Retrieve detailed analysis and suggestions from AI for a question upon student request.
+
+#### Query Parameters
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| studentId | string | Yes | Filter by student ID |
+| examId | string | Yes | Filter by exam ID |
+| courseID | string | Yes | Filter by course ID |
+| year | integer | Yes | Filter by year the course is taken |
+| sem | integer | Yes | Filter by the semester the course is taken |
+| questionId | string | Yes | Filter by question ID |
+
+#### Example Request
+```bash
+curl -X GET "https://api.analytics.com/v1/studentRecs/20719437/2025/2/midterm/COMP1021/2" \
+  -H "Authorization: Bearer your-token" \
+  -H "Content-Type: application/json"
+```
+
+#### Example Response
+```json
+{
+  "data": [
+    {
+    "studentId": "20719437";
+    "courseId": "COMP1021";
+    "year": 2024;
+    "sem"; 1;
+    "examId": "midterm";
+    "questionId": "2";
+    "topicId": "Heat";
+    "feedback": "Based on your answer, you should spend more time to understand the application of ........."; // originally by AI
+    "humanApproved": false;
+    "feedbackApprover": "";
+    }
+  ],
+  "success": true,
+  "message": "Recommendation is successfully generated by AI, pending human approval."
+}
+```
+
+#### Response Codes
+- `200` - Success
+- `400` - Bad Request
+- `401` - Unauthorized
+- `404` - Student or exam or question not found
+- `500` - Internal Server Error
+
+---
+
+### 6. Update Analysis & Recommendations (TA Approval/Comment)
+
+**POST** `/studentRecs/{studentId}/{courseId}/{year}/{sem}/{examId}/{questionId}`
+
+Add or update human feedback/approval for the AI analysis and recommendation given for a specific student and question.
+
+#### Query Parameters
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| studentId | string | Yes | Filter by student ID |
+| examId | string | Yes | Filter by exam ID |
+| courseID | string | Yes | Filter by course ID |
+| year | integer | Yes | Filter by year the course is taken |
+| sem | integer | Yes | Filter by the semester the course is taken |
+| questionId | string | Yes | Filter by question ID |
+
+#### Request Body
+{
+  "feedback": "Good initial attempt. Please additionally review topic notes on Heat transfer and revisit Q2 explanation in class slides.",
+}
+
+#### Example Request
+```bash
+curl -X POST "https://api.analytics.com/v1/studentRecs/20719437/COMP1021/2025/2/midterm/2" \
+  -H "Authorization: Bearer TA-token" \
+  -H "Content-Type: application/json" \
+  -d '{ 
+        "feedback": "Good initial attempt. Please additionally review topic notes on Heat transfer and revisit Q2 explanation in class slides.",
+      }'
+```
+
+#### Example Response
+```json
+{
+  "data": [
+    {
+      "studentId": "20719437",
+      "courseId": "COMP1021",
+      "year": 2025,
+      "sem": 2,
+      "examId": "midterm",
+      "questionId": "2",
+      "topicId": "Heat",
+      "feedback": "Good initial attempt. Please additionally review topic notes on Heat transfer and revisit Q2 explanation in class slides.",
+      "humanApproved": true,
+      "feedbackApprover": "Hans B.",
+      "approvedAt": "2025-11-08T19:31:00+08:00"
+    }
+  ],
+  "success": true,
+  "message": "Recommendation and feedback updated successfully."
+}
+```
+
+#### Response Codes
+- `201` - Created/Updated successfully
+- `400` - Bad Request
+- `401` - Unauthorized
+- `404` - Student or exam or question not found
+- `500` - Internal Server Error
+
+---
+
+## Error Handling
+
+### Error Response Format
+```json
+{
+  "data": null,
+  "success": false,
+  "message": "Error description",
+  "error": {
+    "code": "ERROR_CODE",
+    "details": "Additional error details"
+  }
+}
+```
+
+### Common Error Codes
+| Code | Description |
+|------|-------------|
+| `INVALID_TOKEN` | Authentication token is invalid or expired |
+| `STUDENT_NOT_FOUND` | Requested student does not exist |
+| `EXAM_NOT_FOUND` | Requested exam does not exist |
+| `QUESTION_NOT_FOUND` | Requested question does not exist |
+| `RATE_LIMIT_EXCEEDED` | Too many requests |
