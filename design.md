@@ -249,6 +249,26 @@ Exam → Question → MarkingScheme → Criterion → StudentGrade
 
 Each exam has multiple questions. Each question has one marking scheme. Each marking scheme has multiple criteria. Each criterion gets graded for each student.
 
+### Stored vs Calculated Fields
+
+**Stored in Database:**
+- Student information (studentID, name, itsc)
+- Question details (text, type, number)
+- Criterion definitions (name, description, maxScore, weight)
+- Individual grades (manualScore, aiSuggestedScore per criterion)
+- Answer text and timestamps
+
+**Calculated at Runtime (NOT stored):**
+- `totalMarks` for a question (sum of all criteria maxScores)
+- `questionTotalScore` (sum of all criterion scores for a question)
+- `examTotalScore` (sum of all question scores)
+- `percentage` (calculated from totalScore / maxScore * 100)
+- `grade` letter (derived from percentage)
+- `wordCount` (calculated from answerText)
+- Summary statistics (averages, counts, etc.)
+
+These calculated fields are computed on-the-fly when generating API responses to ensure data consistency and avoid redundancy.
+
 ### Core Domain Models
 
 ```go
@@ -271,7 +291,7 @@ type Question struct {
     QuestionText   string `json:"question_text"`
     QuestionType   string `json:"question_type"` // "essay", "multiple_choice", "short_answer"
     TopicID        string `json:"topic_id,omitempty"`
-    TotalMarks     int    `json:"total_marks"` // Sum of all criteria maxScores
+    // Note: TotalMarks is NOT stored - calculated from sum of criteria maxScores
 }
 
 // MarkingScheme represents the grading structure for a question
@@ -352,6 +372,84 @@ type EssayGradingResponse struct {
     MaxTotalScore int              `json:"max_total_score"`
     OverallFeedback string         `json:"overall_feedback"`
     ProcessedAt  time.Time         `json:"processed_at"`
+}
+```
+
+### Calculation Helper Functions
+
+These functions compute derived values at runtime without storing them in the database:
+
+```go
+// CalculateQuestionTotalMarks calculates the total marks for a question
+// by summing all criteria maxScores from its marking scheme
+func CalculateQuestionTotalMarks(criteria []Criterion) int {
+    total := 0
+    for _, criterion := range criteria {
+        total += criterion.MaxScore
+    }
+    return total
+}
+
+// CalculateQuestionScore calculates a student's total score for a question
+// by summing all their criterion grades
+func CalculateQuestionScore(grades []StudentGrade) float64 {
+    total := 0.0
+    for _, grade := range grades {
+        if grade.ManualScore != nil {
+            total += *grade.ManualScore
+        }
+    }
+    return total
+}
+
+// CalculateExamScore calculates a student's total exam score
+// by summing all question scores
+func CalculateExamScore(questionScores []float64) float64 {
+    total := 0.0
+    for _, score := range questionScores {
+        total += score
+    }
+    return total
+}
+
+// CalculatePercentage calculates percentage score
+func CalculatePercentage(score, maxScore float64) float64 {
+    if maxScore == 0 {
+        return 0
+    }
+    return (score / maxScore) * 100
+}
+
+// CalculateLetterGrade converts percentage to letter grade
+func CalculateLetterGrade(percentage float64) string {
+    switch {
+    case percentage >= 90:
+        return "A+"
+    case percentage >= 85:
+        return "A"
+    case percentage >= 80:
+        return "A-"
+    case percentage >= 75:
+        return "B+"
+    case percentage >= 70:
+        return "B"
+    case percentage >= 65:
+        return "B-"
+    case percentage >= 60:
+        return "C+"
+    case percentage >= 55:
+        return "C"
+    case percentage >= 50:
+        return "C-"
+    default:
+        return "F"
+    }
+}
+
+// CalculateWordCount counts words in answer text
+func CalculateWordCount(text string) int {
+    words := strings.Fields(text)
+    return len(words)
 }
 ```
 
