@@ -39,6 +39,58 @@ export interface UserEditedScores {
     [key: string]: boolean; // Format: "studentIndex-rubricId": boolean
 }
 
+// Rubric Upload Page interfaces
+export interface RubricData {
+    id: string;
+    title: string;
+    description: string;
+    questions: RubricQuestion[];
+    totalMinPoints: number;
+    totalMaxPoints: number;
+    courseId?: string;
+    assignmentId?: string;
+    createdAt: Date;
+    updatedAt: Date;
+}
+
+export interface RubricQuestion {
+    id: string;
+    title: string;
+    description?: string;
+    minScore: number; // float
+    maxScore: number; // float
+    scoringCriteria: ScoringCriterion[];
+}
+
+export interface ScoringCriterion {
+    id: string;
+    scoreRange: string; // e.g., "3", "1-2", "0"
+    description: string; // e.g., "Excellent analysis with clear examples"
+    minPoints: number;
+    maxPoints: number;
+}
+
+export interface UploadedFile {
+    id: string;
+    filename: string;
+    size: number;
+    uploadDate: Date;
+    processedContent?: string;
+    rubricId?: string;
+    status: 'uploading' | 'processing' | 'completed' | 'error';
+    errorMessage?: string;
+}
+
+export interface Assignment {
+    id: string;
+    title: string;
+    description?: string;
+    courseId: string;
+    dueDate?: Date;
+    rubricId?: string;
+    createdAt: Date;
+}
+
 // API Response types
 export interface ApiResponse<T> {
     data: T;
@@ -51,4 +103,23 @@ export interface PaginatedResponse<T> {
     total: number;
     page: number;
     limit: number;
+}
+
+// Rubric API specific response types
+export interface RubricUploadResponse extends ApiResponse<RubricData> {
+    fileId?: string;
+    processingStatus?: 'pending' | 'completed' | 'failed';
+}
+
+export interface RubricListResponse extends PaginatedResponse<RubricData> {
+    success?: boolean;
+    message?: string;
+    filters?: {
+        courseId?: string;
+        assignmentId?: string;
+        dateRange?: {
+            start: Date;
+            end: Date;
+        };
+    };
 }

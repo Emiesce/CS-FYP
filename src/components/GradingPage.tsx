@@ -6,6 +6,7 @@ import { Card } from "./ui/card";
 import { Badge } from "./ui/badge";
 import { ChevronLeft, ChevronRight, Search, Users, FileText, Save, CheckCircle, Menu } from "lucide-react";
 import { useGradingController } from "../hooks/useGradingController";
+import { Sidebar } from "./Sidebar";
 
 const StudentBadges = memo(({ rubrics }: { rubrics: any[] }) => {
   return (
@@ -236,54 +237,7 @@ export function GradingPage({ courseId, assignmentId }: GradingPageProps = {}) {
 
       <div className="flex">
         {/* Sidebar */}
-        <div className={`${sidebarCollapsed ? 'w-0' : 'w-[306px]'} bg-white shadow-lg h-screen transition-all duration-300 overflow-hidden`}>
-          <div className="p-6 w-[306px] h-full flex flex-col">
-            {/* AI Grader Header */}
-            <div className="flex items-center gap-2 mb-8">
-              <div className="size-[37px] bg-gradient-to-br from-[#4B40C9] to-[#5FAEE6] rounded-full flex items-center justify-center">
-                <span className="text-white font-medium">AI</span>
-              </div>
-              <div>
-                <h1 className="text-[26px] font-semibold text-black">AI Grader</h1>
-              </div>
-            </div>
-
-            {/* Navigation */}
-            <nav className="space-y-4 flex-1">
-              <div className="flex items-center gap-3 text-[#9197b3] p-3 rounded">
-                <div className="size-6" />
-                <span>Dashboard</span>
-              </div>
-
-              <div className="flex items-center gap-3 text-white bg-[#5E86E5] p-3 rounded">
-                <div className="size-6" />
-                <span>Grading</span>
-                <ChevronRight className="ml-auto size-4" />
-              </div>
-
-              <div className="flex items-center gap-3 text-[#9197b3] p-3 rounded">
-                <div className="size-6" />
-                <span>Analytics</span>
-                <ChevronRight className="ml-auto size-4" />
-              </div>
-
-              <div className="flex items-center gap-3 text-[#9197b3] p-3 rounded">
-                <div className="size-6" />
-                <span>Proctoring</span>
-                <ChevronRight className="ml-auto size-4" />
-              </div>
-            </nav>
-
-            {/* Bottom Profile */}
-            <div className="flex items-center gap-3 mt-auto">
-              <div className="size-[49px] bg-gradient-to-br from-[#4B40C9] to-[#5FAEE6] rounded-full" />
-              <div>
-                <div className="font-medium text-sm">Peter Chan</div>
-                <div className="text-xs text-[#757575]">TA - MGMT T2</div>
-              </div>
-            </div>
-          </div>
-        </div>
+        <Sidebar collapsed={sidebarCollapsed} />
 
         {/* Main Content */}
         <div className="flex-1 p-4">
