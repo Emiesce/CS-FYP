@@ -74,4 +74,4 @@ def demo_student_analytics(db, student_id, exam_id, topic_ids):
 
     print(report)
 
-demo_student_analytics(db, "S2", "EXAM1", ["T1", "T2", "T3", "T4", "T5"])
+demo_student_analytics(db, "S3", "EXAM1", ["T1", "T2", "T3", "T4", "T5"])
