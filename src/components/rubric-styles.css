@@ -1,0 +1,403 @@
+/* Rubric Upload Page Styles */
+
+/* Main Layout */
+.rubric-upload-container {
+    background-color: #fafbff;
+    min-height: 100vh;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+}
+
+.rubric-loading-container {
+    background-color: #fafbff;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.rubric-top-bar {
+    background-color: #cee5ff;
+    padding: 1rem;
+    box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+    flex-shrink: 0;
+}
+
+.rubric-top-bar-content {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.rubric-top-bar-left {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.rubric-top-bar-title {
+    font-size: 1.25rem;
+    line-height: 1.75rem;
+    font-weight: 500;
+}
+
+.rubric-navigation-buttons {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.rubric-navigation-button {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.rubric-navigation-button-active {
+    background-color: #4f46e5 !important;
+    color: white !important;
+}
+
+.rubric-navigation-button-active:hover {
+    background-color: #4338ca !important;
+}
+
+.rubric-navigation-button-inactive {
+    background-color: white !important;
+    color: #374151 !important;
+    border: 1px solid #d1d5db !important;
+}
+
+.rubric-navigation-button-inactive:hover {
+    background-color: #f9fafb !important;
+}
+
+.rubric-main-layout {
+    display: flex;
+    flex: 1;
+    min-height: calc(100vh - 80px);
+    /* Adjust based on top bar height */
+}
+
+.rubric-content-area {
+    flex: 1;
+    padding: 2rem;
+    min-height: 100%;
+}
+
+.rubric-view-container {
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    min-height: 100%;
+}
+
+/* Question Block */
+.rubric-question-block {
+    border: 1px solid #93c5fd;
+    border-radius: 0.5rem;
+    padding: 1.5rem;
+    box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+    background-color: #dbeafe;
+    margin-bottom: 1.5rem;
+}
+
+.rubric-question-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    margin-bottom: 1rem;
+}
+
+.rubric-question-title {
+    font-size: 1.125rem;
+    line-height: 1.75rem;
+    font-weight: 500;
+    color: #111827;
+}
+
+/* Scoring Criteria Block */
+.rubric-criterion-block {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    padding: 0.75rem;
+    border: 1px solid #93c5fd;
+    border-radius: 0.375rem;
+    box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+    background-color: #dbeafe;
+    margin-bottom: 0.5rem;
+}
+
+.rubric-criterion-inputs {
+    flex: 1;
+    display: grid;
+    grid-template-columns: 1fr 2fr;
+    gap: 0.75rem;
+}
+
+.rubric-criterion-input-group {
+    display: flex;
+    flex-direction: column;
+}
+
+.rubric-criterion-input {
+    width: 100%;
+    padding: 0.5rem;
+    font-size: 0.875rem;
+    line-height: 1.25rem;
+    border: 1px solid #d1d5db;
+    border-radius: 0.25rem;
+    outline: none;
+    background-color: white;
+}
+
+.rubric-criterion-input:focus {
+    ring: 1px;
+    ring-color: #4f46e5;
+    border-color: #4f46e5;
+}
+
+.rubric-criterion-input-label {
+    font-size: 0.75rem;
+    line-height: 1rem;
+    color: #6b7280;
+    margin-top: 0.25rem;
+}
+
+/* Icons */
+.rubric-icon-small {
+    width: 1rem;
+    height: 1rem;
+}
+
+.rubric-button-icon {
+    width: 1rem;
+    height: 1rem;
+}
+
+.rubric-create-container {
+    /*Create Rubric Form */
+    margin-top: 2rem;
+    max-width: 64rem;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.rubric-create-card {
+    background-color: white;
+    border-radius: 0.5rem;
+    box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -2px rgb(0 0 0 / 0.1);
+    padding: 1.5rem;
+}
+
+.rubric-create-header {
+    margin-bottom: 1.5rem;
+    text-align: left;
+}
+
+.rubric-create-title {
+    font-size: 1.5rem;
+    line-height: 2rem;
+    font-weight: 700;
+    color: #111827;
+    margin-bottom: 0.5rem;
+}
+
+.rubric-create-description {
+    color: #6b7280;
+}
+
+.rubric-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.rubric-form-section {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.rubric-field-group {
+    display: flex;
+    flex-direction: column;
+}
+
+.rubric-field-label-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 0.25rem;
+}
+
+.rubric-field-label {
+    display: block;
+    font-size: 0.875rem;
+    line-height: 1.25rem;
+    font-weight: 500;
+    color: #374151;
+}
+
+.rubric-total-marks-display {
+    font-size: 0.875rem;
+    line-height: 1.25rem;
+    color: #6b7280;
+}
+
+.rubric-total-marks-value {
+    font-weight: 600;
+    color: #4f46e5;
+}
+
+.rubric-text-input {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid #d1d5db;
+    border-radius: 0.375rem;
+    box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+    outline: none;
+}
+
+.rubric-text-input:focus {
+    ring: 2px;
+    ring-color: #4f46e5;
+    border-color: #4f46e5;
+}
+
+.rubric-text-input-error {
+    border-color: #fca5a5;
+}
+
+.rubric-text-area {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid #d1d5db;
+    border-radius: 0.375rem;
+    box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+    outline: none;
+}
+
+.rubric-text-area:focus {
+    ring: 2px;
+    ring-color: #4f46e5;
+    border-color: #4f46e5;
+}
+
+.rubric-error-message {
+    margin-top: 0.25rem;
+    font-size: 0.875rem;
+    line-height: 1.25rem;
+    color: #dc2626;
+}
+
+.rubric-questions-section {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.rubric-questions-section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.rubric-section-title {
+    font-size: 1.125rem;
+    line-height: 1.75rem;
+    font-weight: 500;
+    color: #111827;
+}
+
+.rubric-empty-state {
+    text-align: left;
+    padding: 2rem;
+    color: #6b7280;
+    border: 2px dashed #d1d5db;
+    border-radius: 0.5rem;
+}
+
+.rubric-empty-state-icon {
+    width: 3rem;
+    height: 3rem;
+    margin-bottom: 1rem;
+    color: #d1d5db;
+}
+
+.rubric-questions-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+/* 
+View Rubric Styles */
+.rubric-text-input-readonly {
+    @apply px-3 py-2 border border-gray-300 rounded-md bg-gray-50 text-gray-700 text-sm;
+}
+
+.rubric-text-area-readonly {
+    @apply px-3 py-2 border border-gray-300 rounded-md bg-gray-50 text-gray-700 text-sm min-h-[80px] whitespace-pre-wrap;
+}
+
+.rubric-criterion-display {
+    @apply flex items-start gap-3 p-3 bg-gray-50 rounded-md border border-gray-200;
+}
+
+.rubric-criterion-score {
+    @apply text-sm font-medium text-blue-600 bg-blue-100 px-2 py-1 rounded-md whitespace-nowrap;
+}
+
+.rubric-criterion-description {
+    @apply text-sm text-gray-700 flex-1;
+}
+
+/* Form Actions */
+.rubric-form-actions {
+    @apply flex items-center justify-end gap-3 pt-6 border-t border-gray-200;
+}
+
+/* 
+Dynamic Height Adjustments */
+.rubric-upload-container {
+    min-height: 100vh;
+    height: auto;
+}
+
+/* Ensure sidebar grows with content */
+.rubric-main-layout {
+    align-items: stretch;
+}
+
+/* Smooth transitions for dynamic content */
+.rubric-content-area {
+    transition: all 0.3s ease;
+}
+
+/* Ensure proper spacing for long content */
+.rubric-create-container {
+    padding-bottom: 2rem;
+}
+
+/* Handle very long forms gracefully */
+.rubric-questions-list {
+    max-width: 100%;
+    overflow-x: hidden;
+}
+
+/* Responsive adjustments */
+@media (max-height: 600px) {
+    .rubric-main-layout {
+        min-height: auto;
+    }
+}
+
+@media (min-height: 1200px) {
+    .rubric-main-layout {
+        min-height: 100vh;
+    }
+}

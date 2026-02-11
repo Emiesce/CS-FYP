@@ -1,0 +1,137 @@
+[
+    {
+        "id": "rubric-1",
+        "title": "Essay Analysis Rubric",
+        "description": "Comprehensive rubric for analyzing student essays on planning fallacy",
+        "questions": [
+            {
+                "id": "q1",
+                "title": "Content 1: Explain the concept of planning fallacy",
+                "description": "Student should demonstrate understanding of planning fallacy definition and causes",
+                "minScore": 0,
+                "maxScore": 10,
+                "scoringCriteria": [
+                    {
+                        "id": "c1-excellent",
+                        "scoreRange": "9-10",
+                        "description": "Excellent understanding with clear definition and multiple causes identified",
+                        "minPoints": 9,
+                        "maxPoints": 10
+                    },
+                    {
+                        "id": "c1-good",
+                        "scoreRange": "7-8",
+                        "description": "Good understanding with adequate definition and some causes identified",
+                        "minPoints": 7,
+                        "maxPoints": 8
+                    },
+                    {
+                        "id": "c1-satisfactory",
+                        "scoreRange": "5-6",
+                        "description": "Basic understanding with simple definition",
+                        "minPoints": 5,
+                        "maxPoints": 6
+                    },
+                    {
+                        "id": "c1-poor",
+                        "scoreRange": "0-4",
+                        "description": "Poor or no understanding demonstrated",
+                        "minPoints": 0,
+                        "maxPoints": 4
+                    }
+                ]
+            },
+            {
+                "id": "q2",
+                "title": "Content 2: Explain psychological factors",
+                "description": "Student should identify and explain psychological factors contributing to planning fallacy",
+                "minScore": 0,
+                "maxScore": 10,
+                "scoringCriteria": [
+                    {
+                        "id": "c2-excellent",
+                        "scoreRange": "9-10",
+                        "description": "Comprehensive explanation of multiple psychological factors with examples",
+                        "minPoints": 9,
+                        "maxPoints": 10
+                    },
+                    {
+                        "id": "c2-good",
+                        "scoreRange": "7-8",
+                        "description": "Good explanation of some psychological factors",
+                        "minPoints": 7,
+                        "maxPoints": 8
+                    },
+                    {
+                        "id": "c2-satisfactory",
+                        "scoreRange": "5-6",
+                        "description": "Basic mention of psychological factors",
+                        "minPoints": 5,
+                        "maxPoints": 6
+                    },
+                    {
+                        "id": "c2-poor",
+                        "scoreRange": "0-4",
+                        "description": "Little to no explanation of psychological factors",
+                        "minPoints": 0,
+                        "maxPoints": 4
+                    }
+                ]
+            }
+        ],
+        "totalMinPoints": 0,
+        "totalMaxPoints": 20,
+        "courseId": "course-1",
+        "assignmentId": "assignment-1",
+        "createdAt": "2024-01-15T00:00:00.000Z",
+        "updatedAt": "2024-01-15T00:00:00.000Z"
+    },
+    {
+        "id": "rubric-1770048867278",
+        "title": "tes",
+        "description": "",
+        "questions": [
+            {
+                "id": "q-1770048854780",
+                "title": "testing",
+                "description": "",
+                "minScore": 0,
+                "maxScore": 9.8,
+                "modelAnswer": "",
+                "scoringCriteria": [
+                    {
+                        "id": "c-1770048861626",
+                        "scoreRange": "0-1",
+                        "description": "fgood",
+                        "minPoints": 0,
+                        "maxPoints": 1
+                    }
+                ]
+            }
+        ],
+        "totalMinPoints": 0,
+        "totalMaxPoints": 9.8,
+        "createdAt": "2026-02-02T16:14:27.278Z",
+        "updatedAt": "2026-02-02T16:35:12.596Z"
+    },
+    {
+        "id": "rubric-1770049204044",
+        "title": "test",
+        "description": "",
+        "questions": [
+            {
+                "id": "q-1770049194646",
+                "title": "question1",
+                "description": "",
+                "minScore": 0,
+                "maxScore": 10,
+                "modelAnswer": "Yes",
+                "scoringCriteria": []
+            }
+        ],
+        "totalMinPoints": 0,
+        "totalMaxPoints": 10,
+        "createdAt": "2026-02-02T16:20:04.044Z",
+        "updatedAt": "2026-02-02T16:20:04.044Z"
+    }
+]

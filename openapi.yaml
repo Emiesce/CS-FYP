@@ -1,0 +1,1068 @@
+openapi: 3.1.0
+info:
+  title: AI Grader API
+  description: |
+    API for managing student submissions, rubric-based grading, and AI-assisted scoring.
+    
+    ## Features
+    - Student submission management
+    - Rubric-based scoring system
+    - AI-suggested grades
+    - Real-time grade updates
+    - Batch grade submission
+    
+    ## Authentication
+    All endpoints require Bearer token authentication.
+  version: 1.0.0
+  contact:
+    name: AI Grader Support
+    email: api-support@aigrader.com
+    url: https://docs.aigrader.com
+  license:
+    name: MIT
+    identifier: MIT
+
+servers:
+  - url: https://api.aigrader.com/v1
+    description: Production server
+  - url: https://api-test.aigrader.com/v1
+    description: Test server
+
+security:
+  - bearerAuth: []
+
+paths:
+  /students:
+    get:
+      summary: Get all students
+      description: Retrieve all students for a specific course and exam with optional filtering
+      operationId: getStudents
+      tags:
+        - Students
+      parameters:
+        - name: courseId
+          in: query
+          description: Filter by course ID
+          required: false
+          schema:
+            type: string
+            example: "CS101"
+        - name: examId
+          in: query
+          description: Filter by exam ID
+          required: false
+          schema:
+            type: string
+            example: "essay1"
+      responses:
+        '200':
+          description: Students retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StudentsResponse'
+              example:
+                data:
+                  - id: "1"
+                    studentNumber: "2084 1234"
+                    name: "John Smith"
+                    essay: "Several factors contribute to the planning fallacy..."
+                    rubrics:
+                      - id: "content1"
+                        title: "Content 1: Explain the concept of planning fallacy"
+                        description: "AI: The student answer elaborated on the idea of planning fallacy causes"
+                        score: 8
+                        maxScore: 10
+                        aiSuggestedScore: 7
+                        highlightedText: "complexity of tasks can obscure the true time and cost"
+                success: true
+                message: "Students retrieved successfully"
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /students/paginated:
+    get:
+      summary: Get students with pagination
+      description: Retrieve students with pagination support for large datasets
+      operationId: getStudentsPaginated
+      tags:
+        - Students
+      parameters:
+        - name: page
+          in: query
+          description: Page number (1-based)
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+            example: 1
+        - name: limit
+          in: query
+          description: Number of items per page
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 10
+            example: 10
+        - name: courseId
+          in: query
+          description: Filter by course ID
+          required: false
+          schema:
+            type: string
+            example: "CS101"
+      responses:
+        '200':
+          description: Paginated students retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedStudentsResponse'
+              example:
+                data:
+                  - id: "1"
+                    studentNumber: "2084 1234"
+                    name: "John Smith"
+                    essay: "Several factors contribute to the planning fallacy..."
+                    rubrics: []
+                total: 25
+                page: 1
+                limit: 10
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /students/{studentId}:
+    get:
+      summary: Get student by ID
+      description: Retrieve a specific student by their unique identifier
+      operationId: getStudentById
+      tags:
+        - Students
+      parameters:
+        - name: studentId
+          in: path
+          description: Unique student identifier
+          required: true
+          schema:
+            type: string
+            example: "1"
+      responses:
+        '200':
+          description: Student found successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StudentResponse'
+              example:
+                data:
+                  id: "1"
+                  studentNumber: "2084 1234"
+                  name: "John Smith"
+                  essay: "Several factors contribute to the planning fallacy..."
+                  rubrics:
+                    - id: "content1"
+                      title: "Content 1: Explain the concept of planning fallacy"
+                      description: "AI: The student answer elaborated on the idea of planning fallacy causes"
+                      score: 8
+                      maxScore: 10
+                      aiSuggestedScore: 7
+                      highlightedText: "complexity of tasks can obscure the true time and cost"
+                success: true
+                message: "Student found"
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /students/{studentId}/rubrics/{rubricId}:
+    put:
+      summary: Update rubric score
+      description: Update the score for a specific rubric of a student
+      operationId: updateRubricScore
+      tags:
+        - Grading
+      parameters:
+        - name: studentId
+          in: path
+          description: Unique student identifier
+          required: true
+          schema:
+            type: string
+            example: "1"
+        - name: rubricId
+          in: path
+          description: Unique rubric identifier
+          required: true
+          schema:
+            type: string
+            example: "content1"
+      requestBody:
+        description: New score for the rubric
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ScoreUpdateRequest'
+            example:
+              score: 8
+      responses:
+        '200':
+          description: Score updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BooleanResponse'
+              example:
+                data: true
+                success: true
+                message: "Score updated successfully"
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /students/{studentId}/grades:
+    post:
+      summary: Save student grades
+      description: Save all current grades for a specific student
+      operationId: saveStudentGrades
+      tags:
+        - Grading
+      parameters:
+        - name: studentId
+          in: path
+          description: Unique student identifier
+          required: true
+          schema:
+            type: string
+            example: "1"
+      requestBody:
+        description: Student grades to save
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SaveGradesRequest'
+            example:
+              rubrics:
+                - id: "content1"
+                  score: 8
+                - id: "content2"
+                  score: 7
+                - id: "organization"
+                  score: 9
+      responses:
+        '200':
+          description: Grades saved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BooleanResponse'
+              example:
+                data: true
+                success: true
+                message: "Grades saved successfully"
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /grades/submit:
+    post:
+      summary: Submit final grades
+      description: Submit final grades for multiple students (batch operation)
+      operationId: submitGrades
+      tags:
+        - Grading
+      requestBody:
+        description: List of student IDs to submit grades for
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SubmitGradesRequest'
+            example:
+              studentIds: ["1", "2", "3"]
+      responses:
+        '200':
+          description: Grades submitted successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BooleanResponse'
+              example:
+                data: true
+                success: true
+                message: "Grades submitted successfully"
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /marking-schemes:
+    post:
+      summary: Create marking scheme
+      description: Create a new marking scheme for an essay question with custom criteria
+      operationId: createMarkingScheme
+      tags:
+        - AI Grading
+      requestBody:
+        description: Marking scheme configuration
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MarkingSchemeCreateRequest'
+            example:
+              questionId: "essay1"
+              questionType: "essay"
+              rubricText: "**Content (Max 10 points)** - Excellent (9-10 pts): Clear, insightful analysis..."
+              criteria:
+                - name: "Content"
+                  description: "Quality of ideas and analysis"
+                  maxScore: 10
+                  weight: 1.0
+                - name: "Organization"
+                  description: "Structure and flow of essay"
+                  maxScore: 5
+                  weight: 0.8
+      responses:
+        '201':
+          description: Marking scheme created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MarkingSchemeResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /marking-schemes/{id}:
+    get:
+      summary: Get marking scheme by ID
+      description: Retrieve a specific marking scheme configuration
+      operationId: getMarkingScheme
+      tags:
+        - AI Grading
+      parameters:
+        - name: id
+          in: path
+          description: Marking scheme identifier
+          required: true
+          schema:
+            type: string
+            example: "scheme123"
+      responses:
+        '200':
+          description: Marking scheme retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MarkingSchemeResponse'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /questions/{questionId}/marking-schemes:
+    get:
+      summary: Get marking schemes for question
+      description: Retrieve all marking schemes for a specific question
+      operationId: getMarkingSchemesByQuestion
+      tags:
+        - AI Grading
+      parameters:
+        - name: questionId
+          in: path
+          description: Question identifier
+          required: true
+          schema:
+            type: string
+            example: "essay1"
+      responses:
+        '200':
+          description: Marking schemes retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MarkingSchemesResponse'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /students/{studentId}/ai-grade:
+    post:
+      summary: Generate AI grades for student essay
+      description: Use RAG-based AI system to generate suggested grades for all or specific criteria
+      operationId: generateAIGrades
+      tags:
+        - AI Grading
+      parameters:
+        - name: studentId
+          in: path
+          description: Student identifier
+          required: true
+          schema:
+            type: string
+            example: "1"
+      requestBody:
+        description: AI grading request
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AIGradeRequest'
+            example:
+              markingSchemeId: "scheme123"
+              criteriaIds: ["content", "organization"]
+      responses:
+        '200':
+          description: AI grades generated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EssayGradingResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /students/{studentId}/rubrics/{rubricId}/ai-populate:
+    put:
+      summary: Populate AI suggested score
+      description: Generate and populate AI suggested score for a specific rubric criterion
+      operationId: populateAISuggestedScore
+      tags:
+        - AI Grading
+      parameters:
+        - name: studentId
+          in: path
+          description: Student identifier
+          required: true
+          schema:
+            type: string
+            example: "1"
+        - name: rubricId
+          in: path
+          description: Rubric criterion identifier
+          required: true
+          schema:
+            type: string
+            example: "content1"
+      requestBody:
+        description: Marking scheme to use for AI grading
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - markingSchemeId
+              properties:
+                markingSchemeId:
+                  type: string
+                  description: ID of the marking scheme to use
+                  example: "scheme123"
+      responses:
+        '200':
+          description: AI suggested score populated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BooleanResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: JWT token for API authentication
+
+  schemas:
+    Student:
+      type: object
+      required:
+        - id
+        - studentNumber
+        - name
+        - essay
+        - rubrics
+      properties:
+        id:
+          type: string
+          description: Unique student identifier
+          example: "1"
+        studentNumber:
+          type: string
+          description: Student number
+          example: "2084 1234"
+        name:
+          type: string
+          description: Student's full name
+          example: "John Smith"
+        essay:
+          type: string
+          description: Student's essay submission
+          example: "Several factors contribute to the planning fallacy..."
+        rubrics:
+          type: array
+          description: List of rubric criteria and scores
+          items:
+            $ref: '#/components/schemas/RubricCriteria'
+
+    RubricCriteria:
+      type: object
+      required:
+        - id
+        - title
+        - description
+        - score
+        - maxScore
+        - aiSuggestedScore
+      properties:
+        id:
+          type: string
+          description: Unique rubric identifier
+          example: "content1"
+        title:
+          type: string
+          description: Rubric title/name
+          example: "Content 1: Explain the concept of planning fallacy"
+        description:
+          type: string
+          description: Detailed rubric description
+          example: "AI: The student answer elaborated on the idea of planning fallacy causes"
+        score:
+          type: number
+          description: Current assigned score
+          minimum: 0
+          example: 8
+        maxScore:
+          type: number
+          description: Maximum possible score
+          minimum: 1
+          example: 10
+        aiSuggestedScore:
+          type: number
+          description: AI-recommended score
+          minimum: 0
+          example: 7
+        highlightedText:
+          type: 
+            - string
+            - "null"
+          description: Text excerpt from essay relevant to this rubric
+          example: "complexity of tasks can obscure the true time and cost"
+        aiJustification:
+          type:
+            - string
+            - "null"
+          description: AI's detailed reasoning for the suggested score
+          example: "The essay demonstrates good understanding of planning fallacy concepts with specific examples"
+        aiSuggestion:
+          type:
+            - string
+            - "null"
+          description: AI's constructive suggestion for improvement
+          example: "Consider adding more empirical evidence to support the arguments"
+
+    ApiResponse:
+      type: object
+      required:
+        - success
+      properties:
+        success:
+          type: boolean
+          description: Indicates if the request was successful
+        message:
+          type: 
+            - string
+            - "null"
+          description: Human-readable message
+
+    StudentsResponse:
+      allOf:
+        - $ref: '#/components/schemas/ApiResponse'
+        - type: object
+          required:
+            - data
+          properties:
+            data:
+              type: array
+              items:
+                $ref: '#/components/schemas/Student'
+
+    StudentResponse:
+      allOf:
+        - $ref: '#/components/schemas/ApiResponse'
+        - type: object
+          required:
+            - data
+          properties:
+            data:
+              anyOf:
+                - $ref: '#/components/schemas/Student'
+                - type: "null"
+
+    PaginatedStudentsResponse:
+      type: object
+      required:
+        - data
+        - total
+        - page
+        - limit
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Student'
+        total:
+          type: integer
+          description: Total number of students
+          minimum: 0
+          example: 25
+        page:
+          type: integer
+          description: Current page number
+          minimum: 1
+          example: 1
+        limit:
+          type: integer
+          description: Number of items per page
+          minimum: 1
+          example: 10
+
+    BooleanResponse:
+      allOf:
+        - $ref: '#/components/schemas/ApiResponse'
+        - type: object
+          required:
+            - data
+          properties:
+            data:
+              type: boolean
+
+    ScoreUpdateRequest:
+      type: object
+      required:
+        - score
+      properties:
+        score:
+          type: number
+          description: New score value
+          minimum: 0
+          example: 8
+
+    SaveGradesRequest:
+      type: object
+      required:
+        - rubrics
+      properties:
+        rubrics:
+          type: array
+          description: List of rubric scores to save
+          items:
+            type: object
+            required:
+              - id
+              - score
+            properties:
+              id:
+                type: string
+                description: Rubric identifier
+                example: "content1"
+              score:
+                type: number
+                description: Score value
+                minimum: 0
+                example: 8
+
+    SubmitGradesRequest:
+      type: object
+      required:
+        - studentIds
+      properties:
+        studentIds:
+          type: array
+          description: List of student IDs to submit grades for
+          items:
+            type: string
+          example: ["1", "2", "3"]
+
+    # RAG Grading System Schemas
+    GradingCriterion:
+      type: object
+      required:
+        - id
+        - name
+        - description
+        - maxScore
+      properties:
+        id:
+          type: string
+          description: Unique criterion identifier
+          example: "content"
+        name:
+          type: string
+          description: Criterion name
+          example: "Content"
+        description:
+          type: string
+          description: What this criterion evaluates
+          example: "Quality of ideas and analysis"
+        maxScore:
+          type: integer
+          description: Maximum possible score for this criterion
+          minimum: 1
+          example: 10
+        weight:
+          type: number
+          description: Optional weighting factor
+          minimum: 0
+          default: 1.0
+          example: 1.0
+
+    MarkingScheme:
+      type: object
+      required:
+        - id
+        - questionId
+        - questionType
+        - criteria
+        - rawText
+        - createdBy
+        - createdAt
+      properties:
+        id:
+          type: string
+          description: Unique marking scheme identifier
+          example: "scheme123"
+        questionId:
+          type: string
+          description: Associated question identifier
+          example: "essay1"
+        questionType:
+          type: string
+          description: Type of question
+          enum: ["essay", "multiple_choice", "short_answer"]
+          example: "essay"
+        criteria:
+          type: array
+          description: List of grading criteria
+          items:
+            $ref: '#/components/schemas/GradingCriterion'
+        rawText:
+          type: string
+          description: Original rubric text provided by TA
+          example: "**Content (Max 10 points)** - Excellent (9-10 pts): Clear, insightful analysis..."
+        createdBy:
+          type: string
+          description: TA who created this marking scheme
+          example: "ta123"
+        createdAt:
+          type: string
+          format: date-time
+          description: When the marking scheme was created
+          example: "2024-01-15T10:30:00Z"
+
+    AIGradingResult:
+      type: object
+      required:
+        - criterionId
+        - criterionName
+        - score
+        - maxScore
+        - justification
+        - suggestionForImprovement
+        - confidence
+      properties:
+        criterionId:
+          type: string
+          description: Criterion identifier
+          example: "content"
+        criterionName:
+          type: string
+          description: Criterion name
+          example: "Content"
+        score:
+          type: integer
+          description: AI suggested score
+          minimum: 0
+          example: 8
+        maxScore:
+          type: integer
+          description: Maximum possible score
+          minimum: 1
+          example: 10
+        justification:
+          type: string
+          description: Detailed explanation of the score
+          example: "The essay demonstrates strong understanding with clear examples and analysis"
+        suggestionForImprovement:
+          type: string
+          description: Constructive feedback for improvement
+          example: "Consider adding more empirical evidence to strengthen arguments"
+        highlightedText:
+          type:
+            - string
+            - "null"
+          description: Relevant essay excerpts
+          example: "The planning fallacy occurs when people underestimate the time needed"
+        confidence:
+          type: number
+          description: AI confidence level (0-1)
+          minimum: 0
+          maximum: 1
+          example: 0.85
+
+    MarkingSchemeCreateRequest:
+      type: object
+      required:
+        - questionId
+        - questionType
+        - rubricText
+        - criteria
+      properties:
+        questionId:
+          type: string
+          description: Question identifier
+          example: "essay1"
+        questionType:
+          type: string
+          description: Type of question
+          enum: ["essay", "multiple_choice", "short_answer"]
+          example: "essay"
+        rubricText:
+          type: string
+          description: Detailed rubric text describing grading expectations
+          example: "**Content (Max 10 points)** - Excellent (9-10 pts): Clear, insightful analysis..."
+        criteria:
+          type: array
+          description: List of grading criteria to create
+          items:
+            type: object
+            required:
+              - name
+              - description
+              - maxScore
+            properties:
+              name:
+                type: string
+                example: "Content"
+              description:
+                type: string
+                example: "Quality of ideas and analysis"
+              maxScore:
+                type: integer
+                minimum: 1
+                example: 10
+              weight:
+                type: number
+                minimum: 0
+                default: 1.0
+                example: 1.0
+
+    AIGradeRequest:
+      type: object
+      required:
+        - markingSchemeId
+      properties:
+        markingSchemeId:
+          type: string
+          description: Marking scheme to use for grading
+          example: "scheme123"
+        criteriaIds:
+          type: array
+          description: Optional list of specific criteria to grade (if empty, grades all)
+          items:
+            type: string
+          example: ["content", "organization"]
+
+    EssayGradingResponse:
+      allOf:
+        - $ref: '#/components/schemas/ApiResponse'
+        - type: object
+          required:
+            - data
+          properties:
+            data:
+              type: object
+              required:
+                - studentId
+                - results
+                - totalScore
+                - maxTotalScore
+                - processedAt
+              properties:
+                studentId:
+                  type: string
+                  description: Student identifier
+                  example: "1"
+                results:
+                  type: array
+                  description: AI grading results for each criterion
+                  items:
+                    $ref: '#/components/schemas/AIGradingResult'
+                totalScore:
+                  type: integer
+                  description: Sum of all criterion scores
+                  example: 23
+                maxTotalScore:
+                  type: integer
+                  description: Sum of all maximum scores
+                  example: 30
+                overallFeedback:
+                  type: string
+                  description: General feedback about the essay
+                  example: "Strong essay with good analysis, could benefit from more evidence"
+                processedAt:
+                  type: string
+                  format: date-time
+                  description: When the grading was processed
+                  example: "2024-01-15T10:30:00Z"
+
+    MarkingSchemeResponse:
+      allOf:
+        - $ref: '#/components/schemas/ApiResponse'
+        - type: object
+          required:
+            - data
+          properties:
+            data:
+              anyOf:
+                - $ref: '#/components/schemas/MarkingScheme'
+                - type: "null"
+
+    MarkingSchemesResponse:
+      allOf:
+        - $ref: '#/components/schemas/ApiResponse'
+        - type: object
+          required:
+            - data
+          properties:
+            data:
+              type: array
+              items:
+                $ref: '#/components/schemas/MarkingScheme'
+
+    Error:
+      type: object
+      required:
+        - success
+        - message
+      properties:
+        success:
+          type: boolean
+          example: false
+        message:
+          type: string
+          description: Error message
+        data:
+          type: "null"
+          example: null
+        error:
+          type: object
+          properties:
+            code:
+              type: string
+              description: Error code
+              example: "STUDENT_NOT_FOUND"
+            details:
+              type: string
+              description: Additional error details
+              example: "Student with ID '999' does not exist"
+
+  responses:
+    BadRequest:
+      description: Bad Request - Invalid input parameters
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            success: false
+            message: "Invalid request parameters"
+            data: null
+            error:
+              code: "VALIDATION_ERROR"
+              details: "Score must be between 0 and maxScore"
+
+    Unauthorized:
+      description: Unauthorized - Invalid or missing authentication token
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            success: false
+            message: "Authentication required"
+            data: null
+            error:
+              code: "INVALID_TOKEN"
+              details: "Bearer token is invalid or expired"
+
+    NotFound:
+      description: Not Found - Requested resource does not exist
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            success: false
+            message: "Resource not found"
+            data: null
+            error:
+              code: "STUDENT_NOT_FOUND"
+              details: "Student with ID '999' does not exist"
+
+    InternalServerError:
+      description: Internal Server Error - Unexpected server error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            success: false
+            message: "Internal server error"
+            data: null
+            error:
+              code: "INTERNAL_ERROR"
+              details: "An unexpected error occurred"
+
+tags:
+  - name: Students
+    description: Operations related to student management
+  - name: Grading
+    description: Operations related to grading and scoring
+  - name: AI Grading
+    description: Operations related to RAG-based AI grading system
