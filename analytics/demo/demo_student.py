@@ -2,9 +2,9 @@
 # Demonstrates end-to-end analytics + AI workflow on dummy data
 
 #from repository import get_grades_by_exam_question, get_grades_by_student_exam
-from student_analytics import compute_student_analytics
+from analytics.services.student_analytics import compute_student_analytics
 
-from db import DB
+from analytics.services.db import DB
 
 # set up dummy database connection
 db = DB("test_analytics.db")

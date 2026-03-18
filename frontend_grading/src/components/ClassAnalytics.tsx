@@ -1,8 +1,10 @@
-import React, { memo, useMemo, useState } from "react";
+import React, { memo, useMemo, useState, useEffect } from "react";
+import Markdown from "react-markdown";
 import { Button } from "./ui/button";
 import { Badge } from "./ui/badge";
 import * as CardComponent from "./ui/card";
 import {
+  Sparkle,
   ChevronLeft,
   ChevronDown,
   ChevronRight,
@@ -16,10 +18,7 @@ import {
   AlertCircle,
   Menu,
 } from "lucide-react";
-import { useGradingController } from "../hooks/useGradingController";
-import { Sidebar } from "./Sidebar";
 import { Progress } from "./ui/progress";
-import { questionAnalysisData } from "./rubric/QuestionAnalysisDummy";
 import {
   Collapsible,
   CollapsibleTrigger,
@@ -37,6 +36,7 @@ import {
   Pie,
   Cell,
 } from "recharts";
+import { AIChatbot } from "./ui/ClassAnalytics_Chat";
 
 const { Card, CardHeader, CardTitle, CardDescription, CardContent } =
   CardComponent;
@@ -64,8 +64,34 @@ const completionTimeData = [
 
 interface StatisticCardProps {
   title: string;
-  value: string | number;
+  value: number;
   description?: string;
+}
+
+interface questionAnalysisData {
+  examId: string;
+  questionId: string;
+  topicId: string;
+  aggregateScore: number;
+  successRate: number;
+  scoreDistribution: number[];
+  feedbacks: string[];
+  misconceptions: { clusterId: number; summary: string; count: number }[];
+}
+
+interface topicAnalysisData {
+  topicId: string;
+  totalScore: number;
+  totalMaxScore: number;
+  averagePercentage: number;
+  rank: number;
+  misconceptions: { questionId: number; summary: string; count: number }[];
+  summary: string;
+}
+
+interface examSummaryData {
+  commonMisconceptions: string;
+  recommendations: string;
 }
 
 const StatisticCard = memo(function StatisticCard({
@@ -82,7 +108,7 @@ const StatisticCard = memo(function StatisticCard({
       </CardHeader>
 
       <CardContent>
-        <div className="text-3xl font-semibold">{value}</div>
+        <div className="text-3xl font-semibold">{value * 100}</div>
 
         {description && (
           <CardDescription className="mt-1 text-sm">
@@ -93,7 +119,6 @@ const StatisticCard = memo(function StatisticCard({
     </Card>
   );
 });
-
 interface PerformanceCardProps {
   title: string;
   items: { label: string; value?: string | number }[];
@@ -134,80 +159,79 @@ const PerformanceCard = memo(function PerformanceCard({
   );
 });
 
-const performanceValues = [
-  {
-    title: "Weakest Topics",
-    items: [
-      { label: "Strong understanding of kinematics" },
-      { label: "Accurate problem-solving skills" },
-      { label: "Good application of formulas" },
-    ],
-    variant: variantStyles["danger"],
-  },
-  {
-    title: "Strongest Topics",
-    items: [
-      { label: "Excellent grasp of Newton's Laws" },
-      { label: "Proficient in energy conservation concepts" },
-      { label: "Skilled in momentum and collisions" },
-    ],
-    variant: variantStyles["success"],
-  },
-  {
-    title: "Common Misconceptions",
-    items: [
-      { label: "Frequent errors in free-body diagrams" },
-      { label: "Misapplication of kinematic equations" },
-      { label: "Confusion between mass and weight" },
-    ],
-    variant: variantStyles["warning"],
-  },
-  {
-    title: "Recommendations for Improvement",
-    items: [
-      { label: "Review Newton's Laws and practice related problems" },
-      { label: "Focus on energy conservation principles" },
-      { label: "Practice drawing and analyzing free-body diagrams" },
-    ],
-    variant: variantStyles["info"],
-  },
-];
-
-const statisticValues = [
-  {
-    title: "Average Score",
-    value: "14.5/20",
-    description: "Class performance",
-  },
-  {
-    title: "Median Score",
-    value: "15/20",
-    description: "Middle performer",
-  },
-  {
-    title: "Std. Deviation",
-    value: "3.2",
-    description: "Score spread",
-  },
-  {
-    title: "Bottom 25%",
-    value: "8.7/20",
-    description: "Needs improvement",
-  },
-  {
-    title: "Top 25%",
-    value: "18.2/20",
-    description: "Excellent performance",
-  },
-  {
-    title: "Avg Time",
-    value: "42 min",
-    description: "Average time spent",
-  },
-];
-
 export function ClassAnalytics() {
   const [expandedQuestions, setExpandedQuestions] = useState<string[]>([]);
+  const [expandedTopics, setExpandedTopics] = useState<string[]>([]);
+  const [stats, setStats] = useState<StatisticCardProps[]>([]);
+  const [askAI, setAskAI] = useState(false);
+
+  const [questionAnalysis, setQuestionAnalysis] = useState<
+    questionAnalysisData[]
+  >([]);
+  const [topicsAnalysis, setTopicsAnalysis] = useState<topicAnalysisData[]>([]);
+  const [examSummary, setExamSummary] = useState<examSummaryData>({
+    commonMisconceptions: "",
+    recommendations: "",
+  });
+
+  async function fetchStatistics(examId: string) {
+    const response = await fetch(
+      `http://127.0.0.1:8000/api/exam/${examId}/statistics`,
+    );
+
+    const data = await response.json();
+    return data;
+  }
+
+  async function fetchQuestionsAnalysis(examId: string) {
+    const response = await fetch(
+      `http://127.0.0.1:8000/api/exam/${examId}/questionsAnalysis`,
+    );
+
+    const data = await response.json();
+    return data;
+  }
+
+  async function fetchTopicsAnalysis(examId: string) {
+    const response = await fetch(
+      `http://127.0.0.1:8000/api/exam/${examId}/topics`,
+    );
+
+    const data = await response.json();
+    return data;
+  }
+
+  async function fetchExamSummary(examId: string) {
+    const response = await fetch(
+      `http://127.0.0.1:8000/api/exam/${examId}/summary`,
+    );
+
+    const data = await response.json();
+    return data;
+  }
+
+  useEffect(() => {
+    async function loadData() {
+      const [s, q, t, e] = await Promise.all([
+        fetchStatistics("EXAM1"),
+        fetchQuestionsAnalysis("EXAM1"),
+        fetchTopicsAnalysis("EXAM1"),
+        fetchExamSummary("EXAM1"),
+      ]);
+
+      console.log("statistics:", s);
+      console.log("question statistics:", q);
+      console.log("topics analysis:", t);
+      console.log("exam summary:", e);
+
+      setStats(s.cards);
+      setQuestionAnalysis(q);
+      setTopicsAnalysis(t);
+      setExamSummary(e);
+    }
+
+    loadData();
+  }, []);
 
   const toggleQuestion = (questionId: string) => {
     setExpandedQuestions((prev) =>
@@ -217,57 +241,247 @@ export function ClassAnalytics() {
     );
   };
 
-  const hardestQuestions = questionAnalysisData
-    .sort((a, b) => a.correct - b.correct)
+  const toggleTopic = (topicId: string) => {
+    setExpandedTopics((prev) =>
+      prev.includes(topicId)
+        ? prev.filter((id) => id !== topicId)
+        : [...prev, topicId],
+    );
+  };
+
+  const hardestQuestions = [...questionAnalysis]
+    .sort((a, b) => a.successRate - b.successRate)
     .slice(0, 3);
 
-  const easiestQuestions = questionAnalysisData
-    .sort((a, b) => b.correct - a.correct)
+  const easiestQuestions = [...questionAnalysis]
+    .sort((a, b) => b.successRate - a.successRate)
+    .slice(0, 3);
+
+  const weakestTopics = [...topicsAnalysis]
+    .sort((a, b) => a.averagePercentage - b.averagePercentage)
+    .slice(0, 3);
+
+  const strongestTopics = [...topicsAnalysis]
+    .sort((a, b) => b.averagePercentage - a.averagePercentage)
     .slice(0, 3);
 
   return (
-    <div className="flex-1 p-8">
-      {/* Class Statistics */}
-      <div className="flex flex-wrap gap-6 justify-around p-6">
-        {/* Value props would be changed to real analytics data */}
-        {statisticValues.map((stat) => (
-          <StatisticCard
-            key={stat.title}
-            title={stat.title}
-            value={stat.value}
-            description={stat.description}
-          />
-        ))}
-      </div>
+    <div className="flex h-[calc(100vh-12rem)]">
+      <div className="flex-1 p-8">
+        {/* Class Statistics */}
+        <div className="flex flex-wrap gap-6 justify-around p-6">
+          {/* Value props would be changed to real analytics data */}
+          {stats.map((stat) => (
+            <StatisticCard
+              key={stat.title}
+              title={stat.title}
+              value={stat.value}
+              description={stat.description}
+            />
+          ))}
+        </div>
 
-      {/* AI Performance Summary */}
-      <div className="w-full mt-8 px-6">
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-lg font-medium text-black/70">
-              AI Performance Summary
-            </CardTitle>
-            <CardTitle className="text-md text-gray-600">
-              AI-generated insights about overall exam performance
-            </CardTitle>
-          </CardHeader>
+        {/* Exam Summary */}
+        <div className="flex flex-wrap gap-6 justify-around p-6">
+          <Card className="flex-1 bg-blue-200">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                Exam Summary
+              </CardTitle>
+              <CardDescription>Overview of exam performance</CardDescription>
+            </CardHeader>
 
-          <CardContent className="flex flex-wrap gap-6 justify-around p-6">
-            {/* Performance Cards Grid */}
-            {performanceValues.map((perf) => (
-              <PerformanceCard
-                key={perf.title}
-                title={perf.title}
-                items={perf.items}
-                variant={perf.variant}
-              />
-            ))}
-          </CardContent>
-        </Card>
-      </div>
+            <CardContent className="bg-blue-50">
+              <div className="flex flex-wrap gap-6 justify-around mb-8">
+                {/* Common Misconceptions */}
+                <div className="flex-1 border rounded-lg p-4 bg-white">
+                  <CardTitle className="text-base text-black/70 font-medium">
+                    Common Misconceptions
+                  </CardTitle>
+                  <p className="text-sm text-muted-foreground py-2 text-justify">
+                    <Markdown>{examSummary.commonMisconceptions}</Markdown>
+                  </p>
+                </div>
 
-      {/* Score Distribution & Completion Time Distribution */}
-      <div className="flex flex-wrap gap-6 justify-around p-6">
+                {/* Recommendations */}
+                <div className="flex-1 border rounded-lg p-4 bg-white">
+                  <CardTitle className="text-base text-black/70 font-medium">
+                    Recommendations
+                  </CardTitle>
+                  <p className="text-sm text-muted-foreground py-2 text-justify">
+                    <Markdown>{examSummary.recommendations}</Markdown>
+                  </p>
+                </div>
+              </div>
+
+              <Button
+                size="sm"
+                onClick={() => setAskAI(askAI ? false : true)}
+                className="bg-card text-black/70 flex items-center gap-2"
+              >
+                <Sparkle className="w-4 h-4" />
+                Ask AI for more details
+              </Button>
+              {/* {askAI && (
+                <p className="text-sm text-muted-foreground mt-2">
+                  AI is analyzing the data and will provide insights shortly...
+                </p>
+              )} */}
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Topic Analysis */}
+        <div className="flex flex-wrap gap-6 justify-around p-6">
+          {/* Strongest Topics */}
+          <Card className="flex-1 bg-green-100">
+            <CardHeader>
+              <CardTitle className="text-lg text-black/70 font-medium">
+                Strongest Topics
+              </CardTitle>
+              <CardTitle className="text-md text-gray-600">
+                Topics where students performed best
+              </CardTitle>
+            </CardHeader>
+
+            <CardContent>
+              {strongestTopics.map((topic) => (
+                <Collapsible key={topic.topicId} className="py-2">
+                  <CollapsibleTrigger asChild>
+                    <Button
+                      variant="ghost"
+                      className="w-full justify-start p-0 h-auto"
+                      onClick={() => toggleTopic(topic.topicId)}
+                    >
+                      <div className="flex items-center gap-4 p-3 rounded-lg border w-full">
+                        <div className="flex-1">
+                          <div className="flex items-center justify-between mb-1">
+                            <span className="text-sm font-medium flex items-center gap-2">
+                              {expandedTopics.includes(topic.topicId) ? (
+                                <ChevronDown className="h-4 w-4" />
+                              ) : (
+                                <ChevronRight className="h-4 w-4" />
+                              )}
+                              {topic.topicId}
+                            </span>
+                          </div>
+                        </div>
+                        <Badge
+                          variant={
+                            topic.averagePercentage >= 80
+                              ? "default"
+                              : topic.averagePercentage >= 50
+                                ? "secondary"
+                                : "destructive"
+                          }
+                        >
+                          {topic.averagePercentage}%
+                        </Badge>
+                      </div>
+                    </Button>
+                  </CollapsibleTrigger>
+
+                  <CollapsibleContent className="mt-3">
+                    <div className="ml-6 p-4 rounded-lg border space-y-4">
+                      {/* Summary */}
+                      <div className="p-3 rounded-lg border">
+                        <h5 className="font-medium py-2 flex items-center">
+                          <AlertCircle className="h-4 w-4 mr-2" />
+                          Summary
+                        </h5>
+                        {topic.summary ? (
+                          <p className="text-sm text-muted-foreground text-justify">
+                            {topic.summary}
+                          </p>
+                        ) : (
+                          <p className="text-sm text-muted-foreground">
+                            No summary available
+                          </p>
+                        )}
+                      </div>
+                    </div>
+                  </CollapsibleContent>
+                </Collapsible>
+              ))}
+            </CardContent>
+          </Card>
+
+          {/* Weakest Topics */}
+          <Card className="flex-1 bg-red-100">
+            <CardHeader>
+              <CardTitle className="text-lg text-black/70 font-medium">
+                Weakest Topics
+              </CardTitle>
+              <CardTitle className="text-md text-gray-600">
+                Topics where students performed worst
+              </CardTitle>
+            </CardHeader>
+
+            <CardContent>
+              {weakestTopics.map((topic) => (
+                <Collapsible key={topic.topicId} className="py-2">
+                  <CollapsibleTrigger asChild>
+                    <Button
+                      variant="ghost"
+                      className="w-full justify-start p-0 h-auto"
+                      onClick={() => toggleTopic(topic.topicId)}
+                    >
+                      <div className="flex items-center gap-4 p-3 rounded-lg border w-full">
+                        <div className="flex-1">
+                          <div className="flex items-center justify-between mb-1">
+                            <span className="text-sm font-medium flex items-center gap-2">
+                              {expandedTopics.includes(topic.topicId) ? (
+                                <ChevronDown className="h-4 w-4" />
+                              ) : (
+                                <ChevronRight className="h-4 w-4" />
+                              )}
+                              {topic.topicId}
+                            </span>
+                          </div>
+                        </div>
+                        <Badge
+                          variant={
+                            topic.averagePercentage >= 80
+                              ? "default"
+                              : topic.averagePercentage >= 50
+                                ? "secondary"
+                                : "destructive"
+                          }
+                        >
+                          {topic.averagePercentage}%
+                        </Badge>
+                      </div>
+                    </Button>
+                  </CollapsibleTrigger>
+
+                  <CollapsibleContent className="mt-3">
+                    <div className="ml-6 p-4 rounded-lg border space-y-4">
+                      {/* Summary */}
+                      <div className="p-3 rounded-lg border">
+                        <h5 className="font-medium py-2 flex items-center">
+                          <AlertCircle className="h-4 w-4 mr-2" />
+                          Summary
+                        </h5>
+                        {topic.summary ? (
+                          <p className="text-sm text-muted-foreground text-justify">
+                            {topic.summary}
+                          </p>
+                        ) : (
+                          <p className="text-sm text-muted-foreground">
+                            No summary available
+                          </p>
+                        )}
+                      </div>
+                    </div>
+                  </CollapsibleContent>
+                </Collapsible>
+              ))}
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Score Distribution & Completion Time Distribution */}
+        {/*<div className="flex flex-wrap gap-6 justify-around p-6">
         <Card className="flex-1">
           <CardHeader>
             <CardTitle className="text-lg text-black/70 font-medium">
@@ -319,191 +533,195 @@ export function ClassAnalytics() {
           </CardContent>
         </Card>
       </div>
+      */}
 
-      {/* Questions ReCap */}
-      <div className="flex flex-wrap gap-6 justify-around p-6">
-        {/* Hardest Questions */}
-        <Card className="flex-1">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              {/* <TrendingDown className="h-5 w-5 text-red-500" /> */}
-              Hardest Questions
-            </CardTitle>
-            <CardDescription>
-              Questions with the lowest success rates
-            </CardDescription>
-          </CardHeader>
+        {/* Questions ReCap */}
+        <div className="flex flex-wrap gap-6 justify-around p-6">
+          {/* Hardest Questions */}
+          <Card className="flex-1">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                {/* <TrendingDown className="h-5 w-5 text-red-500" /> */}
+                Hardest Questions
+              </CardTitle>
+              <CardDescription>
+                Questions with the lowest success rates
+              </CardDescription>
+            </CardHeader>
 
-          <CardContent className="space-y-4">
-            {hardestQuestions.map((question, index) => (
-              <div
-                key={question.question}
-                className="flex items-center justify-between"
-              >
-                <div className="flex items-center gap-3">
-                  <Badge variant="destructive">{index + 1}</Badge>
-                  <div>
-                    <p className="font-medium">{question.question}</p>
-                    <p className="text-sm text-muted-foreground">
-                      {question.topic}
-                    </p>
-                  </div>
-                </div>
-                <div className="text-right">
-                  <p className="font-medium">{question.correct}%</p>
-                  <Badge variant="outline" className="text-xs">
-                    {question.difficulty}
-                  </Badge>
-                </div>
-              </div>
-            ))}
-          </CardContent>
-        </Card>
-
-        {/* Easiest Questions */}
-        <Card className="flex-1">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              {/* <TrendingUp className="h-5 w-5 text-green-500" /> */}
-              Easiest Questions
-            </CardTitle>
-            <CardDescription>
-              Questions with the highest success rates
-            </CardDescription>
-          </CardHeader>
-
-          <CardContent className="space-y-4">
-            {easiestQuestions.map((question, index) => (
-              <div
-                key={question.question}
-                className="flex items-center justify-between"
-              >
-                <div className="flex items-center gap-3">
-                  <Badge variant="default">{index + 1}</Badge>
-                  <div>
-                    <p className="font-medium">{question.question}</p>
-                    <p className="text-sm text-muted-foreground">
-                      {question.topic}
-                    </p>
-                  </div>
-                </div>
-                <div className="text-right">
-                  <p className="font-medium">{question.correct}%</p>
-                  <Badge variant="outline" className="text-xs">
-                    {question.difficulty}
-                  </Badge>
-                </div>
-              </div>
-            ))}
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Detailed Question Analysis - Expandable */}
-      <div className="w-full mt-8 px-6">
-        <Card>
-          <CardHeader>
-            <CardTitle>Complete Question Analysis</CardTitle>
-            <CardDescription>
-              Click on any question to view detailed analysis including
-              discrimination index and common mistakes
-            </CardDescription>
-          </CardHeader>
-
-          <CardContent>
-            <div>
-              {questionAnalysisData.map((question) => (
-                <Collapsible key={question.question} className="py-2">
-                  <CollapsibleTrigger asChild>
-                    <Button
-                      variant="ghost"
-                      className="w-full justify-start p-0 h-auto"
-                      onClick={() => toggleQuestion(question.question)}
-                    >
-                      <div className="flex items-center gap-4 p-3 rounded-lg border w-full">
-                        <div className="flex-1">
-                          <div className="flex items-center justify-between mb-1">
-                            <span className="text-sm font-medium flex items-center gap-2">
-                              {expandedQuestions.includes(question.question) ? (
-                                <ChevronDown className="h-4 w-4" />
-                              ) : (
-                                <ChevronRight className="h-4 w-4" />
-                              )}
-                              {question.topic}
-                            </span>
-                            <span className="text-sm font-medium">
-                              {question.correct}%
-                            </span>
-                          </div>
-
-                          <Progress value={question.correct} className="h-2" />
-                        </div>
-                        <Badge
-                          variant={
-                            question.difficulty === "Easy"
-                              ? "default"
-                              : question.difficulty === "Medium"
-                                ? "secondary"
-                                : "destructive"
-                          }
-                        >
-                          {question.difficulty}
-                        </Badge>
-                      </div>
-                    </Button>
-                  </CollapsibleTrigger>
-
-                  <CollapsibleContent className="mt-3">
-                    <div className="ml-6 p-4 rounded-lg border space-y-4">
-                      {/* Summary + AI Insights */}
-                      <div className="p-3 bg-secondary rounded-lg border border-blue-200">
-                        <p className="text-sm font-medium text-blue-800">
-                          Summary
-                        </p>
-                        <p className="text-sm text-blue-700">
-                          {question.summary}
-                        </p>
-                        <p className="text-sm">{question.aiInsights}</p>
-                      </div>
-
-                      {/* Common Wrong Answers */}
-                      <div className="p-3 bg-red-100 rounded-lg border">
-                        <h5 className="font-medium py-2 flex items-center">
-                          <AlertCircle className="h-4 w-4 px-2" />
-                          Common Wrong Answers
-                        </h5>
-
-                        <div className="space-y-2">
-                          {question.commonWrongAnswers.map((answer, index) => (
-                            <div
-                              key={index}
-                              className="flex items-center justify-between p-4 bg-white rounded border"
-                            >
-                              <div className="flex items-center gap-3">
-                                <Badge
-                                  variant="outline"
-                                  className="w-8 h-6 justify-center"
-                                >
-                                  {answer.option}
-                                </Badge>
-                                <span className="text-sm">{answer.reason}</span>
-                              </div>
-
-                              <Badge variant="secondary" className="text-xs">
-                                {answer.percentage}%
-                              </Badge>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
+            <CardContent className="space-y-4">
+              {hardestQuestions.map((question, index) => (
+                <div
+                  key={question.questionId}
+                  className="flex items-center justify-between"
+                >
+                  <div className="flex items-center gap-3">
+                    <Badge variant="destructive">{index + 1}</Badge>
+                    <div>
+                      <p className="font-medium">{question.questionId}</p>
+                      <p className="text-sm text-muted-foreground">
+                        {question.topicId}
+                      </p>
                     </div>
-                  </CollapsibleContent>
-                </Collapsible>
+                  </div>
+                  <div className="text-right">
+                    <p className="font-medium">{question.successRate}%</p>
+                    <Badge variant="outline" className="text-xs">
+                      {question.successRate >= 80
+                        ? "Easy"
+                        : question.successRate >= 50
+                          ? "Medium"
+                          : "Hard"}
+                    </Badge>
+                  </div>
+                </div>
               ))}
-            </div>
-          </CardContent>
-        </Card>
+            </CardContent>
+          </Card>
+
+          {/* Easiest Questions */}
+          <Card className="flex-1">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                {/* <TrendingUp className="h-5 w-5 text-green-500" /> */}
+                Easiest Questions
+              </CardTitle>
+              <CardDescription>
+                Questions with the highest success rates
+              </CardDescription>
+            </CardHeader>
+
+            <CardContent className="space-y-4">
+              {easiestQuestions.map((question, index) => (
+                <div
+                  key={question.questionId}
+                  className="flex items-center justify-between"
+                >
+                  <div className="flex items-center gap-3">
+                    <Badge variant="default">{index + 1}</Badge>
+                    <div>
+                      <p className="font-medium">{question.questionId}</p>
+                      <p className="text-sm text-muted-foreground">
+                        {question.topicId}
+                      </p>
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <p className="font-medium">{question.successRate}%</p>
+                    <Badge variant="outline" className="text-xs">
+                      {question.successRate >= 80
+                        ? "Easy"
+                        : question.successRate >= 50
+                          ? "Medium"
+                          : "Hard"}
+                    </Badge>
+                  </div>
+                </div>
+              ))}
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Detailed Question Analysis - Expandable */}
+        <div className="w-full mt-8 px-6">
+          <Card>
+            <CardHeader>
+              <CardTitle>Complete Question Analysis</CardTitle>
+              <CardDescription>
+                Click on any question to view detailed analysis
+              </CardDescription>
+            </CardHeader>
+
+            <CardContent>
+              <div>
+                {questionAnalysis.map((question) => (
+                  <Collapsible key={question.questionId} className="py-2">
+                    <CollapsibleTrigger asChild>
+                      <Button
+                        variant="ghost"
+                        className="w-full justify-start p-0 h-auto"
+                        onClick={() => toggleQuestion(question.questionId)}
+                      >
+                        <div className="flex items-center gap-4 p-3 rounded-lg border w-full">
+                          <div className="flex-1">
+                            <div className="flex items-center justify-between mb-1">
+                              <span className="text-sm font-medium flex items-center gap-2">
+                                {expandedQuestions.includes(
+                                  question.questionId,
+                                ) ? (
+                                  <ChevronDown className="h-4 w-4" />
+                                ) : (
+                                  <ChevronRight className="h-4 w-4" />
+                                )}
+                                {question.questionId} - {question.topicId}
+                              </span>
+                            </div>
+
+                            <Progress
+                              value={question.successRate}
+                              className="h-2"
+                            />
+                          </div>
+                          <Badge
+                            variant={
+                              question.successRate >= 80
+                                ? "default"
+                                : question.successRate >= 50
+                                  ? "secondary"
+                                  : "destructive"
+                            }
+                          >
+                            {question.successRate}%
+                          </Badge>
+                        </div>
+                      </Button>
+                    </CollapsibleTrigger>
+
+                    <CollapsibleContent className="mt-3">
+                      <div className="ml-6 p-4 rounded-lg border space-y-4">
+                        {/* Common Wrong Answers */}
+                        <div className="p-3 bg-red-100 rounded-lg border">
+                          <h5 className="font-medium py-2 flex items-center">
+                            <AlertCircle className="h-4 w-4 mr-2" />
+                            Common Wrong Answers
+                          </h5>
+
+                          <div className="space-y-2">
+                            {question.misconceptions.map(
+                              (misconception, index) => (
+                                <div
+                                  key={index}
+                                  className="flex items-center justify-between p-4 bg-white rounded border"
+                                >
+                                  <span className="text-sm">
+                                    {misconception.summary}
+                                  </span>
+                                  <Badge
+                                    variant="secondary"
+                                    className="text-xs"
+                                  >
+                                    {misconception.count} students
+                                  </Badge>
+                                </div>
+                              ),
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    </CollapsibleContent>
+                  </Collapsible>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        </div>
       </div>
+
+      {askAI && (
+        <div className="w-[420px] min-w-[360px] sticky top-6">
+          <AIChatbot onClose={() => setAskAI(false)} examId="EXAM1" />
+        </div>
+      )}
     </div>
   );
 }

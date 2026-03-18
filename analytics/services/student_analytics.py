@@ -1,9 +1,9 @@
 import math
 
-from repository import get_grades_by_student_exam
+from analytics.services.db import get_grades_by_student_exam
 from collections import defaultdict
-from class_analytics import compute_topic_class_score, compute_exam_score_distribution
-from utils import classify_topic_performance, classify_z_score
+from analytics.services.class_analytics_services import compute_topic_class_score, compute_exam_score_distribution
+from analytics.services.utils import classify_topic_performance, classify_z_score
 
 def compute_student_exam_score(db, exam_id, student_id):
     """

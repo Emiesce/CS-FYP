@@ -1,7 +1,7 @@
 from collections import defaultdict
 from openai import AzureOpenAI
 from set_up_demo import GRADES
-from question_analytics import (
+from analytics.services.question_analytics_services import (
     prepare_feedbacks,
     embed_feedbacks,
     cluster_feedbacks,
@@ -9,12 +9,12 @@ from question_analytics import (
     aggregate_topic_misconceptions,
     summarize_topic
 )
-from exam_summary import (
+from analytics.services.exam_summary import (
     rank_topics_by_score,
     extract_exam_misconceptions,
     summarize_exam
 )
-from llm import AzureLLM
+from analytics.services.llm import AzureLLM
 
 # Initialize Azure OpenAI client
 llm = AzureLLM(

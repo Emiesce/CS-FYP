@@ -5,6 +5,7 @@ import {
   CardHeader,
   CardTitle,
 } from "./ui/card";
+import StudentSelect from "./ui/StudentSelect";
 import { Progress } from "./ui/progress";
 import { Badge } from "./ui/badge";
 import {
@@ -633,6 +634,11 @@ const StatisticCard = memo(function StatisticCard({
 });
 
 export function StudentAnalytics() {
+  const studentOptions = studentsData.map((student) => ({
+    value: student.id,
+    label: `${student.name} – ${student.riskLevel} Risk – ${student.score}/20`,
+  }));
+
   const [selectedStudent, setSelectedStudent] = useState(studentsData[0]);
   const [expandedQuestions, setExpandedQuestions] = useState<string[]>([]);
 
@@ -721,20 +727,19 @@ export function StudentAnalytics() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <Select
+          {/* <Select
             value={selectedStudent.id}
             onValueChange={(value: string) =>
               setSelectedStudent(
                 studentsData.find((s) => s.id === value) || studentsData[0],
               )
             }
-            className="w-full bg-blue-200 flex"
           >
-            <SelectTrigger className="w-full flex">
+            <SelectTrigger className="w-full">
               <SelectValue />
             </SelectTrigger>
 
-            <SelectContent className="w-full min-w-0 flex">
+            <SelectContent className="w-full">
               {studentsData.map((student) => (
                 <SelectItem
                   key={student.id}
@@ -759,7 +764,17 @@ export function StudentAnalytics() {
                 </SelectItem>
               ))}
             </SelectContent>
-          </Select>
+          </Select> */}
+
+          <StudentSelect
+            value={selectedStudent.id}
+            onChange={(value) =>
+              setSelectedStudent(
+                studentsData.find((s) => s.id === value) ?? studentsData[0],
+              )
+            }
+            options={studentOptions}
+          />
 
           {selectedStudent.isOutlier && (
             <div className="mt-3 p-3 rounded-lg bg-red-50 border border-red-200">

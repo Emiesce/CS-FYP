@@ -102,8 +102,7 @@ export function AnalyticsPage({
               variant="ghost"
               size="sm"
               onClick={setChooseClassAnalytics.bind(null, true)}
-              focused={chooseClassAnalytics}
-              className="flex items-center gap-2"
+              className={`flex items-center gap-2 ${chooseClassAnalytics ? "bg-blue-600 text-white" : "hover:bg-gray-200"}`}
             >
               Class Analytics
             </Button>
@@ -113,8 +112,7 @@ export function AnalyticsPage({
               variant="ghost"
               size="sm"
               onClick={setChooseClassAnalytics.bind(null, false)}
-              focused={!chooseClassAnalytics}
-              className="flex items-center gap-2"
+              className={`flex items-center gap-2 ${!chooseClassAnalytics ? "bg-blue-600 text-white" : "hover:bg-gray-200"}`}
             >
               Student Analytics
             </Button>
