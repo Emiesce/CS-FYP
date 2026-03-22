@@ -32,7 +32,8 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
             {collapsed && onToggle && (
                 <button
                     onClick={onToggle}
-                    className="fixed top-4 left-4 z-50 p-2 bg-white rounded shadow hover:bg-gray-100 transition-colors text-gray-600"
+                    style={{ position: 'fixed', top: '16px', left: '16px', zIndex: 50 }}
+                    className="p-2 bg-white rounded shadow hover:bg-gray-100 transition-colors text-gray-600"
                     title="Open sidebar"
                 >
                     ☰
