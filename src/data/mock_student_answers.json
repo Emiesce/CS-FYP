@@ -1,0 +1,44 @@
+[
+    {
+        "studentId": "20841234",
+        "studentName": "John Smith",
+        "answers": [
+            {
+                "questionId": "q1",
+                "answerText": "The planning fallacy is a cognitive bias where individuals underestimate the time, costs, and risks of future actions while overestimating the benefits. This phenomenon was first identified by Daniel Kahneman and Amos Tversky in 1979. The main causes include optimism bias, where people focus on best-case scenarios, and the failure to account for past experiences with similar tasks. People tend to think about the specific task at hand rather than drawing on their general knowledge of how long similar tasks have taken in the past. This inside view leads to systematic underestimation. Additionally, social and motivational factors play a role, as people may feel pressure to commit to optimistic timelines."
+            },
+            {
+                "questionId": "q2",
+                "answerText": "Several psychological factors contribute to the planning fallacy. First, optimism bias causes people to believe they are less likely to experience negative events than others. Second, the focusing illusion makes people concentrate on the task itself while ignoring external factors that could cause delays. Third, anchoring bias means initial estimates become reference points that are insufficiently adjusted. Fourth, the availability heuristic leads people to recall successful completions more easily than failures. Finally, motivated reasoning causes people to unconsciously favor information that supports their desired timeline."
+            }
+        ]
+    },
+    {
+        "studentId": "20841235",
+        "studentName": "Jane Doe",
+        "answers": [
+            {
+                "questionId": "q1",
+                "answerText": "Planning fallacy refers to the tendency to underestimate how long a task will take. It happens because people are overly optimistic and do not consider past experiences. For example, students often think they can finish an assignment in one day but end up taking three days. The concept was introduced by Kahneman and Tversky and has been widely studied in project management and psychology."
+            },
+            {
+                "questionId": "q2",
+                "answerText": "The psychological factors include optimism bias where people think things will go better than they usually do. There is also the inside view problem where people focus too much on the specific plan without considering base rates. Ego depletion can also play a role as people become less careful in their estimates when tired. Social pressure from supervisors or peers can also cause people to give overly optimistic estimates."
+            }
+        ]
+    },
+    {
+        "studentId": "20841236",
+        "studentName": "Bob Johnson",
+        "answers": [
+            {
+                "questionId": "q1",
+                "answerText": "Planning fallacy is when you think something will take less time than it actually does. I have experienced this many times when doing homework. The reason is that people are too optimistic."
+            },
+            {
+                "questionId": "q2",
+                "answerText": "People are optimistic and do not think about problems that might happen. They also forget about past failures and only remember when things went well."
+            }
+        ]
+    }
+]

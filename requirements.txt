@@ -1,0 +1,6 @@
+# PDF Extraction API Requirements
+Flask==2.3.3
+Flask-CORS==4.0.0
+pdfplumber==0.10.3
+PyPDF2==3.0.1
+pymupdf==1.23.8

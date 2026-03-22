@@ -11,24 +11,51 @@ import os
 from datetime import datetime
 from pathlib import Path
 
-from .models.grading_models import (
-    GradingCriterion,
-    RubricChunk,
-    MarkingScheme,
-    EssayGradingRequest,
-    EssayGradingResponse,
-    GradingConstants
-)
-from .interfaces.vector_store import VectorStore
-from .interfaces.ai_client import AIClient
-from .interfaces.grading_service import GradingService
-from .errors.grading_errors import (
-    GradingException,
-    ValidationError,
-    IntegrationError,
-    ErrorHandler
-)
-from .config.settings import config, PromptTemplates
+try:
+    from .models.grading_models import (
+        GradingCriterion,
+        RubricChunk,
+        MarkingScheme,
+        GradingRequest,
+        GradingResponse,
+        EssayGradingRequest,  # Backward compatibility
+        EssayGradingResponse,  # Backward compatibility
+        GradingConstants
+    )
+    from .interfaces.vector_store import VectorStore
+    from .interfaces.ai_client import AIClient
+    from .interfaces.grading_service import GradingService
+    from .errors.grading_errors import (
+        GradingException,
+        ValidationError,
+        IntegrationError,
+        ErrorHandler
+    )
+    from .config.settings import config, PromptTemplates
+    from .utils.grading_storage import GradingResultsStorage, convert_grading_response_to_exam_format
+except ImportError:
+    # Fallback to absolute imports when run as script
+    from models.grading_models import (
+        GradingCriterion,
+        RubricChunk,
+        MarkingScheme,
+        GradingRequest,
+        GradingResponse,
+        EssayGradingRequest,  # Backward compatibility
+        EssayGradingResponse,  # Backward compatibility
+        GradingConstants
+    )
+    from interfaces.vector_store import VectorStore
+    from interfaces.ai_client import AIClient
+    from interfaces.grading_service import GradingService
+    from errors.grading_errors import (
+        GradingException,
+        ValidationError,
+        IntegrationError,
+        ErrorHandler
+    )
+    from config.settings import config, PromptTemplates
+    from utils.grading_storage import GradingResultsStorage, convert_grading_response_to_exam_format
 
 # Set up logging
 logging.basicConfig(level=getattr(logging, config.log_level))
@@ -46,7 +73,8 @@ class RAGGradingSystem:
         vector_store: VectorStore,
         ai_client: AIClient,
         grading_service: GradingService,
-        rubrics_json_path: Optional[str] = None
+        rubrics_json_path: Optional[str] = None,
+        results_storage_path: Optional[str] = None
     ):
         """
         Initialize the RAG grading system with required components.
@@ -56,6 +84,7 @@ class RAGGradingSystem:
             ai_client: AI service client implementation
             grading_service: Grading orchestration service implementation
             rubrics_json_path: Path to the rubrics JSON file (defaults to src/data/rubrics.json)
+            results_storage_path: Path to grading results storage (defaults to src/data/grading_results.json)
         """
         self.vector_store = vector_store
         self.ai_client = ai_client
@@ -63,30 +92,36 @@ class RAGGradingSystem:
         self.rubrics_json_path = rubrics_json_path or self._get_default_rubrics_path()
         self._initialized = False
         self._loaded_schemes: Dict[str, MarkingScheme] = {}
+        
+        # Initialize grading results storage
+        self.results_storage = GradingResultsStorage(results_storage_path)
+        logger.info(f"Initialized grading results storage at {self.results_storage.storage_path}")
     
     def _get_default_rubrics_path(self) -> str:
         """Get the default path to the rubrics JSON file."""
-        # Get the directory where this file is located
         current_dir = Path(__file__).parent
-        # Navigate to the src/data/rubrics.json file
-        rubrics_path = current_dir.parent / "data" / "rubrics.json"
+        # rubrics.json is at src/data/rubrics.json
+        rubrics_path = current_dir / "data" / "rubrics.json"
         return str(rubrics_path)
     
     async def initialize(self) -> None:
         """Initialize the grading system and validate all components."""
         try:
             logger.info("Initializing RAG grading system...")
-            
-            # Validate AI client connection
-            if not await self.ai_client.validate_connection():
-                raise IntegrationError("AI client connection validation failed")
-            
-            # Clear vector store for fresh start
-            await self.vector_store.clear()
-            
+
+            # Validate AI client connection — warn but don't fail if unreachable
+            try:
+                if not await self.ai_client.validate_connection():
+                    logger.warning("AI client connection validation failed — grading may not work")
+                else:
+                    logger.info("AI client connection validated successfully")
+            except Exception as e:
+                logger.warning(f"AI client connection check failed: {e} — continuing anyway")
+
+            # NOTE: Do NOT clear the vector store here — ChromaDB is persistent
             self._initialized = True
             logger.info("RAG grading system initialized successfully")
-            
+
         except Exception as e:
             logger.error(f"Failed to initialize RAG grading system: {e}")
             raise ErrorHandler.handle_integration_error("RAGGradingSystem", "initialize", e)
@@ -152,16 +187,27 @@ class RAGGradingSystem:
                 }
                 criteria.append(criterion_data)
             
+            # Build rubric_text from all questions and scoring criteria
+            rubric_text_lines = [
+                f"Rubric: {rubric.get('title', '')}",
+                f"Description: {rubric.get('description', '')}"
+            ]
+            for q in rubric.get('questions', []):
+                rubric_text_lines.append(f"\nQuestion: {q.get('title', '')}")
+                rubric_text_lines.append(f"Description: {q.get('description', '')}")
+                rubric_text_lines.append(f"Score Range: {q.get('minScore', 0)} - {q.get('maxScore', 0)} points")
+                for sc in q.get('scoringCriteria', []):
+                    rubric_text_lines.append(f"  Score {sc.get('scoreRange', '')}: {sc.get('description', '')}")
+            full_rubric_text = '\n'.join(rubric_text_lines)
+
             # Create marking scheme
             marking_scheme = MarkingScheme(
                 id=rubric.get('id', ''),
                 question_id=rubric.get('assignmentId', rubric.get('id', '')),
-                name=rubric.get('title', ''),
-                description=rubric.get('description', ''),
                 criteria=criteria,
+                rubric_text=full_rubric_text,
                 created_by="system",
                 created_at=datetime.fromisoformat(rubric.get('createdAt', datetime.now().isoformat()).replace('Z', '+00:00')),
-                updated_at=datetime.fromisoformat(rubric.get('updatedAt', datetime.now().isoformat()).replace('Z', '+00:00'))
             )
             
             return marking_scheme
@@ -228,6 +274,13 @@ class RAGGradingSystem:
                 raise ValidationError(f"Marking scheme with ID {rubric_id} not found")
             
             # Load into RAG system
+            await self.grading_service.create_marking_scheme({
+                "id": marking_scheme.id,
+                "question_id": marking_scheme.question_id,
+                "criteria": marking_scheme.criteria,
+                "rubric_text": marking_scheme.rubric_text,
+                "created_by": marking_scheme.created_by,
+            })
             await self.grading_service.load_marking_scheme_to_rag(marking_scheme.id)
             
             logger.info(f"Initialized RAG system with marking scheme {rubric_id}")
@@ -280,13 +333,51 @@ class RAGGradingSystem:
             logger.error(f"Failed to create and load marking scheme: {e}")
             raise
     
-    async def grade_essay(self, request: EssayGradingRequest) -> EssayGradingResponse:
+    async def add_lecture_note_to_rag(self, note_content: str, note_id: str, rubric_ids: List[str]) -> None:
         """
-        Grade a student essay using the RAG system.
-        Automatically loads the marking scheme from JSON if not already loaded.
+        Add lecture note content to the RAG system.
         
         Args:
-            request: Essay grading request containing essay text and parameters
+            note_content: Extracted text content from the lecture note
+            note_id: Unique identifier for the lecture note
+            rubric_ids: List of rubric IDs to associate with this note
+        """
+        if not self._initialized:
+            await self.initialize()
+        
+        try:
+            await self.grading_service.add_lecture_note_to_rag(note_content, note_id, rubric_ids)
+            logger.info(f"Added lecture note {note_id} to RAG system with {len(rubric_ids)} rubric associations")
+        except Exception as e:
+            logger.error(f"Failed to add lecture note {note_id} to RAG: {e}")
+            raise
+    
+    async def remove_lecture_note_from_rag(self, note_id: str) -> None:
+        """
+        Remove lecture note content from the RAG system.
+        
+        Args:
+            note_id: Unique identifier for the lecture note to remove
+        """
+        if not self._initialized:
+            await self.initialize()
+        
+        try:
+            await self.grading_service.remove_lecture_note_from_rag(note_id)
+            logger.info(f"Removed lecture note {note_id} from RAG system")
+        except Exception as e:
+            logger.error(f"Failed to remove lecture note {note_id} from RAG: {e}")
+            raise
+    
+    async def grade_answer(self, request: GradingRequest, save_result: bool = True) -> GradingResponse:
+        """
+        Grade a student answer using the RAG system (supports all exam types).
+        Automatically loads the marking scheme from JSON if not already loaded.
+        Optionally saves results to JSON storage.
+        
+        Args:
+            request: Grading request containing answer and parameters
+            save_result: Whether to save the result to JSON storage (default: True)
             
         Returns:
             Complete grading response with results for all criteria
@@ -295,7 +386,7 @@ class RAGGradingSystem:
             await self.initialize()
         
         try:
-            logger.info(f"Grading essay for student {request.student_id}")
+            logger.info(f"Grading answer for student {request.student_id}")
             
             # Validate request
             self._validate_grading_request(request)
@@ -304,31 +395,84 @@ class RAGGradingSystem:
             if request.marking_scheme_id not in self._loaded_schemes:
                 logger.info(f"Loading marking scheme {request.marking_scheme_id} from JSON")
                 marking_scheme = await self.load_marking_scheme_from_json(request.marking_scheme_id)
-                
+
                 if not marking_scheme:
                     raise ValidationError(f"Marking scheme {request.marking_scheme_id} not found in JSON file")
-                
-                # Load into RAG system
+
+                # Register in the grading service's own cache so it can find it
+                await self.grading_service.create_marking_scheme({
+                    "id": marking_scheme.id,
+                    "question_id": marking_scheme.question_id,
+                    "criteria": marking_scheme.criteria,
+                    "rubric_text": marking_scheme.rubric_text,
+                    "created_by": marking_scheme.created_by,
+                })
+
+                # Index into vector store
                 await self.grading_service.load_marking_scheme_to_rag(marking_scheme.id)
             
             # Perform grading
             response = await self.grading_service.grade_essay_all_criteria(request)
             
-            logger.info(f"Successfully graded essay: {response.total_score}/{response.max_total_score}")
+            logger.info(f"Successfully graded answer: {response.total_score}/{response.max_total_score}")
+            
+            # Save result to JSON storage if requested
+            if save_result:
+                try:
+                    # Prepare student and exam information
+                    student_info = {
+                        'studentID': request.student_id,
+                        'studentName': getattr(request, 'student_name', f"Student {request.student_id}")
+                    }
+                    
+                    exam_info = {
+                        'examId': getattr(request, 'assignment_id', f"exam_{datetime.now().strftime('%Y%m%d')}"),
+                        'examTitle': f"Assessment using {request.marking_scheme_id}",
+                        'courseId': getattr(request, 'course_id', 'COURSE001'),
+                        'submittedAt': getattr(request, 'submitted_at', datetime.now().isoformat() + "Z"),
+                        'answerText': getattr(request, 'answer', '') or getattr(request, 'essay_text', '')
+                    }
+                    
+                    result_dict = convert_grading_response_to_exam_format(
+                        response, 
+                        student_info, 
+                        exam_info,
+                        grader_id="ai_system"
+                    )
+                    
+                    # Add metadata for easier retrieval
+                    result_dict['_metadata'] = {
+                        'marking_scheme_id': request.marking_scheme_id,
+                        'assignment_id': getattr(request, 'assignment_id', None),
+                        'course_id': getattr(request, 'course_id', None),
+                        'stored_at': datetime.now().isoformat() + "Z"
+                    }
+                    
+                    result_id = self.results_storage.save_grading_result(result_dict)
+                    logger.info(f"Saved grading result to storage: {result_id}")
+                except Exception as e:
+                    logger.error(f"Failed to save grading result to storage: {e}")
+                    # Don't fail the grading if storage fails
+            
             return response
             
         except Exception as e:
-            logger.error(f"Failed to grade essay: {e}")
+            logger.error(f"Failed to grade answer: {e}")
             raise
+    
+    # Backward compatibility alias
+    async def grade_essay(self, request: EssayGradingRequest, save_result: bool = True) -> EssayGradingResponse:
+        """Backward compatibility method. Use grade_answer() instead."""
+        return await self.grade_answer(request, save_result)
     
     async def grade_single_criterion(
         self,
-        essay: str,
+        answer: str,
         criterion_id: str,
         marking_scheme_id: str
     ) -> GradingCriterion:
         """
-        Grade an essay for a single criterion.
+        Grade an answer for a single criterion (supports all exam types).
         Automatically loads the marking scheme from JSON if not already loaded.
         
         Args:
@@ -458,11 +602,80 @@ class RAGGradingSystem:
             logger.error(f"Failed to get available rubrics: {e}")
             return []
     
-    def _validate_grading_request(self, request: EssayGradingRequest) -> None:
+    def get_grading_result(self, result_id: str) -> Optional[Dict[str, Any]]:
+        """
+        Get a specific grading result by ID.
+        
+        Args:
+            result_id: Result identifier
+            
+        Returns:
+            Grading result dictionary or None
+        """
+        return self.results_storage.get_result_by_id(result_id)
+    
+    def get_student_results(self, student_id: str) -> List[Dict[str, Any]]:
+        """
+        Get all grading results for a specific student.
+        
+        Args:
+            student_id: Student identifier
+            
+        Returns:
+            List of grading results
+        """
+        return self.results_storage.get_results_by_student(student_id)
+    
+    def get_assignment_results(self, assignment_id: str) -> List[Dict[str, Any]]:
+        """
+        Get all grading results for a specific assignment.
+        
+        Args:
+            assignment_id: Assignment identifier
+            
+        Returns:
+            List of grading results
+        """
+        return self.results_storage.get_results_by_assignment(assignment_id)
+    
+    def get_all_grading_results(self) -> List[Dict[str, Any]]:
+        """
+        Get all stored grading results.
+        
+        Returns:
+            List of all grading results
+        """
+        return self.results_storage.load_all_results()
+    
+    def get_grading_statistics(self) -> Dict[str, Any]:
+        """
+        Get statistics about stored grading results.
+        
+        Returns:
+            Dictionary with statistics
+        """
+        return self.results_storage.get_statistics()
+    
+    def export_results_to_csv(self, output_path: str) -> bool:
+        """
+        Export grading results to CSV format.
+        
+        Args:
+            output_path: Path for CSV output file
+            
+        Returns:
+            True if successful
+        """
+        return self.results_storage.export_to_csv(output_path)
+    
+    def _validate_grading_request(self, request: GradingRequest) -> None:
         """Validate grading request parameters."""
-        if not request.essay_text.strip():
+        # Support both 'answer' and legacy 'essay_text' field
+        answer_text = getattr(request, 'answer', None) or getattr(request, 'essay_text', None)
+        
+        if not answer_text or not answer_text.strip():
             raise ErrorHandler.handle_validation_error(
-                "essay_text", request.essay_text, "Essay text cannot be empty"
+                "answer", answer_text, "Answer content cannot be empty"
             )
         
         if not request.student_id.strip():
@@ -478,25 +691,30 @@ class RAGGradingSystem:
 
 async def create_azure_system(rubrics_json_path: Optional[str] = None) -> RAGGradingSystem:
     """
-    Create a RAG grading system instance with Azure OpenAI integration.
-    Requires proper Azure OpenAI configuration via environment variables.
-    
-    Args:
-        rubrics_json_path: Optional path to the rubrics JSON file
+    Create a production RAG grading system with:
+    - AzureAIClient (real Azure OpenAI embeddings + grading)
+    - ChromaVectorStore (persistent on-disk vector storage)
+    - ProductionGradingService (real orchestration, no mock logic)
     """
-    from .implementations.mock_implementations import (
-        MockVectorStore,
-        MockGradingService
-    )
-    from .implementations.azure_ai_client import AzureAIClient
-    
-    vector_store = MockVectorStore()
+    try:
+        from implementations.azure_ai_client import AzureAIClient
+        from implementations.chroma_vector_store import ChromaVectorStore
+        from implementations.production_grading_service import ProductionGradingService
+    except ImportError:
+        try:
+            from .implementations.azure_ai_client import AzureAIClient
+            from .implementations.chroma_vector_store import ChromaVectorStore
+            from .implementations.production_grading_service import ProductionGradingService
+        except ImportError as e:
+            raise ImportError(f"Cannot import implementations: {e}")
+
     ai_client = AzureAIClient()
-    grading_service = MockGradingService(vector_store, ai_client)
-    
+    vector_store = ChromaVectorStore(ai_client=ai_client)
+    grading_service = ProductionGradingService(vector_store, ai_client)
+
     system = RAGGradingSystem(vector_store, ai_client, grading_service, rubrics_json_path)
     await system.initialize()
-    
+
     return system
 
 
@@ -513,25 +731,24 @@ async def create_system(rubrics_json_path: Optional[str] = None) -> RAGGradingSy
 
 async def create_test_system(rubrics_json_path: Optional[str] = None) -> RAGGradingSystem:
     """
-    Create a test instance of the RAG grading system with mock implementations.
-    Useful for development and testing when Azure API is not available.
-    
-    Args:
-        rubrics_json_path: Optional path to the rubrics JSON file
+    Create a test instance with mock implementations (no Azure API needed).
     """
-    from .implementations.mock_implementations import (
-        MockVectorStore,
-        MockAIClient,
-        MockGradingService
-    )
-    
+    try:
+        from implementations.mock_implementations import (
+            MockVectorStore, MockAIClient, MockGradingService
+        )
+    except ImportError:
+        from .implementations.mock_implementations import (
+            MockVectorStore, MockAIClient, MockGradingService
+        )
+
     vector_store = MockVectorStore()
     ai_client = MockAIClient()
     grading_service = MockGradingService(vector_store, ai_client)
-    
+
     system = RAGGradingSystem(vector_store, ai_client, grading_service, rubrics_json_path)
     await system.initialize()
-    
+
     return system
 
 

@@ -61,6 +61,34 @@ class GradingService(ABC):
         pass
     
     @abstractmethod
+    async def add_lecture_note_to_rag(self, note_content: str, note_id: str, rubric_ids: List[str]) -> None:
+        """
+        Add lecture note content to the RAG vector store with rubric associations.
+        
+        Args:
+            note_content: Extracted text content from the lecture note
+            note_id: Unique identifier for the lecture note
+            rubric_ids: List of rubric IDs to associate with this note
+            
+        Raises:
+            VectorStoreError: If adding to vector store fails
+        """
+        pass
+    
+    @abstractmethod
+    async def remove_lecture_note_from_rag(self, note_id: str) -> None:
+        """
+        Remove lecture note content from the RAG vector store.
+        
+        Args:
+            note_id: Unique identifier for the lecture note to remove
+            
+        Raises:
+            VectorStoreError: If removal from vector store fails
+        """
+        pass
+    
+    @abstractmethod
     async def grade_essay_by_criterion(
         self, 
         essay: str, 

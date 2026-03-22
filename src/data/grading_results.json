@@ -1,0 +1,976 @@
+[
+  {
+    "data": {
+      "studentID": "DIRECT_TEST_001",
+      "studentName": "Direct Test Student",
+      "examId": "direct_azure_test",
+      "examTitle": "Direct Azure OpenAI Test",
+      "courseId": "DIRECT_TEST",
+      "submittedAt": "2026-02-26T09:16:04.043828Z",
+      "gradedAt": "2026-02-26T09:16:04.043828Z",
+      "status": "graded",
+      "questions": [
+        {
+          "questionId": "q1",
+          "questionNumber": 1,
+          "questionText": "Understanding of Planning Fallacy",
+          "questionType": "essay",
+          "topicId": "general",
+          "studentAnswer": {
+            "id": "answer1",
+            "answerText": "Student response about planning fallacy...",
+            "submittedAt": "2026-02-26T09:16:04.043828Z",
+            "wordCount": 150
+          },
+          "criteria": [
+            {
+              "criterionId": "direct_test",
+              "criterionName": "Understanding of Planning Fallacy",
+              "description": "Direct Azure AI test criteria",
+              "maxScore": 10.0,
+              "weight": 1.0,
+              "grade": {
+                "manualScore": null,
+                "aiSuggestedScore": 9.0,
+                "highlightedText": "Planning fallacy is a cognitive bias where people underestimate the time, costs, and risks of future actions while overestimating their benefits. Several factors contribute to this bias: 1. Optimism bias - expecting positive outcomes 2. Anchoring - being influenced by initial estimates 3. Memory bias - remembering successes more than failures 4. Overconfidence - believing we can control more than we can",
+                "aiJustification": "The essay demonstrates a comprehensive understanding of the planning fallacy, providing a clear definition and identifying multiple contributing factors. The explanation of the cognitive bias is accurate and well-articulated, and the student effectively lists four relevant factors that contribute to the planning fallacy. Additionally, the essay offers practical solutions to mitigate the bias, which enhances the overall understanding of the topic.",
+                "aiSuggestion": "To further strengthen the essay, the student could provide examples or real-life scenarios that illustrate the planning fallacy in action. This would help to contextualize the concepts and make the discussion more relatable.",
+                "gradedBy": "direct_azure_ai",
+                "gradedAt": "2026-02-26T09:16:04.043828Z"
+              }
+            }
+          ],
+          "questionTotalScore": 9.0,
+          "questionMaxScore": 10.0,
+          "questionPercentage": 90.0
+        }
+      ],
+      "summary": {
+        "totalScore": 9.0,
+        "maxScore": 10.0,
+        "percentage": 90.0,
+        "grade": "Excellent",
+        "totalQuestions": 1,
+        "gradedQuestions": 1,
+        "pendingQuestions": 0
+      }
+    },
+    "_metadata": {
+      "marking_scheme_id": "direct_test",
+      "assignment_id": "direct_azure_test",
+      "course_id": "DIRECT_TEST",
+      "stored_at": "2026-02-26T09:16:04.043828Z"
+    },
+    "success": true,
+    "message": "Direct Azure test results processed successfully"
+  },
+  {
+    "data": {
+      "studentID": "20841234",
+      "studentName": "John Smith",
+      "examId": "rubric-1",
+      "examTitle": "Assessment using rubric-1",
+      "courseId": "default",
+      "submittedAt": null,
+      "gradedAt": "2026-03-22T15:57:47.551313Z",
+      "status": "graded",
+      "questions": [
+        {
+          "questionId": "",
+          "questionNumber": 1,
+          "questionText": "",
+          "questionType": "essay",
+          "topicId": "general",
+          "studentAnswer": {
+            "id": "answer1",
+            "answerText": "",
+            "submittedAt": null,
+            "wordCount": 0
+          },
+          "criteria": [
+            {
+              "criterionId": "",
+              "criterionName": "",
+              "description": "AI-generated assessment criteria",
+              "maxScore": 0,
+              "weight": 1.0,
+              "grade": {
+                "manualScore": null,
+                "aiSuggestedScore": 0,
+                "highlightedText": "",
+                "aiJustification": "",
+                "aiSuggestion": "",
+                "gradedBy": "ai_system",
+                "gradedAt": "2026-03-22T15:57:47.551313Z"
+              }
+            }
+          ],
+          "questionTotalScore": 0,
+          "questionMaxScore": 0,
+          "questionPercentage": 0
+        },
+        {
+          "questionId": "",
+          "questionNumber": 2,
+          "questionText": "",
+          "questionType": "essay",
+          "topicId": "general",
+          "studentAnswer": {
+            "id": "answer2",
+            "answerText": "",
+            "submittedAt": null,
+            "wordCount": 0
+          },
+          "criteria": [
+            {
+              "criterionId": "",
+              "criterionName": "",
+              "description": "AI-generated assessment criteria",
+              "maxScore": 0,
+              "weight": 1.0,
+              "grade": {
+                "manualScore": null,
+                "aiSuggestedScore": 0,
+                "highlightedText": "",
+                "aiJustification": "",
+                "aiSuggestion": "",
+                "gradedBy": "ai_system",
+                "gradedAt": "2026-03-22T15:57:47.551313Z"
+              }
+            }
+          ],
+          "questionTotalScore": 0,
+          "questionMaxScore": 0,
+          "questionPercentage": 0
+        }
+      ],
+      "summary": {
+        "totalScore": 18.0,
+        "maxScore": 20.0,
+        "percentage": 90.0,
+        "grade": "A+",
+        "totalQuestions": 2,
+        "gradedQuestions": 2,
+        "pendingQuestions": 0
+      }
+    },
+    "success": true,
+    "message": "Exam results processed successfully",
+    "_metadata": {
+      "marking_scheme_id": "rubric-1",
+      "assignment_id": "rubric-1",
+      "course_id": "default",
+      "stored_at": "2026-03-22T15:57:47.551313Z"
+    },
+    "id": "grade_20260322_155747_unknown",
+    "saved_at": "2026-03-22T15:57:47.551313"
+  },
+  {
+    "data": {
+      "studentID": "20841235",
+      "studentName": "Jane Doe",
+      "examId": "rubric-1",
+      "examTitle": "Assessment using rubric-1",
+      "courseId": "default",
+      "submittedAt": null,
+      "gradedAt": "2026-03-22T15:57:57.287864Z",
+      "status": "graded",
+      "questions": [
+        {
+          "questionId": "",
+          "questionNumber": 1,
+          "questionText": "",
+          "questionType": "essay",
+          "topicId": "general",
+          "studentAnswer": {
+            "id": "answer1",
+            "answerText": "",
+            "submittedAt": null,
+            "wordCount": 0
+          },
+          "criteria": [
+            {
+              "criterionId": "",
+              "criterionName": "",
+              "description": "AI-generated assessment criteria",
+              "maxScore": 0,
+              "weight": 1.0,
+              "grade": {
+                "manualScore": null,
+                "aiSuggestedScore": 0,
+                "highlightedText": "",
+                "aiJustification": "",
+                "aiSuggestion": "",
+                "gradedBy": "ai_system",
+                "gradedAt": "2026-03-22T15:57:57.287864Z"
+              }
+            }
+          ],
+          "questionTotalScore": 0,
+          "questionMaxScore": 0,
+          "questionPercentage": 0
+        },
+        {
+          "questionId": "",
+          "questionNumber": 2,
+          "questionText": "",
+          "questionType": "essay",
+          "topicId": "general",
+          "studentAnswer": {
+            "id": "answer2",
+            "answerText": "",
+            "submittedAt": null,
+            "wordCount": 0
+          },
+          "criteria": [
+            {
+              "criterionId": "",
+              "criterionName": "",
+              "description": "AI-generated assessment criteria",
+              "maxScore": 0,
+              "weight": 1.0,
+              "grade": {
+                "manualScore": null,
+                "aiSuggestedScore": 0,
+                "highlightedText": "",
+                "aiJustification": "",
+                "aiSuggestion": "",
+                "gradedBy": "ai_system",
+                "gradedAt": "2026-03-22T15:57:57.287864Z"
+              }
+            }
+          ],
+          "questionTotalScore": 0,
+          "questionMaxScore": 0,
+          "questionPercentage": 0
+        }
+      ],
+      "summary": {
+        "totalScore": 16.0,
+        "maxScore": 20.0,
+        "percentage": 80.0,
+        "grade": "A-",
+        "totalQuestions": 2,
+        "gradedQuestions": 2,
+        "pendingQuestions": 0
+      }
+    },
+    "success": true,
+    "message": "Exam results processed successfully",
+    "_metadata": {
+      "marking_scheme_id": "rubric-1",
+      "assignment_id": "rubric-1",
+      "course_id": "default",
+      "stored_at": "2026-03-22T15:57:57.287864Z"
+    },
+    "id": "grade_20260322_155757_unknown",
+    "saved_at": "2026-03-22T15:57:57.287864"
+  },
+  {
+    "data": {
+      "studentID": "20841236",
+      "studentName": "Bob Johnson",
+      "examId": "rubric-1",
+      "examTitle": "Assessment using rubric-1",
+      "courseId": "default",
+      "submittedAt": null,
+      "gradedAt": "2026-03-22T15:58:04.966748Z",
+      "status": "graded",
+      "questions": [
+        {
+          "questionId": "",
+          "questionNumber": 1,
+          "questionText": "",
+          "questionType": "essay",
+          "topicId": "general",
+          "studentAnswer": {
+            "id": "answer1",
+            "answerText": "",
+            "submittedAt": null,
+            "wordCount": 0
+          },
+          "criteria": [
+            {
+              "criterionId": "",
+              "criterionName": "",
+              "description": "AI-generated assessment criteria",
+              "maxScore": 0,
+              "weight": 1.0,
+              "grade": {
+                "manualScore": null,
+                "aiSuggestedScore": 0,
+                "highlightedText": "",
+                "aiJustification": "",
+                "aiSuggestion": "",
+                "gradedBy": "ai_system",
+                "gradedAt": "2026-03-22T15:58:04.966748Z"
+              }
+            }
+          ],
+          "questionTotalScore": 0,
+          "questionMaxScore": 0,
+          "questionPercentage": 0
+        },
+        {
+          "questionId": "",
+          "questionNumber": 2,
+          "questionText": "",
+          "questionType": "essay",
+          "topicId": "general",
+          "studentAnswer": {
+            "id": "answer2",
+            "answerText": "",
+            "submittedAt": null,
+            "wordCount": 0
+          },
+          "criteria": [
+            {
+              "criterionId": "",
+              "criterionName": "",
+              "description": "AI-generated assessment criteria",
+              "maxScore": 0,
+              "weight": 1.0,
+              "grade": {
+                "manualScore": null,
+                "aiSuggestedScore": 0,
+                "highlightedText": "",
+                "aiJustification": "",
+                "aiSuggestion": "",
+                "gradedBy": "ai_system",
+                "gradedAt": "2026-03-22T15:58:04.966748Z"
+              }
+            }
+          ],
+          "questionTotalScore": 0,
+          "questionMaxScore": 0,
+          "questionPercentage": 0
+        }
+      ],
+      "summary": {
+        "totalScore": 11.0,
+        "maxScore": 20.0,
+        "percentage": 55.0,
+        "grade": "C",
+        "totalQuestions": 2,
+        "gradedQuestions": 2,
+        "pendingQuestions": 0
+      }
+    },
+    "success": true,
+    "message": "Exam results processed successfully",
+    "_metadata": {
+      "marking_scheme_id": "rubric-1",
+      "assignment_id": "rubric-1",
+      "course_id": "default",
+      "stored_at": "2026-03-22T15:58:04.966748Z"
+    },
+    "id": "grade_20260322_155804_unknown",
+    "saved_at": "2026-03-22T15:58:04.966748"
+  },
+  {
+    "data": {
+      "studentID": "20841234",
+      "studentName": "John Smith",
+      "examId": "rubric-1",
+      "examTitle": "Assessment using rubric-1",
+      "courseId": "default",
+      "submittedAt": null,
+      "gradedAt": "2026-03-22T16:25:32.481594Z",
+      "status": "graded",
+      "questions": [
+        {
+          "questionId": "q1",
+          "questionNumber": 1,
+          "questionText": "Content 1: Explain the concept of planning fallacy",
+          "questionType": "essay",
+          "topicId": "general",
+          "studentAnswer": {
+            "id": "answer1",
+            "answerText": "[Question q1]\nThe planning fallacy is a cognitive bias where individuals underestimate the time, costs, and risks of future actions while overestimating the benefits. This phenomenon was first identified by Daniel Kahneman and Amos Tversky in 1979. The main causes include optimism bias, where people focus on best-case scenarios, and the failure to account for past experiences with similar tasks. People tend to think about the specific task at hand rather than drawing on their general knowledge of how long similar tasks have taken in the past. This inside view leads to systematic underestimation. Additionally, social and motivational factors play a role, as people may feel pressure to commit to optimistic timelines.\n\n[Question q2]\nSeveral psychological factors contribute to the planning fallacy. First, optimism bias causes people to believe they are less likely to experience negative events than others. Second, the focusing illusion makes people concentrate on the task itself while ignoring external factors that could cause delays. Third, anchoring bias means initial estimates become reference points that are insufficiently adjusted. Fourth, the availability heuristic leads people to recall successful completions more easily than failures. Finally, motivated reasoning causes people to unconsciously favor information that supports their desired timeline.",
+            "submittedAt": null,
+            "wordCount": 199
+          },
+          "criteria": [
+            {
+              "criterionId": "q1",
+              "criterionName": "Content 1: Explain the concept of planning fallacy",
+              "description": "AI-generated assessment criteria",
+              "maxScore": 10.0,
+              "weight": 1.0,
+              "grade": {
+                "manualScore": null,
+                "aiSuggestedScore": 9.0,
+                "highlightedText": "The planning fallacy is a cognitive bias where individuals underestimate the time, costs, and risks of future actions while overestimating the benefits. The main causes include optimism bias, where people focus on best-case scenarios, and the failure to account for past experiences with similar tasks.",
+                "aiJustification": "The student demonstrates an excellent understanding of the planning fallacy by providing a clear definition and identifying multiple causes. The definition is concise and accurately captures the essence of the planning fallacy, while the discussion of causes, such as optimism bias and the inside view, shows depth of understanding. The mention of social and motivational factors further enriches the explanation, indicating a comprehensive grasp of the topic.",
+                "aiSuggestion": "To achieve a perfect score, the student could enhance the essay by providing specific examples or real-life applications of the planning fallacy. This would illustrate the concept more vividly and demonstrate its relevance in practical scenarios.",
+                "gradedBy": "ai_system",
+                "gradedAt": "2026-03-22T16:25:32.481594Z"
+              }
+            }
+          ],
+          "questionTotalScore": 9.0,
+          "questionMaxScore": 10.0,
+          "questionPercentage": 90.0
+        },
+        {
+          "questionId": "q2",
+          "questionNumber": 2,
+          "questionText": "Content 2: Explain psychological factors",
+          "questionType": "essay",
+          "topicId": "general",
+          "studentAnswer": {
+            "id": "answer2",
+            "answerText": "[Question q1]\nThe planning fallacy is a cognitive bias where individuals underestimate the time, costs, and risks of future actions while overestimating the benefits. This phenomenon was first identified by Daniel Kahneman and Amos Tversky in 1979. The main causes include optimism bias, where people focus on best-case scenarios, and the failure to account for past experiences with similar tasks. People tend to think about the specific task at hand rather than drawing on their general knowledge of how long similar tasks have taken in the past. This inside view leads to systematic underestimation. Additionally, social and motivational factors play a role, as people may feel pressure to commit to optimistic timelines.\n\n[Question q2]\nSeveral psychological factors contribute to the planning fallacy. First, optimism bias causes people to believe they are less likely to experience negative events than others. Second, the focusing illusion makes people concentrate on the task itself while ignoring external factors that could cause delays. Third, anchoring bias means initial estimates become reference points that are insufficiently adjusted. Fourth, the availability heuristic leads people to recall successful completions more easily than failures. Finally, motivated reasoning causes people to unconsciously favor information that supports their desired timeline.",
+            "submittedAt": null,
+            "wordCount": 199
+          },
+          "criteria": [
+            {
+              "criterionId": "q2",
+              "criterionName": "Content 2: Explain psychological factors",
+              "description": "AI-generated assessment criteria",
+              "maxScore": 10.0,
+              "weight": 1.0,
+              "grade": {
+                "manualScore": null,
+                "aiSuggestedScore": 9.0,
+                "highlightedText": "First, optimism bias causes people to believe they are less likely to experience negative events than others. Second, the focusing illusion makes people concentrate on the task itself while ignoring external factors that could cause delays. Third, anchoring bias means initial estimates become reference points that are insufficiently adjusted. Fourth, the availability heuristic leads people to recall successful completions more easily than failures. Finally, motivated reasoning causes people to unconsciously favor information that supports their desired timeline.",
+                "aiJustification": "The student provides a comprehensive explanation of multiple psychological factors contributing to the planning fallacy. They identify five distinct factors: optimism bias, focusing illusion, anchoring bias, availability heuristic, and motivated reasoning. Each factor is clearly defined and explained, demonstrating a strong understanding of how these biases influence the planning fallacy. The explanations are concise and relevant, showcasing the student's grasp of the topic.",
+                "aiSuggestion": "To achieve a perfect score, the student could enhance their essay by providing specific examples or real-life scenarios that illustrate how each psychological factor manifests in decision-making processes. This would deepen the reader's understanding and provide practical context to the theoretical concepts discussed.",
+                "gradedBy": "ai_system",
+                "gradedAt": "2026-03-22T16:25:32.481594Z"
+              }
+            }
+          ],
+          "questionTotalScore": 9.0,
+          "questionMaxScore": 10.0,
+          "questionPercentage": 90.0
+        }
+      ],
+      "summary": {
+        "totalScore": 18.0,
+        "maxScore": 20.0,
+        "percentage": 90.0,
+        "grade": "A+",
+        "totalQuestions": 2,
+        "gradedQuestions": 2,
+        "pendingQuestions": 0
+      }
+    },
+    "success": true,
+    "message": "Exam results processed successfully",
+    "_metadata": {
+      "marking_scheme_id": "rubric-1",
+      "assignment_id": "rubric-1",
+      "course_id": "default",
+      "stored_at": "2026-03-22T16:25:32.481594Z"
+    },
+    "id": "grade_20260322_162532_unknown",
+    "saved_at": "2026-03-22T16:25:32.481594"
+  },
+  {
+    "data": {
+      "studentID": "20841235",
+      "studentName": "Jane Doe",
+      "examId": "rubric-1",
+      "examTitle": "Assessment using rubric-1",
+      "courseId": "default",
+      "submittedAt": null,
+      "gradedAt": "2026-03-22T16:25:43.870093Z",
+      "status": "graded",
+      "questions": [
+        {
+          "questionId": "q1",
+          "questionNumber": 1,
+          "questionText": "Content 1: Explain the concept of planning fallacy",
+          "questionType": "essay",
+          "topicId": "general",
+          "studentAnswer": {
+            "id": "answer1",
+            "answerText": "[Question q1]\nPlanning fallacy refers to the tendency to underestimate how long a task will take. It happens because people are overly optimistic and do not consider past experiences. For example, students often think they can finish an assignment in one day but end up taking three days. The concept was introduced by Kahneman and Tversky and has been widely studied in project management and psychology.\n\n[Question q2]\nThe psychological factors include optimism bias where people think things will go better than they usually do. There is also the inside view problem where people focus too much on the specific plan without considering base rates. Ego depletion can also play a role as people become less careful in their estimates when tired. Social pressure from supervisors or peers can also cause people to give overly optimistic estimates.",
+            "submittedAt": null,
+            "wordCount": 137
+          },
+          "criteria": [
+            {
+              "criterionId": "q1",
+              "criterionName": "Content 1: Explain the concept of planning fallacy",
+              "description": "AI-generated assessment criteria",
+              "maxScore": 10.0,
+              "weight": 1.0,
+              "grade": {
+                "manualScore": null,
+                "aiSuggestedScore": 8.0,
+                "highlightedText": "Planning fallacy refers to the tendency to underestimate how long a task will take. It happens because people are overly optimistic and do not consider past experiences. For example, students often think they can finish an assignment in one day but end up taking three days.",
+                "aiJustification": "The student demonstrates a good understanding of the planning fallacy by providing a clear definition and an example. The definition states that it is the tendency to underestimate how long a task will take, which is accurate. The example of students thinking they can finish an assignment in one day but taking three days effectively illustrates the concept. However, while the student mentions that the concept was introduced by Kahneman and Tversky, they could have elaborated on more causes or factors contributing to the planning fallacy to achieve a higher score.",
+                "aiSuggestion": "To improve the score, the student should include additional causes of the planning fallacy, such as cognitive biases or specific examples from research studies. Expanding on the implications of the planning fallacy in various contexts could also enhance the depth of the explanation.",
+                "gradedBy": "ai_system",
+                "gradedAt": "2026-03-22T16:25:43.870093Z"
+              }
+            }
+          ],
+          "questionTotalScore": 8.0,
+          "questionMaxScore": 10.0,
+          "questionPercentage": 80.0
+        },
+        {
+          "questionId": "q2",
+          "questionNumber": 2,
+          "questionText": "Content 2: Explain psychological factors",
+          "questionType": "essay",
+          "topicId": "general",
+          "studentAnswer": {
+            "id": "answer2",
+            "answerText": "[Question q1]\nPlanning fallacy refers to the tendency to underestimate how long a task will take. It happens because people are overly optimistic and do not consider past experiences. For example, students often think they can finish an assignment in one day but end up taking three days. The concept was introduced by Kahneman and Tversky and has been widely studied in project management and psychology.\n\n[Question q2]\nThe psychological factors include optimism bias where people think things will go better than they usually do. There is also the inside view problem where people focus too much on the specific plan without considering base rates. Ego depletion can also play a role as people become less careful in their estimates when tired. Social pressure from supervisors or peers can also cause people to give overly optimistic estimates.",
+            "submittedAt": null,
+            "wordCount": 137
+          },
+          "criteria": [
+            {
+              "criterionId": "q2",
+              "criterionName": "Content 2: Explain psychological factors",
+              "description": "AI-generated assessment criteria",
+              "maxScore": 10.0,
+              "weight": 1.0,
+              "grade": {
+                "manualScore": null,
+                "aiSuggestedScore": 8.0,
+                "highlightedText": "The psychological factors include optimism bias where people think things will go better than they usually do. There is also the inside view problem where people focus too much on the specific plan without considering base rates. Ego depletion can also play a role as people become less careful in their estimates when tired. Social pressure from supervisors or peers can also cause people to give overly optimistic estimates.",
+                "aiJustification": "The student provides a good explanation of several psychological factors contributing to the planning fallacy, including optimism bias, the inside view problem, ego depletion, and social pressure. Each factor is identified and briefly explained, demonstrating a solid understanding of how these factors influence task estimation. However, the essay could benefit from more detailed examples or elaboration on how these factors specifically lead to the planning fallacy, which would enhance the comprehensiveness of the explanation.",
+                "aiSuggestion": "To improve the essay, the student should consider providing specific examples or scenarios that illustrate how each psychological factor affects task estimation. This would help to deepen the reader's understanding and provide a more comprehensive view of the factors involved.",
+                "gradedBy": "ai_system",
+                "gradedAt": "2026-03-22T16:25:43.870093Z"
+              }
+            }
+          ],
+          "questionTotalScore": 8.0,
+          "questionMaxScore": 10.0,
+          "questionPercentage": 80.0
+        }
+      ],
+      "summary": {
+        "totalScore": 16.0,
+        "maxScore": 20.0,
+        "percentage": 80.0,
+        "grade": "A-",
+        "totalQuestions": 2,
+        "gradedQuestions": 2,
+        "pendingQuestions": 0
+      }
+    },
+    "success": true,
+    "message": "Exam results processed successfully",
+    "_metadata": {
+      "marking_scheme_id": "rubric-1",
+      "assignment_id": "rubric-1",
+      "course_id": "default",
+      "stored_at": "2026-03-22T16:25:43.870093Z"
+    },
+    "id": "grade_20260322_162543_unknown",
+    "saved_at": "2026-03-22T16:25:43.870093"
+  },
+  {
+    "data": {
+      "studentID": "20841236",
+      "studentName": "Bob Johnson",
+      "examId": "rubric-1",
+      "examTitle": "Assessment using rubric-1",
+      "courseId": "default",
+      "submittedAt": null,
+      "gradedAt": "2026-03-22T16:25:52.951995Z",
+      "status": "graded",
+      "questions": [
+        {
+          "questionId": "q1",
+          "questionNumber": 1,
+          "questionText": "Content 1: Explain the concept of planning fallacy",
+          "questionType": "essay",
+          "topicId": "general",
+          "studentAnswer": {
+            "id": "answer1",
+            "answerText": "[Question q1]\nPlanning fallacy is when you think something will take less time than it actually does. I have experienced this many times when doing homework. The reason is that people are too optimistic.\n\n[Question q2]\nPeople are optimistic and do not think about problems that might happen. They also forget about past failures and only remember when things went well.",
+            "submittedAt": null,
+            "wordCount": 61
+          },
+          "criteria": [
+            {
+              "criterionId": "q1",
+              "criterionName": "Content 1: Explain the concept of planning fallacy",
+              "description": "AI-generated assessment criteria",
+              "maxScore": 10.0,
+              "weight": 1.0,
+              "grade": {
+                "manualScore": null,
+                "aiSuggestedScore": 6.0,
+                "highlightedText": "Planning fallacy is when you think something will take less time than it actually does. The reason is that people are too optimistic.",
+                "aiJustification": "The student provides a basic definition of planning fallacy, stating that it is when one thinks something will take less time than it actually does. However, the explanation lacks depth and does not explore multiple causes or provide a comprehensive understanding of the concept. The mention of optimism as a reason is a good start, but it is not sufficient to demonstrate a thorough understanding of the planning fallacy.",
+                "aiSuggestion": "To improve, the student should elaborate on the definition of planning fallacy and include additional causes, such as cognitive biases, overconfidence, and neglect of past experiences. Providing examples or personal anecdotes that illustrate these points would also enhance the essay.",
+                "gradedBy": "ai_system",
+                "gradedAt": "2026-03-22T16:25:52.951995Z"
+              }
+            }
+          ],
+          "questionTotalScore": 6.0,
+          "questionMaxScore": 10.0,
+          "questionPercentage": 60.0
+        },
+        {
+          "questionId": "q2",
+          "questionNumber": 2,
+          "questionText": "Content 2: Explain psychological factors",
+          "questionType": "essay",
+          "topicId": "general",
+          "studentAnswer": {
+            "id": "answer2",
+            "answerText": "[Question q1]\nPlanning fallacy is when you think something will take less time than it actually does. I have experienced this many times when doing homework. The reason is that people are too optimistic.\n\n[Question q2]\nPeople are optimistic and do not think about problems that might happen. They also forget about past failures and only remember when things went well.",
+            "submittedAt": null,
+            "wordCount": 61
+          },
+          "criteria": [
+            {
+              "criterionId": "q2",
+              "criterionName": "Content 2: Explain psychological factors",
+              "description": "AI-generated assessment criteria",
+              "maxScore": 10.0,
+              "weight": 1.0,
+              "grade": {
+                "manualScore": null,
+                "aiSuggestedScore": 5.0,
+                "highlightedText": "People are optimistic and do not think about problems that might happen. They also forget about past failures and only remember when things went well.",
+                "aiJustification": "The student provides a basic mention of psychological factors contributing to the planning fallacy, specifically noting that people are overly optimistic and tend to forget past failures. However, the explanation lacks depth and does not explore multiple psychological factors or provide examples. The mention of optimism is relevant but insufficient for a comprehensive understanding of the topic.",
+                "aiSuggestion": "To improve, the student should elaborate on additional psychological factors such as overconfidence, the impact of time perception, and cognitive biases. Including specific examples or studies that illustrate these factors would strengthen the argument and demonstrate a deeper understanding.",
+                "gradedBy": "ai_system",
+                "gradedAt": "2026-03-22T16:25:52.951995Z"
+              }
+            }
+          ],
+          "questionTotalScore": 5.0,
+          "questionMaxScore": 10.0,
+          "questionPercentage": 50.0
+        }
+      ],
+      "summary": {
+        "totalScore": 11.0,
+        "maxScore": 20.0,
+        "percentage": 55.0,
+        "grade": "C",
+        "totalQuestions": 2,
+        "gradedQuestions": 2,
+        "pendingQuestions": 0
+      }
+    },
+    "success": true,
+    "message": "Exam results processed successfully",
+    "_metadata": {
+      "marking_scheme_id": "rubric-1",
+      "assignment_id": "rubric-1",
+      "course_id": "default",
+      "stored_at": "2026-03-22T16:25:52.951995Z"
+    },
+    "id": "grade_20260322_162552_unknown",
+    "saved_at": "2026-03-22T16:25:52.951995"
+  },
+  {
+    "data": {
+      "studentID": "20841234",
+      "studentName": "John Smith",
+      "examId": "rubric-1",
+      "examTitle": "Assessment using rubric-1",
+      "courseId": "default",
+      "submittedAt": null,
+      "gradedAt": "2026-03-22T20:45:28.947633Z",
+      "status": "graded",
+      "questions": [
+        {
+          "questionId": "q1",
+          "questionNumber": 1,
+          "questionText": "Content 1: Explain the concept of planning fallacy",
+          "questionType": "essay",
+          "topicId": "general",
+          "studentAnswer": {
+            "id": "answer1",
+            "answerText": "[Question q1]\nThe planning fallacy is a cognitive bias where individuals underestimate the time, costs, and risks of future actions while overestimating the benefits. This phenomenon was first identified by Daniel Kahneman and Amos Tversky in 1979. The main causes include optimism bias, where people focus on best-case scenarios, and the failure to account for past experiences with similar tasks. People tend to think about the specific task at hand rather than drawing on their general knowledge of how long similar tasks have taken in the past. This inside view leads to systematic underestimation. Additionally, social and motivational factors play a role, as people may feel pressure to commit to optimistic timelines.\n\n[Question q2]\nSeveral psychological factors contribute to the planning fallacy. First, optimism bias causes people to believe they are less likely to experience negative events than others. Second, the focusing illusion makes people concentrate on the task itself while ignoring external factors that could cause delays. Third, anchoring bias means initial estimates become reference points that are insufficiently adjusted. Fourth, the availability heuristic leads people to recall successful completions more easily than failures. Finally, motivated reasoning causes people to unconsciously favor information that supports their desired timeline.",
+            "submittedAt": null,
+            "wordCount": 199
+          },
+          "criteria": [
+            {
+              "criterionId": "q1",
+              "criterionName": "Content 1: Explain the concept of planning fallacy",
+              "description": "AI-generated assessment criteria",
+              "maxScore": 10.0,
+              "weight": 1.0,
+              "grade": {
+                "manualScore": null,
+                "aiSuggestedScore": 9.0,
+                "highlightedText": "The planning fallacy is a cognitive bias where individuals underestimate the time, costs, and risks of future actions while overestimating the benefits. This phenomenon was first identified by Daniel Kahneman and Amos Tversky in 1979. The main causes include optimism bias, where people focus on best-case scenarios, and the failure to account for past experiences with similar tasks.",
+                "aiJustification": "The student demonstrates an excellent understanding of the planning fallacy by providing a clear definition and identifying multiple causes. The definition is concise and accurately captures the essence of the planning fallacy, stating that it involves underestimating time, costs, and risks while overestimating benefits. The essay also effectively discusses causes such as optimism bias and the inside view, which are critical to understanding the phenomenon. However, while the causes are well identified, a bit more elaboration on how these causes interact or examples of their impact could enhance the explanation further.",
+                "aiSuggestion": "To improve, the student could provide specific examples or scenarios that illustrate how the planning fallacy manifests in real-life situations. Additionally, discussing the implications of the planning fallacy on decision-making could deepen the analysis.",
+                "gradedBy": "ai_system",
+                "gradedAt": "2026-03-22T20:45:28.947633Z"
+              }
+            }
+          ],
+          "questionTotalScore": 9.0,
+          "questionMaxScore": 10.0,
+          "questionPercentage": 90.0
+        },
+        {
+          "questionId": "q2",
+          "questionNumber": 2,
+          "questionText": "Content 2: Explain psychological factors",
+          "questionType": "essay",
+          "topicId": "general",
+          "studentAnswer": {
+            "id": "answer2",
+            "answerText": "[Question q1]\nThe planning fallacy is a cognitive bias where individuals underestimate the time, costs, and risks of future actions while overestimating the benefits. This phenomenon was first identified by Daniel Kahneman and Amos Tversky in 1979. The main causes include optimism bias, where people focus on best-case scenarios, and the failure to account for past experiences with similar tasks. People tend to think about the specific task at hand rather than drawing on their general knowledge of how long similar tasks have taken in the past. This inside view leads to systematic underestimation. Additionally, social and motivational factors play a role, as people may feel pressure to commit to optimistic timelines.\n\n[Question q2]\nSeveral psychological factors contribute to the planning fallacy. First, optimism bias causes people to believe they are less likely to experience negative events than others. Second, the focusing illusion makes people concentrate on the task itself while ignoring external factors that could cause delays. Third, anchoring bias means initial estimates become reference points that are insufficiently adjusted. Fourth, the availability heuristic leads people to recall successful completions more easily than failures. Finally, motivated reasoning causes people to unconsciously favor information that supports their desired timeline.",
+            "submittedAt": null,
+            "wordCount": 199
+          },
+          "criteria": [
+            {
+              "criterionId": "q2",
+              "criterionName": "Content 2: Explain psychological factors",
+              "description": "AI-generated assessment criteria",
+              "maxScore": 10.0,
+              "weight": 1.0,
+              "grade": {
+                "manualScore": null,
+                "aiSuggestedScore": 9.0,
+                "highlightedText": "First, optimism bias causes people to believe they are less likely to experience negative events than others. Second, the focusing illusion makes people concentrate on the task itself while ignoring external factors that could cause delays. Third, anchoring bias means initial estimates become reference points that are insufficiently adjusted. Fourth, the availability heuristic leads people to recall successful completions more easily than failures. Finally, motivated reasoning causes people to unconsciously favor information that supports their desired timeline.",
+                "aiJustification": "The student provides a comprehensive explanation of multiple psychological factors contributing to the planning fallacy. They identify five distinct factors: optimism bias, focusing illusion, anchoring bias, availability heuristic, and motivated reasoning. Each factor is clearly defined and explained, demonstrating a strong understanding of how these biases influence individuals' perceptions of time and risk. The explanations are concise and relevant, showcasing the student's grasp of the topic.",
+                "aiSuggestion": "To achieve a perfect score, the student could enhance their essay by providing specific examples or scenarios that illustrate how each psychological factor manifests in real-life situations. This would deepen the reader's understanding and make the explanations more relatable.",
+                "gradedBy": "ai_system",
+                "gradedAt": "2026-03-22T20:45:28.947633Z"
+              }
+            }
+          ],
+          "questionTotalScore": 9.0,
+          "questionMaxScore": 10.0,
+          "questionPercentage": 90.0
+        }
+      ],
+      "summary": {
+        "totalScore": 18.0,
+        "maxScore": 20.0,
+        "percentage": 90.0,
+        "grade": "A+",
+        "totalQuestions": 2,
+        "gradedQuestions": 2,
+        "pendingQuestions": 0
+      }
+    },
+    "success": true,
+    "message": "Exam results processed successfully",
+    "_metadata": {
+      "marking_scheme_id": "rubric-1",
+      "assignment_id": "rubric-1",
+      "course_id": "default",
+      "stored_at": "2026-03-22T20:45:28.947633Z"
+    },
+    "id": "grade_20260322_204528_unknown",
+    "saved_at": "2026-03-22T20:45:28.947633"
+  },
+  {
+    "data": {
+      "studentID": "20841235",
+      "studentName": "Jane Doe",
+      "examId": "rubric-1",
+      "examTitle": "Assessment using rubric-1",
+      "courseId": "default",
+      "submittedAt": null,
+      "gradedAt": "2026-03-22T20:45:37.112456Z",
+      "status": "graded",
+      "questions": [
+        {
+          "questionId": "q1",
+          "questionNumber": 1,
+          "questionText": "Content 1: Explain the concept of planning fallacy",
+          "questionType": "essay",
+          "topicId": "general",
+          "studentAnswer": {
+            "id": "answer1",
+            "answerText": "[Question q1]\nPlanning fallacy refers to the tendency to underestimate how long a task will take. It happens because people are overly optimistic and do not consider past experiences. For example, students often think they can finish an assignment in one day but end up taking three days. The concept was introduced by Kahneman and Tversky and has been widely studied in project management and psychology.\n\n[Question q2]\nThe psychological factors include optimism bias where people think things will go better than they usually do. There is also the inside view problem where people focus too much on the specific plan without considering base rates. Ego depletion can also play a role as people become less careful in their estimates when tired. Social pressure from supervisors or peers can also cause people to give overly optimistic estimates.",
+            "submittedAt": null,
+            "wordCount": 137
+          },
+          "criteria": [
+            {
+              "criterionId": "q1",
+              "criterionName": "Content 1: Explain the concept of planning fallacy",
+              "description": "AI-generated assessment criteria",
+              "maxScore": 10.0,
+              "weight": 1.0,
+              "grade": {
+                "manualScore": null,
+                "aiSuggestedScore": 8.0,
+                "highlightedText": "Planning fallacy refers to the tendency to underestimate how long a task will take. It happens because people are overly optimistic and do not consider past experiences. For example, students often think they can finish an assignment in one day but end up taking three days.",
+                "aiJustification": "The student demonstrates a good understanding of the planning fallacy by providing a clear definition and an example. The definition states that it is the tendency to underestimate how long a task will take, which is accurate. The example of students thinking they can finish an assignment in one day but taking three days effectively illustrates the concept. However, while the student mentions that the concept was introduced by Kahneman and Tversky, they could have elaborated on more causes or factors contributing to the planning fallacy to achieve a higher score.",
+                "aiSuggestion": "To improve the essay, the student should include additional causes of the planning fallacy, such as the role of overconfidence or the impact of external factors like deadlines. Providing more depth and examples would enhance the explanation.",
+                "gradedBy": "ai_system",
+                "gradedAt": "2026-03-22T20:45:37.112456Z"
+              }
+            }
+          ],
+          "questionTotalScore": 8.0,
+          "questionMaxScore": 10.0,
+          "questionPercentage": 80.0
+        },
+        {
+          "questionId": "q2",
+          "questionNumber": 2,
+          "questionText": "Content 2: Explain psychological factors",
+          "questionType": "essay",
+          "topicId": "general",
+          "studentAnswer": {
+            "id": "answer2",
+            "answerText": "[Question q1]\nPlanning fallacy refers to the tendency to underestimate how long a task will take. It happens because people are overly optimistic and do not consider past experiences. For example, students often think they can finish an assignment in one day but end up taking three days. The concept was introduced by Kahneman and Tversky and has been widely studied in project management and psychology.\n\n[Question q2]\nThe psychological factors include optimism bias where people think things will go better than they usually do. There is also the inside view problem where people focus too much on the specific plan without considering base rates. Ego depletion can also play a role as people become less careful in their estimates when tired. Social pressure from supervisors or peers can also cause people to give overly optimistic estimates.",
+            "submittedAt": null,
+            "wordCount": 137
+          },
+          "criteria": [
+            {
+              "criterionId": "q2",
+              "criterionName": "Content 2: Explain psychological factors",
+              "description": "AI-generated assessment criteria",
+              "maxScore": 10.0,
+              "weight": 1.0,
+              "grade": {
+                "manualScore": null,
+                "aiSuggestedScore": 8.0,
+                "highlightedText": "The psychological factors include optimism bias where people think things will go better than they usually do. There is also the inside view problem where people focus too much on the specific plan without considering base rates. Ego depletion can also play a role as people become less careful in their estimates when tired. Social pressure from supervisors or peers can also cause people to give overly optimistic estimates.",
+                "aiJustification": "The student provides a good explanation of several psychological factors contributing to the planning fallacy, including optimism bias, the inside view problem, ego depletion, and social pressure. Each factor is identified and briefly explained, demonstrating a solid understanding of their roles. However, the essay could benefit from more detailed examples or elaboration on how these factors specifically influence task estimation, which would enhance the comprehensiveness of the explanation.",
+                "aiSuggestion": "To improve the score, the student should provide specific examples or scenarios that illustrate how each psychological factor affects the planning fallacy. For instance, they could describe a situation where optimism bias led to an underestimation of time for a project, making the explanation more relatable and impactful.",
+                "gradedBy": "ai_system",
+                "gradedAt": "2026-03-22T20:45:37.112456Z"
+              }
+            }
+          ],
+          "questionTotalScore": 8.0,
+          "questionMaxScore": 10.0,
+          "questionPercentage": 80.0
+        }
+      ],
+      "summary": {
+        "totalScore": 16.0,
+        "maxScore": 20.0,
+        "percentage": 80.0,
+        "grade": "A-",
+        "totalQuestions": 2,
+        "gradedQuestions": 2,
+        "pendingQuestions": 0
+      }
+    },
+    "success": true,
+    "message": "Exam results processed successfully",
+    "_metadata": {
+      "marking_scheme_id": "rubric-1",
+      "assignment_id": "rubric-1",
+      "course_id": "default",
+      "stored_at": "2026-03-22T20:45:37.112456Z"
+    },
+    "id": "grade_20260322_204537_unknown",
+    "saved_at": "2026-03-22T20:45:37.112456"
+  },
+  {
+    "data": {
+      "studentID": "20841236",
+      "studentName": "Bob Johnson",
+      "examId": "rubric-1",
+      "examTitle": "Assessment using rubric-1",
+      "courseId": "default",
+      "submittedAt": null,
+      "gradedAt": "2026-03-22T20:45:45.220256Z",
+      "status": "graded",
+      "questions": [
+        {
+          "questionId": "q1",
+          "questionNumber": 1,
+          "questionText": "Content 1: Explain the concept of planning fallacy",
+          "questionType": "essay",
+          "topicId": "general",
+          "studentAnswer": {
+            "id": "answer1",
+            "answerText": "[Question q1]\nPlanning fallacy is when you think something will take less time than it actually does. I have experienced this many times when doing homework. The reason is that people are too optimistic.\n\n[Question q2]\nPeople are optimistic and do not think about problems that might happen. They also forget about past failures and only remember when things went well.",
+            "submittedAt": null,
+            "wordCount": 61
+          },
+          "criteria": [
+            {
+              "criterionId": "q1",
+              "criterionName": "Content 1: Explain the concept of planning fallacy",
+              "description": "AI-generated assessment criteria",
+              "maxScore": 10.0,
+              "weight": 1.0,
+              "grade": {
+                "manualScore": null,
+                "aiSuggestedScore": 6.0,
+                "highlightedText": "Planning fallacy is when you think something will take less time than it actually does. The reason is that people are too optimistic.",
+                "aiJustification": "The student provides a basic definition of planning fallacy, stating that it is when one thinks something will take less time than it actually does. However, the explanation lacks depth and does not explore multiple causes or provide a comprehensive understanding of the concept. The mention of optimism as a reason is a good start, but it is not sufficient to demonstrate a thorough understanding of the planning fallacy.",
+                "aiSuggestion": "To improve, the student should elaborate on the definition of planning fallacy and include additional causes, such as cognitive biases, overconfidence, and neglect of past experiences. Providing examples or personal anecdotes that illustrate these points would also enhance the essay.",
+                "gradedBy": "ai_system",
+                "gradedAt": "2026-03-22T20:45:45.220256Z"
+              }
+            }
+          ],
+          "questionTotalScore": 6.0,
+          "questionMaxScore": 10.0,
+          "questionPercentage": 60.0
+        },
+        {
+          "questionId": "q2",
+          "questionNumber": 2,
+          "questionText": "Content 2: Explain psychological factors",
+          "questionType": "essay",
+          "topicId": "general",
+          "studentAnswer": {
+            "id": "answer2",
+            "answerText": "[Question q1]\nPlanning fallacy is when you think something will take less time than it actually does. I have experienced this many times when doing homework. The reason is that people are too optimistic.\n\n[Question q2]\nPeople are optimistic and do not think about problems that might happen. They also forget about past failures and only remember when things went well.",
+            "submittedAt": null,
+            "wordCount": 61
+          },
+          "criteria": [
+            {
+              "criterionId": "q2",
+              "criterionName": "Content 2: Explain psychological factors",
+              "description": "AI-generated assessment criteria",
+              "maxScore": 10.0,
+              "weight": 1.0,
+              "grade": {
+                "manualScore": null,
+                "aiSuggestedScore": 5.0,
+                "highlightedText": "People are optimistic and do not think about problems that might happen. They also forget about past failures and only remember when things went well.",
+                "aiJustification": "The student provides a basic mention of psychological factors contributing to the planning fallacy, specifically noting that people are overly optimistic and tend to forget past failures. However, the explanation lacks depth and does not explore multiple psychological factors or provide examples. The mention of optimism is relevant but insufficient for a comprehensive understanding of the topic.",
+                "aiSuggestion": "To improve, the student should elaborate on additional psychological factors such as overconfidence, the impact of time perception, and cognitive biases. Including specific examples or studies that illustrate these factors would strengthen the argument and provide a more thorough explanation.",
+                "gradedBy": "ai_system",
+                "gradedAt": "2026-03-22T20:45:45.220256Z"
+              }
+            }
+          ],
+          "questionTotalScore": 5.0,
+          "questionMaxScore": 10.0,
+          "questionPercentage": 50.0
+        }
+      ],
+      "summary": {
+        "totalScore": 11.0,
+        "maxScore": 20.0,
+        "percentage": 55.0,
+        "grade": "C",
+        "totalQuestions": 2,
+        "gradedQuestions": 2,
+        "pendingQuestions": 0
+      }
+    },
+    "success": true,
+    "message": "Exam results processed successfully",
+    "_metadata": {
+      "marking_scheme_id": "rubric-1",
+      "assignment_id": "rubric-1",
+      "course_id": "default",
+      "stored_at": "2026-03-22T20:45:45.220256Z"
+    },
+    "id": "grade_20260322_204545_unknown",
+    "saved_at": "2026-03-22T20:45:45.220256"
+  }
+]

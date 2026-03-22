@@ -51,6 +51,7 @@ export interface RubricData {
     assignmentId?: string;
     createdAt: Date;
     updatedAt: Date;
+    lectureNotes?: LectureNote[];
 }
 
 export interface RubricQuestion {
@@ -89,6 +90,25 @@ export interface Assignment {
     dueDate?: Date;
     rubricId?: string;
     createdAt: Date;
+}
+
+// Lecture Notes interfaces
+export interface LectureNote {
+    id: string;
+    filename: string;
+    originalName: string;
+    fileSize: number;
+    fileType: 'pdf' | 'docx' | 'txt' | 'md';
+    uploadedAt: Date;
+    processedAt?: Date;
+    extractedContent?: string;
+    wordCount?: number;
+    associatedRubrics: string[];
+    metadata: {
+        pageCount?: number;
+        processingStatus: 'pending' | 'processing' | 'completed' | 'failed';
+        processingError?: string;
+    };
 }
 
 // API Response types

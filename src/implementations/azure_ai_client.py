@@ -17,9 +17,15 @@ from datetime import datetime
 from langchain_openai import AzureChatOpenAI, AzureOpenAIEmbeddings
 from langchain_core.messages import HumanMessage
 
-from ..interfaces.ai_client import AIClient
-from ..models.grading_models import GradingCriterion
-from ..errors.grading_errors import AIServiceError
+try:
+    from ..interfaces.ai_client import AIClient
+    from ..models.grading_models import GradingCriterion
+    from ..errors.grading_errors import AIServiceError
+except ImportError:
+    # Fallback for standalone execution
+    from interfaces.ai_client import AIClient
+    from models.grading_models import GradingCriterion
+    from errors.grading_errors import AIServiceError
 
 logger = logging.getLogger(__name__)
 
@@ -159,22 +165,40 @@ class AzureAIClient(AIClient):
         self.retry_config = RetryConfig()
         
         # Initialize Azure OpenAI clients
-        self.chat_client = AzureChatOpenAI(
+        # Use azure_deployment (new langchain-openai) with fallback to deployment_name (old)
+        chat_kwargs = dict(
             azure_endpoint=self.config.endpoint,
             api_key=self.config.api_key,
             api_version=self.config.api_version,
-            deployment_name=self.config.deployment_name,
             temperature=self.config.temperature,
-            timeout=self.config.timeout
         )
-        
-        self.embedding_client = AzureOpenAIEmbeddings(
+        embedding_kwargs = dict(
             azure_endpoint=self.config.endpoint,
             api_key=self.config.api_key,
             api_version=self.config.api_version,
-            deployment_name=self.config.embedding_deployment_name,
-            timeout=self.config.timeout
         )
+
+        try:
+            self.chat_client = AzureChatOpenAI(
+                **chat_kwargs,
+                azure_deployment=self.config.deployment_name,
+            )
+        except TypeError:
+            self.chat_client = AzureChatOpenAI(
+                **chat_kwargs,
+                deployment_name=self.config.deployment_name,
+            )
+
+        try:
+            self.embedding_client = AzureOpenAIEmbeddings(
+                **embedding_kwargs,
+                azure_deployment=self.config.embedding_deployment_name,
+            )
+        except TypeError:
+            self.embedding_client = AzureOpenAIEmbeddings(
+                **embedding_kwargs,
+                deployment_name=self.config.embedding_deployment_name,
+            )
         
         logger.info(f"Initialized Azure AI Client with endpoint: {self.config.endpoint}")
     
@@ -229,10 +253,11 @@ class AzureAIClient(AIClient):
         context: str,
         criterion_name: str,
         criterion_id: str,
-        max_score: float
+        max_score: float,
+        lecture_notes_context: Optional[str] = None
     ) -> GradingCriterion:
         """
-        Grade essay using Azure OpenAI GPT-4o-mini.
+        Grade essay using Azure OpenAI GPT-4o-mini with optional lecture notes context.
         
         Args:
             essay: The student's essay text
@@ -240,6 +265,7 @@ class AzureAIClient(AIClient):
             criterion_name: Name of the criterion being evaluated
             criterion_id: Unique identifier for the criterion
             max_score: Maximum possible score for this criterion
+            lecture_notes_context: Optional lecture notes context for enhanced grading
             
         Returns:
             GradingCriterion object with evaluation results
@@ -250,13 +276,14 @@ class AzureAIClient(AIClient):
         try:
             logger.debug(f"Grading essay for criterion: {criterion_name}")
             
-            # Construct grading prompt
+            # Construct grading prompt with lecture notes if available
             prompt = self._build_grading_prompt(
                 essay=essay,
                 context=context,
                 criterion_name=criterion_name,
                 criterion_id=criterion_id,
-                max_score=max_score
+                max_score=max_score,
+                lecture_notes_context=lecture_notes_context
             )
             
             # Generate grading with structured output
@@ -267,7 +294,8 @@ class AzureAIClient(AIClient):
             
             # Parse and validate response
             grading_result = self._parse_grading_response(
-                response, criterion_id, criterion_name, max_score
+                response, criterion_id, criterion_name, max_score,
+                has_lecture_notes=lecture_notes_context is not None
             )
             
             logger.debug(f"Graded essay: {grading_result.score}/{grading_result.max_score}")
@@ -292,9 +320,51 @@ class AzureAIClient(AIClient):
         context: str, 
         criterion_name: str, 
         criterion_id: str, 
-        max_score: float
+        max_score: float,
+        lecture_notes_context: Optional[str] = None
     ) -> str:
-        """Build the grading prompt for Azure OpenAI."""
+        """Build the grading prompt for Azure OpenAI with optional lecture notes."""
+        
+        # Use enhanced prompt if lecture notes are available
+        if lecture_notes_context and lecture_notes_context.strip():
+            return f"""You are an expert AI teaching assistant. Your task is to grade a student's answer based on the provided rubric context and relevant lecture materials.
+
+**STUDENT ANSWER:**
+{essay}
+
+**RUBRIC CRITERIA:**
+{context}
+
+**RELEVANT LECTURE CONTENT:**
+{lecture_notes_context}
+
+**GRADING INSTRUCTIONS:**
+1. Carefully read the student's answer
+2. Review the rubric criteria for the criterion: **{criterion_name}**
+3. Consider the relevant lecture content to understand expected knowledge and concepts
+4. Evaluate how well the student demonstrates understanding of course concepts
+5. Assign a fair score between 0 and {max_score} (can be decimal like 8.5)
+6. Provide detailed justification that references specific lecture concepts when relevant
+7. Offer constructive suggestions that guide toward better integration of course materials
+8. If you reference specific lecture content, note which materials you're citing
+9. Identify specific text excerpts that support your evaluation
+
+**RESPONSE FORMAT:**
+You must respond with a valid JSON object matching this exact schema:
+{{
+  "criterion_id": "{criterion_id}",
+  "criterion_name": "{criterion_name}",
+  "score": <number between 0 and {max_score}>,
+  "max_score": {max_score},
+  "justification": "<detailed explanation with lecture references if applicable>",
+  "suggestion_for_improvement": "<constructive feedback incorporating course materials>",
+  "highlighted_text": "<relevant answer excerpts>",
+  "lecture_notes_references": ["<list of lecture concepts or materials referenced>"]
+}}
+
+Respond only with the JSON object, no additional text."""
+        
+        # Standard prompt without lecture notes
         return f"""You are an expert AI teaching assistant. Your task is to grade a student's essay based on the provided rubric context.
 
 **STUDENT ESSAY:**
@@ -330,7 +400,8 @@ Respond only with the JSON object, no additional text."""
         response: str, 
         criterion_id: str, 
         criterion_name: str, 
-        max_score: float
+        max_score: float,
+        has_lecture_notes: bool = False
     ) -> GradingCriterion:
         """Parse and validate grading response from Azure OpenAI."""
         try:
@@ -357,6 +428,16 @@ Respond only with the JSON object, no additional text."""
                 logger.warning(f"Score {score} out of range, clamping to [0, {max_score}]")
                 score = max(0.0, min(score, max_score))
             
+            # Extract lecture notes references if available
+            lecture_notes_refs = data.get('lecture_notes_references', None)
+            
+            # Build context metadata
+            context_metadata = {
+                "has_rubric_context": True,
+                "has_lecture_notes": has_lecture_notes,
+                "lecture_notes_referenced": lecture_notes_refs is not None and len(lecture_notes_refs) > 0 if lecture_notes_refs else False
+            }
+            
             # Create GradingCriterion object
             return GradingCriterion(
                 criterion_id=criterion_id,
@@ -366,8 +447,9 @@ Respond only with the JSON object, no additional text."""
                 max_score=max_score,
                 justification=data['justification'],
                 suggestion_for_improvement=data['suggestion_for_improvement'],
-                highlighted_text=data.get('highlighted_text', '')
-                # Note: confidence field removed as per Azure migration requirements
+                highlighted_text=data.get('highlighted_text', ''),
+                lecture_notes_references=lecture_notes_refs,
+                context_metadata=context_metadata
             )
             
         except json.JSONDecodeError as e:

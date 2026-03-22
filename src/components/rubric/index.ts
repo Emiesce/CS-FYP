@@ -7,6 +7,7 @@ export { CriteriaManager } from './CriteriaManager';
 export { RubricCard } from './RubricCard';
 export { RubricGrid } from './RubricGrid';
 export { RubricDetailModal } from './RubricDetailModal';
+export { RubricAssociatedNotes } from './RubricAssociatedNotes';
 
 // Re-export types and utilities for convenience
 export type {

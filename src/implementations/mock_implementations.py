@@ -31,13 +31,22 @@ class MockVectorStore(VectorStore):
         """Add documents to in-memory storage."""
         self.documents.extend(chunks)
     
-    async def similarity_search(self, query: str, k: int = 3) -> List[RubricChunk]:
-        """Return mock similar documents based on simple text matching."""
+    async def similarity_search(self, query: str, k: int = 3, source_type: Optional[str] = None, rubric_id: Optional[str] = None) -> List[RubricChunk]:
+        """Return mock similar documents based on simple text matching with filtering."""
+        # Filter documents based on criteria
+        filtered_docs = self.documents
+        
+        if source_type:
+            filtered_docs = [doc for doc in filtered_docs if doc.source_type == source_type]
+        
+        if rubric_id:
+            filtered_docs = [doc for doc in filtered_docs if rubric_id in doc.associated_rubrics]
+        
         # Simple mock: return documents that contain query terms
         query_terms = query.lower().split()
         scored_docs = []
         
-        for doc in self.documents:
+        for doc in filtered_docs:
             score = sum(1 for term in query_terms if term in doc.content.lower())
             if score > 0:
                 scored_docs.append((score, doc))
@@ -46,6 +55,41 @@ class MockVectorStore(VectorStore):
         scored_docs.sort(key=lambda x: x[0], reverse=True)
         return [doc for _, doc in scored_docs[:k]]
     
+    async def similarity_search_with_rubric_context(self, query: str, rubric_id: str, k: int = 3) -> List[RubricChunk]:
+        """Perform similarity search including both rubric and associated lecture notes."""
+        # Get documents that are either:
+        # 1. Rubric chunks from the specified rubric
+        # 2. Lecture note chunks associated with the rubric
+        relevant_docs = []
+        
+        for doc in self.documents:
+            if (doc.source_type == "rubric" and rubric_id in doc.associated_rubrics) or \
+               (doc.source_type == "lecture_note" and rubric_id in doc.associated_rubrics):
+                relevant_docs.append(doc)
+        
+        # Simple mock: return documents that contain query terms
+        query_terms = query.lower().split()
+        scored_docs = []
+        
+        for doc in relevant_docs:
+            score = sum(1 for term in query_terms if term in doc.content.lower())
+            # Boost score for rubric content slightly
+            if doc.source_type == "rubric":
+                score *= 1.1
+            if score > 0:
+                scored_docs.append((score, doc))
+        
+        # Sort by score and return top k
+        scored_docs.sort(key=lambda x: x[0], reverse=True)
+        return [doc for _, doc in scored_docs[:k]]
+    
+    async def remove_documents_by_source(self, source_id: str, source_type: str) -> None:
+        """Remove all documents from a specific source."""
+        self.documents = [
+            doc for doc in self.documents 
+            if not (doc.source_id == source_id and doc.source_type == source_type)
+        ]
+    
     async def clear(self) -> None:
         """Clear all documents."""
         self.documents.clear()
@@ -53,6 +97,10 @@ class MockVectorStore(VectorStore):
     async def get_document_count(self) -> int:
         """Get document count."""
         return len(self.documents)
+    
+    async def get_document_count_by_source_type(self, source_type: str) -> int:
+        """Get the number of documents by source type."""
+        return len([doc for doc in self.documents if doc.source_type == source_type])
 
 
 class MockAIClient(AIClient):
@@ -82,34 +130,63 @@ class MockAIClient(AIClient):
         context: str,
         criterion_name: str,
         criterion_id: str,
-        max_score: float
+        max_score: float,
+        lecture_notes_context: Optional[str] = None
     ) -> GradingCriterion:
-        """Generate mock grading result."""
+        """Generate mock grading result with enhanced context awareness."""
         # Simple mock grading logic based on essay length and content
         essay_length = len(essay.split())
         
-        # Mock scoring based on essay characteristics
-        if essay_length < 50:
-            score = max(1.0, max_score / 4)
-            level = "Needs Improvement"
-            justification = f"The essay is quite brief ({essay_length} words) and lacks sufficient development for the {criterion_name} criterion."
-        elif essay_length < 150:
-            score = max_score / 2
-            level = "Good"
-            justification = f"The essay shows adequate development ({essay_length} words) with some good points for {criterion_name}."
-        else:
-            score = max_score * 0.8
-            level = "Excellent"
-            justification = f"The essay demonstrates strong development ({essay_length} words) with clear evidence of {criterion_name}."
+        # Check if context includes lecture notes for enhanced feedback
+        has_lecture_notes = lecture_notes_context is not None and len(lecture_notes_context.strip()) > 0
+        has_rubric_criteria = "RUBRIC CRITERIA:" in context or len(context.strip()) > 0
         
-        # Mock improvement suggestion
+        # Mock scoring based on essay characteristics and available context
+        base_score = 0
+        if essay_length < 50:
+            base_score = max(1.0, max_score / 4)
+            level = "Needs Improvement"
+            justification = f"The answer is quite brief ({essay_length} words) and lacks sufficient development for the {criterion_name} criterion."
+        elif essay_length < 150:
+            base_score = max_score / 2
+            level = "Good"
+            justification = f"The answer shows adequate development ({essay_length} words) with some good points for {criterion_name}."
+        else:
+            base_score = max_score * 0.8
+            level = "Excellent"
+            justification = f"The answer demonstrates strong development ({essay_length} words) with clear evidence of {criterion_name}."
+        
+        # Track lecture notes references
+        lecture_notes_refs = []
+        context_metadata = {
+            "has_rubric_context": has_rubric_criteria,
+            "has_lecture_notes": has_lecture_notes,
+            "context_chunks_used": 0
+        }
+        
+        # Enhance scoring if lecture notes are available
+        if has_lecture_notes:
+            base_score = min(max_score, base_score * 1.1)  # Slight boost for having lecture context
+            context_metadata["context_chunks_used"] = len(lecture_notes_context.split('\n\n'))
+            
+            if "lecture" in essay.lower() or "course" in essay.lower():
+                justification += " The answer effectively references course concepts from the lecture materials."
+                lecture_notes_refs.append("Referenced course concepts from lecture materials")
+            else:
+                justification += " Consider incorporating more specific concepts from the lecture materials to strengthen your argument."
+        
+        # Mock improvement suggestion with lecture notes awareness
         suggestions = {
             "Argument & Thesis": "Consider developing a more specific and arguable thesis statement.",
             "Use of Evidence": "Include more specific examples and analyze how they support your argument.",
             "Structure & Clarity": "Work on smoother transitions between paragraphs and clearer topic sentences."
         }
         
-        suggestion = suggestions.get(criterion_name, "Continue developing your writing skills in this area.")
+        base_suggestion = suggestions.get(criterion_name, "Continue developing your writing skills in this area.")
+        
+        if has_lecture_notes:
+            base_suggestion += " Reference specific concepts from the lecture materials to demonstrate deeper understanding."
+            lecture_notes_refs.append("Lecture materials available for reference")
         
         # Mock highlighted text (first sentence)
         highlighted_text = essay.split('.')[0] + '.' if '.' in essay else essay[:100]
@@ -118,11 +195,13 @@ class MockAIClient(AIClient):
             criterion_id=criterion_id,
             criterion_name=criterion_name,
             matched_level=level,
-            score=score,
+            score=base_score,
             max_score=max_score,
             justification=justification,
-            suggestion_for_improvement=suggestion,
-            highlighted_text=highlighted_text
+            suggestion_for_improvement=base_suggestion,
+            highlighted_text=highlighted_text,
+            lecture_notes_references=lecture_notes_refs if lecture_notes_refs else None,
+            context_metadata=context_metadata
         )
     
     async def validate_connection(self) -> bool:
@@ -188,11 +267,48 @@ class MockGradingService(GradingService):
                     metadata={
                         "marking_scheme_id": scheme_id,
                         "chunk_index": i
-                    }
+                    },
+                    source_type="rubric",
+                    source_id=scheme_id,
+                    associated_rubrics=[scheme_id]
                 )
                 chunks.append(chunk)
         
         await self.vector_store.add_documents(chunks)
+    
+    async def add_lecture_note_to_rag(self, note_content: str, note_id: str, rubric_ids: List[str]) -> None:
+        """Add lecture note content to vector store with rubric associations."""
+        # Split lecture note content into chunks
+        chunks = []
+        
+        # Simple chunking by paragraphs or sentences for lecture notes
+        paragraphs = note_content.split('\n\n')
+        if len(paragraphs) == 1:
+            # If no paragraph breaks, split by sentences
+            sentences = note_content.split('. ')
+            paragraphs = ['. '.join(sentences[i:i+3]) for i in range(0, len(sentences), 3)]
+        
+        for i, paragraph in enumerate(paragraphs):
+            if paragraph.strip():
+                chunk = RubricChunk(
+                    id=f"{note_id}_chunk_{i}",
+                    content=paragraph.strip(),
+                    metadata={
+                        "lecture_note_id": note_id,
+                        "chunk_index": i,
+                        "content_type": "lecture_note"
+                    },
+                    source_type="lecture_note",
+                    source_id=note_id,
+                    associated_rubrics=rubric_ids
+                )
+                chunks.append(chunk)
+        
+        await self.vector_store.add_documents(chunks)
+    
+    async def remove_lecture_note_from_rag(self, note_id: str) -> None:
+        """Remove lecture note content from vector store."""
+        await self.vector_store.remove_documents_by_source(note_id, "lecture_note")
     
     async def grade_essay_by_criterion(
         self,
@@ -200,7 +316,7 @@ class MockGradingService(GradingService):
         criterion_id: str,
         marking_scheme_id: str
     ) -> GradingCriterion:
-        """Grade essay for a single criterion."""
+        """Grade essay for a single criterion with lecture notes context."""
         scheme = self.marking_schemes.get(marking_scheme_id)
         if not scheme:
             raise ValueError(f"Marking scheme {marking_scheme_id} not found")
@@ -215,19 +331,33 @@ class MockGradingService(GradingService):
         if not criterion_info:
             raise ValueError(f"Criterion {criterion_id} not found in marking scheme")
         
-        # Get relevant context from vector store
-        context_chunks = await self.vector_store.similarity_search(
-            f"How to grade {criterion_info['name']}", k=3
+        # Get relevant context from vector store including lecture notes
+        context_chunks = await self.vector_store.similarity_search_with_rubric_context(
+            f"How to grade {criterion_info['name']}", marking_scheme_id, k=5
         )
-        context = "\n".join([chunk.content for chunk in context_chunks])
         
-        # Grade using AI client
+        # Separate rubric and lecture note context for better prompt construction
+        rubric_context = []
+        lecture_notes_context = []
+        
+        for chunk in context_chunks:
+            if chunk.source_type == "rubric":
+                rubric_context.append(chunk.content)
+            elif chunk.source_type == "lecture_note":
+                lecture_notes_context.append(chunk.content)
+        
+        # Construct context strings
+        rubric_context_str = "\n\n".join(rubric_context) if rubric_context else ""
+        lecture_notes_context_str = "\n\n".join(lecture_notes_context) if lecture_notes_context else None
+        
+        # Grade using AI client with enhanced context
         result = await self.ai_client.grade_essay(
             essay=essay,
-            context=context,
+            context=rubric_context_str,
             criterion_name=criterion_info["name"],
             criterion_id=criterion_id,
-            max_score=criterion_info["max_score"]
+            max_score=criterion_info["max_score"],
+            lecture_notes_context=lecture_notes_context_str
         )
         
         return result
@@ -253,10 +383,13 @@ class MockGradingService(GradingService):
                 if c.get("id") in request.criteria_ids
             ]
         
+        # Get the answer text (support both 'answer' and legacy 'essay_text' field)
+        answer_text = getattr(request, 'answer', None) or getattr(request, 'essay_text', '')
+        
         # Grade each criterion
         for criterion in criteria_to_grade:
             result = await self.grade_essay_by_criterion(
-                essay=request.essay_text,
+                essay=answer_text,
                 criterion_id=criterion["id"],
                 marking_scheme_id=request.marking_scheme_id
             )

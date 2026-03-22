@@ -8,7 +8,9 @@ import { RubricGrid } from "./rubric/RubricGrid";
 import { LoadingSpinner, LoadingState } from "./ui/loading-spinner";
 import { useToast } from "./ui/toast";
 import { ErrorBoundary } from "./ui/error-boundary";
-import { RubricData } from "../types";
+import { RubricData, LectureNote } from "../types";
+import { LectureNotesSection } from "./rubric/LectureNotesSection";
+import { LectureNotesDisplay } from "./rubric/LectureNotesDisplay";
 import "./rubric-styles.css";
 
 interface RubricUploadPageProps {
@@ -244,17 +246,6 @@ export function RubricUploadPage({ courseId }: RubricUploadPageProps = {}) {
                                 </Button>
                                 <Button
                                     size="sm"
-                                    onClick={() => setActiveView('manage')}
-                                    className={`rubric-navigation-button ${activeView === 'manage'
-                                        ? 'rubric-navigation-button-active'
-                                        : 'rubric-navigation-button-inactive'
-                                        }`}
-                                >
-                                    <FileText className="rubric-icon-small" />
-                                    Manage
-                                </Button>
-                                <Button
-                                    size="sm"
                                     onClick={() => setActiveView('create')}
                                     className={`rubric-navigation-button ${activeView === 'create'
                                         ? 'rubric-navigation-button-active'
@@ -263,6 +254,17 @@ export function RubricUploadPage({ courseId }: RubricUploadPageProps = {}) {
                                 >
                                     <Plus className="rubric-icon-small" />
                                     Create
+                                </Button>
+                                <Button
+                                    size="sm"
+                                    onClick={() => setActiveView('manage')}
+                                    className={`rubric-navigation-button ${activeView === 'manage'
+                                        ? 'rubric-navigation-button-active'
+                                        : 'rubric-navigation-button-inactive'
+                                        }`}
+                                >
+                                    <FileText className="rubric-icon-small" />
+                                    Manage
                                 </Button>
                             </div>
                         </div>
@@ -281,7 +283,7 @@ export function RubricUploadPage({ courseId }: RubricUploadPageProps = {}) {
 
                                 {activeView === 'upload' && (
                                     <div className="mt-8 space-y-6">
-                                        <div className="text-center">
+                                        {/* <div className="text-center">
                                             <h3 className="text-lg font-medium mb-2">Upload Rubric Files</h3>
                                             <p className="text-gray-600 mb-4">
                                                 Upload PDF, DOCX, or TXT files. Try a simple .txt file first to test.
@@ -294,7 +296,7 @@ export function RubricUploadPage({ courseId }: RubricUploadPageProps = {}) {
                                             >
                                                 Test Backend Connection
                                             </Button>
-                                        </div>
+                                        </div> */}
 
                                         <div className="max-w-2xl mx-auto">
                                             <FileUploadDropzone
@@ -487,6 +489,7 @@ function CreateRubricView({ onSuccess, onError, onCancel, isSubmitting, hookData
     const [rubricDescription, setRubricDescription] = useState('');
     const [questions, setQuestions] = useState<RubricQuestion[]>([]);
     const [errors, setErrors] = useState<Record<string, string>>({});
+    const [lectureNotes, setLectureNotes] = useState<LectureNote[]>([]);
 
     // Add a new question
     const addQuestion = () => {
@@ -607,7 +610,8 @@ function CreateRubricView({ onSuccess, onError, onCancel, isSubmitting, hookData
                 description: rubricDescription,
                 questions: questions,
                 totalMinPoints,
-                totalMaxPoints
+                totalMaxPoints,
+                lectureNotes: lectureNotes
             };
 
             console.log('CreateRubricView: Submitting rubric data:', rubricData);
@@ -693,6 +697,14 @@ function CreateRubricView({ onSuccess, onError, onCancel, isSubmitting, hookData
                                 disabled={isSubmitting}
                             />
                         </div>
+                    </div>
+
+                    {/* Lecture Notes Section */}
+                    <div className="rubric-form-section">
+                        <LectureNotesSection
+                            onNotesChange={setLectureNotes}
+                            disabled={isSubmitting}
+                        />
                     </div>
 
                     {/* Questions Section */}
@@ -1101,6 +1113,13 @@ function ViewRubricView({ rubric, onBack, onEdit }: ViewRubricViewProps) {
                             </div>
                         </div>
 
+                        {/* Lecture Notes Display */}
+                        {rubric.lectureNotes && rubric.lectureNotes.length > 0 && (
+                            <div className="rubric-field-group">
+                                <LectureNotesDisplay notes={rubric.lectureNotes} />
+                            </div>
+                        )}
+
                         <div className="rubric-field-group">
                             <label className="rubric-field-label">
                                 Created
@@ -1226,6 +1245,7 @@ function EditRubricView({ rubric, onSuccess, onError, onCancel, isSubmitting, ho
         }))
     );
     const [errors, setErrors] = useState<Record<string, string>>({});
+    const [lectureNotes, setLectureNotes] = useState<LectureNote[]>(rubric.lectureNotes || []);
 
     // Add a new question
     const addQuestion = () => {
@@ -1347,6 +1367,7 @@ function EditRubricView({ rubric, onSuccess, onError, onCancel, isSubmitting, ho
                 questions: questions,
                 totalMinPoints,
                 totalMaxPoints,
+                lectureNotes: lectureNotes,
                 updatedAt: new Date()
             };
 
@@ -1423,6 +1444,14 @@ function EditRubricView({ rubric, onSuccess, onError, onCancel, isSubmitting, ho
                                 disabled={isSubmitting}
                             />
                         </div>
+                    </div>
+
+                    {/* Lecture Notes Section */}
+                    <div className="rubric-form-section">
+                        <LectureNotesSection
+                            onNotesChange={setLectureNotes}
+                            disabled={isSubmitting}
+                        />
                     </div>
 
                     {/* Questions Section */}

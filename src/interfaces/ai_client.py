@@ -34,7 +34,8 @@ class AIClient(ABC):
         context: str, 
         criterion_name: str, 
         criterion_id: str,
-        max_score: float
+        max_score: float,
+        lecture_notes_context: str = None
     ) -> GradingCriterion:
         """
         Grade an essay for a specific criterion using provided context.
@@ -45,6 +46,7 @@ class AIClient(ABC):
             criterion_name: Name of the criterion being evaluated
             criterion_id: Unique identifier for the criterion
             max_score: Maximum possible score for this criterion
+            lecture_notes_context: Optional lecture notes context for enhanced grading
             
         Returns:
             GradingCriterion object with evaluation results

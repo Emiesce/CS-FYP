@@ -141,6 +141,34 @@ class PromptTemplates:
     {format_instructions}
     """
     
+    GRADING_WITH_LECTURE_NOTES_TEMPLATE = """
+    You are an expert AI teaching assistant. Your task is to grade a student's answer based on the provided rubric context and relevant lecture materials.
+    Your evaluation must be grounded in both the rubric criteria and the course content from lecture notes.
+
+    **STUDENT ANSWER:**
+    {essay}
+
+    **RUBRIC CRITERIA:**
+    {rubric_context}
+
+    **RELEVANT LECTURE CONTENT:**
+    {lecture_notes_context}
+
+    **GRADING INSTRUCTIONS:**
+    1. Carefully read the student's answer.
+    2. Review the rubric criteria for the specific criterion: **{criterion_name}**.
+    3. Consider the relevant lecture content to understand the expected knowledge and concepts.
+    4. Evaluate how well the student demonstrates understanding of course concepts from the lecture materials.
+    5. Determine which performance level from the rubric best matches the answer's quality.
+    6. Assign a fair score within that level's mark range (0 to {max_score}).
+    7. Provide detailed justification that references specific lecture concepts when relevant.
+    8. Offer constructive suggestions that guide the student toward better integration of course materials.
+    9. If you reference specific lecture content in your feedback, note which lecture materials you're citing.
+    10. Format your entire response as a JSON object that matches the required schema.
+
+    {format_instructions}
+    """
+    
     CONTEXT_QUERY_TEMPLATE = "How to grade '{criterion_name}' criterion"
     
     IMPROVEMENT_SUGGESTION_TEMPLATE = """

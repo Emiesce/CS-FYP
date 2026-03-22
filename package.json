@@ -35,26 +35,44 @@
             "embla-carousel-react": "^8.6.0",
             "input-otp": "^1.4.2",
             "lucide-react": "^0.487.0",
+            "mammoth": "^1.11.0",
             "next-themes": "^0.4.6",
+            "pdfjs-dist": "^5.4.530",
             "react": "^18.3.1",
             "react-day-picker": "^8.10.1",
             "react-dom": "^18.3.1",
+            "react-dropzone": "^14.4.0",
             "react-hook-form": "^7.55.0",
             "react-resizable-panels": "^2.1.7",
+            "react-router-dom": "^6.30.3",
             "recharts": "^2.15.2",
             "sonner": "^2.0.3",
             "tailwind-merge": "*",
             "vaul": "^1.1.2"
       },
       "devDependencies": {
+            "@testing-library/jest-dom": "^6.9.1",
+            "@testing-library/react": "^16.3.2",
+            "@testing-library/user-event": "^14.6.1",
             "@types/node": "^20.10.0",
             "@types/react": "^18.3.0",
             "@types/react-dom": "^18.3.1",
+            "@types/react-router-dom": "^5.3.3",
             "@vitejs/plugin-react-swc": "^3.10.2",
-            "vite": "6.3.5"
+            "@vitest/ui": "^4.0.18",
+            "concurrently": "^9.2.1",
+            "jsdom": "^28.1.0",
+            "vite": "6.3.5",
+            "vitest": "^4.0.18"
       },
       "scripts": {
             "dev": "vite",
-            "build": "vite build"
+            "build": "vite build",
+            "dev:grading": "python grading_api.py",
+            "dev:full": "concurrently \"npm run dev\" \"npm run dev:grading\" --names \"Frontend,GradingAPI\" --prefix-colors \"cyan,green\"",
+            "start": "npm run dev:full",
+            "test": "vitest --run",
+            "test:watch": "vitest",
+            "test:ui": "vitest --ui"
       }
 }
