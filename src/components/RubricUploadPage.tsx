@@ -218,63 +218,64 @@ export function RubricUploadPage({ courseId }: RubricUploadPageProps = {}) {
                 });
             }}>
                 <div className="rubric-upload-container">
-                    {/* Top Bar */}
-                    <div className="rubric-top-bar">
-                        <div className="rubric-top-bar-content">
-                            <div className="rubric-top-bar-left">
-                                <Button
-                                    variant="ghost"
-                                    size="sm"
-                                    onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
-                                    className="flex items-center gap-2"
-                                >
-                                    <Menu className="rubric-icon-small" />
-                                </Button>
-                                <h2 className="rubric-top-bar-title">Rubric Management</h2>
-                            </div>
-                            <div className="rubric-navigation-buttons">
-                                <Button
-                                    size="sm"
-                                    onClick={() => setActiveView('upload')}
-                                    className={`rubric-navigation-button ${activeView === 'upload'
-                                        ? 'rubric-navigation-button-active'
-                                        : 'rubric-navigation-button-inactive'
-                                        }`}
-                                >
-                                    <Upload className="rubric-icon-small" />
-                                    Upload
-                                </Button>
-                                <Button
-                                    size="sm"
-                                    onClick={() => setActiveView('create')}
-                                    className={`rubric-navigation-button ${activeView === 'create'
-                                        ? 'rubric-navigation-button-active'
-                                        : 'rubric-navigation-button-inactive'
-                                        }`}
-                                >
-                                    <Plus className="rubric-icon-small" />
-                                    Create
-                                </Button>
-                                <Button
-                                    size="sm"
-                                    onClick={() => setActiveView('manage')}
-                                    className={`rubric-navigation-button ${activeView === 'manage'
-                                        ? 'rubric-navigation-button-active'
-                                        : 'rubric-navigation-button-inactive'
-                                        }`}
-                                >
-                                    <FileText className="rubric-icon-small" />
-                                    Manage
-                                </Button>
-                            </div>
-                        </div>
-                    </div>
+                    {/* Sidebar */}
+                    <Sidebar collapsed={sidebarCollapsed} onToggle={() => setSidebarCollapsed(!sidebarCollapsed)} />
 
                     <div className="rubric-main-layout">
-                        {/* Sidebar */}
-                        <Sidebar collapsed={sidebarCollapsed} />
+                        {/* Top Bar */}
+                        <div className="rubric-top-bar">
+                            <div className="rubric-top-bar-content">
+                                <div className="rubric-top-bar-left">
+                                    {sidebarCollapsed && (
+                                        <Button
+                                            variant="ghost"
+                                            size="sm"
+                                            onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
+                                            className="flex items-center gap-2"
+                                        >
+                                            <Menu className="rubric-icon-small" />
+                                        </Button>
+                                    )}
+                                    <h2 className="rubric-top-bar-title">Rubric Management</h2>
+                                </div>
+                                <div className="rubric-navigation-buttons">
+                                    <Button
+                                        size="sm"
+                                        onClick={() => setActiveView('upload')}
+                                        className={`rubric-navigation-button ${activeView === 'upload'
+                                            ? 'rubric-navigation-button-active'
+                                            : 'rubric-navigation-button-inactive'
+                                            }`}
+                                    >
+                                        <Upload className="rubric-icon-small" />
+                                        Upload
+                                    </Button>
+                                    <Button
+                                        size="sm"
+                                        onClick={() => setActiveView('create')}
+                                        className={`rubric-navigation-button ${activeView === 'create'
+                                            ? 'rubric-navigation-button-active'
+                                            : 'rubric-navigation-button-inactive'
+                                            }`}
+                                    >
+                                        <Plus className="rubric-icon-small" />
+                                        Create
+                                    </Button>
+                                    <Button
+                                        size="sm"
+                                        onClick={() => setActiveView('manage')}
+                                        className={`rubric-navigation-button ${activeView === 'manage'
+                                            ? 'rubric-navigation-button-active'
+                                            : 'rubric-navigation-button-inactive'
+                                            }`}
+                                    >
+                                        <FileText className="rubric-icon-small" />
+                                        Manage
+                                    </Button>
+                                </div>
+                            </div>
+                        </div>
 
-                        {/* Main Content */}
                         <div className="rubric-content-area">
                             <div className="rubric-view-container">
                                 {/* <p className="text-gray-600">

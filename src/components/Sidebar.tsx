@@ -13,9 +13,9 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
 
     const navigationItems = [
         { path: "/dashboard", label: "Dashboard", icon: null },
-        { path: "/grading", label: "Grading", icon: null },
         { path: "/rubric-upload", label: "Rubric Management", icon: null },
         { path: "/student-answers", label: "Student Answers", icon: null },
+        { path: "/grading", label: "Grading", icon: null },
         { path: "/analytics", label: "Analytics", icon: null },
         { path: "/proctoring", label: "Proctoring", icon: null },
     ];
@@ -28,18 +28,6 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
 
     return (
         <>
-            {/* Collapsed toggle button — visible only when sidebar is hidden */}
-            {collapsed && onToggle && (
-                <button
-                    onClick={onToggle}
-                    style={{ position: 'fixed', top: '16px', left: '16px', zIndex: 50 }}
-                    className="p-2 bg-white rounded shadow hover:bg-gray-100 transition-colors text-gray-600"
-                    title="Open sidebar"
-                >
-                    ☰
-                </button>
-            )}
-
             <div className={`${collapsed ? 'w-0' : 'w-[306px]'} bg-white shadow-lg min-h-screen transition-all duration-300 overflow-hidden flex-shrink-0`}>
                 <div className="p-6 w-[306px] min-h-full flex flex-col">
                     {/* AI Grader Header */}

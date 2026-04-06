@@ -1,0 +1,302 @@
+[
+    {
+        "studentId": "Not provided",
+        "studentName": "Not provided",
+        "fileName": "sample1.pdf",
+        "answers": [
+            {
+                "questionId": "Problem 1",
+                "answerText": "True/False Table: (a)F, (b)F, (c)F, (d)T, (e)F, (f)T, (g)T, (h)F, (i)T, (j)T"
+            },
+            {
+                "questionId": "Problem 2a",
+                "answerText": "Element processing: None, 1, 3, -7, 1, -4, 5. Value of total: 0, 2, 6, 5, 12, 8, /"
+            },
+            {
+                "questionId": "Problem 2b",
+                "answerText": "The value that the function returns: 162. Reason for the termination: It stops as to it runs out of items naturally."
+            },
+            {
+                "questionId": "Problem 3a(i)",
+                "answerText": "def is_divisible (n: int, k: int) -> bool: return (n% k == 0)"
+            },
+            {
+                "questionId": "Problem 3a(ii)",
+                "answerText": "def is_prime (n: int) -> bool: for divisor in range (2, (n** (1/2)) //10+1); if is divisible (n, divisor): return False return True"
+            },
+            {
+                "questionId": "Problem 3a(iii)",
+                "answerText": "def get_primes (n: int) -> tuple [int, list [int]]: primes = [ ] for num in range (2, n): if is-prime (num): primes.append (num) return len(primes), primes"
+            },
+            {
+                "questionId": "Problem 3b",
+                "answerText": "def rotate_clockwise (lst: list [list (int))) -> list [list [int]]: return [lst[r][c] for r in range (len(lst)-1, -1, -1) for c in range (len(lst[0]))]"
+            },
+            {
+                "questionId": "Problem 4a",
+                "answerText": "def print_balance(balance): print (f'Your balance is ${balance}')"
+            },
+            {
+                "questionId": "Problem 4b",
+                "answerText": "def print_bag (bag): print ('Your bag contains: ', *bag)"
+            },
+            {
+                "questionId": "Problem 4c",
+                "answerText": "def put_in_bag (bag, item, amount): return bag + [item] * amount"
+            },
+            {
+                "questionId": "Problem 4d",
+                "answerText": "def purchase_item (balance, item, price, amount=1): new_balance = balance - price * amount; if new_balance >= 0: return new_balance, item, amount; else: return balance, item, 0"
+            },
+            {
+                "questionId": "Problem 5a",
+                "answerText": "import random; def initialize_game() -> list [int | bool]: return [random.randint(1, 100), 0, 10, 1, 100, False]"
+            },
+            {
+                "questionId": "Problem 5b",
+                "answerText": "def get_valid_guess(game_state: list [int | bool]) -> int: while True: guess = input (f\"Attempt {game_state [1]+1} (Range: {game_state[3]}-{game_state[4]}): \"); if not guess.isdigit(): print (\"Invalid input! Please enter a whole number \"); elif int(guess) < game_state[3] or int(guess) > game_state[4]: print (f\"Please enter a number between {game_state[3]} and {game_state[4]}\"); else: break; return int(guess)"
+            },
+            {
+                "questionId": "Problem 5c",
+                "answerText": "def process_guess(guess: int, game_state: list [int | bool]) -> list [int | bool]: game_state [1]+= 1; if guess == game_state [0]: print (f\"Congratulations! You guessed the number {game_state[0]} in {game_state[1]} attempts\"); game_state [5] = True; elif guess > game_state[0]: print('Too high'); game_state [4] = guess - 1; else: print ('Too low'); game_state [3] = guess + 1; return game_state"
+            },
+            {
+                "questionId": "Problem 6a",
+                "answerText": "def transpose (sales_list: list [list [int]]) -> list [list [int]]: return [[sales_list[r][c] for r in range(len(sales_list))] for c in range(len(sales_list[0]))]"
+            },
+            {
+                "questionId": "Problem 6b",
+                "answerText": "def shift (sales_list: list [list (int)), days: int) -> list [list [int]]: return [sales [days % len (sales_list[0]) : ] + sales [ : days % len (sales_list[0])] for sales in sales_list]"
+            },
+            {
+                "questionId": "Problem 6c",
+                "answerText": "def shift_right (sales_list: list [list [int]), days: int) -> list [list [int]]: return shift(sales_list, len (sales_list[0])-days)"
+            }
+        ]
+    },
+    {
+        "studentId": "Not provided",
+        "studentName": "Not provided",
+        "fileName": "sample2.pdf",
+        "answers": [
+            {
+                "questionId": "Problem 1",
+                "answerText": "True/False Table: (a)F, (b)F, (c)F, (d)T, (e)F, (f)T, (g)T, (h)F, (i)T, (j)T"
+            },
+            {
+                "questionId": "Problem 2a",
+                "answerText": "Element processing: None, -7, -4, 1, 3, 1, 5. Value of total: 0, 2, 6, 5, 12, 8."
+            },
+            {
+                "questionId": "Problem 2b",
+                "answerText": "The value that the function returns: 162. Reason for the termination: running out of items naturally."
+            },
+            {
+                "questionId": "Problem 3a(i)",
+                "answerText": "def is_divisible(n: int, k: int) -> bool: return n% k==0"
+            },
+            {
+                "questionId": "Problem 3a(ii)",
+                "answerText": "def is_prime (n: int) -> bool: for i in range(2, n): if is_divisible (n, i): return False; return True"
+            },
+            {
+                "questionId": "Problem 3a(iii)",
+                "answerText": "def get_primes (n: int) -> tuple [int, list [int]]: results=[]; for i in range(2, n+1): if is_prime(i): results.append(i); return len(results), results"
+            },
+            {
+                "questionId": "Problem 3b",
+                "answerText": "def rotate_clockwise (lst: list [list (int))) -> list [list (int)): n=len(lst); results = [[0]*n for _ in range(n)]; for row in range(n): for col in range (n): results [row][col] = lst [n-col-1][row]; return results"
+            },
+            {
+                "questionId": "Problem 4a",
+                "answerText": "def print_balance (balance): print(\" Your balance is $ balance \")"
+            },
+            {
+                "questionId": "Problem 4b",
+                "answerText": "def print_bag(bag): bag_str = ' '.join(bag); print(f\"Your bag contains: {bag_str}\")"
+            },
+            {
+                "questionId": "Problem 4c",
+                "answerText": "def put_in_bag (bag, item, amount): return bag + [ item]* amount"
+            },
+            {
+                "questionId": "Problem 4d",
+                "answerText": "def purchase_item( balance, item, price, amount = 1): if price * amount <= balance: balance -= price * amount; return balance, item, amount; else: return balance, item, 0"
+            },
+            {
+                "questionId": "Problem 5a",
+                "answerText": "def initialize_game() -> list [int | bool]: return [random.randint(1,100), 0, 10, 1, 100, False ]"
+            },
+            {
+                "questionId": "Problem 5b",
+                "answerText": "def get_valid_guess(game_state: list [int | bool]) -> int: while True: attempt = game_state[1]; lb = game_state[3]; hb = game_state[4]; user_ret = input(f\"Attempt {attempt + 1} (Range: {lb}-{hb}): \"); if not user_ret.isdigit(): print(\"Invalid input! Please enter a whole number.\"); continue; num = int(user_ret); if num < lb or num > hb: print(f\"Please enter a number between {lb} and {hb}!\"); continue; return num"
+            },
+            {
+                "questionId": "Problem 5c",
+                "answerText": "def process_guess (guess: int, game_state: list [int | bool]) -> list [int | bool]: game_state[1] += 1; if guess == game_state[0]: print (f\"Congratulations! You guessed the number {game_state[0]} in {game_state[1]} attempts!\"); game_state [5] = True; elif guess < game_state[0]: print(\"Too low!\"); game_state[3] = guess + 1; elif guess > game_state[0]: print(\" Too high!\"); game_state[4] = guess - 1; return game_state"
+            },
+            {
+                "questionId": "Problem 6a",
+                "answerText": "def transpose(sales_list: list [list [int] ) -> list [list [int]]: return [[sales list[x][y] for x in range(len(sales_list))] for y in range(len(sales_list[0]))]"
+            },
+            {
+                "questionId": "Problem 6b",
+                "answerText": "def shift (sales_list: list [list [int]), days: int) -> list [list [int]]: return [[ row[(i + days) % len(row)] for i in range(len(row))] for row in sales_list]"
+            },
+            {
+                "questionId": "Problem 6c",
+                "answerText": "def shift_right (sales_list: list [list [int]), days: int) -> list (list (int)): return shift (sales_list, -days)"
+            }
+        ]
+    },
+    {
+        "studentId": "Not provided",
+        "studentName": "Not provided",
+        "fileName": "sample3.pdf",
+        "answers": [
+            {
+                "questionId": "Problem 1",
+                "answerText": "True/False Table: (a)F, (b)F, (c)F, (d)T, (e)F, (f)T, (g)F, (h)F, (i)T, (j)T"
+            },
+            {
+                "questionId": "Problem 2a",
+                "answerText": "Element processing: None, -7. Value of total: 0, 2, 6, 5, 13, 8, 1."
+            },
+            {
+                "questionId": "Problem 2b",
+                "answerText": "The value that the function returns: 162. Reason for the termination: Run out of items naturally"
+            },
+            {
+                "questionId": "Problem 3a(i)",
+                "answerText": "def is_divisible (n: int, k: int) -> bool: return n % k == 0"
+            },
+            {
+                "questionId": "Problem 3a(ii)",
+                "answerText": "def is_prime (n: int) -> bool: for i in range (2, n): if is_divisible (n, i): return False; return True"
+            },
+            {
+                "questionId": "Problem 3a(iii)",
+                "answerText": "def get_primes (n: int) -> tuple [int, list [int]]: primes = []; for i in range (2, n+1): if is-prime (i): primes.append (i); return len(primes), primes"
+            },
+            {
+                "questionId": "Problem 3b",
+                "answerText": "def rotate_clockwise(lst: list [list [int]]) -> list [list [int]]: size = len (lst); new_list = []; for i in range (size): new_list.append ([]); for j in range(size): new_list[i].append(lst [size - 1 - j][i]); return new_list"
+            },
+            {
+                "questionId": "Problem 4a",
+                "answerText": "def print_balance (balance): print(f\"Your balance is ${balance}\")"
+            },
+            {
+                "questionId": "Problem 4b",
+                "answerText": "def print_bag(bag): print(\"Your bag contains: \", end = \"\"); for item in bag: print (item, end=\"\"); print()"
+            },
+            {
+                "questionId": "Problem 4c",
+                "answerText": "def put_in_bag (bag, item, amount): for i in range (amount): bag.append(item); return bag"
+            },
+            {
+                "questionId": "Problem 4d",
+                "answerText": "def purchase_item (balance, item, price, amount = 1): if balance < price * amount: return balance, item, 0; else: return balance - price * amount, item, amount"
+            },
+            {
+                "questionId": "Problem 5a",
+                "answerText": "def initialize_game() -> list [int | bool]: secret_number = random.randint (1, 100); return [secret_number, 0, 10, 1, 100, False ]"
+            },
+            {
+                "questionId": "Problem 5b",
+                "answerText": "def get_valid_guess(game_state: list [int | bool]) -> int: secret_number, attempts, max_attempts, low_bound, high_bound, game_over = game_state; current_attempt = attempts + 1; while True: print (f\"Attempt {current_attempt} (Range: {low_bound}-{high_bound}): \", end=\"\"); guess = input(); if not guess.isdigit(): print (\"Invalid input! Please enter a whole number\"); continue; guess_int = int(guess); if not (low_bound <= guess_int <= high_bound): print (f\"Please enter a number between {low_bound} and {high_bound}. \"); continue; return guess_int"
+            },
+            {
+                "questionId": "Problem 5c",
+                "answerText": "def process_guess(guess: int, game_state: list [int | bool]) -> list [int | bool]: secret_number, attempts, max_attempts, low_bound, high_bound, game_over = game_state; attempts += 1; if secret_number == guess: print (f\"Congratulations! You guessed the number {secret_number} in {attempts} attempts!\"); game_over = True; elif secret_number > guess: print(\"Too low!\"); low_bound = guess + 1; elif secret_number < guess: print(\"Too high!\"); high_bound = guess - 1; return [secret_number, attempts, max_attempts, low_bound, high_bound, game_over]"
+            },
+            {
+                "questionId": "Problem 6a",
+                "answerText": "def transpose(sales_list: list [list [int]]) -> list [list [int]]: return [[ sales_list[i][j] for i in range(len(sales_list))] for j in range (len(sales_list[0]))]"
+            },
+            {
+                "questionId": "Problem 6b",
+                "answerText": "def shift (sales_list: list [list (int)), days: int) -> list [list [int]]: return [[row[ (i + days) % len(sales_list[0])] for i in range(len(row))] for row in sales_list]"
+            },
+            {
+                "questionId": "Problem 6c",
+                "answerText": "def shift_right (sales_list: list [list [int]), days: int) -> list [list [int]]: return shift(sales_list, len (sales_list[0])-days)"
+            }
+        ]
+    },
+    {
+        "studentId": "Not provided",
+        "studentName": "Not provided",
+        "fileName": "sample4.pdf",
+        "answers": [
+            {
+                "questionId": "Problem 1",
+                "answerText": "True/False Table: (a)F, (b)F, (c)F, (d)T, (e)F, (f)T, (g)T, (h)F, (i)T, (j)T"
+            },
+            {
+                "questionId": "Problem 2a",
+                "answerText": "Element processing: None, -7, -4, 1, 3, 1, 5. Value of total: 10, 2, 6, 5, 2, 8, 1."
+            },
+            {
+                "questionId": "Problem 2b",
+                "answerText": "The value that the function returns: 162. Reason for the termination: It runs out of items naturally."
+            },
+            {
+                "questionId": "Problem 3a(i)",
+                "answerText": "def is_divisible (n: int, k: int) -> bool: remainder: int = n%k; if remainder == 0: return True; else: return False"
+            },
+            {
+                "questionId": "Problem 3a(ii)",
+                "answerText": "def is_prime (n: int) -> bool: for k in range (2, n): result: bool = is-divisible (n,k); if result == True: return False; return True"
+            },
+            {
+                "questionId": "Problem 3a(iii)",
+                "answerText": "def get_primes (n: int) -> tuple [int, list [int]]: counter: int = 0; return_list: list [int] = []; for i in range(2, n+1): result: bool = is_prime(i); if result == True: counter += 1; return_list.append(i); return counter, return_list"
+            },
+            {
+                "questionId": "Problem 3b",
+                "answerText": "def rotate_clockwise(lst: list [list [int]]) -> list [list [int]]: n = len(lst); return_list = [[0]*n for _ in range(n)]; for row in range(n): for col in range(n): return_list [col] [(n-1)-row] = lst [row][col]; return return_list"
+            },
+            {
+                "questionId": "Problem 4a",
+                "answerText": "def print_balance (balance : int) -> None : print (f\" Your balance is ${balance}\")"
+            },
+            {
+                "questionId": "Problem 4b",
+                "answerText": "def print_bag (bag: list [str]) -> None: message: str = \"Your bag contains: \"; for item in bag: message = message + item + \" \"; print (message)"
+            },
+            {
+                "questionId": "Problem 4c",
+                "answerText": "def put_in_bag (bag : list [str], item: str, amount: int) -> list [str] : for i in range (amount): bag.append (item); return bag"
+            },
+            {
+                "questionId": "Problem 4d",
+                "answerText": "def purchase_item (balance: int, item: str, price: int, amount: int = 1) -> tuple [int, str, int]: total_cost: int = price * amount; if balance >= total_cost: return balance - total_cost, item, amount; else: return balance, item, 0"
+            },
+            {
+                "questionId": "Problem 5a",
+                "answerText": "def initialize_game() -> list [int | bool]: secret_number: int = random.randint (1,100); return [secret_number, 0, 10, 1, 100, False]"
+            },
+            {
+                "questionId": "Problem 5b",
+                "answerText": "def get_valid_guess(game_state: list [int | bool]) -> int: while True: guess: str = input (f\"Attempt {game_state[1]+1} (Range: {game_state[3]}-{game_state[4]}): \"); if guess.isdigit() == False: print(\"Invalid input! Please enter a whole number.\"); continue; num = int(guess); if not (game_state[3] <= num <= game_state[4]): print (f\"Please enter a number between {game_state[3]} and {game_state[4]}.\"); continue; return num"
+            },
+            {
+                "questionId": "Problem 5c",
+                "answerText": "def process_guess(guess: int, game_state: list [int | bool]) -> list [int | bool]: game_state [1] = game_state [1] + 1; if guess == game_state [0]: print ( f\"Congratulations! You guessed the number {game_state[0]} in {game_state [1]} attempts!\"); game_state [5] = True; elif guess < game_state [0]: print(\"Too low!\"); game_state [3] = guess + 1; else: print(\"Too high!\"); game_state [4] = guess - 1; return game_state"
+            },
+            {
+                "questionId": "Problem 6a",
+                "answerText": "def transpose (sales_list: list [list [int]]) -> list [list [int]]: return [[sales_list[r] [c] for r in range (len (sales_list))] for c in range (len( sales_list[0]))]"
+            },
+            {
+                "questionId": "Problem 6b",
+                "answerText": "def shift (sales_list: list [list [int]], days: int) -> list [list [int]]: return [[sales_list[r] [(c + days) % len(sales_list [0])] for c in range (len(sales_list[0]))] for r in range (len(sales_list))]"
+            },
+            {
+                "questionId": "Problem 6c",
+                "answerText": "def shift_right (sales_list: list [list [int]], days: int) -> list [list [int]]: return shift (sales_list, len (sales_list [0]) - (days % len (sales_list [0])))"
+            }
+        ]
+    }
+]

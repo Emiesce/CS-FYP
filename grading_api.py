@@ -332,12 +332,120 @@ async def get_all_grading_results():
         }), 500
 
 
+@app.route('/grading-results/update', methods=['PUT'])
+@async_route
+async def update_grading_result():
+    """
+    Update manual scores in a grading result.
+
+    Request body:
+    {
+        "result_id": "grade_20260322_...",
+        "student_id": "20841234",
+        "updates": [
+            {
+                "question_index": 0,
+                "criterion_index": 0,
+                "manual_score": 8.5
+            }
+        ]
+    }
+    """
+    if not GRADING_AVAILABLE:
+        return jsonify({'success': False, 'error': 'Grading system not available'}), 503
+
+    try:
+        if not request.is_json:
+            return jsonify({'success': False, 'error': 'Request must be JSON'}), 400
+
+        data = request.get_json()
+        student_id = data.get('student_id')
+        result_id = data.get('result_id')
+        updates = data.get('updates', [])
+
+        if not student_id:
+            return jsonify({'success': False, 'error': 'student_id is required'}), 400
+
+        system = await get_grading_system()
+
+        # Find the result to update
+        results = system.get_student_results(student_id)
+        target = None
+        for r in results:
+            if result_id and r.get('id') == result_id:
+                target = r
+                break
+            elif not result_id:
+                target = r  # update the latest
+
+        if not target:
+            return jsonify({'success': False, 'error': 'Result not found'}), 404
+
+        # Apply manual score updates
+        questions = target.get('data', {}).get('questions', [])
+        for upd in updates:
+            qi = upd.get('question_index', 0)
+            ci = upd.get('criterion_index', 0)
+            manual_score = upd.get('manual_score')
+            if manual_score is not None and qi < len(questions):
+                criteria = questions[qi].get('criteria', [])
+                if ci < len(criteria):
+                    criteria[ci]['grade']['manualScore'] = float(manual_score)
+
+        # Recalculate question totals using manual score where available
+        total_score = 0
+        max_total = 0
+        for q in questions:
+            q_total = 0
+            q_max = 0
+            for c in q.get('criteria', []):
+                grade = c.get('grade', {})
+                score = grade.get('manualScore') if grade.get('manualScore') is not None else grade.get('aiSuggestedScore', 0)
+                q_total += score
+                q_max += c.get('maxScore', 0)
+            q['questionTotalScore'] = q_total
+            q['questionMaxScore'] = q_max
+            q['questionPercentage'] = round((q_total / q_max) * 100, 1) if q_max > 0 else 0
+            total_score += q_total
+            max_total += q_max
+
+        # Update summary
+        summary = target.get('data', {}).get('summary', {})
+        summary['totalScore'] = total_score
+        summary['maxScore'] = max_total
+        summary['percentage'] = round((total_score / max_total) * 100, 1) if max_total > 0 else 0
+
+        # Determine grade
+        pct = summary['percentage']
+        if pct >= 90: summary['grade'] = 'A+'
+        elif pct >= 85: summary['grade'] = 'A'
+        elif pct >= 80: summary['grade'] = 'A-'
+        elif pct >= 75: summary['grade'] = 'B+'
+        elif pct >= 70: summary['grade'] = 'B'
+        elif pct >= 65: summary['grade'] = 'B-'
+        elif pct >= 60: summary['grade'] = 'C+'
+        elif pct >= 55: summary['grade'] = 'C'
+        elif pct >= 50: summary['grade'] = 'C-'
+        else: summary['grade'] = 'F'
+
+        # Save back
+        system.results_storage.save_grading_result(target)
+
+        return jsonify({
+            'success': True,
+            'data': target,
+            'message': 'Grading result updated successfully'
+        })
+
+    except Exception as e:
+        logger.error(f"Error updating grading result: {e}")
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+
 @app.route('/grading-statistics', methods=['GET'])
 @async_route
 async def get_grading_statistics():
     """
-    Get statistics about grading results
-    
     Response:
     {
         "success": true,

@@ -4,9 +4,8 @@
 .rubric-upload-container {
     background-color: #fafbff;
     min-height: 100vh;
-    position: relative;
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
 }
 
 .rubric-loading-container {
@@ -75,9 +74,9 @@
 
 .rubric-main-layout {
     display: flex;
+    flex-direction: column;
     flex: 1;
-    min-height: calc(100vh - 80px);
-    /* Adjust based on top bar height */
+    min-height: 100vh;
 }
 
 .rubric-content-area {
