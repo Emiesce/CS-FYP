@@ -49,7 +49,10 @@ export class RubricService {
         try {
             console.log('Initializing RubricService storage...');
             const storedRubrics = await JsonStorageService.initializeStorage();
-            globalMockRubrics = storedRubrics;
+            globalMockRubrics = storedRubrics.map(r => ({
+                ...r,
+                lectureNotes: r.lectureNotes || [],
+            }));
             isInitialized = true;
             console.log(`Loaded ${globalMockRubrics.length} rubrics from storage`);
         } catch (error) {
@@ -360,6 +363,7 @@ export class RubricService {
                 totalMaxPoints: rubricData.questions?.reduce((sum, q) => sum + q.maxScore, 0) || 0,
                 courseId: rubricData.courseId,
                 assignmentId: rubricData.assignmentId,
+                lectureNotes: rubricData.lectureNotes || [],
                 createdAt: new Date(),
                 updatedAt: new Date()
             };
@@ -511,6 +515,9 @@ export class RubricService {
 
             globalMockRubrics[rubricIndex] = updatedRubric;
             console.log('RubricService.updateRubric: Total rubrics now:', globalMockRubrics.length);
+
+            // Debug: confirm lectureNotes are present before persisting
+            console.log('RubricService.updateRubric: lectureNotes.length before saveToStorage:', updatedRubric.lectureNotes?.length ?? 0);
 
             // Save to persistent storage
             await this.saveToStorage();

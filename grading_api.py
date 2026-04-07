@@ -1203,6 +1203,27 @@ async def get_lecture_notes_statistics():
         }), 500
 
 
+# ─── Rubrics persistence endpoint ────────────────────────────────────────────
+
+RUBRICS_FILE = os.path.join(os.path.dirname(__file__), 'src', 'data', 'rubrics.json')
+
+@app.route('/rubrics', methods=['POST', 'OPTIONS'])
+def save_rubrics():
+    if request.method == 'OPTIONS':
+        return '', 204
+    try:
+        rubrics = request.get_json()
+        if rubrics is None:
+            return jsonify({'success': False, 'error': 'No data provided'}), 400
+        os.makedirs(os.path.dirname(RUBRICS_FILE), exist_ok=True)
+        with open(RUBRICS_FILE, 'w', encoding='utf-8') as f:
+            import json as _json
+            _json.dump(rubrics, f, indent=2, ensure_ascii=False)
+        return jsonify({'success': True, 'message': f'Saved {len(rubrics)} rubrics'})
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+
 if __name__ == '__main__':
     print("=" * 60)
     print("Grading API Server (All Exam Types)")

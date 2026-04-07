@@ -17,7 +17,12 @@ export class JsonStorageService {
             return data.map((rubric: any) => ({
                 ...rubric,
                 createdAt: new Date(rubric.createdAt),
-                updatedAt: new Date(rubric.updatedAt)
+                updatedAt: new Date(rubric.updatedAt),
+                lectureNotes: (rubric.lectureNotes || []).map((note: any) => ({
+                    ...note,
+                    uploadedAt: new Date(note.uploadedAt),
+                    processedAt: note.processedAt ? new Date(note.processedAt) : undefined,
+                })),
             }));
         } catch (error) {
             console.error('Error loading rubrics:', error);
@@ -34,8 +39,15 @@ export class JsonStorageService {
             // Convert Date objects to strings for JSON serialization
             const serializedRubrics = rubrics.map(rubric => ({
                 ...rubric,
-                createdAt: rubric.createdAt.toISOString(),
-                updatedAt: rubric.updatedAt.toISOString()
+                createdAt: rubric.createdAt instanceof Date ? rubric.createdAt.toISOString() : rubric.createdAt,
+                updatedAt: rubric.updatedAt instanceof Date ? rubric.updatedAt.toISOString() : rubric.updatedAt,
+                lectureNotes: (rubric.lectureNotes || []).map(note => ({
+                    ...note,
+                    uploadedAt: note.uploadedAt instanceof Date ? note.uploadedAt.toISOString() : note.uploadedAt,
+                    processedAt: note.processedAt instanceof Date
+                        ? note.processedAt.toISOString()
+                        : (note.processedAt ?? null),
+                })),
             }));
 
             // Try to save to the actual JSON file via Python backend
@@ -82,7 +94,12 @@ export class JsonStorageService {
             return data.map((rubric: any) => ({
                 ...rubric,
                 createdAt: new Date(rubric.createdAt),
-                updatedAt: new Date(rubric.updatedAt)
+                updatedAt: new Date(rubric.updatedAt),
+                lectureNotes: (rubric.lectureNotes || []).map((note: any) => ({
+                    ...note,
+                    uploadedAt: new Date(note.uploadedAt),
+                    processedAt: note.processedAt ? new Date(note.processedAt) : undefined,
+                })),
             }));
         } catch (error) {
             console.error('Error loading from localStorage:', error);

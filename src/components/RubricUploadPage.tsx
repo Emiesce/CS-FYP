@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import { Button } from "./ui/button";
 import { Menu, Plus, Upload, FileText, Trash2, X, Edit } from "lucide-react";
 import { Sidebar } from "./Sidebar";
@@ -23,6 +23,7 @@ export function RubricUploadPage({ courseId }: RubricUploadPageProps = {}) {
     const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
     const [activeView, setActiveView] = useState<'upload' | 'manage' | 'create' | 'view' | 'edit'>('manage');
     const [selectedRubric, setSelectedRubric] = useState<RubricData | null>(null);
+    const [editSessionKey, setEditSessionKey] = useState(0);
     const { addToast } = useToast();
 
     // Use the rubric controller hook directly - don't wrap in try-catch as it causes re-initialization
@@ -132,17 +133,20 @@ export function RubricUploadPage({ courseId }: RubricUploadPageProps = {}) {
 
     // View and Edit handlers
     const handleViewRubric = (rubric: RubricData) => {
-        console.log('Viewing rubric:', rubric);
-        setSelectedRubric(rubric);
+        // Always use the latest version from the rubrics list
+        const latest = hookData?.rubrics?.find(r => r.id === rubric.id) || rubric;
+        setSelectedRubric(latest);
         setActiveView('view');
     };
 
     const handleEditRubric = (rubric: RubricData) => {
-        console.log('Editing rubric:', rubric);
-        setSelectedRubric(rubric);
+        // Always use the latest version from the rubrics list
+        const latest = hookData?.rubrics?.find(r => r.id === rubric.id) || rubric;
+        console.log('=== EDIT RUBRIC ===', latest.id, 'lectureNotes:', latest.lectureNotes?.length ?? 0);
+        setSelectedRubric(latest);
+        setEditSessionKey(k => k + 1);
         setActiveView('edit');
     };
-
     const handleDeleteRubric = async (rubricId: string) => {
         if (confirm('Are you sure you want to delete this rubric?')) {
             try {
@@ -400,7 +404,7 @@ export function RubricUploadPage({ courseId }: RubricUploadPageProps = {}) {
 
                                 {activeView === 'view' && selectedRubric && (
                                     <ViewRubricView
-                                        rubric={selectedRubric}
+                                        rubric={hookData?.rubrics?.find(r => r.id === selectedRubric.id) || selectedRubric}
                                         onBack={handleBackToManage}
                                         onEdit={() => handleEditRubric(selectedRubric)}
                                     />
@@ -408,9 +412,13 @@ export function RubricUploadPage({ courseId }: RubricUploadPageProps = {}) {
 
                                 {activeView === 'edit' && selectedRubric && (
                                     <EditRubricView
+                                        key={editSessionKey}
                                         rubric={selectedRubric}
-                                        onSuccess={(message) => {
+                                        onSuccess={(message, updatedRubric) => {
                                             handleSuccess(message);
+                                            if (updatedRubric) {
+                                                setSelectedRubric(updatedRubric);
+                                            }
                                             handleBackToManage();
                                         }}
                                         onError={handleError}
@@ -1229,7 +1237,7 @@ function ViewQuestionDisplay({ question, index }: ViewQuestionDisplayProps) {
 // EditRubricView Component
 interface EditRubricViewProps {
     rubric: RubricData;
-    onSuccess: (message: string) => void;
+    onSuccess: (message: string, updatedRubric?: RubricData) => void;
     onError: (error: string) => void;
     onCancel: () => void;
     isSubmitting: boolean;
@@ -1239,6 +1247,9 @@ interface EditRubricViewProps {
 function EditRubricView({ rubric, onSuccess, onError, onCancel, isSubmitting, hookData }: EditRubricViewProps) {
     const [rubricTitle, setRubricTitle] = useState(rubric.title);
     const [rubricDescription, setRubricDescription] = useState(rubric.description);
+    const [lectureNotes, setLectureNotes] = useState<LectureNote[]>(rubric.lectureNotes || []);
+    // Capture initial notes once so LectureNotesSection doesn't get a moving target as initialNotes
+    const initialNotesRef = useRef<LectureNote[]>(rubric.lectureNotes || []);
     const [questions, setQuestions] = useState<RubricQuestion[]>(
         rubric.questions.map(q => ({
             ...q,
@@ -1246,7 +1257,6 @@ function EditRubricView({ rubric, onSuccess, onError, onCancel, isSubmitting, ho
         }))
     );
     const [errors, setErrors] = useState<Record<string, string>>({});
-    const [lectureNotes, setLectureNotes] = useState<LectureNote[]>(rubric.lectureNotes || []);
 
     // Add a new question
     const addQuestion = () => {
@@ -1329,10 +1339,6 @@ function EditRubricView({ rubric, onSuccess, onError, onCancel, isSubmitting, ho
             newErrors.title = 'Rubric title is required';
         }
 
-        if (questions.length === 0) {
-            newErrors.questions = 'At least one question is required';
-        }
-
         questions.forEach((question, index) => {
             if (!question.title.trim()) {
                 newErrors[`question-${index}-title`] = 'Question title is required';
@@ -1356,6 +1362,7 @@ function EditRubricView({ rubric, onSuccess, onError, onCancel, isSubmitting, ho
         e.preventDefault();
 
         if (!validateForm()) {
+            console.log('Edit validation failed, questions:', questions.length, JSON.stringify(questions.map(q => ({ title: q.title, min: q.minScore, max: q.maxScore }))));
             onError('Please fix the validation errors before submitting');
             return;
         }
@@ -1372,19 +1379,20 @@ function EditRubricView({ rubric, onSuccess, onError, onCancel, isSubmitting, ho
                 updatedAt: new Date()
             };
 
-            console.log('EditRubricView: Submitting updated rubric data:', updatedRubricData);
+            console.log('=== SUBMIT DEBUG ===');
+            console.log('lectureNotes count:', lectureNotes.length);
+            console.log('lectureNotes:', JSON.stringify(lectureNotes.map(n => ({ id: n.id, name: n.originalName }))));
+            console.log('updatedRubricData:', updatedRubricData);
 
             // Use the hook's updateRubric function
             if (hookData?.updateRubric) {
                 const success = await hookData.updateRubric(rubric.id, updatedRubricData);
                 if (success) {
-                    onSuccess('Rubric updated successfully!');
-
-                    // Refresh the rubrics list to show the updated rubric
+                    // Refresh first so the manage view shows updated data
                     if (hookData?.refreshRubrics) {
-                        console.log('EditRubricView: Refreshing rubrics list...');
                         await hookData.refreshRubrics();
                     }
+                    onSuccess('Rubric updated successfully!', { ...rubric, ...updatedRubricData } as RubricData);
                 } else {
                     onError('Failed to update rubric - check console for details');
                 }
@@ -1451,6 +1459,8 @@ function EditRubricView({ rubric, onSuccess, onError, onCancel, isSubmitting, ho
                     <div className="rubric-form-section">
                         <LectureNotesSection
                             onNotesChange={setLectureNotes}
+                            initialNotes={initialNotesRef.current}
+                            rubricId={rubric.id}
                             disabled={isSubmitting}
                         />
                     </div>
@@ -1514,7 +1524,7 @@ function EditRubricView({ rubric, onSuccess, onError, onCancel, isSubmitting, ho
                         <Button
                             type="submit"
                             variant="default"
-                            disabled={isSubmitting || !rubricTitle.trim() || questions.length === 0}
+                            disabled={isSubmitting || !rubricTitle.trim()}
                         >
                             {isSubmitting ? (
                                 <>

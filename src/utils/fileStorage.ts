@@ -59,8 +59,8 @@ export class FileStorageService {
     static async getFile(noteId: string): Promise<string | null> {
         const backendId = localStorage.getItem(`${this.STORAGE_PREFIX}id-map-${noteId}`) || noteId;
         try {
-            const res = await fetch(`${GRADING_API}/api/lecture-notes/${backendId}/preview`, { signal: AbortSignal.timeout(2000) });
-            if (res.ok) return `${GRADING_API}/api/lecture-notes/${backendId}/preview`;
+            const res = await fetch(`${GRADING_API}/api/lecture-notes/download/${backendId}`, { method: 'HEAD', signal: AbortSignal.timeout(2000) });
+            if (res.ok) return `${GRADING_API}/api/lecture-notes/download/${backendId}`;
         } catch (_) { /* fall through */ }
         return localStorage.getItem(this.getStorageKey(noteId));
     }
@@ -71,7 +71,7 @@ export class FileStorageService {
 
     static async getDownloadUrl(noteId: string): Promise<string | null> {
         const backendId = localStorage.getItem(`${this.STORAGE_PREFIX}id-map-${noteId}`) || noteId;
-        return `${GRADING_API}/api/lecture-notes/${backendId}/preview`;
+        return `${GRADING_API}/api/lecture-notes/download/${backendId}`;
     }
 
     static async removeFile(noteId: string): Promise<void> {
@@ -87,10 +87,15 @@ export class FileStorageService {
     }
 
     static async hasFile(noteId: string): Promise<boolean> {
+        // If we have a backend id-map entry, the file was stored on the backend
+        if (localStorage.getItem(`${this.STORAGE_PREFIX}id-map-${noteId}`)) return true;
+        // Otherwise check localStorage fallback
         return localStorage.getItem(this.getStorageKey(noteId)) !== null;
     }
 
     static hasFileSync(noteId: string): boolean {
+        // If we have a backend id-map entry, the file was stored on the backend
+        if (localStorage.getItem(`${this.STORAGE_PREFIX}id-map-${noteId}`)) return true;
         return localStorage.getItem(this.getStorageKey(noteId)) !== null;
     }
 

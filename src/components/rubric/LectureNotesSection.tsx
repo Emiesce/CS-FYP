@@ -8,11 +8,12 @@ import { FileStorageService } from '../../utils/fileStorage';
 interface LectureNotesSectionProps {
     onNotesChange?: (notes: LectureNote[]) => void;
     disabled?: boolean;
-    rubricId?: string; // Pass rubric ID so files get RAG-associated on upload
+    rubricId?: string;
+    initialNotes?: LectureNote[];
 }
 
-export function LectureNotesSection({ onNotesChange, disabled, rubricId }: LectureNotesSectionProps) {
-    const [notes, setNotes] = useState<LectureNote[]>([]);
+export function LectureNotesSection({ onNotesChange, disabled, rubricId, initialNotes = [] }: LectureNotesSectionProps) {
+    const [notes, setNotes] = useState<LectureNote[]>(initialNotes);
     const [isDragging, setIsDragging] = useState(false);
 
     const handleFileSelect = async (files: FileList | null) => {
@@ -28,11 +29,10 @@ export function LectureNotesSection({ onNotesChange, disabled, rubricId }: Lectu
             const stored = await FileStorageService.storeFile(noteId, file, rubricId);
 
             if (!stored) {
-                console.error(`Failed to store file: ${file.name}`);
-                continue;
+                console.warn(`FileStorageService failed for: ${file.name}, adding metadata only`);
             }
 
-            // Create lecture note metadata
+            // Always create the note metadata regardless of storage success
             const fileExtension = file.name.split('.').pop()?.toLowerCase() || 'unknown';
             const validFileType = ['pdf', 'docx', 'txt', 'md'].includes(fileExtension)
                 ? fileExtension as 'pdf' | 'docx' | 'txt' | 'md'
@@ -56,6 +56,9 @@ export function LectureNotesSection({ onNotesChange, disabled, rubricId }: Lectu
 
         const updatedNotes = [...notes, ...newNotes];
         setNotes(updatedNotes);
+
+        console.log('=== LectureNotesSection onNotesChange ===');
+        console.log('notes before:', notes.length, 'new:', newNotes.length, 'total:', updatedNotes.length);
 
         if (onNotesChange) {
             onNotesChange(updatedNotes);
