@@ -26,9 +26,9 @@ export function LectureNotesSection({ onNotesChange, disabled, rubricId, initial
             const noteId = `note-${Date.now()}-${i}`;
 
             // Store file using the FileStorageService — routes to grading API for RAG indexing
-            const stored = await FileStorageService.storeFile(noteId, file, rubricId);
+            const backendId = await FileStorageService.storeFile(noteId, file, rubricId);
 
-            if (!stored) {
+            if (backendId === null && !FileStorageService.hasFileSync(noteId)) {
                 console.warn(`FileStorageService failed for: ${file.name}, adding metadata only`);
             }
 
@@ -40,6 +40,7 @@ export function LectureNotesSection({ onNotesChange, disabled, rubricId, initial
 
             const note: LectureNote = {
                 id: noteId,
+                backendId: backendId ?? undefined, // Persist backend UUID so file survives page refresh
                 filename: file.name,
                 originalName: file.name,
                 fileSize: file.size,

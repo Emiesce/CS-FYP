@@ -95,6 +95,7 @@ export interface Assignment {
 // Lecture Notes interfaces
 export interface LectureNote {
     id: string;
+    backendId?: string;  // Backend UUID for file retrieval after page refresh
     filename: string;
     originalName: string;
     fileSize: number;

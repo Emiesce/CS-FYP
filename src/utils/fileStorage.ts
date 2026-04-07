@@ -12,10 +12,10 @@ export class FileStorageService {
      * Upload a file through the full pipeline:
      * grading_api.py stores file + extracts text + indexes into ChromaDB for RAG
      */
-    static async storeFile(noteId: string, file: File, rubricId?: string): Promise<boolean> {
+    static async storeFile(noteId: string, file: File, rubricId?: string): Promise<string | null> {
         if (file.size > this.MAX_FILE_SIZE) {
             console.warn(`File ${file.name} exceeds maximum size of 50MB`);
-            return false;
+            return null;
         }
 
         // Try grading API (full pipeline: store + extract + RAG index)
@@ -32,12 +32,15 @@ export class FileStorageService {
 
             if (response.ok) {
                 const result = await response.json();
-                if (result.success) {
-                    if (result.data?.id) {
-                        localStorage.setItem(`${this.STORAGE_PREFIX}id-map-${noteId}`, result.data.id);
-                    }
+                if (result.success && result.data?.id) {
+                    localStorage.setItem(`${this.STORAGE_PREFIX}id-map-${noteId}`, result.data.id);
                     console.log(`[FileStorage] Uploaded + RAG indexed: ${file.name}`);
-                    return true;
+                    // Also save base64 to localStorage so file survives page refresh
+                    try {
+                        const fileContent = await this.readFileAsBase64(file);
+                        localStorage.setItem(this.getStorageKey(noteId), fileContent);
+                    } catch (_) { /* non-critical */ }
+                    return result.data.id; // Return backend UUID
                 }
             }
         } catch (e) {
@@ -49,10 +52,10 @@ export class FileStorageService {
             const fileContent = await this.readFileAsBase64(file);
             localStorage.setItem(this.getStorageKey(noteId), fileContent);
             console.log(`[FileStorage] Stored in localStorage (no RAG): ${file.name}`);
-            return true;
+            return null; // No backend ID, file is in localStorage
         } catch (e) {
             console.error('[FileStorage] All storage methods failed:', e);
-            return false;
+            return null;
         }
     }
 

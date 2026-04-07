@@ -1,7 +1,6 @@
 import { BookOpen, FileText, Download, ExternalLink } from 'lucide-react';
 import { Card, CardContent } from '../ui/card';
 import { LectureNote } from '../../types';
-import { FileStorageService } from '../../utils/fileStorage';
 
 interface LectureNotesDisplayProps {
     notes: LectureNote[];
@@ -25,10 +24,48 @@ export function LectureNotesDisplay({ notes }: LectureNotesDisplayProps) {
         }).format(new Date(date));
     };
 
+    const getBackendUrl = async (note: LectureNote): Promise<string | null> => {
+        // Use stored backendId first (set on upload)
+        let backendId = note.backendId
+            || localStorage.getItem(`lecture-note-file-id-map-${note.id}`);
+
+        // If no backendId, try to find it by original filename from the backend
+        if (!backendId) {
+            try {
+                const res = await fetch('http://localhost:5000/api/lecture-notes', { signal: AbortSignal.timeout(3000) });
+                if (res.ok) {
+                    const data = await res.json();
+                    const match = data.data?.find((n: any) => n.original_name === note.originalName);
+                    if (match?.id) backendId = match.id;
+                }
+            } catch (_) { /* backend unavailable */ }
+        }
+
+        return backendId ? `http://localhost:5000/api/lecture-notes/download/${backendId}` : null;
+    };
+
+    const getLocalBase64 = (note: LectureNote): string | null => {
+        return localStorage.getItem(`lecture-note-file-${note.id}`);
+    };
+
     const handleDownload = async (note: LectureNote) => {
         try {
-            const url = await FileStorageService.getDownloadUrl(note.id);
-            if (url) window.open(url, '_blank');
+            // Try localStorage base64 first (most reliable after page refresh)
+            const base64 = getLocalBase64(note);
+            if (base64) {
+                const a = document.createElement('a');
+                a.href = base64;
+                a.download = note.originalName;
+                a.click();
+                return;
+            }
+            // Fallback: backend download URL
+            const backendUrl = await getBackendUrl(note);
+            if (backendUrl) {
+                window.open(backendUrl, '_blank');
+                return;
+            }
+            alert('File not available for download. Please re-upload the lecture note.');
         } catch (e) {
             console.error('Download failed:', e);
         }
@@ -36,9 +73,22 @@ export function LectureNotesDisplay({ notes }: LectureNotesDisplayProps) {
 
     const handleView = async (note: LectureNote) => {
         try {
-            const url = await FileStorageService.getFile(note.id);
-            if (url) window.open(url, '_blank');
-            else alert('File not available. Please re-upload.');
+            // Try localStorage base64 first (most reliable after page refresh)
+            const base64 = getLocalBase64(note);
+            if (base64) {
+                const res = await fetch(base64);
+                const blob = await res.blob();
+                const url = URL.createObjectURL(blob);
+                window.open(url, '_blank');
+                return;
+            }
+            // Fallback: backend download URL
+            const backendUrl = await getBackendUrl(note);
+            if (backendUrl) {
+                window.open(backendUrl, '_blank');
+                return;
+            }
+            alert('File not available. Please re-upload the lecture note.');
         } catch (e) {
             console.error('View failed:', e);
         }
