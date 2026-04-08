@@ -15,10 +15,12 @@ interface LectureNotesSectionProps {
 export function LectureNotesSection({ onNotesChange, disabled, rubricId, initialNotes = [] }: LectureNotesSectionProps) {
     const [notes, setNotes] = useState<LectureNote[]>(initialNotes);
     const [isDragging, setIsDragging] = useState(false);
+    const [uploading, setUploading] = useState(false);
 
     const handleFileSelect = async (files: FileList | null) => {
         if (!files || files.length === 0) return;
 
+        setUploading(true);
         const newNotes: LectureNote[] = [];
 
         for (let i = 0; i < files.length; i++) {
@@ -64,6 +66,7 @@ export function LectureNotesSection({ onNotesChange, disabled, rubricId, initial
         if (onNotesChange) {
             onNotesChange(updatedNotes);
         }
+        setUploading(false);
     };
 
     const handleDrop = (e: React.DragEvent) => {
@@ -116,7 +119,7 @@ export function LectureNotesSection({ onNotesChange, disabled, rubricId, initial
                     className={`
                         border-2 border-dashed rounded-lg p-6 text-center transition-colors
                         ${isDragging ? 'border-blue-500 bg-blue-100' : 'border-blue-300 bg-white'}
-                        ${disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer hover:border-blue-400'}
+                        ${disabled || uploading ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer hover:border-blue-400'}
                     `}
                 >
                     <input
@@ -126,22 +129,31 @@ export function LectureNotesSection({ onNotesChange, disabled, rubricId, initial
                         accept=".pdf,.docx,.txt,.md"
                         onChange={(e) => handleFileSelect(e.target.files)}
                         className="hidden"
-                        disabled={disabled}
+                        disabled={disabled || uploading}
                     />
 
                     <label
                         htmlFor="lecture-notes-upload"
-                        className={`flex flex-col items-center gap-2 ${disabled ? 'cursor-not-allowed' : 'cursor-pointer'}`}
+                        className={`flex flex-col items-center gap-2 ${disabled || uploading ? 'cursor-not-allowed' : 'cursor-pointer'}`}
                     >
-                        <Upload className="size-8 text-blue-500" />
-                        <div>
-                            <p className="text-sm font-medium text-gray-700">
-                                Drop files here or click to browse
-                            </p>
-                            <p className="text-xs text-gray-500 mt-1">
-                                Supports PDF, DOCX, TXT, MD (max 50MB each)
-                            </p>
-                        </div>
+                        {uploading ? (
+                            <>
+                                <div className="size-8 border-4 border-blue-300 border-t-blue-600 rounded-full animate-spin" />
+                                <p className="text-sm font-medium text-blue-700">Uploading & indexing...</p>
+                            </>
+                        ) : (
+                            <>
+                                <Upload className="size-8 text-blue-500" />
+                                <div>
+                                    <p className="text-sm font-medium text-gray-700">
+                                        Drop files here or click to browse
+                                    </p>
+                                    <p className="text-xs text-gray-500 mt-1">
+                                        Supports PDF, DOCX, TXT, MD (max 50MB each)
+                                    </p>
+                                </div>
+                            </>
+                        )}
                     </label>
                 </div>
 

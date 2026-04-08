@@ -972,5 +972,72 @@
     },
     "id": "grade_20260322_204545_unknown",
     "saved_at": "2026-03-22T20:45:45.220256"
+  },
+  {
+    "data": {
+      "studentID": "DIRECT_TEST_001",
+      "studentName": "Direct Test Student",
+      "examId": "direct_azure_test",
+      "examTitle": "Direct Azure OpenAI Test",
+      "courseId": "DIRECT_TEST",
+      "submittedAt": "2026-02-26T09:16:04.043828Z",
+      "gradedAt": "2026-02-26T09:16:04.043828Z",
+      "status": "graded",
+      "questions": [
+        {
+          "questionId": "q1",
+          "questionNumber": 1,
+          "questionText": "Understanding of Planning Fallacy",
+          "questionType": "essay",
+          "topicId": "general",
+          "studentAnswer": {
+            "id": "answer1",
+            "answerText": "Student response about planning fallacy...",
+            "submittedAt": "2026-02-26T09:16:04.043828Z",
+            "wordCount": 150
+          },
+          "criteria": [
+            {
+              "criterionId": "direct_test",
+              "criterionName": "Understanding of Planning Fallacy",
+              "description": "Direct Azure AI test criteria",
+              "maxScore": 10.0,
+              "weight": 1.0,
+              "grade": {
+                "manualScore": 9.5,
+                "aiSuggestedScore": 9.0,
+                "highlightedText": "Planning fallacy is a cognitive bias where people underestimate the time, costs, and risks of future actions while overestimating their benefits. Several factors contribute to this bias: 1. Optimism bias - expecting positive outcomes 2. Anchoring - being influenced by initial estimates 3. Memory bias - remembering successes more than failures 4. Overconfidence - believing we can control more than we can",
+                "aiJustification": "The essay demonstrates a comprehensive understanding of the planning fallacy, providing a clear definition and identifying multiple contributing factors. The explanation of the cognitive bias is accurate and well-articulated, and the student effectively lists four relevant factors that contribute to the planning fallacy. Additionally, the essay offers practical solutions to mitigate the bias, which enhances the overall understanding of the topic.",
+                "aiSuggestion": "To further strengthen the essay, the student could provide examples or real-life scenarios that illustrate the planning fallacy in action. This would help to contextualize the concepts and make the discussion more relatable.",
+                "gradedBy": "direct_azure_ai",
+                "gradedAt": "2026-02-26T09:16:04.043828Z"
+              }
+            }
+          ],
+          "questionTotalScore": 9.5,
+          "questionMaxScore": 10.0,
+          "questionPercentage": 95.0
+        }
+      ],
+      "summary": {
+        "totalScore": 9.5,
+        "maxScore": 10.0,
+        "percentage": 95.0,
+        "grade": "A+",
+        "totalQuestions": 1,
+        "gradedQuestions": 1,
+        "pendingQuestions": 0
+      }
+    },
+    "_metadata": {
+      "marking_scheme_id": "direct_test",
+      "assignment_id": "direct_azure_test",
+      "course_id": "DIRECT_TEST",
+      "stored_at": "2026-02-26T09:16:04.043828Z"
+    },
+    "success": true,
+    "message": "Direct Azure test results processed successfully",
+    "id": "grade_20260408_235738_unknown",
+    "saved_at": "2026-04-08T23:57:38.932258"
   }
 ]

@@ -554,6 +554,23 @@ export class RubricService {
                 };
             }
 
+            // Delete associated lecture notes from backend before removing rubric
+            const rubric = globalMockRubrics[rubricIndex];
+            if (rubric.lectureNotes && rubric.lectureNotes.length > 0) {
+                for (const note of rubric.lectureNotes) {
+                    const backendId = note.backendId || note.id;
+                    try {
+                        await fetch(`http://localhost:5000/api/lecture-notes/${backendId}`, {
+                            method: 'DELETE',
+                            signal: AbortSignal.timeout(5000)
+                        });
+                        console.log(`Deleted lecture note ${backendId} from backend`);
+                    } catch (e) {
+                        console.warn(`Failed to delete lecture note ${backendId} from backend:`, e);
+                    }
+                }
+            }
+
             globalMockRubrics.splice(rubricIndex, 1);
 
             // Save to persistent storage

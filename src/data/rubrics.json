@@ -84,16 +84,16 @@
     "courseId": "course-1",
     "assignmentId": "assignment-1",
     "createdAt": "2024-01-15T00:00:00.000Z",
-    "updatedAt": "2026-04-08T09:09:21.037Z",
+    "updatedAt": "2026-04-08T16:29:44.964Z",
     "lectureNotes": [
       {
-        "id": "note-1775639350800-0",
-        "backendId": "96105c45-bbb5-4abb-aacb-796b1a520ee5",
+        "id": "note-1775665762853-0",
+        "backendId": "47715452-52b0-4335-b74d-8053e0e15ce8",
         "filename": "Unit 2.6 Planning fallacy (2025).pdf",
         "originalName": "Unit 2.6 Planning fallacy (2025).pdf",
         "fileSize": 840674,
         "fileType": "pdf",
-        "uploadedAt": "2026-04-08T09:09:15.862Z",
+        "uploadedAt": "2026-04-08T16:29:27.449Z",
         "associatedRubrics": [],
         "metadata": {
           "processingStatus": "completed"

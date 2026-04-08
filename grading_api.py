@@ -587,16 +587,25 @@ async def upload_lecture_note():
         # Read file content
         file_content = file.read()
         filename = file.filename
-        
+
+        # Save binary to uploads folder for later download
+        uploads_dir = os.path.join(os.path.dirname(__file__), 'uploads', 'lecture-notes')
+        os.makedirs(uploads_dir, exist_ok=True)
+
         # Get lecture notes service
         service = await get_lecture_notes_service()
-        
+
         # Upload and process the file
         note = await service.upload_lecture_note(
             file_content=file_content,
             filename=filename,
             associate_with_rubric=associate_with_rubric
         )
+
+        # Persist binary using the note's UUID as filename prefix
+        stored_filename = f"{note.id}_{os.path.basename(filename)}"
+        with open(os.path.join(uploads_dir, stored_filename), 'wb') as f:
+            f.write(file_content)
         
         return jsonify({
             'success': True,
@@ -624,6 +633,23 @@ async def upload_lecture_note():
             'success': False,
             'error': str(e)
         }), 500
+
+
+@app.route('/api/lecture-notes/download/<note_id>', methods=['GET'])
+def download_lecture_note(note_id):
+    """Serve the original uploaded file binary."""
+    from flask import send_file as flask_send_file
+    import mimetypes
+    uploads_dir = os.path.join(os.path.dirname(__file__), 'uploads', 'lecture-notes')
+    # Find file with matching note_id prefix
+    if os.path.exists(uploads_dir):
+        for fname in os.listdir(uploads_dir):
+            if fname.startswith(note_id + '_'):
+                fpath = os.path.join(uploads_dir, fname)
+                mime = mimetypes.guess_type(fpath)[0] or 'application/octet-stream'
+                original_name = fname[len(note_id) + 1:]
+                return flask_send_file(fpath, mimetype=mime, as_attachment=True, download_name=original_name)
+    return jsonify({'success': False, 'error': 'File not found'}), 404
 
 
 @app.route('/api/lecture-notes', methods=['GET'])

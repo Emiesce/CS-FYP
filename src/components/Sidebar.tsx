@@ -15,7 +15,7 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
         { path: "/dashboard", label: "Dashboard", icon: null },
         { path: "/rubric-upload", label: "Rubric Management", icon: null },
         { path: "/student-answers", label: "Student Answers", icon: null },
-        { path: "/grading", label: "Grading", icon: null },
+        { path: "/grading", label: "Grading Results", icon: null },
         { path: "/analytics", label: "Analytics", icon: null },
         { path: "/proctoring", label: "Proctoring", icon: null },
     ];

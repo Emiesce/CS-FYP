@@ -76,13 +76,11 @@
     display: flex;
     flex-direction: column;
     flex: 1;
-    min-height: 100vh;
 }
 
 .rubric-content-area {
     flex: 1;
     padding: 2rem;
-    min-height: 100%;
 }
 
 .rubric-view-container {
@@ -90,7 +88,6 @@
     display: flex;
     flex-direction: column;
     gap: 1rem;
-    min-height: 100%;
 }
 
 /* Question Block */
@@ -363,7 +360,6 @@ View Rubric Styles */
 /* 
 Dynamic Height Adjustments */
 .rubric-upload-container {
-    min-height: 100vh;
     height: auto;
 }
 
