@@ -8,6 +8,8 @@ from flask import Flask, request, jsonify
 from flask_cors import CORS
 import logging
 import asyncio
+import os
+import json
 from datetime import datetime
 from functools import wraps
 import sys
@@ -37,7 +39,7 @@ except ImportError as e:
     LECTURE_NOTES_AVAILABLE = False
 
 app = Flask(__name__)
-CORS(app)  # Enable CORS for frontend requests
+CORS(app, resources={r"/*": {"origins": "*"}}, supports_credentials=False)
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -1210,15 +1212,18 @@ RUBRICS_FILE = os.path.join(os.path.dirname(__file__), 'src', 'data', 'rubrics.j
 @app.route('/rubrics', methods=['POST', 'OPTIONS'])
 def save_rubrics():
     if request.method == 'OPTIONS':
-        return '', 204
+        response = app.make_default_options_response()
+        response.headers['Access-Control-Allow-Origin'] = '*'
+        response.headers['Access-Control-Allow-Methods'] = 'POST, OPTIONS'
+        response.headers['Access-Control-Allow-Headers'] = 'Content-Type'
+        return response
     try:
         rubrics = request.get_json()
         if rubrics is None:
             return jsonify({'success': False, 'error': 'No data provided'}), 400
         os.makedirs(os.path.dirname(RUBRICS_FILE), exist_ok=True)
         with open(RUBRICS_FILE, 'w', encoding='utf-8') as f:
-            import json as _json
-            _json.dump(rubrics, f, indent=2, ensure_ascii=False)
+            json.dump(rubrics, f, indent=2, ensure_ascii=False)
         return jsonify({'success': True, 'message': f'Saved {len(rubrics)} rubrics'})
     except Exception as e:
         return jsonify({'success': False, 'error': str(e)}), 500

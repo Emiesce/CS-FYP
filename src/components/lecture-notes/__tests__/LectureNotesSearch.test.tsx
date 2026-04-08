@@ -70,6 +70,8 @@ describe('LectureNotesSearch', () => {
             questions: [],
             totalMinPoints: 0,
             totalMaxPoints: 100,
+            createdAt: new Date('2024-01-01'),
+            updatedAt: new Date('2024-01-01'),
         },
         {
             id: 'rubric-2',
@@ -78,6 +80,8 @@ describe('LectureNotesSearch', () => {
             questions: [],
             totalMinPoints: 0,
             totalMaxPoints: 50,
+            createdAt: new Date('2024-01-01'),
+            updatedAt: new Date('2024-01-01'),
         },
     ];
 
