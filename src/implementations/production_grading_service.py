@@ -223,6 +223,7 @@ class ProductionGradingService(GradingService):
         answer_text = getattr(request, 'answer', None) or getattr(request, 'essay_text', '')
 
         criteria_to_grade = scheme.criteria
+        logger.info(f"grade_essay_all_criteria: scheme={request.marking_scheme_id} criteria_count={len(criteria_to_grade)} names={[c.get('name','?') for c in criteria_to_grade]}")
         if getattr(request, 'criteria_ids', None):
             criteria_to_grade = [
                 c for c in scheme.criteria
@@ -239,6 +240,11 @@ class ProductionGradingService(GradingService):
                 criterion_id=criterion["id"],
                 marking_scheme_id=request.marking_scheme_id
             )
+            # Enrich context_metadata with parent question info for grouping in results
+            if result.context_metadata is None:
+                result.context_metadata = {}
+            result.context_metadata['question_id'] = criterion.get('question_id', criterion['id'])
+            result.context_metadata['question_title'] = criterion.get('question_title', criterion.get('name', ''))
             results.append(result)
             total_score += result.score
             max_total_score += result.max_score

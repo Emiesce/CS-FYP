@@ -1,0 +1,32 @@
+[
+    {
+        "studentId": "20841234",
+        "studentName": "Chris Wong",
+        "answers": [
+            {
+                "questionId": "q1",
+                "answerText": "Through this seminar, I learned about the expansive potential of Huawei's technological innovations in various sectors, particularly health, robotics, and cloud computing. The concept of integrating digital transformation into everyday life, from AI-driven healthcare solutions at CUHK Medical Center to the development of a Cantonese LLM, stood out to me as a powerful example of how technology can enhance human capability and social wellbeing. The extensive implications of 5G networks and smart environments, such as the intelligent operations center for managing large-scale events like the Kaitak Sports Park Stadium, were both exciting and eye-opening. This learning matters because it emphasizes the critical role technology plays in driving societal change. For me personally, it resonates with my passion for leveraging innovation to improve the society. Understanding that technology can facilitate smarter healthcare and more efficient urban management illuminates its potential not just for corporate gain but for public benefit. This insight makes me appreciate the responsibility that comes with technological advancement, and it urges me to consider how my future contributions could align with these positive outcomes. Moving forward, I plan to actively engage with these advancements by seeking opportunities in industries that prioritize digital transformation and innovation, especially in healthcare and environmental sustainability. This seminar has inspired me to explore new career paths centered around AI and smart technologies, potentially focusing on their applications in healthcare. I aim to study further in these fields and collaborate on projects that utilize AI for social good, as I believe this integration could be key to a brighter future for communities worldwide. "
+            }
+        ]
+    },
+    {
+        "studentId": "20841235",
+        "studentName": "Peter Chan",
+        "answers": [
+            {
+                "questionId": "q1",
+                "answerText": "After attending the seminar, I learnt a lot more about the application and the process of applying machine learning in IoT sensors and devices. I was particularly excited to learn about the challenges of working with IoT data, such as limited labelled data, high-dimensionality, and non-iid distributions. This experience enriched my knowledge of real-world deployment, complementing the theoretical concepts I’ve learned in class.The use of sensors in detecting early signs and clues of elderlies getting Alzheimer’s disease was very inspiring. It showcases how technology can significantly impact health outcomes. The privacy concerns of having cameras in data collection is also addressed by using mmWave radars, so the data collected will be just cluster of points that do not expose any features, the advancement in the visualization skills are also fascinating.  I studied computer science because I am fascinated by how technology and programming and make an impact to the world, this topic made me feel enlightened as I saw the real application of technology to help people in creating a better living. I am happy to see the broad application of machine learning outside the classroom concepts, reinforcing my enthusiasm for the fieldReflecting on my initial motivation for pursuing computer science, I realized that my goal has always been to apply what I learn to develop solutions for people. I plan to integrate this knowledge into my academic and career pursuits. This experience broadened my perspective on potential career paths apart from normal software engineering positions. Applying machine learning knowledge into research and health technology field is also interesting. "
+            }
+        ]
+    },
+    {
+        "studentId": "20841236",
+        "studentName": "Bob Lam",
+        "answers": [
+            {
+                "questionId": "q1",
+                "answerText": "Attending the seminar on Applying AI and Technology in a Conglomerate was a valuable experience that broadened my understanding of how innovative technologies transform various sectors in Sun Hung Kai. The seminar presented practical applications of AI and technology, especially in areas like preventive maintenance, customer service, and operational efficiency.  The seminar introduced innovative transaction-based customer loyalty programs that simplify the customer experience. The feature to redeem rewards without the need to upload receipts enhances efficiency. This feature made me realize how technology can streamline operations while enhancing customer satisfaction. We might not notice it in our daily life, but it is part of the innovation project that SHK did. Furthermore, the integration of smart cameras to monitor traffic and customer interactions in real-time demonstrated the power of data in optimizing operations. The “instant earn” feature for marketing campaigns showcased how AI can reduce production time and costs, fostering creativity in ways I had not previously considered.  The seminar on applying AI and technology in a conglomerate was a valuable learning experience that provided practical insights into the future of engineering and business. By exploring applications in preventive maintenance, customer loyalty, and operational efficiency, I gained a deeper appreciation for the transformative power of technology. This seminar has not only enhanced my understanding of these concepts but also encouraged me to adopt a more innovative mindset as I progress in my engineering career."
+            }
+        ]
+    }
+]

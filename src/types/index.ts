@@ -60,7 +60,8 @@ export interface RubricQuestion {
     description?: string;
     minScore: number; // float
     maxScore: number; // float
-    scoringCriteria: ScoringCriterion[];
+    scoringCriteria: ScoringCriterion[];       // legacy flat format (kept for backward compat)
+    criteria?: RubricCriterion[];              // new hierarchical format
 }
 
 export interface ScoringCriterion {
@@ -69,6 +70,22 @@ export interface ScoringCriterion {
     description: string; // e.g., "Excellent analysis with clear examples"
     minPoints: number;
     maxPoints: number;
+}
+
+// Score-level descriptor nested under a RubricCriterion
+export interface ScoreLevel {
+    id: string;
+    scoreRange: string;   // e.g., "9-10"
+    description: string;
+    minPoints: number;
+    maxPoints: number;
+}
+
+// Named scoring dimension under a question (e.g., "Content", "Clarity")
+export interface RubricCriterion {
+    id: string;
+    name: string;
+    scoreLevels: ScoreLevel[];
 }
 
 export interface UploadedFile {

@@ -8,7 +8,7 @@ import { RubricGrid } from "./rubric/RubricGrid";
 import { LoadingSpinner, LoadingState } from "./ui/loading-spinner";
 import { useToast } from "./ui/toast";
 import { ErrorBoundary } from "./ui/error-boundary";
-import { RubricData, LectureNote } from "../types";
+import { RubricData, LectureNote, RubricCriterion, ScoreLevel } from "../types";
 import { LectureNotesSection } from "./rubric/LectureNotesSection";
 import { LectureNotesDisplay } from "./rubric/LectureNotesDisplay";
 import "./rubric-styles.css";
@@ -482,7 +482,8 @@ interface RubricQuestion {
     minScore: number;
     maxScore: number;
     modelAnswer?: string;
-    scoringCriteria: ScoringCriterion[];
+    criteria: RubricCriterion[];
+    scoringCriteria?: ScoringCriterion[]; // legacy flat format, kept for backward compat
 }
 
 interface ScoringCriterion {
@@ -509,7 +510,7 @@ function CreateRubricView({ onSuccess, onError, onCancel, isSubmitting, hookData
             minScore: 0,
             maxScore: 10,
             modelAnswer: '',
-            scoringCriteria: []
+            criteria: []
         };
         setQuestions([...questions, newQuestion]);
     };
@@ -526,7 +527,7 @@ function CreateRubricView({ onSuccess, onError, onCancel, isSubmitting, hookData
         setQuestions(questions.filter(q => q.id !== questionId));
     };
 
-    // Add scoring criterion to a question
+    // Add scoring criterion to a question (flat mode — no named criteria)
     const addScoringCriterion = (questionId: string) => {
         const newCriterion: ScoringCriterion = {
             id: `c-${Date.now()}`,
@@ -538,18 +539,18 @@ function CreateRubricView({ onSuccess, onError, onCancel, isSubmitting, hookData
 
         setQuestions(questions.map(q =>
             q.id === questionId
-                ? { ...q, scoringCriteria: [...q.scoringCriteria, newCriterion] }
+                ? { ...q, scoringCriteria: [...(q.scoringCriteria ?? []), newCriterion] }
                 : q
         ));
     };
 
-    // Update scoring criterion
+    // Update scoring criterion (flat mode)
     const updateScoringCriterion = (questionId: string, criterionId: string, updates: Partial<ScoringCriterion>) => {
         setQuestions(questions.map(q =>
             q.id === questionId
                 ? {
                     ...q,
-                    scoringCriteria: q.scoringCriteria.map(c =>
+                    scoringCriteria: (q.scoringCriteria ?? []).map(c =>
                         c.id === criterionId ? { ...c, ...updates } : c
                     )
                 }
@@ -557,13 +558,110 @@ function CreateRubricView({ onSuccess, onError, onCancel, isSubmitting, hookData
         ));
     };
 
-    // Remove scoring criterion
+    // Remove scoring criterion (flat mode)
     const removeScoringCriterion = (questionId: string, criterionId: string) => {
         setQuestions(questions.map(q =>
             q.id === questionId
                 ? {
                     ...q,
-                    scoringCriteria: q.scoringCriteria.filter(c => c.id !== criterionId)
+                    scoringCriteria: (q.scoringCriteria ?? []).filter(c => c.id !== criterionId)
+                }
+                : q
+        ));
+    };
+
+    // Add a named criterion to a question (criteria mode)
+    const addCriterion = (questionId: string) => {
+        const newCriterion: RubricCriterion = {
+            id: `crit-${Date.now()}`,
+            name: '',
+            scoreLevels: []
+        };
+        setQuestions(questions.map(q =>
+            q.id === questionId
+                ? { ...q, criteria: [...q.criteria, newCriterion] }
+                : q
+        ));
+    };
+
+    // Update a named criterion's fields (e.g. name)
+    const updateCriterion = (questionId: string, criterionId: string, updates: Partial<RubricCriterion>) => {
+        setQuestions(questions.map(q =>
+            q.id === questionId
+                ? {
+                    ...q,
+                    criteria: q.criteria.map(c =>
+                        c.id === criterionId ? { ...c, ...updates } : c
+                    )
+                }
+                : q
+        ));
+    };
+
+    // Remove a named criterion and all its score levels
+    const removeCriterion = (questionId: string, criterionId: string) => {
+        setQuestions(questions.map(q =>
+            q.id === questionId
+                ? { ...q, criteria: q.criteria.filter(c => c.id !== criterionId) }
+                : q
+        ));
+    };
+
+    // Add a score level under a named criterion
+    const addScoreLevel = (questionId: string, criterionId: string) => {
+        const newLevel: ScoreLevel = {
+            id: `sl-${Date.now()}`,
+            scoreRange: '',
+            description: '',
+            minPoints: 0,
+            maxPoints: 0
+        };
+        setQuestions(questions.map(q =>
+            q.id === questionId
+                ? {
+                    ...q,
+                    criteria: q.criteria.map(c =>
+                        c.id === criterionId
+                            ? { ...c, scoreLevels: [...c.scoreLevels, newLevel] }
+                            : c
+                    )
+                }
+                : q
+        ));
+    };
+
+    // Update a score level under a named criterion
+    const updateScoreLevel = (questionId: string, criterionId: string, scoreLevelId: string, updates: Partial<ScoreLevel>) => {
+        setQuestions(questions.map(q =>
+            q.id === questionId
+                ? {
+                    ...q,
+                    criteria: q.criteria.map(c =>
+                        c.id === criterionId
+                            ? {
+                                ...c,
+                                scoreLevels: c.scoreLevels.map(sl =>
+                                    sl.id === scoreLevelId ? { ...sl, ...updates } : sl
+                                )
+                            }
+                            : c
+                    )
+                }
+                : q
+        ));
+    };
+
+    // Remove a score level under a named criterion
+    const removeScoreLevel = (questionId: string, criterionId: string, scoreLevelId: string) => {
+        setQuestions(questions.map(q =>
+            q.id === questionId
+                ? {
+                    ...q,
+                    criteria: q.criteria.map(c =>
+                        c.id === criterionId
+                            ? { ...c, scoreLevels: c.scoreLevels.filter(sl => sl.id !== scoreLevelId) }
+                            : c
+                    )
                 }
                 : q
         ));
@@ -758,6 +856,22 @@ function CreateRubricView({ onSuccess, onError, onCancel, isSubmitting, hookData
                                         onRemoveCriterion={(criterionId) =>
                                             removeScoringCriterion(question.id, criterionId)
                                         }
+                                        onAddNamedCriterion={() => addCriterion(question.id)}
+                                        onUpdateNamedCriterion={(criterionId, updates) =>
+                                            updateCriterion(question.id, criterionId, updates)
+                                        }
+                                        onRemoveNamedCriterion={(criterionId) =>
+                                            removeCriterion(question.id, criterionId)
+                                        }
+                                        onAddScoreLevel={(criterionId) =>
+                                            addScoreLevel(question.id, criterionId)
+                                        }
+                                        onUpdateScoreLevel={(criterionId, scoreLevelId, updates) =>
+                                            updateScoreLevel(question.id, criterionId, scoreLevelId, updates)
+                                        }
+                                        onRemoveScoreLevel={(criterionId, scoreLevelId) =>
+                                            removeScoreLevel(question.id, criterionId, scoreLevelId)
+                                        }
                                         errors={errors}
                                         disabled={isSubmitting}
                                     />
@@ -806,6 +920,13 @@ interface QuestionEditorProps {
     onAddCriterion: () => void;
     onUpdateCriterion: (criterionId: string, updates: Partial<ScoringCriterion>) => void;
     onRemoveCriterion: (criterionId: string) => void;
+    // New criteria-mode handlers
+    onAddNamedCriterion: () => void;
+    onUpdateNamedCriterion: (criterionId: string, updates: Partial<RubricCriterion>) => void;
+    onRemoveNamedCriterion: (criterionId: string) => void;
+    onAddScoreLevel: (criterionId: string) => void;
+    onUpdateScoreLevel: (criterionId: string, scoreLevelId: string, updates: Partial<ScoreLevel>) => void;
+    onRemoveScoreLevel: (criterionId: string, scoreLevelId: string) => void;
     errors: Record<string, string>;
     disabled: boolean;
 }
@@ -818,6 +939,12 @@ function QuestionEditor({
     onAddCriterion,
     onUpdateCriterion,
     onRemoveCriterion,
+    onAddNamedCriterion,
+    onUpdateNamedCriterion,
+    onRemoveNamedCriterion,
+    onAddScoreLevel,
+    onUpdateScoreLevel,
+    onRemoveScoreLevel,
     errors,
     disabled
 }: QuestionEditorProps) {
@@ -923,42 +1050,81 @@ function QuestionEditor({
                     />
                 </div>
 
-                {/* Scoring Criteria */}
+                {/* Scoring Section — criteria mode or flat mode */}
                 <div>
                     <div className="flex items-center justify-between mb-3">
-                        <label className="block text-sm font-medium style={{ backgroundColor: '#ecf4ffff' }">
+                        <label className="block text-sm font-medium text-gray-700">
                             Scoring Criteria
                         </label>
-                        <Button
-                            type="button"
-                            onClick={onAddCriterion}
-                            variant="outline"
-                            size="sm"
-                            disabled={disabled}
-                        >
-                            <Plus className="size-4" />
-                            Add Criterion
-                        </Button>
-                    </div>
-
-                    <div className="space-y-2">
-                        {question.scoringCriteria.map((criterion) => (
-                            <ScoringCriterionEditor
-                                key={criterion.id}
-                                criterion={criterion}
-                                onUpdate={(updates) => onUpdateCriterion(criterion.id, updates)}
-                                onRemove={() => onRemoveCriterion(criterion.id)}
+                        <div className="flex gap-2">
+                            {/* Flat mode: show "Add Score Level" only when no named criteria */}
+                            {question.criteria.length === 0 && (
+                                <Button
+                                    type="button"
+                                    onClick={onAddCriterion}
+                                    variant="outline"
+                                    size="sm"
+                                    disabled={disabled}
+                                >
+                                    <Plus className="size-4" />
+                                    Add Score Level
+                                </Button>
+                            )}
+                            {/* Always show "Add Criterion" to switch to / extend criteria mode */}
+                            <Button
+                                type="button"
+                                onClick={onAddNamedCriterion}
+                                variant="outline"
+                                size="sm"
                                 disabled={disabled}
-                            />
-                        ))}
-
-                        {question.scoringCriteria.length === 0 && (
-                            <div className="text-left py-4 text-gray-500 border-2 border-dashed border-gray-300 rounded-md">
-                                <p className="text-sm">No scoring criteria added</p>
-                                <p className="text-xs">Add criteria to define different score levels</p>
-                            </div>
-                        )}
+                            >
+                                <Plus className="size-4" />
+                                Add Criterion
+                            </Button>
+                        </div>
                     </div>
+
+                    {/* Criteria mode: named criteria with nested score levels */}
+                    {question.criteria.length > 0 ? (
+                        <div className="space-y-3">
+                            {question.criteria.map((criterion) => (
+                                <CriterionEditor
+                                    key={criterion.id}
+                                    criterion={criterion}
+                                    onUpdateCriterion={(updates) => onUpdateNamedCriterion(criterion.id, updates)}
+                                    onRemoveCriterion={() => onRemoveNamedCriterion(criterion.id)}
+                                    onAddScoreLevel={() => onAddScoreLevel(criterion.id)}
+                                    onUpdateScoreLevel={(scoreLevelId, updates) =>
+                                        onUpdateScoreLevel(criterion.id, scoreLevelId, updates)
+                                    }
+                                    onRemoveScoreLevel={(scoreLevelId) =>
+                                        onRemoveScoreLevel(criterion.id, scoreLevelId)
+                                    }
+                                    disabled={disabled}
+                                />
+                            ))}
+                        </div>
+                    ) : (
+                        /* Flat mode: score levels directly on the question */
+                        <div className="space-y-2">
+                            {(question.scoringCriteria ?? []).map((criterion) => (
+                                <ScoringCriterionEditor
+                                    key={criterion.id}
+                                    criterion={criterion}
+                                    onUpdate={(updates) => onUpdateCriterion(criterion.id, updates)}
+                                    onRemove={() => onRemoveCriterion(criterion.id)}
+                                    disabled={disabled}
+                                />
+                            ))}
+
+                            {(question.scoringCriteria ?? []).length === 0 && (
+                                <div className="text-left py-4 px-3 text-gray-500 border-2 border-dashed border-gray-300 rounded-md">
+                                    <p className="text-sm">No scoring criteria added</p>
+                                    <p className="text-xs">Use "Add Score Level" for simple scoring, or "Add Criterion" for multi-dimensional scoring</p>
+                                </div>
+                            )}
+                        </div>
+                    )}
                 </div>
             </div>
         </div>
@@ -1039,6 +1205,138 @@ function ScoringCriterionEditor({
             >
                 <X className="rubric-button-icon" />
             </Button>
+        </div>
+    );
+}
+
+// ScoreLevelEditor Component — mirrors ScoringCriterionEditor but typed for ScoreLevel
+interface ScoreLevelEditorProps {
+    scoreLevel: ScoreLevel;
+    onUpdate: (updates: Partial<ScoreLevel>) => void;
+    onRemove: () => void;
+    disabled: boolean;
+}
+
+function ScoreLevelEditor({ scoreLevel, onUpdate, onRemove, disabled }: ScoreLevelEditorProps) {
+    const handleScoreRangeChange = (value: string) => {
+        if (value.includes('-')) {
+            const [min, max] = value.split('-').map(s => parseFloat(s.trim()));
+            if (!isNaN(min) && !isNaN(max)) {
+                onUpdate({ scoreRange: value, minPoints: min, maxPoints: max });
+                return;
+            }
+        } else {
+            const score = parseFloat(value);
+            if (!isNaN(score)) {
+                onUpdate({ scoreRange: value, minPoints: score, maxPoints: score });
+                return;
+            }
+        }
+        onUpdate({ scoreRange: value });
+    };
+
+    return (
+        <div className="rubric-criterion-block">
+            <div className="rubric-criterion-inputs">
+                <div className="rubric-criterion-input-group">
+                    <input
+                        type="text"
+                        value={scoreLevel.scoreRange}
+                        onChange={(e) => handleScoreRangeChange(e.target.value)}
+                        className="rubric-criterion-input"
+                        placeholder="e.g., 8-10, 5"
+                        disabled={disabled}
+                    />
+                    <p className="rubric-criterion-input-label">Score range</p>
+                </div>
+                <div className="rubric-criterion-input-group">
+                    <input
+                        type="text"
+                        value={scoreLevel.description}
+                        onChange={(e) => onUpdate({ description: e.target.value })}
+                        className="rubric-criterion-input"
+                        placeholder="Description of this score level..."
+                        disabled={disabled}
+                    />
+                    <p className="rubric-criterion-input-label">Score level description</p>
+                </div>
+            </div>
+            <Button type="button" onClick={onRemove} variant="ghost" size="sm" disabled={disabled}>
+                <X className="rubric-button-icon" />
+            </Button>
+        </div>
+    );
+}
+
+// CriterionEditor Component — renders a named criterion with nested ScoreLevelEditor rows
+interface CriterionEditorProps {
+    criterion: RubricCriterion;
+    onUpdateCriterion: (updates: Partial<RubricCriterion>) => void;
+    onRemoveCriterion: () => void;
+    onAddScoreLevel: () => void;
+    onUpdateScoreLevel: (scoreLevelId: string, updates: Partial<ScoreLevel>) => void;
+    onRemoveScoreLevel: (scoreLevelId: string) => void;
+    disabled: boolean;
+}
+
+function CriterionEditor({
+    criterion,
+    onUpdateCriterion,
+    onRemoveCriterion,
+    onAddScoreLevel,
+    onUpdateScoreLevel,
+    onRemoveScoreLevel,
+    disabled
+}: CriterionEditorProps) {
+    return (
+        <div className="rubric-question-block" style={{ marginBottom: '0.75rem' }}>
+            {/* Criterion header: name input + remove button */}
+            <div className="rubric-question-header" style={{ marginBottom: '0.5rem' }}>
+                <input
+                    type="text"
+                    value={criterion.name}
+                    onChange={(e) => onUpdateCriterion({ name: e.target.value })}
+                    className="rubric-text-input"
+                    placeholder="Criterion name (e.g. Content, Clarity)..."
+                    disabled={disabled}
+                    style={{ flex: 1, marginRight: '0.5rem' }}
+                />
+                <Button type="button" onClick={onRemoveCriterion} variant="ghost" size="sm" disabled={disabled}>
+                    <Trash2 className="rubric-button-icon" />
+                </Button>
+            </div>
+
+            {/* Score levels list */}
+            <div className="space-y-2" style={{ paddingLeft: '0.75rem', borderLeft: '2px solid #e5e7eb' }}>
+                {criterion.scoreLevels.length === 0 ? (
+                    <div className="text-left py-3 text-gray-500 border-2 border-dashed border-gray-200 rounded-md px-3">
+                        <p className="text-sm">No score levels yet</p>
+                        <p className="text-xs">Click "Add Score Level" to define score descriptors for this criterion</p>
+                    </div>
+                ) : (
+                    criterion.scoreLevels.map((sl) => (
+                        <ScoreLevelEditor
+                            key={sl.id}
+                            scoreLevel={sl}
+                            onUpdate={(updates) => onUpdateScoreLevel(sl.id, updates)}
+                            onRemove={() => onRemoveScoreLevel(sl.id)}
+                            disabled={disabled}
+                        />
+                    ))
+                )}
+
+                <Button
+                    type="button"
+                    onClick={onAddScoreLevel}
+                    variant="outline"
+                    size="sm"
+                    disabled={disabled}
+                    style={{ marginTop: '0.25rem' }}
+                >
+                    <Plus className="size-4" />
+                    Add Score Level
+                </Button>
+            </div>
         </div>
     );
 }
@@ -1186,6 +1484,12 @@ interface ViewQuestionDisplayProps {
 }
 
 function ViewQuestionDisplay({ question, index }: ViewQuestionDisplayProps) {
+    // Migrate legacy flat scoringCriteria on the fly for display
+    const migrated = migrateLegacyQuestion({
+        ...question,
+        criteria: question.criteria ?? []
+    });
+
     return (
         <div className="rubric-question-block">
             <div className="rubric-question-header">
@@ -1212,11 +1516,47 @@ function ViewQuestionDisplay({ question, index }: ViewQuestionDisplayProps) {
                     </div>
                 )}
 
-                {question.scoringCriteria.length > 0 && (
+                {question.modelAnswer && (
+                    <div className="rubric-field-group">
+                        <label className="rubric-field-label">Model Answer</label>
+                        <div className="rubric-text-area-readonly">
+                            {question.modelAnswer}
+                        </div>
+                    </div>
+                )}
+
+                {/* Criteria mode: named criteria as sub-headings with nested score levels */}
+                {migrated.criteria.length > 0 ? (
+                    <div className="rubric-field-group">
+                        <label className="rubric-field-label">Scoring Criteria</label>
+                        <div className="space-y-3">
+                            {migrated.criteria.map((criterion) => (
+                                <div key={criterion.id} className="rubric-question-block" style={{ marginBottom: 0 }}>
+                                    <div className="rubric-question-header" style={{ marginBottom: '0.5rem' }}>
+                                        <span className="text-sm font-semibold text-gray-700">{criterion.name || 'Unnamed Criterion'}</span>
+                                    </div>
+                                    <div className="space-y-2" style={{ paddingLeft: '0.75rem', borderLeft: '2px solid #e5e7eb' }}>
+                                        {criterion.scoreLevels.length === 0 ? (
+                                            <p className="text-sm text-gray-400">No score levels defined</p>
+                                        ) : (
+                                            criterion.scoreLevels.map((sl) => (
+                                                <div key={sl.id} className="rubric-criterion-display">
+                                                    <div className="rubric-criterion-score">{sl.scoreRange} points</div>
+                                                    <div className="rubric-criterion-description">{sl.description}</div>
+                                                </div>
+                                            ))
+                                        )}
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                ) : (question.scoringCriteria ?? []).length > 0 && (
+                    /* Flat mode: score levels rendered directly (no named criteria) */
                     <div className="rubric-field-group">
                         <label className="rubric-field-label">Scoring Criteria</label>
                         <div className="space-y-2">
-                            {question.scoringCriteria.map((criterion: any) => (
+                            {(question.scoringCriteria ?? []).map((criterion: any) => (
                                 <div key={criterion.id} className="rubric-criterion-display">
                                     <div className="rubric-criterion-score">
                                         {criterion.scoreRange} points
@@ -1232,6 +1572,28 @@ function ViewQuestionDisplay({ question, index }: ViewQuestionDisplayProps) {
             </div>
         </div>
     );
+}
+
+// Migration utility: wraps legacy flat scoringCriteria into a single named criterion
+function migrateLegacyQuestion(q: RubricQuestion): RubricQuestion {
+    if (q.criteria && q.criteria.length > 0) return q; // already new format
+    if (!q.scoringCriteria || q.scoringCriteria.length === 0) {
+        return { ...q, criteria: [] };
+    }
+    return {
+        ...q,
+        criteria: [{
+            id: `crit-migrated-${q.id}`,
+            name: 'Scoring Criteria',
+            scoreLevels: q.scoringCriteria.map(c => ({
+                id: c.id,
+                scoreRange: c.scoreRange,
+                description: c.description,
+                minPoints: c.minPoints,
+                maxPoints: c.maxPoints
+            }))
+        }]
+    };
 }
 
 // EditRubricView Component
@@ -1251,9 +1613,10 @@ function EditRubricView({ rubric, onSuccess, onError, onCancel, isSubmitting, ho
     // Capture initial notes once so LectureNotesSection doesn't get a moving target as initialNotes
     const initialNotesRef = useRef<LectureNote[]>(rubric.lectureNotes || []);
     const [questions, setQuestions] = useState<RubricQuestion[]>(
-        rubric.questions.map(q => ({
+        rubric.questions.map(q => migrateLegacyQuestion({
             ...q,
-            description: q.description || ''
+            description: q.description || '',
+            criteria: (q as any).criteria ?? []
         }))
     );
     const [errors, setErrors] = useState<Record<string, string>>({});
@@ -1267,7 +1630,7 @@ function EditRubricView({ rubric, onSuccess, onError, onCancel, isSubmitting, ho
             minScore: 0,
             maxScore: 10,
             modelAnswer: '',
-            scoringCriteria: []
+            criteria: []
         };
         setQuestions([...questions, newQuestion]);
     };
@@ -1284,7 +1647,7 @@ function EditRubricView({ rubric, onSuccess, onError, onCancel, isSubmitting, ho
         setQuestions(questions.filter(q => q.id !== questionId));
     };
 
-    // Add scoring criterion to a question
+    // Add scoring criterion to a question (flat mode — no named criteria)
     const addScoringCriterion = (questionId: string) => {
         const newCriterion: ScoringCriterion = {
             id: `c-${Date.now()}`,
@@ -1296,18 +1659,18 @@ function EditRubricView({ rubric, onSuccess, onError, onCancel, isSubmitting, ho
 
         setQuestions(questions.map(q =>
             q.id === questionId
-                ? { ...q, scoringCriteria: [...q.scoringCriteria, newCriterion] }
+                ? { ...q, scoringCriteria: [...(q.scoringCriteria ?? []), newCriterion] }
                 : q
         ));
     };
 
-    // Update scoring criterion
+    // Update scoring criterion (flat mode)
     const updateScoringCriterion = (questionId: string, criterionId: string, updates: Partial<ScoringCriterion>) => {
         setQuestions(questions.map(q =>
             q.id === questionId
                 ? {
                     ...q,
-                    scoringCriteria: q.scoringCriteria.map(c =>
+                    scoringCriteria: (q.scoringCriteria ?? []).map(c =>
                         c.id === criterionId ? { ...c, ...updates } : c
                     )
                 }
@@ -1315,13 +1678,110 @@ function EditRubricView({ rubric, onSuccess, onError, onCancel, isSubmitting, ho
         ));
     };
 
-    // Remove scoring criterion
+    // Remove scoring criterion (flat mode)
     const removeScoringCriterion = (questionId: string, criterionId: string) => {
         setQuestions(questions.map(q =>
             q.id === questionId
                 ? {
                     ...q,
-                    scoringCriteria: q.scoringCriteria.filter(c => c.id !== criterionId)
+                    scoringCriteria: (q.scoringCriteria ?? []).filter(c => c.id !== criterionId)
+                }
+                : q
+        ));
+    };
+
+    // Add a named criterion to a question (criteria mode)
+    const addCriterion = (questionId: string) => {
+        const newCriterion: RubricCriterion = {
+            id: `crit-${Date.now()}`,
+            name: '',
+            scoreLevels: []
+        };
+        setQuestions(questions.map(q =>
+            q.id === questionId
+                ? { ...q, criteria: [...(q.criteria ?? []), newCriterion] }
+                : q
+        ));
+    };
+
+    // Update a named criterion's fields (e.g. name)
+    const updateCriterion = (questionId: string, criterionId: string, updates: Partial<RubricCriterion>) => {
+        setQuestions(questions.map(q =>
+            q.id === questionId
+                ? {
+                    ...q,
+                    criteria: (q.criteria ?? []).map(c =>
+                        c.id === criterionId ? { ...c, ...updates } : c
+                    )
+                }
+                : q
+        ));
+    };
+
+    // Remove a named criterion and all its score levels
+    const removeCriterion = (questionId: string, criterionId: string) => {
+        setQuestions(questions.map(q =>
+            q.id === questionId
+                ? { ...q, criteria: (q.criteria ?? []).filter(c => c.id !== criterionId) }
+                : q
+        ));
+    };
+
+    // Add a score level under a named criterion
+    const addScoreLevel = (questionId: string, criterionId: string) => {
+        const newLevel: ScoreLevel = {
+            id: `sl-${Date.now()}`,
+            scoreRange: '',
+            description: '',
+            minPoints: 0,
+            maxPoints: 0
+        };
+        setQuestions(questions.map(q =>
+            q.id === questionId
+                ? {
+                    ...q,
+                    criteria: (q.criteria ?? []).map(c =>
+                        c.id === criterionId
+                            ? { ...c, scoreLevels: [...c.scoreLevels, newLevel] }
+                            : c
+                    )
+                }
+                : q
+        ));
+    };
+
+    // Update a score level under a named criterion
+    const updateScoreLevel = (questionId: string, criterionId: string, scoreLevelId: string, updates: Partial<ScoreLevel>) => {
+        setQuestions(questions.map(q =>
+            q.id === questionId
+                ? {
+                    ...q,
+                    criteria: (q.criteria ?? []).map(c =>
+                        c.id === criterionId
+                            ? {
+                                ...c,
+                                scoreLevels: c.scoreLevels.map(sl =>
+                                    sl.id === scoreLevelId ? { ...sl, ...updates } : sl
+                                )
+                            }
+                            : c
+                    )
+                }
+                : q
+        ));
+    };
+
+    // Remove a score level under a named criterion
+    const removeScoreLevel = (questionId: string, criterionId: string, scoreLevelId: string) => {
+        setQuestions(questions.map(q =>
+            q.id === questionId
+                ? {
+                    ...q,
+                    criteria: (q.criteria ?? []).map(c =>
+                        c.id === criterionId
+                            ? { ...c, scoreLevels: c.scoreLevels.filter(sl => sl.id !== scoreLevelId) }
+                            : c
+                    )
                 }
                 : q
         ));
@@ -1503,6 +1963,22 @@ function EditRubricView({ rubric, onSuccess, onError, onCancel, isSubmitting, ho
                                         onAddCriterion={() => addScoringCriterion(question.id)}
                                         onUpdateCriterion={(criterionId, updates) => updateScoringCriterion(question.id, criterionId, updates)}
                                         onRemoveCriterion={(criterionId) => removeScoringCriterion(question.id, criterionId)}
+                                        onAddNamedCriterion={() => addCriterion(question.id)}
+                                        onUpdateNamedCriterion={(criterionId, updates) =>
+                                            updateCriterion(question.id, criterionId, updates)
+                                        }
+                                        onRemoveNamedCriterion={(criterionId) =>
+                                            removeCriterion(question.id, criterionId)
+                                        }
+                                        onAddScoreLevel={(criterionId) =>
+                                            addScoreLevel(question.id, criterionId)
+                                        }
+                                        onUpdateScoreLevel={(criterionId, scoreLevelId, updates) =>
+                                            updateScoreLevel(question.id, criterionId, scoreLevelId, updates)
+                                        }
+                                        onRemoveScoreLevel={(criterionId, scoreLevelId) =>
+                                            removeScoreLevel(question.id, criterionId, scoreLevelId)
+                                        }
                                         errors={errors}
                                         disabled={isSubmitting}
                                     />

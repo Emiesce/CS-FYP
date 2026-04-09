@@ -138,8 +138,12 @@ const RubricCard = memo(({ rubric, isSelected, onSelect, onScoreUpdate, hasUserE
     hasUserEdited: boolean;
 }) => (
     <Card className={`p-6 cursor-pointer transition-all ${isSelected ? 'ring-2 ring-blue-500' : ''}`} onClick={onSelect}>
-        <h4 className="text-xl font-semibold text-[#2c2828] mb-4">{rubric.title}</h4>
-        <p className="text-lg text-black mb-4">{rubric.description}</p>
+        <h4 className="text-xl font-semibold text-[#2c2828] mb-2">{rubric.title}</h4>
+
+        {/* AI justification as the main description */}
+        {rubric.justification && (
+            <p className="text-sm text-gray-700 mb-4 leading-relaxed">{rubric.justification}</p>
+        )}
 
         <div className="space-y-4">
             <div className="flex items-center justify-between">
@@ -451,21 +455,50 @@ function GradingView({ records, initialIndex, onBack }: {
                     </Card>
                 </div>
 
-                {/* Right Panel — Rubrics (exact GradingPage layout) */}
+                {/* Right Panel — Rubrics grouped by question */}
                 <div className="w-[535px] p-4 space-y-6 flex flex-col h-[calc(100vh-80px)]">
                     <h3 className="text-2xl font-semibold text-[#2c2828] underline">Rubrics descriptions</h3>
 
                     <div className="flex-1 space-y-6 overflow-y-auto px-1 py-1">
-                        {rubrics.map((rubric) => (
-                            <RubricCard
-                                key={rubric.id}
-                                rubric={rubric}
-                                isSelected={selectedRubric === rubric.id}
-                                onSelect={() => setSelectedRubric(selectedRubric === rubric.id ? null : rubric.id)}
-                                onScoreUpdate={(score) => updateRubricScore(rubric.id, score)}
-                                hasUserEdited={hasUserEditedScore(rubric.id)}
-                            />
-                        ))}
+                        {/* Group rubrics by questionIndex */}
+                        {(() => {
+                            const groups: Record<number, FlatRubric[]> = {};
+                            rubrics.forEach(r => {
+                                if (!groups[r.questionIndex]) groups[r.questionIndex] = [];
+                                groups[r.questionIndex].push(r);
+                            });
+                            return Object.entries(groups).map(([qi, groupRubrics]) => {
+                                const questionText = data.questions[Number(qi)]?.questionText;
+                                const hasMultipleCriteria = groupRubrics.length > 1;
+                                return (
+                                    <div key={qi}>
+                                        {/* Question heading — only show if there are multiple criteria under it */}
+                                        {hasMultipleCriteria && questionText && (
+                                            <div className="mb-2 px-1">
+                                                <p className="text-sm font-semibold text-gray-500 uppercase tracking-wide">
+                                                    Q{Number(qi) + 1}: {questionText}
+                                                </p>
+                                                <div className="text-xs text-gray-400 mt-0.5">
+                                                    {groupRubrics.reduce((s, r) => s + r.score, 0).toFixed(1)} / {groupRubrics.reduce((s, r) => s + r.maxScore, 0)} pts
+                                                </div>
+                                            </div>
+                                        )}
+                                        <div className="space-y-4 pl-0">
+                                            {groupRubrics.map((rubric) => (
+                                                <RubricCard
+                                                    key={rubric.id}
+                                                    rubric={rubric}
+                                                    isSelected={selectedRubric === rubric.id}
+                                                    onSelect={() => setSelectedRubric(selectedRubric === rubric.id ? null : rubric.id)}
+                                                    onScoreUpdate={(score) => updateRubricScore(rubric.id, score)}
+                                                    hasUserEdited={hasUserEditedScore(rubric.id)}
+                                                />
+                                            ))}
+                                        </div>
+                                    </div>
+                                );
+                            });
+                        })()}
                     </div>
 
                     {/* Bottom — last saved + submit (exact GradingPage) */}

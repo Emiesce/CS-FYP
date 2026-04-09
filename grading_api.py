@@ -71,7 +71,15 @@ async def get_grading_system():
     if grading_system is None and GRADING_AVAILABLE:
         try:
             logger.info("Initializing grading system...")
-            grading_system = await create_system()
+            # Look for rubrics.json — check sibling frontend project first, then local
+            api_dir = Path(__file__).parent
+            rubrics_candidates = [
+                api_dir.parent / "CS-FYP" / "src" / "data" / "rubrics.json",  # sibling frontend
+                api_dir / "src" / "data" / "rubrics.json",                     # local fallback
+            ]
+            rubrics_path = next((str(p) for p in rubrics_candidates if p.exists()), None)
+            logger.info(f"Using rubrics from: {rubrics_path}")
+            grading_system = await create_system(rubrics_json_path=rubrics_path)
             logger.info("Grading system initialized successfully")
         except Exception as e:
             logger.error(f"Failed to initialize grading system: {e}")
@@ -104,6 +112,37 @@ def health_check():
         'grading_available': GRADING_AVAILABLE,
         'timestamp': datetime.now().isoformat()
     })
+
+
+@app.route('/debug-rubric/<rubric_id>', methods=['GET'])
+@async_route
+async def debug_rubric(rubric_id):
+    """Debug endpoint: show what criteria the marking scheme produces for a rubric."""
+    if not GRADING_AVAILABLE:
+        return jsonify({'error': 'Grading not available'}), 503
+    try:
+        system = await get_grading_system()
+        rubrics = system.load_rubrics_from_json()
+        rubric = next((r for r in rubrics if r.get('id') == rubric_id), None)
+        if not rubric:
+            return jsonify({'error': f'Rubric {rubric_id} not found'}), 404
+        scheme = system.convert_rubric_to_marking_scheme(rubric)
+        return jsonify({
+            'rubric_id': rubric_id,
+            'criteria_count': len(scheme.criteria),
+            'criteria': [
+                {
+                    'id': c.get('id'),
+                    'name': c.get('name'),
+                    'max_score': c.get('max_score'),
+                    'question_id': c.get('question_id'),
+                    'question_title': c.get('question_title'),
+                }
+                for c in scheme.criteria
+            ]
+        })
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
 
 
 @app.route('/grade-answer', methods=['POST'])

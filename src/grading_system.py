@@ -152,6 +152,9 @@ class RAGGradingSystem:
         """
         Convert a rubric from JSON format to a MarkingScheme object.
         
+        Each named criterion within a question becomes its own gradeable criterion.
+        For flat-mode questions (no named criteria), the question itself is one criterion.
+        
         Args:
             rubric: Rubric dictionary from JSON
             
@@ -159,33 +162,64 @@ class RAGGradingSystem:
             MarkingScheme object
         """
         try:
-            # Convert questions to criteria
+            # Convert questions to criteria — expand named criteria if present
             criteria = []
             for question in rubric.get('questions', []):
-                # Create rubric text from question and scoring criteria
-                rubric_text_parts = [
-                    f"Question: {question.get('title', '')}",
-                    f"Description: {question.get('description', '')}",
-                    f"Score Range: {question.get('minScore', 0)} - {question.get('maxScore', 0)} points"
-                ]
-                
-                # Add scoring criteria details
-                for criterion in question.get('scoringCriteria', []):
-                    rubric_text_parts.append(
-                        f"Score {criterion.get('scoreRange', '')}: {criterion.get('description', '')}"
-                    )
-                
-                rubric_text = "\n".join(rubric_text_parts)
-                
-                # Create criterion
-                criterion_data = {
-                    "id": question.get('id', ''),
-                    "name": question.get('title', ''),
-                    "description": question.get('description', ''),
-                    "max_score": question.get('maxScore', 0),
-                    "rubric_text": rubric_text
-                }
-                criteria.append(criterion_data)
+                named_criteria = question.get('criteria', [])
+
+                if named_criteria:
+                    # Criteria mode: each named criterion is a separate gradeable item
+                    for criterion in named_criteria:
+                        score_levels = criterion.get('scoreLevels', [])
+                        rubric_text_parts = [
+                            f"Question: {question.get('title', '')}",
+                            f"Criterion: {criterion.get('name', '')}",
+                            f"Description: {question.get('description', '')}",
+                        ]
+                        for sl in score_levels:
+                            rubric_text_parts.append(
+                                f"Score {sl.get('scoreRange', '')}: {sl.get('description', '')}"
+                            )
+                        rubric_text = "\n".join(rubric_text_parts)
+
+                        # Derive max_score from the highest maxPoints across score levels
+                        max_score = max(
+                            (sl.get('maxPoints', 0) for sl in score_levels),
+                            default=question.get('maxScore', 0)
+                        )
+
+                        criteria.append({
+                            "id": criterion.get('id', ''),
+                            "name": criterion.get('name', ''),
+                            "description": question.get('description', ''),
+                            "max_score": max_score,
+                            "rubric_text": rubric_text,
+                            # Keep parent question context for grouping in results
+                            "question_id": question.get('id', ''),
+                            "question_title": question.get('title', ''),
+                        })
+                else:
+                    # Flat mode: the question itself is one criterion
+                    rubric_text_parts = [
+                        f"Question: {question.get('title', '')}",
+                        f"Description: {question.get('description', '')}",
+                        f"Score Range: {question.get('minScore', 0)} - {question.get('maxScore', 0)} points"
+                    ]
+                    for sc in question.get('scoringCriteria', []):
+                        rubric_text_parts.append(
+                            f"Score {sc.get('scoreRange', '')}: {sc.get('description', '')}"
+                        )
+                    rubric_text = "\n".join(rubric_text_parts)
+
+                    criteria.append({
+                        "id": question.get('id', ''),
+                        "name": question.get('title', ''),
+                        "description": question.get('description', ''),
+                        "max_score": question.get('maxScore', 0),
+                        "rubric_text": rubric_text,
+                        "question_id": question.get('id', ''),
+                        "question_title": question.get('title', ''),
+                    })
             
             # Build rubric_text from all questions and scoring criteria
             rubric_text_lines = [
@@ -195,9 +229,16 @@ class RAGGradingSystem:
             for q in rubric.get('questions', []):
                 rubric_text_lines.append(f"\nQuestion: {q.get('title', '')}")
                 rubric_text_lines.append(f"Description: {q.get('description', '')}")
-                rubric_text_lines.append(f"Score Range: {q.get('minScore', 0)} - {q.get('maxScore', 0)} points")
-                for sc in q.get('scoringCriteria', []):
-                    rubric_text_lines.append(f"  Score {sc.get('scoreRange', '')}: {sc.get('description', '')}")
+                named_criteria = q.get('criteria', [])
+                if named_criteria:
+                    for nc in named_criteria:
+                        rubric_text_lines.append(f"  Criterion: {nc.get('name', '')}")
+                        for sl in nc.get('scoreLevels', []):
+                            rubric_text_lines.append(f"    Score {sl.get('scoreRange', '')}: {sl.get('description', '')}")
+                else:
+                    rubric_text_lines.append(f"Score Range: {q.get('minScore', 0)} - {q.get('maxScore', 0)} points")
+                    for sc in q.get('scoringCriteria', []):
+                        rubric_text_lines.append(f"  Score {sc.get('scoreRange', '')}: {sc.get('description', '')}")
             full_rubric_text = '\n'.join(rubric_text_lines)
 
             # Create marking scheme
@@ -391,25 +432,25 @@ class RAGGradingSystem:
             # Validate request
             self._validate_grading_request(request)
             
-            # Check if marking scheme is already loaded, if not load from JSON
-            if request.marking_scheme_id not in self._loaded_schemes:
-                logger.info(f"Loading marking scheme {request.marking_scheme_id} from JSON")
-                marking_scheme = await self.load_marking_scheme_from_json(request.marking_scheme_id)
+            # Always reload the marking scheme from JSON to pick up latest rubric structure
+            logger.info(f"Loading marking scheme {request.marking_scheme_id} from JSON")
+            marking_scheme = await self.load_marking_scheme_from_json(request.marking_scheme_id)
 
-                if not marking_scheme:
-                    raise ValidationError(f"Marking scheme {request.marking_scheme_id} not found in JSON file")
+            if not marking_scheme:
+                raise ValidationError(f"Marking scheme {request.marking_scheme_id} not found in JSON file")
 
-                # Register in the grading service's own cache so it can find it
-                await self.grading_service.create_marking_scheme({
-                    "id": marking_scheme.id,
-                    "question_id": marking_scheme.question_id,
-                    "criteria": marking_scheme.criteria,
-                    "rubric_text": marking_scheme.rubric_text,
-                    "created_by": marking_scheme.created_by,
-                })
+            # Register in the grading service's own cache (overwrites any stale version)
+            logger.info(f"Marking scheme has {len(marking_scheme.criteria)} criteria: {[c.get('name','?') for c in marking_scheme.criteria]}")
+            await self.grading_service.create_marking_scheme({
+                "id": marking_scheme.id,
+                "question_id": marking_scheme.question_id,
+                "criteria": marking_scheme.criteria,
+                "rubric_text": marking_scheme.rubric_text,
+                "created_by": marking_scheme.created_by,
+            })
 
-                # Index into vector store
-                await self.grading_service.load_marking_scheme_to_rag(marking_scheme.id)
+            # Index into vector store
+            await self.grading_service.load_marking_scheme_to_rag(marking_scheme.id)
             
             # Perform grading
             response = await self.grading_service.grade_essay_all_criteria(request)

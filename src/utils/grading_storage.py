@@ -364,15 +364,16 @@ def convert_grading_response_to_exam_format(
                 'results': response.results if hasattr(response, 'results') else []
             }
         
-        # Build questions array
+        # Build questions array — group criteria by their parent question_id
         questions = []
         question_number = 1
         
         # Get results — handle both pydantic objects and dicts
         raw_results = response_dict.get('results', [])
         
+        # Serialize all criteria first
+        all_criteria_dicts = []
         for criterion in raw_results:
-            # Serialize pydantic objects to dict if needed
             if hasattr(criterion, 'model_dump'):
                 crit_dict = criterion.model_dump()
             elif hasattr(criterion, 'dict'):
@@ -390,11 +391,53 @@ def convert_grading_response_to_exam_format(
                     'suggestion_for_improvement': getattr(criterion, 'suggestion_for_improvement', ''),
                     'highlighted_text': getattr(criterion, 'highlighted_text', '')
                 }
-            
+            all_criteria_dicts.append(crit_dict)
+
+        # Group by question_id if available, otherwise treat each criterion as its own question
+        from collections import OrderedDict
+        question_groups: OrderedDict = OrderedDict()
+        for crit_dict in all_criteria_dicts:
+            ctx = crit_dict.get('context_metadata') or {}
+            q_id = ctx.get('question_id') or crit_dict.get('criterion_id', '')
+            q_title = ctx.get('question_title') or crit_dict.get('criterion_name', '')
+            if q_id not in question_groups:
+                question_groups[q_id] = {'title': q_title, 'criteria': []}
+            question_groups[q_id]['criteria'].append(crit_dict)
+
+        for q_id, group in question_groups.items():
+            group_criteria = group['criteria']
+            q_title = group['title']
+
+            # Build the criteria array for this question
+            criteria_entries = []
+            q_total_score = 0.0
+            q_max_score = 0.0
+            for crit_dict in group_criteria:
+                score = crit_dict.get('score', 0)
+                max_score = crit_dict.get('max_score', 10)
+                q_total_score += score
+                q_max_score += max_score
+                criteria_entries.append({
+                    "criterionId": crit_dict.get('criterion_id', ''),
+                    "criterionName": crit_dict.get('criterion_name', 'Content'),
+                    "description": "AI-generated assessment criteria",
+                    "maxScore": max_score,
+                    "weight": 1.0,
+                    "grade": {
+                        "manualScore": None,
+                        "aiSuggestedScore": score,
+                        "highlightedText": crit_dict.get('highlighted_text', ''),
+                        "aiJustification": crit_dict.get('justification', ''),
+                        "aiSuggestion": crit_dict.get('suggestion_for_improvement', ''),
+                        "gradedBy": grader_id,
+                        "gradedAt": current_time
+                    }
+                })
+
             question = {
-                "questionId": crit_dict.get('criterion_id', f"q{question_number}"),
+                "questionId": q_id,
                 "questionNumber": question_number,
-                "questionText": crit_dict.get('criterion_name', f"Question {question_number}"),
+                "questionText": q_title,
                 "questionType": "essay",
                 "topicId": "general",
                 "studentAnswer": {
@@ -403,29 +446,11 @@ def convert_grading_response_to_exam_format(
                     "submittedAt": exam_info.get('submittedAt', current_time),
                     "wordCount": len(exam_info.get('answerText', '').split()) if exam_info.get('answerText') else 0
                 },
-                "criteria": [
-                    {
-                        "criterionId": crit_dict.get('criterion_id', f"crit{question_number}"),
-                        "criterionName": crit_dict.get('criterion_name', 'Content'),
-                        "description": "AI-generated assessment criteria",
-                        "maxScore": crit_dict.get('max_score', 10),
-                        "weight": 1.0,
-                        "grade": {
-                            "manualScore": None,  # No manual score initially
-                            "aiSuggestedScore": crit_dict.get('score', 0),
-                            "highlightedText": crit_dict.get('highlighted_text', ''),
-                            "aiJustification": crit_dict.get('justification', ''),
-                            "aiSuggestion": crit_dict.get('suggestion_for_improvement', ''),
-                            "gradedBy": grader_id,
-                            "gradedAt": current_time
-                        }
-                    }
-                ],
-                "questionTotalScore": crit_dict.get('score', 0),
-                "questionMaxScore": crit_dict.get('max_score', 10),
-                "questionPercentage": round((crit_dict.get('score', 0) / crit_dict.get('max_score', 1)) * 100, 1) if crit_dict.get('max_score', 0) > 0 else 0
+                "criteria": criteria_entries,
+                "questionTotalScore": q_total_score,
+                "questionMaxScore": q_max_score,
+                "questionPercentage": round((q_total_score / q_max_score) * 100, 1) if q_max_score > 0 else 0
             }
-            
             questions.append(question)
             question_number += 1
         
