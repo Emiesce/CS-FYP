@@ -4,7 +4,7 @@ import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
 import { Card } from '../components/ui/card';
 import { Badge } from '../components/ui/badge';
-import { ChevronLeft, ChevronRight, Users, FileText, Menu } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Users, FileText, Menu, Eye, EyeOff } from 'lucide-react';
 import { Sidebar } from '../components/Sidebar';
 
 const GRADING_API = 'http://localhost:5000';
@@ -60,7 +60,7 @@ interface FlatRubric {
     id: string;
     title: string;
     description: string;
-    score: number;
+    score: number | null;  // null = not yet manually scored
     maxScore: number;
     aiSuggestedScore: number;
     highlightedText: string;
@@ -74,7 +74,11 @@ function buildFlatRubrics(record: GradingRecord, manualScores: Record<string, nu
     return (record.data.questions || []).flatMap((q, qi) =>
         (q.criteria || []).map((c, ci) => {
             const key = `${qi}-${ci}`;
-            const score = manualScores[key] ?? c.grade.manualScore ?? c.grade.aiSuggestedScore;
+            // Only use a score if the human has explicitly set one (manualScore in record or local edit)
+            const hasManual = key in manualScores || (c.grade.manualScore !== null && c.grade.manualScore !== undefined);
+            const score = hasManual
+                ? (manualScores[key] ?? c.grade.manualScore!)
+                : null;
             return {
                 id: key,
                 title: c.criterionName || q.questionText || `Q${q.questionNumber} Criterion ${ci + 1}`,
@@ -106,6 +110,9 @@ function buildEssayText(record: GradingRecord): string {
 const StudentBadges = memo(({ rubrics }: { rubrics: FlatRubric[] }) => (
     <div className="flex items-center gap-2">
         {rubrics.map((r) => {
+            if (r.score === null) {
+                return <Badge key={r.id} className="bg-gray-100 text-gray-500">—/{r.maxScore}</Badge>;
+            }
             const pct = (r.score / r.maxScore) * 100;
             const color = pct >= 80 ? 'bg-green-100 text-green-800' : pct >= 60 ? 'bg-yellow-100 text-yellow-800' : 'bg-red-100 text-red-800';
             return <Badge key={r.id} className={color}>{r.score}/{r.maxScore}</Badge>;
@@ -116,14 +123,20 @@ const StudentBadges = memo(({ rubrics }: { rubrics: FlatRubric[] }) => (
 // ─── TotalScore (same as GradingPage) ────────────────────────────────────────
 
 const TotalScore = memo(({ rubrics }: { rubrics: FlatRubric[] }) => {
+    const scored = rubrics.filter(r => r.score !== null);
     const total = useMemo(() => ({
-        current: rubrics.reduce((s, r) => s + r.score, 0),
+        current: scored.reduce((s, r) => s + (r.score as number), 0),
         maximum: rubrics.reduce((s, r) => s + r.maxScore, 0),
     }), [rubrics]);
     return (
         <div className="text-right">
             <div className="text-sm text-gray-600">Total Score</div>
-            <div className="text-lg font-semibold">{total.current} / {total.maximum}</div>
+            <div className="text-lg font-semibold">
+                {scored.length === 0 ? '—' : total.current} / {total.maximum}
+            </div>
+            {scored.length > 0 && scored.length < rubrics.length && (
+                <div className="text-xs text-gray-400">{scored.length}/{rubrics.length} scored</div>
+            )}
         </div>
     );
 });
@@ -154,8 +167,12 @@ const RubricCard = memo(({ rubric, isSelected, onSelect, onScoreUpdate, hasUserE
                         min="0"
                         max={rubric.maxScore}
                         step={0.5}
-                        value={rubric.score}
-                        onChange={(e) => onScoreUpdate(parseFloat(e.target.value) || 0)}
+                        value={rubric.score ?? ''}
+                        placeholder="—"
+                        onChange={(e) => {
+                            const val = e.target.value;
+                            if (val !== '') onScoreUpdate(parseFloat(val) || 0);
+                        }}
                         className="w-16 text-center"
                         onClick={(e) => e.stopPropagation()}
                     />
@@ -173,10 +190,10 @@ const RubricCard = memo(({ rubric, isSelected, onSelect, onScoreUpdate, hasUserE
                 )}
             </div>
 
-            {/* AI suggested score — shown after user edits */}
-            {hasUserEdited && (
+            {/* AI suggested score — only shown after human enters a score */}
+            {hasUserEdited && rubric.score !== null && (
                 <div className="flex items-center gap-4 pt-2 border-t border-gray-100">
-                    <span className="text-sm font-medium text-blue-600">AI suggested score:</span>
+                    <span className="text-sm font-medium text-blue-600">AI suggested:</span>
                     <div className="flex items-center gap-2">
                         <span className="text-sm font-semibold text-blue-700">{rubric.aiSuggestedScore}</span>
                         <span className="text-sm text-gray-600">/ {rubric.maxScore}</span>
@@ -271,247 +288,320 @@ function StudentList({ records, onSelect, onBack, onToggleSidebar, sidebarCollap
     );
 }
 
-// ─── Grading view — exact GradingPage layout ──────────────────────────────────
+// ─── Grading view — question-first navigation ────────────────────────────────
+// Navigate: Question tabs across top, Student prev/next within each question
 
-function GradingView({ records, initialIndex, onBack }: {
+/** Extract only the relevant question's answer from a combined answer text.
+ *  Handles the "[Question qN]\n..." format stored by the grading system. */
+function extractQuestionAnswer(text: string, questionNumber: number, totalQuestions: number): string {
+    if (totalQuestions <= 1) return text;
+    // Try to split on [Question qN] markers
+    const marker = `[Question q${questionNumber}]`;
+    const idx = text.indexOf(marker);
+    if (idx === -1) return text; // no markers — return as-is
+    const start = idx + marker.length;
+    // Find the next marker
+    const nextMarkerMatch = text.slice(start).search(/\[Question q\d+\]/);
+    const end = nextMarkerMatch === -1 ? text.length : start + nextMarkerMatch;
+    return text.slice(start, end).trim();
+}
+
+function GradingView({ records, initialIndex, onBack, onRecordsUpdate }: {
     records: GradingRecord[];
     initialIndex: number;
     onBack: () => void;
+    onRecordsUpdate?: (updated: GradingRecord[]) => void;
 }) {
-    const [currentIndex, setCurrentIndex] = useState(initialIndex);
+    const [currentStudentIndex, setCurrentStudentIndex] = useState(initialIndex);
+    const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
     const [sidebarCollapsed, setSidebarCollapsed] = useState(true);
     const [selectedRubric, setSelectedRubric] = useState<string | null>(null);
-    const [manualScores, setManualScores] = useState<Record<string, number>>({});
-    const [editedKeys, setEditedKeys] = useState<Set<string>>(new Set());
-    const [lastSaved, setLastSaved] = useState(new Date());
     const [saving, setSaving] = useState(false);
     const [localRecords, setLocalRecords] = useState(records);
-    const debouncedRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-    // Persist manual scores per student index across navigation
-    const allManualScoresRef = useRef<Record<number, Record<string, number>>>({});
+    const [showStudentInfo, setShowStudentInfo] = useState(false);
 
-    const record = localRecords[currentIndex];
+    // Per-student manual scores: { studentIndex: { "qi-ci": score } }
+    const manualScoresRef = useRef<Record<number, Record<string, number>>>({});
+    const [, forceUpdate] = useState(0);
+
+    const record = localRecords[currentStudentIndex];
     const { data } = record;
+    const totalQuestions = data.questions?.length ?? 0;
+    const currentQuestion = data.questions?.[currentQuestionIndex];
 
-    // Initialize manualScores from existing manualScore values in the record
+    // Load saved manual scores for current student on mount / student change
     useEffect(() => {
-        // First check if we have locally edited scores for this student
-        if (allManualScoresRef.current[currentIndex]) {
-            setManualScores(allManualScoresRef.current[currentIndex]);
-            setEditedKeys(new Set());
-            setSelectedRubric(null);
-            return;
-        }
-        // Otherwise load from the record's saved manualScore values
-        const initial: Record<string, number> = {};
-        (localRecords[currentIndex]?.data.questions || []).forEach((q, qi) => {
-            (q.criteria || []).forEach((c, ci) => {
-                if (c.grade.manualScore !== null && c.grade.manualScore !== undefined) {
-                    initial[`${qi}-${ci}`] = c.grade.manualScore;
-                }
+        if (!manualScoresRef.current[currentStudentIndex]) {
+            const initial: Record<string, number> = {};
+            (localRecords[currentStudentIndex]?.data.questions || []).forEach((q, qi) => {
+                (q.criteria || []).forEach((c, ci) => {
+                    if (c.grade.manualScore !== null && c.grade.manualScore !== undefined) {
+                        initial[`${qi}-${ci}`] = c.grade.manualScore;
+                    }
+                });
             });
-        });
-        setManualScores(initial);
-        setEditedKeys(new Set());
+            manualScoresRef.current[currentStudentIndex] = initial;
+        }
         setSelectedRubric(null);
-    }, [currentIndex]);
+        setShowStudentInfo(false);
+        forceUpdate(n => n + 1);
+    }, [currentStudentIndex]);
 
-    const rubrics = buildFlatRubrics(record, manualScores);
-    const essay = buildEssayText(record);
+    const manualScores = manualScoresRef.current[currentStudentIndex] ?? {};
+    const isSubmitted = localRecords[currentStudentIndex]?.data.status === 'finalized';
+
+    // Build rubrics for current question only
+    const questionRubrics: FlatRubric[] = (currentQuestion?.criteria || []).map((c, ci) => {
+        const key = `${currentQuestionIndex}-${ci}`;
+        const hasManual = key in manualScores || (c.grade.manualScore !== null && c.grade.manualScore !== undefined);
+        return {
+            id: key,
+            title: c.criterionName || `Criterion ${ci + 1}`,
+            description: c.grade.aiJustification || '',
+            score: hasManual ? (manualScores[key] ?? c.grade.manualScore!) : null,
+            maxScore: c.maxScore,
+            aiSuggestedScore: c.grade.aiSuggestedScore,
+            highlightedText: c.grade.highlightedText || '',
+            justification: c.grade.aiJustification || '',
+            suggestion: c.grade.aiSuggestion || '',
+            questionIndex: currentQuestionIndex,
+            criterionIndex: ci,
+        };
+    });
+
+    // All rubrics across all questions (for total score display)
+    const allRubrics: FlatRubric[] = (data.questions || []).flatMap((q, qi) =>
+        (q.criteria || []).map((c, ci) => {
+            const key = `${qi}-${ci}`;
+            const hasManual = key in manualScores || (c.grade.manualScore !== null && c.grade.manualScore !== undefined);
+            return {
+                id: key, title: c.criterionName, description: '', score: hasManual ? (manualScores[key] ?? c.grade.manualScore!) : null,
+                maxScore: c.maxScore, aiSuggestedScore: c.grade.aiSuggestedScore, highlightedText: '', justification: '', suggestion: '',
+                questionIndex: qi, criterionIndex: ci,
+            };
+        })
+    );
 
     const getHighlightedText = useCallback((text: string, rubricId: string) => {
         if (!rubricId || selectedRubric !== rubricId) return text;
-        const rubric = rubrics.find(r => r.id === rubricId);
+        const rubric = questionRubrics.find(r => r.id === rubricId);
         if (!rubric?.highlightedText) return text;
         const esc = rubric.highlightedText.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-        return text.replace(
-            new RegExp(esc, 'g'),
-            `<span class="bg-blue-200 text-blue-800 px-1 rounded">${rubric.highlightedText}</span>`
-        );
-    }, [selectedRubric, rubrics]);
+        try {
+            return text.replace(new RegExp(esc, 'g'),
+                `<span class="bg-blue-200 text-blue-800 px-1 rounded">${rubric.highlightedText}</span>`);
+        } catch { return text; }
+    }, [selectedRubric, questionRubrics]);
 
-    const updateRubricScore = useCallback((rubricId: string, score: number) => {
-        setManualScores(prev => {
-            const updated = { ...prev, [rubricId]: score };
-            // Persist to ref so navigation doesn't lose the changes
-            allManualScoresRef.current[currentIndex] = updated;
-            return updated;
-        });
-        setEditedKeys(prev => new Set(prev).add(rubricId));
+    const updateScore = useCallback((rubricId: string, score: number) => {
+        if (!manualScoresRef.current[currentStudentIndex]) manualScoresRef.current[currentStudentIndex] = {};
+        manualScoresRef.current[currentStudentIndex][rubricId] = score;
+        forceUpdate(n => n + 1);
+        // Debounced save
+        clearTimeout((updateScore as any)._timer);
+        (updateScore as any)._timer = setTimeout(() => saveScore(rubricId, score), 1500);
+    }, [currentStudentIndex]);
 
-        // Debounced auto-save
-        if (debouncedRef.current) clearTimeout(debouncedRef.current);
-        debouncedRef.current = setTimeout(() => saveGrades(rubricId, score), 1500);
-    }, [currentIndex]);
-
-    const saveGrades = useCallback(async (changedKey?: string, changedScore?: number) => {
+    const saveScore = async (changedKey: string, changedScore: number) => {
         setSaving(true);
         try {
-            const currentScores = { ...manualScores };
-            if (changedKey !== undefined && changedScore !== undefined) {
-                currentScores[changedKey] = changedScore;
-            }
-
-            const updates = Array.from(editedKeys).map(key => {
-                const [qi, ci] = key.split('-').map(Number);
-                return { question_index: qi, criterion_index: ci, manual_score: currentScores[key] ?? manualScores[key] };
-            });
-            if (changedKey && !editedKeys.has(changedKey) && changedScore !== undefined) {
-                const [qi, ci] = changedKey.split('-').map(Number);
-                updates.push({ question_index: qi, criterion_index: ci, manual_score: changedScore });
-            }
-
-            if (updates.length === 0) { setSaving(false); return; }
-
+            const [qi, ci] = changedKey.split('-').map(Number);
             const res = await fetch(`${GRADING_API}/grading-results/update`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ result_id: record.id, student_id: data.studentID, updates })
+                body: JSON.stringify({
+                    result_id: record.id,
+                    student_id: data.studentID,
+                    updates: [{ question_index: qi, criterion_index: ci, manual_score: changedScore }]
+                })
             });
-
             if (res.ok) {
                 const result = await res.json();
                 if (result.success) {
                     setLocalRecords(prev => prev.map(r =>
                         (r.id === record.id || r.data.studentID === data.studentID) ? result.data : r
                     ));
-                    // Clear the ref cache — data is now persisted in localRecords
-                    delete allManualScoresRef.current[currentIndex];
-                    setEditedKeys(new Set());
-                    setLastSaved(new Date());
                 }
             }
-        } catch (e) {
-            console.error('Save failed:', e);
-        } finally {
-            setSaving(false);
-        }
-    }, [manualScores, editedKeys, record.id, data.studentID]);
+        } catch (e) { console.error('Save failed:', e); }
+        finally { setSaving(false); }
+    };
 
-    const submitGrades = useCallback(async () => {
-        await saveGrades();
-    }, [saveGrades]);
+    const submitGrades = async () => {
+        setSaving(true);
+        try {
+            const allUpdates: { question_index: number; criterion_index: number; manual_score: number }[] = [];
+            (record.data.questions || []).forEach((q, qi) => {
+                (q.criteria || []).forEach((c, ci) => {
+                    const key = `${qi}-${ci}`;
+                    const score = manualScores[key] ?? c.grade.manualScore;
+                    if (score !== null && score !== undefined) {
+                        allUpdates.push({ question_index: qi, criterion_index: ci, manual_score: score });
+                    }
+                });
+            });
+            const res = await fetch(`${GRADING_API}/grading-results/update`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ result_id: record.id, student_id: data.studentID, updates: allUpdates, finalize: true })
+            });
+            if (res.ok) {
+                const result = await res.json();
+                if (result.success) {
+                    setLocalRecords(prev => prev.map(r =>
+                        (r.id === record.id || r.data.studentID === data.studentID) ? result.data : r
+                    ));
+                }
+            }
+        } catch (e) { console.error('Submit failed:', e); }
+        finally { setSaving(false); }
+    };
 
-    const hasUserEditedScore = (rubricId: string) => editedKeys.has(rubricId);
+    const handleBack = () => { onRecordsUpdate?.(localRecords); onBack(); };
 
-    const prevStudent = () => { if (currentIndex > 0) setCurrentIndex(i => i - 1); };
-    const nextStudent = () => { if (currentIndex < localRecords.length - 1) setCurrentIndex(i => i + 1); };
+    // Count how many students have all criteria scored for a given question
+    const questionProgress = (qi: number) => {
+        return localRecords.filter(r => {
+            const q = r.data.questions?.[qi];
+            if (!q) return false;
+            return q.criteria.every(c => c.grade.manualScore !== null && c.grade.manualScore !== undefined);
+        }).length;
+    };
 
     return (
-        <div className="bg-[#fafbff] min-h-screen relative">
-            {/* Top Bar — exact copy of GradingPage */}
-            <div className="bg-[#cee5ff] p-4 shadow-sm">
+        <div className="bg-[#fafbff] min-h-screen flex flex-col">
+            {/* Top Bar */}
+            <div className="bg-[#cee5ff] p-4 shadow-sm flex-shrink-0">
                 <div className="flex items-center justify-between">
                     <div className="flex items-center gap-4">
-                        <Button variant="ghost" size="sm" onClick={onBack} className="flex items-center gap-2">
+                        <Button variant="ghost" size="sm" onClick={handleBack} className="flex items-center gap-2">
                             <ChevronLeft className="size-4" /> Back
                         </Button>
                         <h2 className="text-xl font-medium">{data.examTitle}</h2>
                     </div>
-                    <div className="flex items-center gap-4">
+
+                    {/* Question navigation — center */}
+                    {totalQuestions > 1 && (
                         <div className="flex items-center gap-2 text-sm text-gray-600">
-                            <Users className="size-4" />
-                            <span>Student {currentIndex + 1} of {localRecords.length}</span>
+                            <FileText className="size-4" />
+                            <span>Question {currentQuestionIndex + 1} of {totalQuestions}</span>
+                            <Button variant="ghost" size="sm" onClick={() => { setCurrentQuestionIndex(i => Math.max(0, i - 1)); setSelectedRubric(null); }} disabled={currentQuestionIndex === 0}>
+                                <ChevronLeft className="size-4" />
+                            </Button>
+                            <Button variant="ghost" size="sm" onClick={() => { setCurrentQuestionIndex(i => Math.min(totalQuestions - 1, i + 1)); setSelectedRubric(null); }} disabled={currentQuestionIndex === totalQuestions - 1}>
+                                <ChevronRight className="size-4" />
+                            </Button>
                         </div>
-                        <Button variant="ghost" size="sm" onClick={prevStudent} disabled={currentIndex === 0} className="flex items-center gap-2">
-                            <ChevronLeft className="size-4" /> Prev
+                    )}
+
+                    <div className="flex items-center gap-2 text-sm text-gray-600">
+                        <Users className="size-4" />
+                        <span>Student {currentStudentIndex + 1} of {localRecords.length}</span>
+                        <Button variant="ghost" size="sm" onClick={() => setCurrentStudentIndex(i => Math.max(0, i - 1))} disabled={currentStudentIndex === 0}>
+                            <ChevronLeft className="size-4" />
                         </Button>
-                        <Button variant="ghost" size="sm" onClick={nextStudent} disabled={currentIndex === localRecords.length - 1} className="flex items-center gap-2">
-                            Next <ChevronRight className="size-4" />
+                        <Button variant="ghost" size="sm" onClick={() => setCurrentStudentIndex(i => Math.min(localRecords.length - 1, i + 1))} disabled={currentStudentIndex === localRecords.length - 1}>
+                            <ChevronRight className="size-4" />
                         </Button>
                     </div>
                 </div>
             </div>
 
-            <div className="flex">
-                {/* Sidebar */}
+            <div className="flex flex-1 overflow-hidden">
                 <Sidebar collapsed={sidebarCollapsed} onToggle={() => setSidebarCollapsed(!sidebarCollapsed)} />
 
-                {/* Main Content — essay */}
-                <div className="flex-1 p-4">
-                    {/* Student Info Header */}
-                    <div className="mb-4 p-4 bg-white rounded-lg shadow-sm">
-                        <div className="flex items-center justify-between">
-                            <div className="flex items-center gap-4">
-                                <div className="flex items-center gap-2">
-                                    <FileText className="size-5 text-blue-600" />
-                                    <div>
-                                        <p className="text-sm text-gray-600">Student ID: {data.studentID}</p>
+                {/* Student answer for current question */}
+                <div className="flex-1 p-4 overflow-y-auto">
+                    <div className="mb-4 p-4 bg-white rounded-lg shadow-sm flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                            <FileText className="size-5 text-blue-600" />
+                            <div>
+                                {showStudentInfo ? (
+                                    <>
                                         <p className="text-sm font-medium text-gray-800">{data.studentName}</p>
-                                    </div>
-                                </div>
-                                <StudentBadges rubrics={rubrics} />
+                                        <p className="text-xs text-gray-500">{data.studentID}</p>
+                                    </>
+                                ) : (
+                                    <p className="text-sm text-gray-400 italic">Student identity hidden</p>
+                                )}
                             </div>
-                            <TotalScore rubrics={rubrics} />
+                            <button
+                                onClick={() => setShowStudentInfo(v => !v)}
+                                className="ml-2 text-gray-400 hover:text-gray-600 transition-colors"
+                                title={showStudentInfo ? 'Hide student info' : 'Show student info'}
+                            >
+                                {showStudentInfo ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
+                            </button>
                         </div>
+                        {showStudentInfo && <TotalScore rubrics={allRubrics} />}
                     </div>
 
-                    {/* Essay */}
-                    <Card className="p-6 mb-4">
-                        <div className="prose prose-lg max-w-none">
-                            <div dangerouslySetInnerHTML={{ __html: getHighlightedText(essay, selectedRubric || '') }} />
-                        </div>
-                    </Card>
+                    {currentQuestion && (
+                        <Card className="p-6">
+                            {totalQuestions > 1 && (
+                                <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-3">
+                                    Q{currentQuestion.questionNumber}: {currentQuestion.questionText}
+                                </p>
+                            )}
+                            <div className="prose prose-lg max-w-none">
+                                <div dangerouslySetInnerHTML={{
+                                    __html: getHighlightedText(
+                                        extractQuestionAnswer(currentQuestion.studentAnswer?.answerText || '', currentQuestion.questionNumber, totalQuestions),
+                                        selectedRubric || ''
+                                    )
+                                }} />
+                            </div>
+                        </Card>
+                    )}
                 </div>
 
-                {/* Right Panel — Rubrics grouped by question */}
-                <div className="w-[535px] p-4 space-y-6 flex flex-col h-[calc(100vh-80px)]">
-                    <h3 className="text-2xl font-semibold text-[#2c2828] underline">Rubrics descriptions</h3>
+                {/* Right panel — criteria for current question only */}
+                <div className="w-[535px] p-4 flex flex-col h-full overflow-hidden">
+                    <h3 className="text-lg font-semibold text-[#2c2828] mb-3 flex-shrink-0">
+                        {totalQuestions > 1 ? `Q${currentQuestionIndex + 1} Criteria` : 'Criteria'}
+                    </h3>
 
-                    <div className="flex-1 space-y-6 overflow-y-auto px-1 py-1">
-                        {/* Group rubrics by questionIndex */}
-                        {(() => {
-                            const groups: Record<number, FlatRubric[]> = {};
-                            rubrics.forEach(r => {
-                                if (!groups[r.questionIndex]) groups[r.questionIndex] = [];
-                                groups[r.questionIndex].push(r);
-                            });
-                            return Object.entries(groups).map(([qi, groupRubrics]) => {
-                                const questionText = data.questions[Number(qi)]?.questionText;
-                                const hasMultipleCriteria = groupRubrics.length > 1;
-                                return (
-                                    <div key={qi}>
-                                        {/* Question heading — only show if there are multiple criteria under it */}
-                                        {hasMultipleCriteria && questionText && (
-                                            <div className="mb-2 px-1">
-                                                <p className="text-sm font-semibold text-gray-500 uppercase tracking-wide">
-                                                    Q{Number(qi) + 1}: {questionText}
-                                                </p>
-                                                <div className="text-xs text-gray-400 mt-0.5">
-                                                    {groupRubrics.reduce((s, r) => s + r.score, 0).toFixed(1)} / {groupRubrics.reduce((s, r) => s + r.maxScore, 0)} pts
-                                                </div>
-                                            </div>
-                                        )}
-                                        <div className="space-y-4 pl-0">
-                                            {groupRubrics.map((rubric) => (
-                                                <RubricCard
-                                                    key={rubric.id}
-                                                    rubric={rubric}
-                                                    isSelected={selectedRubric === rubric.id}
-                                                    onSelect={() => setSelectedRubric(selectedRubric === rubric.id ? null : rubric.id)}
-                                                    onScoreUpdate={(score) => updateRubricScore(rubric.id, score)}
-                                                    hasUserEdited={hasUserEditedScore(rubric.id)}
-                                                />
-                                            ))}
-                                        </div>
-                                    </div>
-                                );
-                            });
-                        })()}
+                    <div className="flex-1 space-y-4 overflow-y-auto px-1">
+                        {questionRubrics.map((rubric) => (
+                            <RubricCard
+                                key={rubric.id}
+                                rubric={rubric}
+                                isSelected={selectedRubric === rubric.id}
+                                onSelect={() => setSelectedRubric(selectedRubric === rubric.id ? null : rubric.id)}
+                                onScoreUpdate={(score) => updateScore(rubric.id, score)}
+                                hasUserEdited={rubric.score !== null || isSubmitted}
+                            />
+                        ))}
                     </div>
 
-                    {/* Bottom — last saved + submit (exact GradingPage) */}
-                    <div className="mt-auto pt-4 border-t border-gray-200">
+                    <div className="mt-auto pt-4 border-t border-gray-200 flex-shrink-0">
                         <div className="flex items-center justify-between">
                             <div className="text-sm text-gray-500">
-                                {saving ? 'Saving...' : `Last saved: ${lastSaved.toLocaleTimeString()}`}
+                                {saving ? 'Saving...' : isSubmitted ? 'Finalized' : ''}
                             </div>
-                            <Button
-                                className="bg-[#3edf04] text-[#52af30] border border-[#3edf04] hover:bg-[#2fc503]"
-                                onClick={submitGrades}
-                            >
-                                Submit
-                            </Button>
+                            {isSubmitted ? (
+                                <div className="flex items-center gap-2">
+                                    <span className="px-3 py-1.5 rounded text-sm font-semibold bg-green-100 text-green-800 border border-green-300">✓ Submitted</span>
+                                    <Button variant="outline" size="sm" onClick={async () => {
+                                        // Unfinalize
+                                        const res = await fetch(`${GRADING_API}/grading-results/update`, {
+                                            method: 'PUT', headers: { 'Content-Type': 'application/json' },
+                                            body: JSON.stringify({ result_id: record.id, student_id: data.studentID, updates: [], finalize: false })
+                                        });
+                                        if (res.ok) {
+                                            const result = await res.json();
+                                            if (result.success) setLocalRecords(prev => prev.map(r =>
+                                                (r.id === record.id || r.data.studentID === data.studentID) ? result.data : r
+                                            ));
+                                        }
+                                    }}>Re-edit</Button>
+                                </div>
+                            ) : (
+                                <Button className="bg-[#3edf04] text-[#52af30] border border-[#3edf04] hover:bg-[#2fc503]"
+                                    onClick={submitGrades} disabled={saving}>
+                                    {saving ? 'Submitting...' : 'Submit'}
+                                </Button>
+                            )}
                         </div>
                     </div>
                 </div>
@@ -519,7 +609,6 @@ function GradingView({ records, initialIndex, onBack }: {
         </div>
     );
 }
-
 // ─── Main page ────────────────────────────────────────────────────────────────
 
 type View = { type: 'exams' } | { type: 'students'; examId: string } | { type: 'grading'; examId: string; studentIndex: number };
@@ -571,6 +660,20 @@ export function GradingResultsPage() {
                 records={examRecords}
                 initialIndex={view.studentIndex}
                 onBack={() => setView({ type: 'students', examId: view.examId })}
+                onRecordsUpdate={(updated) => {
+                    // Replace records that were updated — match by id or studentID+examId
+                    setRecords(prev => {
+                        const result = [...prev];
+                        updated.forEach(u => {
+                            const idx = result.findIndex(r =>
+                                (u.id && r.id === u.id) ||
+                                (r.data?.studentID === u.data?.studentID && r.data?.examId === u.data?.examId)
+                            );
+                            if (idx >= 0) result[idx] = u;
+                        });
+                        return result;
+                    });
+                }}
             />
         );
     }

@@ -224,6 +224,8 @@ class ProductionGradingService(GradingService):
             raise ValueError(f"Marking scheme {request.marking_scheme_id} not found")
 
         answer_text = getattr(request, 'answer', None) or getattr(request, 'essay_text', '')
+        # Per-question answers: { question_id: answer_text }
+        question_answers = getattr(request, 'question_answers', None) or {}
 
         criteria_to_grade = scheme.criteria
         logger.info(f"grade_essay_all_criteria: scheme={request.marking_scheme_id} criteria_count={len(criteria_to_grade)} names={[c.get('name','?') for c in criteria_to_grade]}")
@@ -247,6 +249,8 @@ class ProductionGradingService(GradingService):
         max_total_score = 0.0
 
         for q_id, q_criteria in question_groups.items():
+            # Use the specific question's answer if available, otherwise fall back to combined
+            essay_for_question = question_answers.get(q_id, answer_text)
             # Retrieve context once per question (covers all criteria)
             context_chunks = await self.vector_store.similarity_search_with_rubric_context(
                 query=f"How to grade: {q_criteria[0].get('question_title', '')}",

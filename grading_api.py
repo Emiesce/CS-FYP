@@ -553,6 +553,10 @@ async def update_grading_result():
         elif pct >= 50: summary['grade'] = 'C-'
         else: summary['grade'] = 'F'
 
+        # Mark as finalized if requested
+        if data.get('finalize'):
+            target['data']['status'] = 'finalized'
+
         # Save back
         system.results_storage.save_grading_result(target)
 

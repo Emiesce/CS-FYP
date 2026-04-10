@@ -189,56 +189,6 @@
     ]
   },
   {
-    "id": "rubric-1770048867278",
-    "title": "tes",
-    "description": "",
-    "questions": [
-      {
-        "id": "q-1770048854780",
-        "title": "testing",
-        "description": "",
-        "minScore": 0,
-        "maxScore": 9.8,
-        "modelAnswer": "",
-        "scoringCriteria": [
-          {
-            "id": "c-1770048861626",
-            "scoreRange": "0-1",
-            "description": "fgood",
-            "minPoints": 0,
-            "maxPoints": 1
-          }
-        ]
-      }
-    ],
-    "totalMinPoints": 0,
-    "totalMaxPoints": 9.8,
-    "createdAt": "2026-02-02T16:14:27.278Z",
-    "updatedAt": "2026-02-02T16:35:12.596Z",
-    "lectureNotes": []
-  },
-  {
-    "id": "rubric-1770049204044",
-    "title": "test",
-    "description": "",
-    "questions": [
-      {
-        "id": "q-1770049194646",
-        "title": "question1",
-        "description": "",
-        "minScore": 0,
-        "maxScore": 10,
-        "modelAnswer": "Yes",
-        "scoringCriteria": []
-      }
-    ],
-    "totalMinPoints": 0,
-    "totalMaxPoints": 10,
-    "createdAt": "2026-02-02T16:20:04.044Z",
-    "updatedAt": "2026-02-02T16:20:04.044Z",
-    "lectureNotes": []
-  },
-  {
     "id": "rubric-1775747189629",
     "title": "Comp 4900 Seminar Reflection",
     "description": "Write a reflection report",

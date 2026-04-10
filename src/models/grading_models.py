@@ -172,13 +172,16 @@ class GradingRequest(BaseModel):
     """Request model for grading operations (supports all exam types)."""
     
     student_id: str = Field(description="Student identifier")
-    answer: str = Field(description="The student's answer content to be graded")
+    answer: str = Field(description="The student's combined answer content (all questions)")
     marking_scheme_id: str = Field(description="Marking scheme to use for grading")
     assignment_id: Optional[str] = Field(default=None, description="Assignment identifier (optional)")
     student_name: Optional[str] = Field(default=None, description="Student name (optional)")
     course_id: Optional[str] = Field(default=None, description="Course identifier (optional)")
     submitted_at: Optional[str] = Field(default=None, description="Submission timestamp (optional)")
     criteria_ids: Optional[List[str]] = Field(default=None, description="Specific criteria to grade (optional)")
+    # Per-question answers: { "question_id": "answer text" }
+    # When provided, each criterion is graded against its question's specific answer
+    question_answers: Optional[Dict[str, str]] = Field(default=None, description="Per-question answer texts keyed by question_id")
 
 
 # Backward compatibility alias

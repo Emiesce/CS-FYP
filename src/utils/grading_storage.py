@@ -72,12 +72,22 @@ class GradingResultsStorage:
             
             # Load existing results
             results = self.load_all_results()
-            
-            # Check if result already exists (update if it does)
+
+            # Deduplicate: match by id, or by studentID+examId (same student, same exam)
+            student_id = result.get('data', {}).get('studentID')
+            exam_id = result.get('data', {}).get('examId')
             existing_index = None
             for i, existing_result in enumerate(results):
                 if existing_result.get('id') == result['id']:
                     existing_index = i
+                    break
+                # Same student + same exam → treat as an update, not a new entry
+                if (student_id and exam_id and
+                        existing_result.get('data', {}).get('studentID') == student_id and
+                        existing_result.get('data', {}).get('examId') == exam_id):
+                    existing_index = i
+                    # Keep the existing id so we don't create a new one
+                    result['id'] = existing_result['id']
                     break
             
             if existing_index is not None:
