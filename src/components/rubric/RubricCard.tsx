@@ -1,10 +1,9 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Card } from '../ui/card';
 import { Badge } from '../ui/badge';
 import { Button } from '../ui/button';
-import { Eye, Edit, Trash2, Calendar, BookOpen, FileText, GraduationCap } from 'lucide-react';
+import { Eye, Edit, Trash2, Calendar, BookOpen, FileText } from 'lucide-react';
 import { RubricData } from '../../types';
-import { GradeStudentsModal } from './GradeStudentsModal';
 
 interface RubricCardProps {
     rubric: RubricData;
@@ -23,7 +22,6 @@ export function RubricCard({
     courseName,
     assignmentName
 }: RubricCardProps) {
-    const [showGradeModal, setShowGradeModal] = useState(false);
     const formatDate = (date: Date) => {
         return new Intl.DateTimeFormat('en-US', {
             year: 'numeric',
@@ -118,24 +116,7 @@ export function RubricCard({
                 </Button>
             </div>
 
-            {/* Grade Button */}
-            <div className="mt-2">
-                <Button
-                    size="sm"
-                    onClick={() => setShowGradeModal(true)}
-                    className="w-full bg-blue-600 hover:bg-blue-700 text-white flex items-center justify-center gap-2"
-                >
-                    <GraduationCap className="w-4 h-4" />
-                    Grade Students
-                </Button>
-            </div>
-
-            {showGradeModal && (
-                <GradeStudentsModal
-                    rubric={rubric}
-                    onClose={() => setShowGradeModal(false)}
-                />
-            )}
+            {/* Grade Button removed — grading is done via Student Answers page */}
         </Card>
     );
 }

@@ -1,12 +1,12 @@
 [
   {
     "id": "rubric-1",
-    "title": "Sosc Analysis Rubric",
+    "title": "MGMT 3130 Rubric",
     "description": "Comprehensive rubric for analyzing student essays on planning fallacy",
     "questions": [
       {
         "id": "q1",
-        "title": "Content 1: Explain the concept of planning fallacy",
+        "title": "Explain the concept of planning fallacy",
         "description": "Student should demonstrate understanding of planning fallacy definition and causes",
         "minScore": 0,
         "maxScore": 10,
@@ -39,11 +39,47 @@
             "minPoints": 0,
             "maxPoints": 4
           }
+        ],
+        "criteria": [
+          {
+            "id": "crit-migrated-q1",
+            "name": "Scoring Criteria",
+            "scoreLevels": [
+              {
+                "id": "c1-excellent",
+                "scoreRange": "9-10",
+                "description": "Excellent understanding with clear definition and multiple causes identified",
+                "minPoints": 9,
+                "maxPoints": 10
+              },
+              {
+                "id": "c1-good",
+                "scoreRange": "7-8",
+                "description": "Good understanding with adequate definition and some causes identified",
+                "minPoints": 7,
+                "maxPoints": 8
+              },
+              {
+                "id": "c1-satisfactory",
+                "scoreRange": "5-6",
+                "description": "Basic understanding with simple definition",
+                "minPoints": 5,
+                "maxPoints": 6
+              },
+              {
+                "id": "c1-poor",
+                "scoreRange": "0-4",
+                "description": "Poor or no understanding demonstrated",
+                "minPoints": 0,
+                "maxPoints": 4
+              }
+            ]
+          }
         ]
       },
       {
         "id": "q2",
-        "title": "Content 2: Explain psychological factors",
+        "title": "Explain psychological factors related to planning fallacy",
         "description": "Student should identify and explain psychological factors contributing to planning fallacy",
         "minScore": 0,
         "maxScore": 10,
@@ -76,6 +112,42 @@
             "minPoints": 0,
             "maxPoints": 4
           }
+        ],
+        "criteria": [
+          {
+            "id": "crit-migrated-q2",
+            "name": "Scoring Criteria",
+            "scoreLevels": [
+              {
+                "id": "c2-excellent",
+                "scoreRange": "9-10",
+                "description": "Comprehensive explanation of multiple psychological factors with examples",
+                "minPoints": 9,
+                "maxPoints": 10
+              },
+              {
+                "id": "c2-good",
+                "scoreRange": "7-8",
+                "description": "Good explanation of some psychological factors",
+                "minPoints": 7,
+                "maxPoints": 8
+              },
+              {
+                "id": "c2-satisfactory",
+                "scoreRange": "5-6",
+                "description": "Basic mention of psychological factors",
+                "minPoints": 5,
+                "maxPoints": 6
+              },
+              {
+                "id": "c2-poor",
+                "scoreRange": "0-4",
+                "description": "Little to no explanation of psychological factors",
+                "minPoints": 0,
+                "maxPoints": 4
+              }
+            ]
+          }
         ]
       }
     ],
@@ -84,15 +156,30 @@
     "courseId": "course-1",
     "assignmentId": "assignment-1",
     "createdAt": "2024-01-15T00:00:00.000Z",
-    "updatedAt": "2026-04-07T09:58:51.604Z",
+    "updatedAt": "2026-04-10T05:53:06.767Z",
     "lectureNotes": [
       {
-        "id": "note-1775555906161-0",
+        "id": "note-1775665762853-0",
+        "backendId": "47715452-52b0-4335-b74d-8053e0e15ce8",
+        "filename": "Unit 2.6 Planning fallacy (2025).pdf",
+        "originalName": "Unit 2.6 Planning fallacy (2025).pdf",
+        "fileSize": 840674,
+        "fileType": "pdf",
+        "uploadedAt": "2026-04-08T16:29:27.449Z",
+        "associatedRubrics": [],
+        "metadata": {
+          "processingStatus": "completed"
+        },
+        "processedAt": null
+      },
+      {
+        "id": "note-1775800276943-0",
+        "backendId": "eca5f407-3690-4df7-a9b2-56d535e6e0f7",
         "filename": "Unit 2.7 Escalation of commitment (2025).pdf",
         "originalName": "Unit 2.7 Escalation of commitment (2025).pdf",
         "fileSize": 1427876,
         "fileType": "pdf",
-        "uploadedAt": "2026-04-07T09:58:30.193Z",
+        "uploadedAt": "2026-04-10T05:52:47.662Z",
         "associatedRubrics": [],
         "metadata": {
           "processingStatus": "completed"
@@ -159,7 +246,7 @@
       {
         "id": "q-1775746947332",
         "title": "Write a reflection report",
-        "description": "WHAT? What have you learned through this seminar? What stands out to you, feels new to you, excites you, or challenges you?\nWHY? Why does this learning matter? Why does it stand out to you? Why is it important - to you personally or in the bigger picture?\nHOW? What will you do from here? How will you take this learning with you? Does this learning change your perspective, your career goals, or your interests?",
+        "description": "WHAT? What have you learned through this seminar? What stands out to you, feels new to you, excites you, or challenges you?\n\nWHY? Why does this learning matter? Why does it stand out to you? Why is it important - to you personally or in the bigger picture?\n\nHOW? What will you do from here? How will you take this learning with you? Does this learning change your perspective, your career goals, or your interests?",
         "minScore": 0,
         "maxScore": 30,
         "modelAnswer": "",
@@ -171,7 +258,7 @@
               {
                 "id": "sl-1775746984714",
                 "scoreRange": "8-10",
-                "description": "Excellent: The language is clear and expressive. The reader can create a mental picture of the situation being described. Abstract concepts are explained accurately. The reflection shows tremendous thought and effort. The learning experience being reflected upon is relevant and meaningful.",
+                "description": "Excellent: The language is clear and expressive. The reader can create a mental picture of the situation being described. Abstract concepts are explained accurately. The reflection shows tremendous thought and effort. The learning experience being reflected upon is relevant and meaningful",
                 "minPoints": 8,
                 "maxPoints": 10
               },
@@ -198,7 +285,7 @@
               {
                 "id": "sl-1775747087391",
                 "scoreRange": "8-10",
-                "description": "The reflection moves beyond simple description of the experience to an analysis of how the experience contributed to student understanding of self, others, and/or other concepts. It demonstrates ability of the student to question their own biases, stereotypes, preconceptions, and/or assumptions and define new modes of thinking as a result.",
+                "description": "The reflection moves beyond simple description of the experience to an analysis of how the experience contributed to student understanding of self, others, and/or other concepts. It demonstrates ability of the student to question their own biases, stereotypes, preconceptions, and/or assumptions and define new modes of thinking as a result",
                 "minPoints": 8,
                 "maxPoints": 10
               },
@@ -239,101 +326,13 @@
             ]
           }
         ],
-        "scoringCriteria": []
-      }
-    ],
-    "totalMinPoints": 0,
-    "totalMaxPoints": 30,
-    "lectureNotes": [],
-    "createdAt": "2026-04-09T15:06:29.629Z",
-    "updatedAt": "2026-04-09T15:06:29.629Z"
-  },
-  {
-    "id": "rubric-1775748655724",
-    "title": "Comp 4900 Seminar reflection",
-    "description": "",
-    "questions": [
-      {
-        "id": "q-1775748502598",
-        "title": "  Write a reflection report",
-        "description": "WHAT? What have you learned through this seminar? What stands out to you, feels new to you, \nexcites you, or challenges you? \nWHY? Why does this learning matter? Why does it stand out to you? Why is it important - to you \npersonally or in the bigger picture? \nHOW? What will you do from here? How will you take this learning with you? Does this learning \nchange your perspective, your career goals, or your interests?",
-        "minScore": 0,
-        "maxScore": 30,
-        "modelAnswer": "",
-        "criteria": [
+        "scoringCriteria": [
           {
-            "id": "crit-1775748505242",
-            "name": "Clarity and Relevance ",
-            "scoreLevels": [
-              {
-                "id": "sl-1775748511025",
-                "scoreRange": "8-10",
-                "description": "The language is clear and  expressive. The reader can  create a mental picture of  the situation being  described. Abstract concepts  are explained accurately.  The reflection shows  tremendous thought and  effort. The learning  experience being reflected  upon is relevant and  meaningful.",
-                "minPoints": 8,
-                "maxPoints": 10
-              },
-              {
-                "id": "sl-1775748528303",
-                "scoreRange": "4-7",
-                "description": "Minor, infrequent lapses in  clarity. Abstract concepts  are explained fairly  accurately. The reflections  show some thought and  effort. Student makes  attempts to demonstrate  relevance, but the relevance  is unclear in reference to  learning goals.",
-                "minPoints": 4,
-                "maxPoints": 7
-              },
-              {
-                "id": "sl-1775748532945",
-                "scoreRange": "0-3",
-                "description": "There are frequent lapses in  clarity. Concepts are either  not discussed or are  presented inaccurately. The  reflections show poor  thought and effort. Most of  the reflection is irrelevant to  student and/or learning  goals.",
-                "minPoints": 0,
-                "maxPoints": 3
-              }
-            ]
-          },
-          {
-            "id": "crit-1775748543135",
-            "name": "Analysis and Self Criticism",
-            "scoreLevels": [
-              {
-                "id": "sl-1775748553295",
-                "scoreRange": "8-10",
-                "description": "The reflection moves  beyond simple description  of the experience to an  analysis of how the  experience contributed to  student understanding of  self, others, and/or other  concepts. It demonstrates  ability of the student to  question their own biases,  stereotypes, preconceptions,  and/or assumptions and  define new modes of  thinking as a result. ",
-                "minPoints": 8,
-                "maxPoints": 10
-              },
-              {
-                "id": "sl-1775748564561",
-                "scoreRange": "4-7",
-                "description": "The reflection demonstrates  student attempts to analyze  the experience to  understanding of self, but  analysis lacks depth. It  demonstrates ability of the  student to question their  own biases, stereotypes,  preconceptions. New modes  of thinking are not evident.",
-                "minPoints": 4,
-                "maxPoints": 7
-              },
-              {
-                "id": "sl-1775748575274",
-                "scoreRange": "0-3",
-                "description": "Student makes attempts at  applying the learning  experience to understanding  of self, others, and/or  seminar concepts but fails to  demonstrate depth of  analysis. There is some  attempt at self-criticism, but  the self-reflection fails to  demonstrate a new  awareness of personal  biases, etc. ",
-                "minPoints": 0,
-                "maxPoints": 3
-              }
-            ]
-          },
-          {
-            "id": "crit-1775748585901",
-            "name": "Length",
-            "scoreLevels": [
-              {
-                "id": "sl-1775748597154",
-                "scoreRange": "5-10",
-                "description": "Number of words over 200 ",
-                "minPoints": 5,
-                "maxPoints": 10
-              },
-              {
-                "id": "sl-1775748599154",
-                "scoreRange": "0-4",
-                "description": "Number of words less than 200 ",
-                "minPoints": 0,
-                "maxPoints": 4
-              }
-            ]
+            "id": "c-1775746970948",
+            "scoreRange": "",
+            "description": "",
+            "minPoints": 0,
+            "maxPoints": 0
           }
         ]
       }
@@ -341,7 +340,7 @@
     "totalMinPoints": 0,
     "totalMaxPoints": 30,
     "lectureNotes": [],
-    "createdAt": "2026-04-09T15:30:55.724Z",
-    "updatedAt": "2026-04-09T15:30:55.724Z"
+    "createdAt": "2026-04-09T15:06:29.629Z",
+    "updatedAt": "2026-04-09T15:06:29.629Z"
   }
 ]

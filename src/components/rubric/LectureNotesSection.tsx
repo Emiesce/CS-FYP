@@ -3,7 +3,22 @@ import { BookOpen, Upload, X, FileText } from 'lucide-react';
 import { Button } from '../ui/button';
 import { Card, CardContent } from '../ui/card';
 import { LectureNote } from '../../types';
-import { FileStorageService } from '../../utils/fileStorage';
+
+const GRADING_API = 'http://localhost:5000';
+
+async function uploadNoteToBackend(noteId: string, file: File, rubricId?: string): Promise<string | null> {
+    try {
+        const formData = new FormData();
+        formData.append('file', file);
+        if (rubricId) formData.append('associate_with_rubric', rubricId);
+        const res = await fetch(`${GRADING_API}/api/lecture-notes/upload`, { method: 'POST', body: formData });
+        if (res.ok) {
+            const data = await res.json();
+            return data.data?.id ?? null;
+        }
+    } catch { /* backend unavailable — continue with metadata only */ }
+    return null;
+}
 
 interface LectureNotesSectionProps {
     onNotesChange?: (notes: LectureNote[]) => void;
@@ -27,11 +42,10 @@ export function LectureNotesSection({ onNotesChange, disabled, rubricId, initial
             const file = files[i];
             const noteId = `note-${Date.now()}-${i}`;
 
-            // Store file using the FileStorageService — routes to grading API for RAG indexing
-            const backendId = await FileStorageService.storeFile(noteId, file, rubricId);
+            const backendId = await uploadNoteToBackend(noteId, file, rubricId);
 
-            if (backendId === null && !FileStorageService.hasFileSync(noteId)) {
-                console.warn(`FileStorageService failed for: ${file.name}, adding metadata only`);
+            if (backendId === null) {
+                console.warn(`Backend upload failed for: ${file.name}, adding metadata only`);
             }
 
             // Always create the note metadata regardless of storage success
@@ -85,9 +99,6 @@ export function LectureNotesSection({ onNotesChange, disabled, rubricId, initial
     };
 
     const removeNote = (noteId: string) => {
-        // Remove file using FileStorageService
-        FileStorageService.removeFile(noteId);
-
         const updatedNotes = notes.filter(n => n.id !== noteId);
         setNotes(updatedNotes);
 
