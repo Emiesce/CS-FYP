@@ -468,7 +468,7 @@ class RAGGradingSystem:
                     
                     exam_info = {
                         'examId': getattr(request, 'assignment_id', f"exam_{datetime.now().strftime('%Y%m%d')}"),
-                        'examTitle': f"Assessment using {request.marking_scheme_id}",
+                        'examTitle': marking_scheme.rubric_text.split('\n')[0].replace('Rubric: ', '').strip() or request.marking_scheme_id,
                         'courseId': getattr(request, 'course_id', 'COURSE001'),
                         'submittedAt': getattr(request, 'submitted_at', datetime.now().isoformat() + "Z"),
                         'answerText': getattr(request, 'answer', '') or getattr(request, 'essay_text', '')

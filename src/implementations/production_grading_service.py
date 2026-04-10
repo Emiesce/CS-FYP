@@ -214,12 +214,15 @@ class ProductionGradingService(GradingService):
         self,
         request: EssayGradingRequest
     ) -> EssayGradingResponse:
-        """Grade an essay against all criteria in the marking scheme."""
+        """
+        Grade an essay against all criteria in the marking scheme.
+        Makes one AI call per question (grading all criteria for that question together),
+        rather than one call per criterion — reducing API costs significantly.
+        """
         scheme = self.marking_schemes.get(request.marking_scheme_id)
         if not scheme:
             raise ValueError(f"Marking scheme {request.marking_scheme_id} not found")
 
-        # Support both 'answer' and legacy 'essay_text'
         answer_text = getattr(request, 'answer', None) or getattr(request, 'essay_text', '')
 
         criteria_to_grade = scheme.criteria
@@ -230,24 +233,63 @@ class ProductionGradingService(GradingService):
                 if c.get("id") in request.criteria_ids
             ]
 
+        # Group criteria by question_id so we can grade all criteria per question in one call
+        from collections import OrderedDict
+        question_groups: OrderedDict = OrderedDict()
+        for criterion in criteria_to_grade:
+            q_id = criterion.get('question_id', criterion['id'])
+            if q_id not in question_groups:
+                question_groups[q_id] = []
+            question_groups[q_id].append(criterion)
+
         results = []
         total_score = 0.0
         max_total_score = 0.0
 
-        for criterion in criteria_to_grade:
-            result = await self.grade_essay_by_criterion(
-                essay=answer_text,
-                criterion_id=criterion["id"],
-                marking_scheme_id=request.marking_scheme_id
+        for q_id, q_criteria in question_groups.items():
+            # Retrieve context once per question (covers all criteria)
+            context_chunks = await self.vector_store.similarity_search_with_rubric_context(
+                query=f"How to grade: {q_criteria[0].get('question_title', '')}",
+                rubric_id=request.marking_scheme_id,
+                k=8
             )
-            # Enrich context_metadata with parent question info for grouping in results
-            if result.context_metadata is None:
-                result.context_metadata = {}
-            result.context_metadata['question_id'] = criterion.get('question_id', criterion['id'])
-            result.context_metadata['question_title'] = criterion.get('question_title', criterion.get('name', ''))
-            results.append(result)
-            total_score += result.score
-            max_total_score += result.max_score
+            rubric_parts = [c.content for c in context_chunks if c.source_type == "rubric"]
+            lecture_parts = [c.content for c in context_chunks if c.source_type == "lecture_note"]
+            rubric_context = "\n\n".join(rubric_parts)
+            lecture_context = "\n\n".join(lecture_parts) if lecture_parts else None
+
+            if len(q_criteria) == 1:
+                # Single criterion — use the existing single-criterion call
+                c = q_criteria[0]
+                result = await self.ai_client.grade_essay(
+                    essay=answer_text,
+                    context=rubric_context,
+                    criterion_name=c.get("name", ""),
+                    criterion_id=c["id"],
+                    max_score=c.get("max_score", 10),
+                    lecture_notes_context=lecture_context
+                )
+                result.context_metadata = result.context_metadata or {}
+                result.context_metadata['question_id'] = q_id
+                result.context_metadata['question_title'] = c.get('question_title', c.get('name', ''))
+                results.append(result)
+                total_score += result.score
+                max_total_score += result.max_score
+            else:
+                # Multiple criteria — one call grades all of them together
+                criterion_results = await self.ai_client.grade_essay_multi_criteria(
+                    essay=answer_text,
+                    context=rubric_context,
+                    criteria=q_criteria,
+                    lecture_notes_context=lecture_context
+                )
+                for result in criterion_results:
+                    result.context_metadata = result.context_metadata or {}
+                    result.context_metadata['question_id'] = q_id
+                    result.context_metadata['question_title'] = q_criteria[0].get('question_title', '')
+                    results.append(result)
+                    total_score += result.score
+                    max_total_score += result.max_score
 
         percentage = (total_score / max_total_score * 100) if max_total_score > 0 else 0
         if percentage >= 80:

@@ -153,71 +153,68 @@ export function StudentAnswersPage() {
         setIsGrading(true);
         setGradingDone(false);
 
-        // Initialise all as pending
-        const initial: GradingResult[] = submissions.map(s => ({
+        // Mark all as grading
+        setGradingResults(submissions.map(s => ({
             studentId: s.studentId,
             studentName: s.studentName || s.studentId,
-            status: 'pending'
-        }));
-        setGradingResults(initial);
+            status: 'grading' as const
+        })));
 
-        const results = [...initial];
+        try {
+            const batchPayload = {
+                concurrency: 10,
+                submissions: submissions.map(s => ({
+                    student_id: s.studentId,
+                    student_name: s.studentName || s.studentId,
+                    answer: s.answers.map(a => `[Question ${a.questionId}]\n${a.answerText}`).join('\n\n'),
+                    marking_scheme_id: selectedRubricId,
+                    assignment_id: selectedRubricId,
+                    course_id: 'default'
+                }))
+            };
 
-        for (let i = 0; i < submissions.length; i++) {
-            const s = submissions[i];
+            const response = await fetch(`${GRADING_API}/grade-batch`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(batchPayload)
+            });
 
-            // Mark as grading
-            results[i] = { ...results[i], status: 'grading' };
-            setGradingResults([...results]);
+            const data = await response.json();
 
-            // Combine all answers into one text block
-            const combinedAnswer = s.answers
-                .map(a => `[Question ${a.questionId}]\n${a.answerText}`)
-                .join('\n\n');
+            // Map results back to student status
+            const resultMap: Record<string, any> = {};
+            (data.results || []).forEach((r: any) => {
+                const sid = r?.data?.studentID;
+                if (sid) resultMap[sid] = r;
+            });
+            const errorMap: Record<string, string> = {};
+            (data.errors || []).forEach((e: any) => {
+                if (e.student_id) errorMap[e.student_id] = e.error;
+            });
 
-            try {
-                const response = await fetch(`${GRADING_API}/grade-answer`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        student_id: s.studentId,
-                        student_name: s.studentName || s.studentId,
-                        answer: combinedAnswer,
-                        marking_scheme_id: selectedRubricId,
-                        assignment_id: selectedRubricId,
-                        course_id: 'default'
-                    })
-                });
-
-                const data = await response.json();
-
-                if (response.ok && data.success !== false) {
-                    const summary = data.data?.summary || data.summary;
-                    const totalScore = summary?.totalScore ?? data.data?.total_score ?? 0;
-                    const maxScore = summary?.maxScore ?? data.data?.max_total_score ?? 0;
-                    results[i] = {
-                        ...results[i],
-                        status: 'done',
-                        totalScore,
-                        maxScore,
-                        percentage: maxScore > 0 ? Math.round((totalScore / maxScore) * 100) : 0
-                    };
-                } else {
-                    results[i] = {
-                        ...results[i],
-                        status: 'error',
-                        error: data.error || 'Grading failed'
-                    };
+            setGradingResults(submissions.map(s => {
+                if (errorMap[s.studentId]) {
+                    return { studentId: s.studentId, studentName: s.studentName || s.studentId, status: 'error' as const, error: errorMap[s.studentId] };
                 }
-            } catch {
-                results[i] = {
-                    ...results[i],
-                    status: 'error',
-                    error: 'Cannot connect to grading API (port 5000)'
+                const r = resultMap[s.studentId];
+                const summary = r?.data?.summary;
+                return {
+                    studentId: s.studentId,
+                    studentName: s.studentName || s.studentId,
+                    status: 'done' as const,
+                    totalScore: summary?.totalScore ?? 0,
+                    maxScore: summary?.maxScore ?? 0,
+                    percentage: summary?.percentage ?? 0
                 };
-            }
-
-            setGradingResults([...results]);
+            }));
+        } catch (err) {
+            // Fallback: mark all as error
+            setGradingResults(submissions.map(s => ({
+                studentId: s.studentId,
+                studentName: s.studentName || s.studentId,
+                status: 'error' as const,
+                error: 'Cannot connect to grading API (port 5000)'
+            })));
         }
 
         setIsGrading(false);

@@ -277,6 +277,90 @@ async def grade_essay():
     return await grade_answer()
 
 
+@app.route('/grade-batch', methods=['POST'])
+@async_route
+async def grade_batch():
+    """
+    Grade multiple students concurrently, respecting a 60 RPM rate limit.
+
+    Request body:
+    {
+        "submissions": [...],
+        "requests_per_minute": 55   (optional, default 55 — leaves buffer under 60 RPM limit)
+    }
+    """
+    if not GRADING_AVAILABLE:
+        return jsonify({'success': False, 'error': 'Grading system not available'}), 503
+
+    if not request.is_json:
+        return jsonify({'success': False, 'error': 'Request must be JSON'}), 400
+
+    data = request.get_json()
+    submissions = data.get('submissions', [])
+    rpm_limit = min(int(data.get('requests_per_minute', 55)), 55)  # hard cap at 55 to stay under 60 RPM
+
+    if not submissions:
+        return jsonify({'success': False, 'error': 'No submissions provided'}), 400
+
+    from src.models.grading_models import GradingRequest
+    import asyncio
+    import time
+
+    system = await get_grading_system()
+
+    # Rate limiter: track timestamps of recent requests in a sliding window
+    request_times: list = []
+    rate_lock = asyncio.Lock()
+
+    async def acquire_rate_slot():
+        """Wait until we're under the RPM limit before proceeding."""
+        while True:
+            async with rate_lock:
+                now = time.monotonic()
+                # Drop timestamps older than 60 seconds
+                cutoff = now - 60.0
+                while request_times and request_times[0] < cutoff:
+                    request_times.pop(0)
+                if len(request_times) < rpm_limit:
+                    request_times.append(now)
+                    return
+            # Wait a bit before retrying
+            await asyncio.sleep(0.5)
+
+    async def grade_one(sub):
+        await acquire_rate_slot()
+        try:
+            req = GradingRequest(
+                student_id=sub['student_id'],
+                answer=sub.get('answer') or sub.get('essay_text', ''),
+                marking_scheme_id=sub['marking_scheme_id'],
+                student_name=sub.get('student_name'),
+                assignment_id=sub.get('assignment_id'),
+                course_id=sub.get('course_id'),
+                submitted_at=sub.get('submitted_at')
+            )
+            await system.grade_answer(req, save_result=True)
+            stored = system.get_student_results(sub['student_id'])
+            return {'success': True, 'student_id': sub['student_id'], 'result': stored[-1] if stored else None}
+        except Exception as e:
+            logger.error(f"Batch grading failed for {sub.get('student_id')}: {e}")
+            return {'success': False, 'student_id': sub.get('student_id'), 'error': str(e)}
+
+    outcomes = await asyncio.gather(*[grade_one(s) for s in submissions])
+
+    results = [o['result'] for o in outcomes if o['success'] and o.get('result')]
+    errors = [{'student_id': o['student_id'], 'error': o['error']} for o in outcomes if not o['success']]
+
+    return jsonify({
+        'success': True,
+        'total': len(submissions),
+        'succeeded': len(results),
+        'failed': len(errors),
+        'results': results,
+        'errors': errors
+    })
+
+
 @app.route('/grading-results/<student_id>', methods=['GET'])
 @async_route
 async def get_student_results(student_id):

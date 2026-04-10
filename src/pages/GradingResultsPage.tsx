@@ -213,7 +213,6 @@ function ExamCard({ examId, records, onSelect }: { examId: string; records: Grad
             <div className="flex items-start justify-between mb-3">
                 <div>
                     <h3 className="font-semibold text-gray-900 text-lg">{title}</h3>
-                    <p className="text-xs text-gray-500 mt-0.5">Rubric: {records[0]?._metadata?.marking_scheme_id}</p>
                 </div>
                 <span className={`text-sm font-bold px-2 py-1 rounded ${pctColor}`}>Avg {avg}%</span>
             </div>
@@ -547,7 +546,8 @@ export function GradingResultsPage() {
     };
 
     const examGroups = records.reduce<Record<string, GradingRecord[]>>((acc, r) => {
-        const key = r.data?.examId || r._metadata?.assignment_id || 'unknown';
+        // Group by rubric title (examTitle) so the display shows the rubric name, not the ID
+        const key = r.data?.examTitle || r.data?.examId || r._metadata?.assignment_id || 'unknown';
         if (!acc[key]) acc[key] = [];
         acc[key].push(r);
         return acc;

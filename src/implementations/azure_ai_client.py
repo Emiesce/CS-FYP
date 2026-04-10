@@ -313,6 +313,144 @@ class AzureAIClient(AIClient):
             return response.content
         except Exception as e:
             raise self._classify_azure_error(e)
+
+    async def grade_essay_multi_criteria(
+        self,
+        essay: str,
+        context: str,
+        criteria: List[Dict[str, Any]],
+        lecture_notes_context: Optional[str] = None
+    ) -> List[GradingCriterion]:
+        """
+        Grade an essay against multiple criteria in a single AI call.
+        More cost-efficient than calling grade_essay() once per criterion.
+
+        Args:
+            essay: The student's essay text
+            context: Rubric context from vector search
+            criteria: List of criterion dicts with keys: id, name, max_score
+            lecture_notes_context: Optional lecture notes context
+
+        Returns:
+            List of GradingCriterion results, one per criterion
+        """
+        try:
+            prompt = self._build_multi_criteria_prompt(essay, context, criteria, lecture_notes_context)
+            response = await self._retry_with_backoff(self._grade_essay_internal, prompt)
+            return self._parse_multi_criteria_response(response, criteria)
+        except Exception as e:
+            logger.error(f"Multi-criteria grading failed, falling back to per-criterion: {e}")
+            # Fallback: grade each criterion individually
+            results = []
+            for c in criteria:
+                result = await self.grade_essay(
+                    essay=essay,
+                    context=context,
+                    criterion_name=c.get("name", ""),
+                    criterion_id=c["id"],
+                    max_score=c.get("max_score", 10),
+                    lecture_notes_context=lecture_notes_context
+                )
+                results.append(result)
+            return results
+
+    def _build_multi_criteria_prompt(
+        self,
+        essay: str,
+        context: str,
+        criteria: List[Dict[str, Any]],
+        lecture_notes_context: Optional[str] = None
+    ) -> str:
+        """Build a prompt that grades all criteria in one call."""
+        criteria_list = "\n".join(
+            f'{i+1}. **{c.get("name", "")}** (max {c.get("max_score", 10)} marks)\n   {c.get("rubric_text", "")}'
+            for i, c in enumerate(criteria)
+        )
+        criteria_json_schema = ",\n    ".join(
+            f'{{"criterion_id": "{c["id"]}", "criterion_name": "{c.get("name","")}", '
+            f'"score": <0–{c.get("max_score",10)} in 0.5 increments>, '
+            f'"max_score": {c.get("max_score",10)}, '
+            f'"justification": "<explanation>", '
+            f'"suggestion_for_improvement": "<feedback>", '
+            f'"highlighted_text": "<excerpt>"}}'
+            for c in criteria
+        )
+
+        lecture_section = ""
+        if lecture_notes_context and lecture_notes_context.strip():
+            lecture_section = f"\n**RELEVANT LECTURE CONTENT:**\n{lecture_notes_context}\n"
+
+        return f"""You are an expert AI teaching assistant grading a student's answer against a rubric.
+
+**STUDENT ANSWER:**
+{essay}
+
+**RUBRIC CRITERIA TO GRADE:**
+{criteria_list}
+{lecture_section}
+**RUBRIC CONTEXT:**
+{context}
+
+**GRADING INSTRUCTIONS:**
+1. Read the student's answer carefully
+2. Grade the answer against EACH criterion listed above independently
+3. For each criterion, assign a score in 0.5 increments only (e.g. 7.0, 7.5, 8.0 — not 7.3)
+4. Provide specific justification and improvement suggestion for each criterion
+5. Quote relevant text from the student's answer as highlighted_text
+
+**RESPONSE FORMAT:**
+Respond with a valid JSON array — one object per criterion, in the same order as listed above:
+[
+    {criteria_json_schema}
+]
+
+Respond only with the JSON array, no additional text."""
+
+    def _parse_multi_criteria_response(
+        self,
+        response: str,
+        criteria: List[Dict[str, Any]]
+    ) -> List[GradingCriterion]:
+        """Parse the multi-criteria JSON array response."""
+        try:
+            response = response.strip()
+            if response.startswith('```json'):
+                response = response[7:]
+            if response.startswith('```'):
+                response = response[3:]
+            if response.endswith('```'):
+                response = response[:-3]
+            response = response.strip()
+
+            data = json.loads(response)
+            if not isinstance(data, list):
+                raise ValueError("Expected a JSON array")
+
+            results = []
+            for i, item in enumerate(data):
+                # Match by position if criterion_id is missing/wrong
+                c = criteria[i] if i < len(criteria) else criteria[-1]
+                score = float(item.get('score', 0))
+                max_score = c.get('max_score', 10)
+                score = max(0.0, min(score, max_score))
+                score = round(score * 2) / 2  # enforce 0.5 increments
+
+                results.append(GradingCriterion(
+                    criterion_id=c['id'],
+                    criterion_name=c.get('name', ''),
+                    matched_level=self._score_to_level(score, max_score),
+                    score=score,
+                    max_score=max_score,
+                    justification=item.get('justification', ''),
+                    suggestion_for_improvement=item.get('suggestion_for_improvement', ''),
+                    highlighted_text=item.get('highlighted_text', ''),
+                    context_metadata={"has_rubric_context": True}
+                ))
+            return results
+
+        except Exception as e:
+            logger.error(f"Failed to parse multi-criteria response: {e}\nResponse: {response}")
+            raise AIServiceError(f"Failed to parse multi-criteria grading response: {e}")
     
     def _build_grading_prompt(
         self, 
@@ -343,7 +481,7 @@ class AzureAIClient(AIClient):
 2. Review the rubric criteria for the criterion: **{criterion_name}**
 3. Consider the relevant lecture content to understand expected knowledge and concepts
 4. Evaluate how well the student demonstrates understanding of course concepts
-5. Assign a fair score between 0 and {max_score} (can be decimal like 8.5)
+5. Assign a score between 0 and {max_score} in increments of 0.5 only (e.g. 7.0, 7.5, 8.0 — not 7.3 or 8.2)
 6. Provide detailed justification that references specific lecture concepts when relevant
 7. Offer constructive suggestions that guide toward better integration of course materials
 8. If you reference specific lecture content, note which materials you're citing
@@ -354,7 +492,7 @@ You must respond with a valid JSON object matching this exact schema:
 {{
   "criterion_id": "{criterion_id}",
   "criterion_name": "{criterion_name}",
-  "score": <number between 0 and {max_score}>,
+  "score": <number between 0 and {max_score} in 0.5 increments>,
   "max_score": {max_score},
   "justification": "<detailed explanation with lecture references if applicable>",
   "suggestion_for_improvement": "<constructive feedback incorporating course materials>",
@@ -377,7 +515,7 @@ Respond only with the JSON object, no additional text."""
 1. Carefully read the student's essay
 2. Review the provided rubric context
 3. Evaluate the essay specifically for the criterion: **{criterion_name}**
-4. Assign a fair score between 0 and {max_score} (can be decimal like 8.5)
+4. Assign a score between 0 and {max_score} in increments of 0.5 only (e.g. 7.0, 7.5, 8.0 — not 7.3 or 8.2)
 5. Provide detailed justification and constructive suggestions
 6. Identify specific text excerpts that support your evaluation
 
@@ -386,7 +524,7 @@ You must respond with a valid JSON object matching this exact schema:
 {{
   "criterion_id": "{criterion_id}",
   "criterion_name": "{criterion_name}",
-  "score": <number between 0 and {max_score}>,
+  "score": <number between 0 and {max_score} in 0.5 increments>,
   "max_score": {max_score},
   "justification": "<detailed explanation>",
   "suggestion_for_improvement": "<constructive feedback>",
@@ -422,11 +560,13 @@ Respond only with the JSON object, no additional text."""
                 if field not in data:
                     raise ValueError(f"Missing required field: {field}")
             
-            # Validate score
+            # Validate score and round to nearest 0.5
             score = float(data['score'])
             if score < 0 or score > max_score:
                 logger.warning(f"Score {score} out of range, clamping to [0, {max_score}]")
                 score = max(0.0, min(score, max_score))
+            # Round to nearest 0.5 (e.g. 8.3 → 8.5, 8.2 → 8.0)
+            score = round(score * 2) / 2
             
             # Extract lecture notes references if available
             lecture_notes_refs = data.get('lecture_notes_references', None)

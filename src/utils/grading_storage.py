@@ -5,12 +5,17 @@ Provides JSON-based temporary storage before database persistence.
 
 import json
 import os
+import asyncio
+import threading
 import logging
 from typing import List, Dict, Any, Optional
 from datetime import datetime
 from pathlib import Path
 
 logger = logging.getLogger(__name__)
+
+# Module-level lock to serialise concurrent writes to the JSON file
+_write_lock = threading.Lock()
 
 
 class GradingResultsStorage:
@@ -47,18 +52,19 @@ class GradingResultsStorage:
     
     def save_grading_result(self, result: Dict[str, Any]) -> str:
         """
-        Save a single grading result to JSON storage.
-        
-        Args:
-            result: Grading result dictionary
-            
-        Returns:
-            Result ID
+        Save a single grading result to JSON storage (concurrent-safe via threading lock).
         """
+        with _write_lock:
+            return self._save_grading_result_inner(result)
+
+    def _save_grading_result_inner(self, result: Dict[str, Any]) -> str:
+        """Inner save logic (not thread-safe on its own — call via save_grading_result)."""
         try:
             # Generate unique ID if not present
             if 'id' not in result:
-                result['id'] = f"grade_{datetime.now().strftime('%Y%m%d_%H%M%S')}_{result.get('student_id', 'unknown')}"
+                import uuid
+                student_id = result.get('data', {}).get('studentID') or result.get('student_id', 'unknown')
+                result['id'] = f"grade_{datetime.now().strftime('%Y%m%d_%H%M%S')}_{student_id}_{uuid.uuid4().hex[:6]}"
             
             # Add timestamp if not present
             if 'saved_at' not in result:
