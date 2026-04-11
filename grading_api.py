@@ -114,6 +114,152 @@ def health_check():
     })
 
 
+@app.route('/extract-pdf', methods=['POST'])
+@async_route
+async def extract_pdf():
+    """
+    Extract text from an uploaded PDF/DOCX/TXT and parse it into a rubric structure using GPT.
+    """
+    if 'file' not in request.files:
+        return jsonify({'success': False, 'error': 'No file provided'}), 400
+
+    file = request.files['file']
+    if not file.filename:
+        return jsonify({'success': False, 'error': 'No file selected'}), 400
+
+    filename = file.filename.lower()
+    if filename.endswith('.pdf'):
+        file_type = 'pdf'
+    elif filename.endswith('.docx'):
+        file_type = 'docx'
+    elif filename.endswith(('.txt', '.md')):
+        file_type = 'txt'
+    else:
+        return jsonify({'success': False, 'error': 'Unsupported file type. Please upload PDF, DOCX, or TXT.'}), 400
+
+    try:
+        file_content = file.read()
+
+        # Step 1: Extract raw text
+        if LECTURE_NOTES_AVAILABLE:
+            from src.services.lecture_notes_service import LectureNotesService
+            from src.utils.lecture_notes_storage import get_default_lecture_notes_storage
+            storage = get_default_lecture_notes_storage()
+            svc = LectureNotesService(storage=storage)
+            content = svc._extract_content_sync(file_content, file_type)
+        else:
+            if file_type == 'txt':
+                content = file_content.decode('utf-8', errors='replace')
+            else:
+                return jsonify({'success': False, 'error': 'Text extraction libraries not available'}), 503
+
+        word_count = len(content.split()) if content else 0
+        page_count = max(1, round(word_count / 300)) if file_type == 'pdf' else 1
+
+        # Step 2: Parse rubric structure from extracted text using GPT
+        rubric_structure = None
+        if GRADING_AVAILABLE and content.strip():
+            try:
+                rubric_structure = await _parse_rubric_with_gpt(content, file.filename)
+            except Exception as e:
+                logger.warning(f"GPT rubric parsing failed, returning raw content only: {e}")
+
+        return jsonify({
+            'success': True,
+            'content': content,
+            'rubric': rubric_structure,
+            'metadata': {
+                'file_type': file_type,
+                'word_count': word_count,
+                'page_count': page_count,
+                'filename': file.filename,
+            }
+        })
+
+    except Exception as e:
+        logger.error(f"PDF extraction error: {e}")
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+
+async def _parse_rubric_with_gpt(content: str, filename: str) -> dict:
+    """Use GPT to parse extracted text into a structured rubric."""
+    system = await get_grading_system()
+
+    # Truncate to avoid token limits (~12k chars ≈ ~3k tokens)
+    truncated = content[:12000]
+
+    prompt = f"""You are an expert at reading academic rubrics and assessment forms.
+
+Analyze the following document and extract its rubric structure.
+
+IMPORTANT DEFINITIONS:
+- A "question" is a top-level task or essay prompt that students must answer (e.g. "Describe the planning fallacy", "Write a reflection report"). A rubric typically has 1-5 questions.
+- A "criterion" is a scoring DIMENSION used to evaluate a student's answer to a question (e.g. "Content", "Critical Thinking", "Writing Quality"). One question can have multiple criteria.
+- A "score level" describes what a specific score range looks like (e.g. "8-10: Excellent, demonstrates deep understanding...").
+
+DOCUMENT TEXT:
+{truncated}
+
+Return a JSON object with this exact structure:
+{{
+  "title": "<rubric title>",
+  "description": "<what this rubric assesses overall>",
+  "questions": [
+    {{
+      "id": "q1",
+      "title": "<the actual question or task prompt>",
+      "description": "<what students should address in their answer>",
+      "minScore": 0,
+      "maxScore": <sum of all criteria maxScores for this question>,
+      "scoringCriteria": [
+        {{
+          "id": "sc1",
+          "scoreRange": "<e.g. 8-10>",
+          "description": "<what this overall score level means for this question>",
+          "minPoints": <number>,
+          "maxPoints": <number>
+        }}
+      ],
+      "criteria": [
+        {{
+          "id": "crit1",
+          "name": "<scoring dimension name, e.g. Content, Analysis, Clarity>",
+          "scoreLevels": [
+            {{
+              "id": "sl1",
+              "scoreRange": "<e.g. 8-10>",
+              "description": "<what this score level looks like for this criterion>",
+              "minPoints": <number>,
+              "maxPoints": <number>
+            }}
+          ]
+        }}
+      ]
+    }}
+  ]
+}}
+
+Rules:
+- A rubric with 3 scoring criteria should produce 1 question with 3 entries in "criteria", NOT 3 separate questions
+- Only create multiple questions if the document has multiple distinct essay prompts or tasks
+- Use the EXACT score ranges, descriptions and point values from the document
+- If the document uses letter grades, convert: A=90-100%, B=80-89%, C=70-79%, D=60-69%, F=0-59% of the max points
+- Return ONLY the JSON object, no markdown, no explanation"""
+
+    from langchain_core.messages import HumanMessage
+    response = await system.ai_client.chat_client.ainvoke([HumanMessage(content=prompt)])
+    raw = response.content.strip()
+
+    # Strip markdown code fences if present
+    if raw.startswith('```'):
+        raw = raw.split('```')[1]
+        if raw.startswith('json'):
+            raw = raw[4:]
+    raw = raw.strip()
+
+    return json.loads(raw)
+
+
 @app.route('/debug-rubric/<rubric_id>', methods=['GET'])
 @async_route
 async def debug_rubric(rubric_id):

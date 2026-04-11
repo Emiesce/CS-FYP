@@ -234,53 +234,60 @@ export class RubricService {
             // Create a rubric from the extracted content
             const extractedContent = result.content || '';
             const metadata = result.metadata || {};
+            const parsed = result.rubric; // GPT-parsed structure, may be null if parsing failed
+
+            const ts = Date.now();
+
+            // Build questions from GPT-parsed structure, or fall back to a single placeholder
+            const questions = parsed?.questions?.length
+                ? parsed.questions.map((q: any, qi: number) => ({
+                    id: q.id || `q-${ts}-${qi}`,
+                    title: q.title || `Question ${qi + 1}`,
+                    description: q.description || '',
+                    minScore: q.minScore ?? 0,
+                    maxScore: q.maxScore ?? 10,
+                    scoringCriteria: (q.scoringCriteria || []).map((sc: any, si: number) => ({
+                        id: sc.id || `c-${ts}-${qi}-${si}`,
+                        scoreRange: sc.scoreRange || '',
+                        description: sc.description || '',
+                        minPoints: sc.minPoints ?? 0,
+                        maxPoints: sc.maxPoints ?? 10,
+                    })),
+                    criteria: (q.criteria || []).map((cr: any, ci: number) => ({
+                        id: cr.id || `crit-${ts}-${qi}-${ci}`,
+                        name: cr.name || `Criterion ${ci + 1}`,
+                        scoreLevels: (cr.scoreLevels || []).map((sl: any, si: number) => ({
+                            id: sl.id || `sl-${ts}-${qi}-${ci}-${si}`,
+                            scoreRange: sl.scoreRange || '',
+                            description: sl.description || '',
+                            minPoints: sl.minPoints ?? 0,
+                            maxPoints: sl.maxPoints ?? 10,
+                        })),
+                    })),
+                }))
+                : [{
+                    id: `q-${ts}`,
+                    title: 'Content Analysis',
+                    description: `Extracted from ${file.name} — edit to add proper criteria`,
+                    minScore: 0,
+                    maxScore: 10,
+                    scoringCriteria: [],
+                    criteria: [],
+                }];
+
+            const totalMax = questions.reduce((sum: number, q: any) => sum + (q.maxScore || 0), 0);
 
             const newRubric: RubricData = {
-                id: `rubric-${Date.now()}`,
-                title: file.name.replace(/\.[^/.]+$/, ""), // Remove file extension
-                description: `Rubric extracted from ${file.name} (${metadata.page_count || 0} pages, ${metadata.word_count || 0} words)`,
-                questions: [
-                    {
-                        id: `q-${Date.now()}`,
-                        title: "Content Analysis",
-                        description: `Analyze content based on extracted rubric criteria from ${file.name}`,
-                        minScore: 0,
-                        maxScore: 10,
-                        scoringCriteria: [
-                            {
-                                id: `c-${Date.now()}`,
-                                scoreRange: "8-10",
-                                description: "Excellent work meeting all criteria",
-                                minPoints: 8,
-                                maxPoints: 10
-                            },
-                            {
-                                id: `c-${Date.now() + 1}`,
-                                scoreRange: "5-7",
-                                description: "Good work meeting most criteria",
-                                minPoints: 5,
-                                maxPoints: 7
-                            },
-                            {
-                                id: `c-${Date.now() + 2}`,
-                                scoreRange: "0-4",
-                                description: "Work needs improvement",
-                                minPoints: 0,
-                                maxPoints: 4
-                            }
-                        ]
-                    }
-                ],
+                id: `rubric-${ts}`,
+                title: parsed?.title || file.name.replace(/\.[^/.]+$/, ''),
+                description: parsed?.description || `Extracted from ${file.name} (${metadata.page_count || 0} pages, ${metadata.word_count || 0} words)`,
+                questions,
                 totalMinPoints: 0,
-                totalMaxPoints: 10,
+                totalMaxPoints: totalMax || 10,
                 courseId,
                 createdAt: new Date(),
-                updatedAt: new Date()
+                updatedAt: new Date(),
             };
-
-            // Store the extracted content for future reference
-            (newRubric as any).extractedContent = extractedContent;
-            (newRubric as any).extractionMetadata = metadata;
 
             globalMockRubrics.push(newRubric);
 

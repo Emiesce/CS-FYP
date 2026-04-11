@@ -292,5 +292,359 @@
     "lectureNotes": [],
     "createdAt": "2026-04-09T15:06:29.629Z",
     "updatedAt": "2026-04-09T15:06:29.629Z"
+  },
+  {
+    "id": "rubric-1775888961824",
+    "title": "COMP4900 Seminar Reflection Report",
+    "description": "Students will write a reflection report based on their seminar experience, assessed on clarity, relevance, analysis and self-criticism, and length.",
+    "questions": [
+      {
+        "id": "q1",
+        "title": "Clarity and Relevance",
+        "description": "Students should demonstrate clear and expressive language, accurately explain abstract concepts, and show relevance to learning goals.",
+        "minScore": 0,
+        "maxScore": 3,
+        "scoringCriteria": [
+          {
+            "id": "c1",
+            "scoreRange": "Excellent",
+            "description": "The language is clear and expressive. The reader can create a mental picture of the situation being described.",
+            "minPoints": 3,
+            "maxPoints": 3
+          },
+          {
+            "id": "c2",
+            "scoreRange": "Pass",
+            "description": "Minor, infrequent lapses in clarity. Abstract concepts are explained fairly accurately.",
+            "minPoints": 1,
+            "maxPoints": 2
+          },
+          {
+            "id": "c3",
+            "scoreRange": "Fail",
+            "description": "There are frequent lapses in clarity. Concepts are either not discussed or are presented inaccurately.",
+            "minPoints": 0,
+            "maxPoints": 0
+          }
+        ],
+        "criteria": [
+          {
+            "id": "crit1",
+            "name": "Clarity",
+            "scoreLevels": [
+              {
+                "id": "sl1",
+                "scoreRange": "Excellent",
+                "description": "The language is clear and expressive.",
+                "minPoints": 3,
+                "maxPoints": 3
+              },
+              {
+                "id": "sl2",
+                "scoreRange": "Pass",
+                "description": "Minor, infrequent lapses in clarity.",
+                "minPoints": 1,
+                "maxPoints": 2
+              },
+              {
+                "id": "sl3",
+                "scoreRange": "Fail",
+                "description": "Frequent lapses in clarity.",
+                "minPoints": 0,
+                "maxPoints": 0
+              }
+            ]
+          },
+          {
+            "id": "crit2",
+            "name": "Relevance",
+            "scoreLevels": [
+              {
+                "id": "sl1",
+                "scoreRange": "Excellent",
+                "description": "The reflection shows tremendous thought and effort.",
+                "minPoints": 3,
+                "maxPoints": 3
+              },
+              {
+                "id": "sl2",
+                "scoreRange": "Pass",
+                "description": "Attempts to demonstrate relevance, but it is unclear.",
+                "minPoints": 1,
+                "maxPoints": 2
+              },
+              {
+                "id": "sl3",
+                "scoreRange": "Fail",
+                "description": "Most of the reflection is irrelevant.",
+                "minPoints": 0,
+                "maxPoints": 0
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "q2",
+        "title": "Analysis and Self-Criticism",
+        "description": "Students should analyze their experience and demonstrate self-criticism, questioning their own biases and assumptions.",
+        "minScore": 0,
+        "maxScore": 3,
+        "scoringCriteria": [
+          {
+            "id": "c1",
+            "scoreRange": "Excellent",
+            "description": "The reflection moves beyond simple description and demonstrates depth in analysis.",
+            "minPoints": 3,
+            "maxPoints": 3
+          },
+          {
+            "id": "c2",
+            "scoreRange": "Pass",
+            "description": "Demonstrates attempts to analyze the experience, but lacks depth.",
+            "minPoints": 1,
+            "maxPoints": 2
+          },
+          {
+            "id": "c3",
+            "scoreRange": "Fail",
+            "description": "Fails to demonstrate depth of analysis or self-criticism.",
+            "minPoints": 0,
+            "maxPoints": 0
+          }
+        ],
+        "criteria": [
+          {
+            "id": "crit1",
+            "name": "Analysis",
+            "scoreLevels": [
+              {
+                "id": "sl1",
+                "scoreRange": "Excellent",
+                "description": "Demonstrates depth in analysis.",
+                "minPoints": 3,
+                "maxPoints": 3
+              },
+              {
+                "id": "sl2",
+                "scoreRange": "Pass",
+                "description": "Attempts to analyze the experience.",
+                "minPoints": 1,
+                "maxPoints": 2
+              },
+              {
+                "id": "sl3",
+                "scoreRange": "Fail",
+                "description": "Fails to demonstrate analysis.",
+                "minPoints": 0,
+                "maxPoints": 0
+              }
+            ]
+          },
+          {
+            "id": "crit2",
+            "name": "Self-Criticism",
+            "scoreLevels": [
+              {
+                "id": "sl1",
+                "scoreRange": "Excellent",
+                "description": "Demonstrates questioning of biases and assumptions.",
+                "minPoints": 3,
+                "maxPoints": 3
+              },
+              {
+                "id": "sl2",
+                "scoreRange": "Pass",
+                "description": "Some attempt at self-criticism.",
+                "minPoints": 1,
+                "maxPoints": 2
+              },
+              {
+                "id": "sl3",
+                "scoreRange": "Fail",
+                "description": "Fails to demonstrate self-criticism.",
+                "minPoints": 0,
+                "maxPoints": 0
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "q3",
+        "title": "Length",
+        "description": "Students should meet the word count requirement.",
+        "minScore": 0,
+        "maxScore": 1,
+        "scoringCriteria": [
+          {
+            "id": "c1",
+            "scoreRange": "Pass",
+            "description": "Number of words over 200.",
+            "minPoints": 1,
+            "maxPoints": 1
+          },
+          {
+            "id": "c2",
+            "scoreRange": "Fail",
+            "description": "Number of words less than 200.",
+            "minPoints": 0,
+            "maxPoints": 0
+          }
+        ],
+        "criteria": [
+          {
+            "id": "crit1",
+            "name": "Length",
+            "scoreLevels": [
+              {
+                "id": "sl1",
+                "scoreRange": "Pass",
+                "description": "Meets the word count requirement.",
+                "minPoints": 1,
+                "maxPoints": 1
+              },
+              {
+                "id": "sl2",
+                "scoreRange": "Fail",
+                "description": "Does not meet the word count requirement.",
+                "minPoints": 0,
+                "maxPoints": 0
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "totalMinPoints": 0,
+    "totalMaxPoints": 7,
+    "createdAt": "2026-04-11T06:29:21.824Z",
+    "updatedAt": "2026-04-11T06:29:21.824Z",
+    "lectureNotes": []
+  },
+  {
+    "id": "rubric-1775889306603",
+    "title": "COMP4900 Seminar Reflection Report",
+    "description": "This rubric assesses the quality of the reflection report based on clarity, analysis, and length.",
+    "questions": [
+      {
+        "id": "q1",
+        "title": "Write a reflection report on the seminar.",
+        "description": "Students should address their learning experiences, the significance of these learnings, and how they plan to apply this knowledge moving forward.",
+        "minScore": 0,
+        "maxScore": 12,
+        "scoringCriteria": [
+          {
+            "id": "sc1",
+            "scoreRange": "Excellent",
+            "description": "Demonstrates deep understanding and insightful reflection.",
+            "minPoints": 10,
+            "maxPoints": 12
+          },
+          {
+            "id": "sc2",
+            "scoreRange": "Pass",
+            "description": "Shows basic understanding and some reflection.",
+            "minPoints": 6,
+            "maxPoints": 9
+          },
+          {
+            "id": "sc3",
+            "scoreRange": "Fail",
+            "description": "Lacks understanding and reflection.",
+            "minPoints": 0,
+            "maxPoints": 5
+          }
+        ],
+        "criteria": [
+          {
+            "id": "crit1",
+            "name": "Clarity and Relevance",
+            "scoreLevels": [
+              {
+                "id": "sl1",
+                "scoreRange": "Excellent",
+                "description": "The language is clear and expressive. The reader can create a mental picture of the situation being described. Abstract concepts are explained accurately. The reflection shows tremendous thought and effort.",
+                "minPoints": 10,
+                "maxPoints": 12
+              },
+              {
+                "id": "sl2",
+                "scoreRange": "Pass",
+                "description": "Minor, infrequent lapses in clarity. Abstract concepts are explained fairly accurately. The reflections show some thought and effort.",
+                "minPoints": 6,
+                "maxPoints": 9
+              },
+              {
+                "id": "sl3",
+                "scoreRange": "Fail",
+                "description": "There are frequent lapses in clarity. Concepts are either not discussed or are presented inaccurately. The reflections show poor thought and effort.",
+                "minPoints": 0,
+                "maxPoints": 5
+              }
+            ]
+          },
+          {
+            "id": "crit2",
+            "name": "Analysis and Self-Criticism",
+            "scoreLevels": [
+              {
+                "id": "sl1",
+                "scoreRange": "Excellent",
+                "description": "The reflection moves beyond simple description to an analysis of how the experience contributed to student understanding of self, others, and/or other concepts.",
+                "minPoints": 10,
+                "maxPoints": 12
+              },
+              {
+                "id": "sl2",
+                "scoreRange": "Pass",
+                "description": "The reflection demonstrates student attempts to analyze the experience to understanding of self, but analysis lacks depth.",
+                "minPoints": 6,
+                "maxPoints": 9
+              },
+              {
+                "id": "sl3",
+                "scoreRange": "Fail",
+                "description": "Student makes attempts at applying the learning experience to understanding of self, others, and/or seminar concepts but fails to demonstrate depth of analysis.",
+                "minPoints": 0,
+                "maxPoints": 5
+              }
+            ]
+          },
+          {
+            "id": "crit3",
+            "name": "Length",
+            "scoreLevels": [
+              {
+                "id": "sl1",
+                "scoreRange": "Excellent",
+                "description": "Number of words over 200.",
+                "minPoints": 10,
+                "maxPoints": 12
+              },
+              {
+                "id": "sl2",
+                "scoreRange": "Pass",
+                "description": "Number of words over 200.",
+                "minPoints": 6,
+                "maxPoints": 9
+              },
+              {
+                "id": "sl3",
+                "scoreRange": "Fail",
+                "description": "Number of words less than 200.",
+                "minPoints": 0,
+                "maxPoints": 5
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "totalMinPoints": 0,
+    "totalMaxPoints": 12,
+    "createdAt": "2026-04-11T06:35:06.604Z",
+    "updatedAt": "2026-04-11T06:35:06.604Z",
+    "lectureNotes": []
   }
 ]
