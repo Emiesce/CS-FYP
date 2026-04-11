@@ -1,0 +1,602 @@
+[
+    {
+        "data": {
+            "studentID": "20841234",
+            "studentName": "Chris Wong",
+            "examId": "rubric-1775747189629",
+            "examTitle": "Comp 4900 Seminar Reflection",
+            "courseId": "default",
+            "submittedAt": null,
+            "gradedAt": "2026-04-11T00:01:52.351135Z",
+            "status": "finalized",
+            "questions": [
+                {
+                    "questionId": "q-1775746947332",
+                    "questionNumber": 1,
+                    "questionText": "Write a reflection report",
+                    "questionType": "essay",
+                    "topicId": "general",
+                    "studentAnswer": {
+                        "id": "answer1",
+                        "answerText": "[Question q1]\nThrough this seminar, I learned about the expansive potential of Huawei's technological innovations in various sectors, particularly health, robotics, and cloud computing. The concept of integrating digital transformation into everyday life, from AI-driven healthcare solutions at CUHK Medical Center to the development of a Cantonese LLM, stood out to me as a powerful example of how technology can enhance human capability and social wellbeing. The extensive implications of 5G networks and smart environments, such as the intelligent operations center for managing large-scale events like the Kaitak Sports Park Stadium, were both exciting and eye-opening. This learning matters because it emphasizes the critical role technology plays in driving societal change. For me personally, it resonates with my passion for leveraging innovation to improve the society. Understanding that technology can facilitate smarter healthcare and more efficient urban management illuminates its potential not just for corporate gain but for public benefit. This insight makes me appreciate the responsibility that comes with technological advancement, and it urges me to consider how my future contributions could align with these positive outcomes. Moving forward, I plan to actively engage with these advancements by seeking opportunities in industries that prioritize digital transformation and innovation, especially in healthcare and environmental sustainability. This seminar has inspired me to explore new career paths centered around AI and smart technologies, potentially focusing on their applications in healthcare. I aim to study further in these fields and collaborate on projects that utilize AI for social good, as I believe this integration could be key to a brighter future for communities worldwide. ",
+                        "submittedAt": null,
+                        "wordCount": 261
+                    },
+                    "criteria": [
+                        {
+                            "criterionId": "crit-1775746972124",
+                            "criterionName": "Clarity and Relevance",
+                            "description": "AI-generated assessment criteria",
+                            "maxScore": 10.0,
+                            "weight": 1.0,
+                            "grade": {
+                                "manualScore": 8.0,
+                                "aiSuggestedScore": 9.0,
+                                "highlightedText": "The concept of integrating digital transformation into everyday life, from AI-driven healthcare solutions at CUHK Medical Center to the development of a Cantonese LLM, stood out to me as a powerful example of how technology can enhance human capability and social wellbeing.",
+                                "aiJustification": "The student's reflection is clear and expressive, effectively conveying their learning experience. They provide specific examples, such as 'AI-driven healthcare solutions at CUHK Medical Center' and 'the development of a Cantonese LLM,' which help create a mental picture of the seminar's content. The relevance of the learning experience is well articulated, particularly in relation to societal change and personal passion for innovation.",
+                                "aiSuggestion": "To enhance clarity further, the student could provide more specific examples of how they plan to engage with these advancements in their future career.",
+                                "gradedBy": "ai_system",
+                                "gradedAt": "2026-04-11T00:01:52.351135Z"
+                            }
+                        },
+                        {
+                            "criterionId": "crit-1775747071569",
+                            "criterionName": "Analysis and Self-Criticism",
+                            "description": "AI-generated assessment criteria",
+                            "maxScore": 10.0,
+                            "weight": 1.0,
+                            "grade": {
+                                "manualScore": 8.0,
+                                "aiSuggestedScore": 8.5,
+                                "highlightedText": "This insight makes me appreciate the responsibility that comes with technological advancement, and it urges me to consider how my future contributions could align with these positive outcomes.",
+                                "aiJustification": "The reflection demonstrates a good level of analysis regarding the impact of the seminar on the student's understanding of technology's role in society. They express a personal connection to the material and consider their future contributions, indicating a questioning of their own biases and assumptions. However, the analysis could be deepened by exploring specific biases or preconceptions they may have had before the seminar.",
+                                "aiSuggestion": "The student could enhance their analysis by explicitly discussing any biases or assumptions they had prior to the seminar and how their perspective has shifted as a result.",
+                                "gradedBy": "ai_system",
+                                "gradedAt": "2026-04-11T00:01:52.351135Z"
+                            }
+                        },
+                        {
+                            "criterionId": "crit-1775747120218",
+                            "criterionName": "Length",
+                            "description": "AI-generated assessment criteria",
+                            "maxScore": 10.0,
+                            "weight": 1.0,
+                            "grade": {
+                                "manualScore": 10.0,
+                                "aiSuggestedScore": 10.0,
+                                "highlightedText": "This seminar has inspired me to explore new career paths centered around AI and smart technologies, potentially focusing on their applications in healthcare.",
+                                "aiJustification": "The student's response exceeds the 200-word requirement, providing a comprehensive reflection that covers all aspects of the prompt.",
+                                "aiSuggestion": "No improvement needed; the length is appropriate and effectively supports the depth of the reflection.",
+                                "gradedBy": "ai_system",
+                                "gradedAt": "2026-04-11T00:01:52.351135Z"
+                            }
+                        }
+                    ],
+                    "questionTotalScore": 26.0,
+                    "questionMaxScore": 30.0,
+                    "questionPercentage": 86.7
+                }
+            ],
+            "summary": {
+                "totalScore": 26.0,
+                "maxScore": 30.0,
+                "percentage": 86.7,
+                "grade": "A",
+                "totalQuestions": 1,
+                "gradedQuestions": 1,
+                "pendingQuestions": 0
+            }
+        },
+        "success": true,
+        "message": "Exam results processed successfully",
+        "_metadata": {
+            "marking_scheme_id": "rubric-1775747189629",
+            "assignment_id": "rubric-1775747189629",
+            "course_id": "default",
+            "stored_at": "2026-04-11T00:01:52.351135Z"
+        },
+        "id": "grade_20260410_122848_20841234_111275",
+        "saved_at": "2026-04-11T00:01:52.351135"
+    },
+    {
+        "data": {
+            "studentID": "20841235",
+            "studentName": "Peter Chan",
+            "examId": "rubric-1775747189629",
+            "examTitle": "Comp 4900 Seminar Reflection",
+            "courseId": "default",
+            "submittedAt": null,
+            "gradedAt": "2026-04-11T00:01:50.177757Z",
+            "status": "finalized",
+            "questions": [
+                {
+                    "questionId": "q-1775746947332",
+                    "questionNumber": 1,
+                    "questionText": "Write a reflection report",
+                    "questionType": "essay",
+                    "topicId": "general",
+                    "studentAnswer": {
+                        "id": "answer1",
+                        "answerText": "[Question q1]\nAfter attending the seminar, I learnt a lot more about the application and the process of applying machine learning in IoT sensors and devices. I was particularly excited to learn about the challenges of working with IoT data, such as limited labelled data, high-dimensionality, and non-iid distributions. This experience enriched my knowledge of real-world deployment, complementing the theoretical concepts I’ve learned in class.The use of sensors in detecting early signs and clues of elderlies getting Alzheimer’s disease was very inspiring. It showcases how technology can significantly impact health outcomes. The privacy concerns of having cameras in data collection is also addressed by using mmWave radars, so the data collected will be just cluster of points that do not expose any features, the advancement in the visualization skills are also fascinating.  I studied computer science because I am fascinated by how technology and programming and make an impact to the world, this topic made me feel enlightened as I saw the real application of technology to help people in creating a better living. I am happy to see the broad application of machine learning outside the classroom concepts, reinforcing my enthusiasm for the fieldReflecting on my initial motivation for pursuing computer science, I realized that my goal has always been to apply what I learn to develop solutions for people. I plan to integrate this knowledge into my academic and career pursuits. This experience broadened my perspective on potential career paths apart from normal software engineering positions. Applying machine learning knowledge into research and health technology field is also interesting. ",
+                        "submittedAt": null,
+                        "wordCount": 261
+                    },
+                    "criteria": [
+                        {
+                            "criterionId": "crit-1775746972124",
+                            "criterionName": "Clarity and Relevance",
+                            "description": "AI-generated assessment criteria",
+                            "maxScore": 10.0,
+                            "weight": 1.0,
+                            "grade": {
+                                "manualScore": 8.0,
+                                "aiSuggestedScore": 8.0,
+                                "highlightedText": "This experience enriched my knowledge of real-world deployment, complementing the theoretical concepts I’ve learned in class.",
+                                "aiJustification": "The student's reflection is generally clear and expressive, providing a good overview of what they learned and why it matters. However, some sentences are slightly convoluted, which may hinder clarity. For example, the phrase 'the advancement in the visualization skills are also fascinating' could be clearer.",
+                                "aiSuggestion": "To enhance clarity, the student should aim for more concise sentences and ensure that each idea is clearly articulated. Breaking down complex sentences could help.",
+                                "gradedBy": "ai_system",
+                                "gradedAt": "2026-04-11T00:01:50.177757Z"
+                            }
+                        },
+                        {
+                            "criterionId": "crit-1775747071569",
+                            "criterionName": "Analysis and Self-Criticism",
+                            "description": "AI-generated assessment criteria",
+                            "maxScore": 10.0,
+                            "weight": 1.0,
+                            "grade": {
+                                "manualScore": 7.0,
+                                "aiSuggestedScore": 7.0,
+                                "highlightedText": "This experience broadened my perspective on potential career paths apart from normal software engineering positions.",
+                                "aiJustification": "The student demonstrates some analysis of how the seminar impacted their understanding and future goals, particularly in relation to health technology. However, the reflection lacks depth in questioning personal biases or assumptions, which would strengthen the analysis.",
+                                "aiSuggestion": "The student should delve deeper into how their experiences challenge their preconceptions or biases, and articulate any new modes of thinking that emerged from the seminar.",
+                                "gradedBy": "ai_system",
+                                "gradedAt": "2026-04-11T00:01:50.177757Z"
+                            }
+                        },
+                        {
+                            "criterionId": "crit-1775747120218",
+                            "criterionName": "Length",
+                            "description": "AI-generated assessment criteria",
+                            "maxScore": 10.0,
+                            "weight": 1.0,
+                            "grade": {
+                                "manualScore": 10.0,
+                                "aiSuggestedScore": 10.0,
+                                "highlightedText": "I plan to integrate this knowledge into my academic and career pursuits.",
+                                "aiJustification": "The student's response exceeds the 200-word requirement, demonstrating sufficient length for a reflection report.",
+                                "aiSuggestion": "No improvement needed for length, but the student should ensure that all content remains relevant and focused to maintain engagement.",
+                                "gradedBy": "ai_system",
+                                "gradedAt": "2026-04-11T00:01:50.177757Z"
+                            }
+                        }
+                    ],
+                    "questionTotalScore": 25.0,
+                    "questionMaxScore": 30.0,
+                    "questionPercentage": 83.3
+                }
+            ],
+            "summary": {
+                "totalScore": 25.0,
+                "maxScore": 30.0,
+                "percentage": 83.3,
+                "grade": "A-",
+                "totalQuestions": 1,
+                "gradedQuestions": 1,
+                "pendingQuestions": 0
+            }
+        },
+        "success": true,
+        "message": "Exam results processed successfully",
+        "_metadata": {
+            "marking_scheme_id": "rubric-1775747189629",
+            "assignment_id": "rubric-1775747189629",
+            "course_id": "default",
+            "stored_at": "2026-04-11T00:01:50.177757Z"
+        },
+        "id": "grade_20260410_122847_20841235_303cd7",
+        "saved_at": "2026-04-11T00:01:50.177757"
+    },
+    {
+        "data": {
+            "studentID": "20841236",
+            "studentName": "Bob Lam",
+            "examId": "rubric-1775747189629",
+            "examTitle": "Comp 4900 Seminar Reflection",
+            "courseId": "default",
+            "submittedAt": null,
+            "gradedAt": "2026-04-11T00:01:52.635827Z",
+            "status": "finalized",
+            "questions": [
+                {
+                    "questionId": "q-1775746947332",
+                    "questionNumber": 1,
+                    "questionText": "Write a reflection report",
+                    "questionType": "essay",
+                    "topicId": "general",
+                    "studentAnswer": {
+                        "id": "answer1",
+                        "answerText": "[Question q1]\nAttending the seminar on Applying AI and Technology in a Conglomerate was a valuable experience that broadened my understanding of how innovative technologies transform various sectors in Sun Hung Kai. The seminar presented practical applications of AI and technology, especially in areas like preventive maintenance, customer service, and operational efficiency.  The seminar introduced innovative transaction-based customer loyalty programs that simplify the customer experience. The feature to redeem rewards without the need to upload receipts enhances efficiency. This feature made me realize how technology can streamline operations while enhancing customer satisfaction. We might not notice it in our daily life, but it is part of the innovation project that SHK did. Furthermore, the integration of smart cameras to monitor traffic and customer interactions in real-time demonstrated the power of data in optimizing operations. The “instant earn” feature for marketing campaigns showcased how AI can reduce production time and costs, fostering creativity in ways I had not previously considered.  The seminar on applying AI and technology in a conglomerate was a valuable learning experience that provided practical insights into the future of engineering and business. By exploring applications in preventive maintenance, customer loyalty, and operational efficiency, I gained a deeper appreciation for the transformative power of technology. This seminar has not only enhanced my understanding of these concepts but also encouraged me to adopt a more innovative mindset as I progress in my engineering career.",
+                        "submittedAt": null,
+                        "wordCount": 235
+                    },
+                    "criteria": [
+                        {
+                            "criterionId": "crit-1775746972124",
+                            "criterionName": "Clarity and Relevance",
+                            "description": "AI-generated assessment criteria",
+                            "maxScore": 10.0,
+                            "weight": 1.0,
+                            "grade": {
+                                "manualScore": 8.0,
+                                "aiSuggestedScore": 9.0,
+                                "highlightedText": "The seminar presented practical applications of AI and technology, especially in areas like preventive maintenance, customer service, and operational efficiency.",
+                                "aiJustification": "The student's reflection is clear and expressive, effectively conveying their learning experience. They articulate what they learned and why it matters, providing specific examples that enhance understanding. The language used allows the reader to visualize the seminar's impact.",
+                                "aiSuggestion": "To further enhance clarity, the student could provide more personal insights on how these technologies specifically relate to their future career goals.",
+                                "gradedBy": "ai_system",
+                                "gradedAt": "2026-04-11T00:01:52.635827Z"
+                            }
+                        },
+                        {
+                            "criterionId": "crit-1775747071569",
+                            "criterionName": "Analysis and Self-Criticism",
+                            "description": "AI-generated assessment criteria",
+                            "maxScore": 10.0,
+                            "weight": 1.0,
+                            "grade": {
+                                "manualScore": 8.0,
+                                "aiSuggestedScore": 8.0,
+                                "highlightedText": "This seminar has not only enhanced my understanding of these concepts but also encouraged me to adopt a more innovative mindset as I progress in my engineering career.",
+                                "aiJustification": "The student demonstrates a good level of analysis regarding how the seminar influenced their understanding of technology's role in business. They reflect on the implications of the learning experience but could delve deeper into personal biases or assumptions that were challenged.",
+                                "aiSuggestion": "The student should consider discussing any preconceived notions they had about AI and technology before the seminar and how those views may have changed.",
+                                "gradedBy": "ai_system",
+                                "gradedAt": "2026-04-11T00:01:52.635827Z"
+                            }
+                        },
+                        {
+                            "criterionId": "crit-1775747120218",
+                            "criterionName": "Length",
+                            "description": "AI-generated assessment criteria",
+                            "maxScore": 10.0,
+                            "weight": 1.0,
+                            "grade": {
+                                "manualScore": 10.0,
+                                "aiSuggestedScore": 10.0,
+                                "highlightedText": "Attending the seminar on Applying AI and Technology in a Conglomerate was a valuable experience that broadened my understanding of how innovative technologies transform various sectors in Sun Hung Kai.",
+                                "aiJustification": "The student's response exceeds the 200-word requirement, providing a comprehensive reflection on their learning experience.",
+                                "aiSuggestion": "No improvements needed for length; the response is appropriately detailed.",
+                                "gradedBy": "ai_system",
+                                "gradedAt": "2026-04-11T00:01:52.635827Z"
+                            }
+                        }
+                    ],
+                    "questionTotalScore": 26.0,
+                    "questionMaxScore": 30.0,
+                    "questionPercentage": 86.7
+                }
+            ],
+            "summary": {
+                "totalScore": 26.0,
+                "maxScore": 30.0,
+                "percentage": 86.7,
+                "grade": "A",
+                "totalQuestions": 1,
+                "gradedQuestions": 1,
+                "pendingQuestions": 0
+            }
+        },
+        "success": true,
+        "message": "Exam results processed successfully",
+        "_metadata": {
+            "marking_scheme_id": "rubric-1775747189629",
+            "assignment_id": "rubric-1775747189629",
+            "course_id": "default",
+            "stored_at": "2026-04-11T00:01:52.635827Z"
+        },
+        "id": "grade_20260410_122849_20841236_e9bf91",
+        "saved_at": "2026-04-11T00:01:52.635827"
+    },
+    {
+        "data": {
+            "studentID": "20841235",
+            "studentName": "Jane Doe",
+            "examId": "rubric-1",
+            "examTitle": "Sosc Analysis Rubric",
+            "courseId": "default",
+            "submittedAt": null,
+            "gradedAt": "2026-04-10T15:09:42.004034Z",
+            "status": "finalized",
+            "questions": [
+                {
+                    "questionId": "q1",
+                    "questionNumber": 1,
+                    "questionText": "Content 1: Explain the concept of planning fallacy",
+                    "questionType": "essay",
+                    "topicId": "general",
+                    "studentAnswer": {
+                        "id": "answer1",
+                        "answerText": "[Question q1]\nPlanning fallacy refers to the tendency to underestimate how long a task will take. It happens because people are overly optimistic and do not consider past experiences. For example, students often think they can finish an assignment in one day but end up taking three days. The concept was introduced by Kahneman and Tversky and has been widely studied in project management and psychology.\n\n[Question q2]\nThe psychological factors include optimism bias where people think things will go better than they usually do. There is also the inside view problem where people focus too much on the specific plan without considering base rates. Ego depletion can also play a role as people become less careful in their estimates when tired. Social pressure from supervisors or peers can also cause people to give overly optimistic estimates.",
+                        "submittedAt": null,
+                        "wordCount": 137
+                    },
+                    "criteria": [
+                        {
+                            "criterionId": "q1",
+                            "criterionName": "Content 1: Explain the concept of planning fallacy",
+                            "description": "AI-generated assessment criteria",
+                            "maxScore": 10.0,
+                            "weight": 1.0,
+                            "grade": {
+                                "manualScore": 9.0,
+                                "aiSuggestedScore": 8.0,
+                                "highlightedText": "Planning fallacy refers to the tendency to underestimate how long a task will take. It happens because people are overly optimistic and do not consider past experiences. For example, students often think they can finish an assignment in one day but end up taking three days. The concept was introduced by Kahneman and Tversky and has been widely studied in project management and psychology.",
+                                "aiJustification": "The student demonstrates a good understanding of the planning fallacy by providing a clear definition and identifying multiple causes. The definition states that it is the tendency to underestimate how long a task will take, which is accurate. The student also mentions optimism bias and the inside view problem as causes, which are relevant and well-explained. However, the explanation could be enhanced by providing more depth or additional examples to illustrate these concepts further.",
+                                "aiSuggestion": "To improve the score, the student could elaborate on the causes of planning fallacy with more detailed examples or case studies. Including specific research findings or statistics related to the planning fallacy would also strengthen the argument and demonstrate a deeper understanding of the topic.",
+                                "gradedBy": "ai_system",
+                                "gradedAt": "2026-04-10T15:09:42.004034Z"
+                            }
+                        }
+                    ],
+                    "questionTotalScore": 9.0,
+                    "questionMaxScore": 10.0,
+                    "questionPercentage": 90.0
+                },
+                {
+                    "questionId": "q2",
+                    "questionNumber": 2,
+                    "questionText": "Content 2: Explain psychological factors",
+                    "questionType": "essay",
+                    "topicId": "general",
+                    "studentAnswer": {
+                        "id": "answer2",
+                        "answerText": "[Question q1]\nPlanning fallacy refers to the tendency to underestimate how long a task will take. It happens because people are overly optimistic and do not consider past experiences. For example, students often think they can finish an assignment in one day but end up taking three days. The concept was introduced by Kahneman and Tversky and has been widely studied in project management and psychology.\n\n[Question q2]\nThe psychological factors include optimism bias where people think things will go better than they usually do. There is also the inside view problem where people focus too much on the specific plan without considering base rates. Ego depletion can also play a role as people become less careful in their estimates when tired. Social pressure from supervisors or peers can also cause people to give overly optimistic estimates.",
+                        "submittedAt": null,
+                        "wordCount": 137
+                    },
+                    "criteria": [
+                        {
+                            "criterionId": "q2",
+                            "criterionName": "Content 2: Explain psychological factors",
+                            "description": "AI-generated assessment criteria",
+                            "maxScore": 10.0,
+                            "weight": 1.0,
+                            "grade": {
+                                "manualScore": 9.0,
+                                "aiSuggestedScore": 8.0,
+                                "highlightedText": "The psychological factors include optimism bias where people think things will go better than they usually do. There is also the inside view problem where people focus too much on the specific plan without considering base rates. Ego depletion can also play a role as people become less careful in their estimates when tired. Social pressure from supervisors or peers can also cause people to give overly optimistic estimates.",
+                                "aiJustification": "The student provides a good explanation of several psychological factors contributing to the planning fallacy, including optimism bias, the inside view problem, ego depletion, and social pressure. Each factor is identified and briefly explained, demonstrating a solid understanding of how these factors influence task estimation. However, the essay lacks specific examples that could enhance the explanations and provide a more comprehensive understanding of each factor's impact.",
+                                "aiSuggestion": "To improve the score, the student should include specific examples or scenarios that illustrate how each psychological factor manifests in real-life situations. This would not only strengthen the explanations but also provide a clearer connection between the factors and the planning fallacy.",
+                                "gradedBy": "ai_system",
+                                "gradedAt": "2026-04-10T15:09:42.004034Z"
+                            }
+                        }
+                    ],
+                    "questionTotalScore": 9.0,
+                    "questionMaxScore": 10.0,
+                    "questionPercentage": 90.0
+                }
+            ],
+            "summary": {
+                "totalScore": 18.0,
+                "maxScore": 20.0,
+                "percentage": 90.0,
+                "grade": "A+",
+                "totalQuestions": 2,
+                "gradedQuestions": 2,
+                "pendingQuestions": 0
+            }
+        },
+        "success": true,
+        "message": "Exam results processed successfully",
+        "_metadata": {
+            "marking_scheme_id": "rubric-1",
+            "assignment_id": "rubric-1",
+            "course_id": "default",
+            "stored_at": "2026-04-10T15:09:42.004034Z"
+        },
+        "id": "grade_20260410_150942_20841235_cc51cf",
+        "saved_at": "2026-04-10T15:09:42.004034"
+    },
+    {
+        "data": {
+            "studentID": "20841236",
+            "studentName": "Bob Johnson",
+            "examId": "rubric-1",
+            "examTitle": "Sosc Analysis Rubric",
+            "courseId": "default",
+            "submittedAt": null,
+            "gradedAt": "2026-04-10T15:09:44.057190Z",
+            "status": "finalized",
+            "questions": [
+                {
+                    "questionId": "q1",
+                    "questionNumber": 1,
+                    "questionText": "Content 1: Explain the concept of planning fallacy",
+                    "questionType": "essay",
+                    "topicId": "general",
+                    "studentAnswer": {
+                        "id": "answer1",
+                        "answerText": "[Question q1]\nPlanning fallacy is when you think something will take less time than it actually does. I have experienced this many times when doing homework. The reason is that people are too optimistic.\n\n[Question q2]\nPeople are optimistic and do not think about problems that might happen. They also forget about past failures and only remember when things went well.",
+                        "submittedAt": null,
+                        "wordCount": 61
+                    },
+                    "criteria": [
+                        {
+                            "criterionId": "q1",
+                            "criterionName": "Content 1: Explain the concept of planning fallacy",
+                            "description": "AI-generated assessment criteria",
+                            "maxScore": 10.0,
+                            "weight": 1.0,
+                            "grade": {
+                                "manualScore": 8.5,
+                                "aiSuggestedScore": 5.5,
+                                "highlightedText": "Planning fallacy is when you think something will take less time than it actually does. I have experienced this many times when doing homework. The reason is that people are too optimistic.",
+                                "aiJustification": "The student provides a basic definition of planning fallacy, stating that it is when one thinks something will take less time than it actually does. However, the explanation lacks depth and does not explore multiple causes or provide examples. The mention of optimism as a reason is a good start, but it is not sufficiently developed to demonstrate a comprehensive understanding of the concept.",
+                                "aiSuggestion": "To improve, the student should elaborate on the definition of planning fallacy and include additional psychological factors that contribute to it, such as overconfidence, neglect of past experiences, and the tendency to focus on the best-case scenario. Providing examples from personal experience or research could also enhance the explanation.",
+                                "gradedBy": "ai_system",
+                                "gradedAt": "2026-04-10T15:09:44.057190Z"
+                            }
+                        }
+                    ],
+                    "questionTotalScore": 8.5,
+                    "questionMaxScore": 10.0,
+                    "questionPercentage": 85.0
+                },
+                {
+                    "questionId": "q2",
+                    "questionNumber": 2,
+                    "questionText": "Content 2: Explain psychological factors",
+                    "questionType": "essay",
+                    "topicId": "general",
+                    "studentAnswer": {
+                        "id": "answer2",
+                        "answerText": "[Question q1]\nPlanning fallacy is when you think something will take less time than it actually does. I have experienced this many times when doing homework. The reason is that people are too optimistic.\n\n[Question q2]\nPeople are optimistic and do not think about problems that might happen. They also forget about past failures and only remember when things went well.",
+                        "submittedAt": null,
+                        "wordCount": 61
+                    },
+                    "criteria": [
+                        {
+                            "criterionId": "q2",
+                            "criterionName": "Content 2: Explain psychological factors",
+                            "description": "AI-generated assessment criteria",
+                            "maxScore": 10.0,
+                            "weight": 1.0,
+                            "grade": {
+                                "manualScore": 5.5,
+                                "aiSuggestedScore": 5.0,
+                                "highlightedText": "The reason is that people are too optimistic. People are optimistic and do not think about problems that might happen. They also forget about past failures and only remember when things went well.",
+                                "aiJustification": "The student provides a basic mention of psychological factors contributing to the planning fallacy, specifically noting that people are overly optimistic and tend to forget past failures. However, the explanation lacks depth and does not explore multiple psychological factors or provide examples. The mention of optimism is relevant but insufficient to demonstrate a comprehensive understanding of the psychological aspects involved in the planning fallacy.",
+                                "aiSuggestion": "To improve, the student should elaborate on additional psychological factors such as the impact of cognitive biases (e.g., optimism bias, hindsight bias) and how they contribute to the planning fallacy. Including specific examples or scenarios where these factors play a role would enhance the explanation.",
+                                "gradedBy": "ai_system",
+                                "gradedAt": "2026-04-10T15:09:44.057190Z"
+                            }
+                        }
+                    ],
+                    "questionTotalScore": 5.5,
+                    "questionMaxScore": 10.0,
+                    "questionPercentage": 55.0
+                }
+            ],
+            "summary": {
+                "totalScore": 14.0,
+                "maxScore": 20.0,
+                "percentage": 70.0,
+                "grade": "B",
+                "totalQuestions": 2,
+                "gradedQuestions": 2,
+                "pendingQuestions": 0
+            }
+        },
+        "success": true,
+        "message": "Exam results processed successfully",
+        "_metadata": {
+            "marking_scheme_id": "rubric-1",
+            "assignment_id": "rubric-1",
+            "course_id": "default",
+            "stored_at": "2026-04-10T15:09:44.057190Z"
+        },
+        "id": "grade_20260410_150944_20841236_cbce75",
+        "saved_at": "2026-04-10T15:09:44.057190"
+    },
+    {
+        "data": {
+            "studentID": "20841234",
+            "studentName": "John Smith",
+            "examId": "rubric-1",
+            "examTitle": "Sosc Analysis Rubric",
+            "courseId": "default",
+            "submittedAt": null,
+            "gradedAt": "2026-04-10T15:09:44.969242Z",
+            "status": "finalized",
+            "questions": [
+                {
+                    "questionId": "q1",
+                    "questionNumber": 1,
+                    "questionText": "Content 1: Explain the concept of planning fallacy",
+                    "questionType": "essay",
+                    "topicId": "general",
+                    "studentAnswer": {
+                        "id": "answer1",
+                        "answerText": "[Question q1]\nThe planning fallacy is a cognitive bias where individuals underestimate the time, costs, and risks of future actions while overestimating the benefits. This phenomenon was first identified by Daniel Kahneman and Amos Tversky in 1979. The main causes include optimism bias, where people focus on best-case scenarios, and the failure to account for past experiences with similar tasks. People tend to think about the specific task at hand rather than drawing on their general knowledge of how long similar tasks have taken in the past. This inside view leads to systematic underestimation. Additionally, social and motivational factors play a role, as people may feel pressure to commit to optimistic timelines.\n\n[Question q2]\nSeveral psychological factors contribute to the planning fallacy. First, optimism bias causes people to believe they are less likely to experience negative events than others. Second, the focusing illusion makes people concentrate on the task itself while ignoring external factors that could cause delays. Third, anchoring bias means initial estimates become reference points that are insufficiently adjusted. Fourth, the availability heuristic leads people to recall successful completions more easily than failures. Finally, motivated reasoning causes people to unconsciously favor information that supports their desired timeline.",
+                        "submittedAt": null,
+                        "wordCount": 199
+                    },
+                    "criteria": [
+                        {
+                            "criterionId": "q1",
+                            "criterionName": "Content 1: Explain the concept of planning fallacy",
+                            "description": "AI-generated assessment criteria",
+                            "maxScore": 10.0,
+                            "weight": 1.0,
+                            "grade": {
+                                "manualScore": 8.0,
+                                "aiSuggestedScore": 9.0,
+                                "highlightedText": "The planning fallacy is a cognitive bias where individuals underestimate the time, costs, and risks of future actions while overestimating the benefits. This phenomenon was first identified by Daniel Kahneman and Amos Tversky in 1979. The main causes include optimism bias, where people focus on best-case scenarios, and the failure to account for past experiences with similar tasks.",
+                                "aiJustification": "The student demonstrates an excellent understanding of the planning fallacy by providing a clear definition and identifying multiple causes. The definition is concise and accurately captures the essence of the planning fallacy, while the discussion of causes, such as optimism bias and the inside view, shows depth of understanding. The mention of social and motivational factors further enriches the explanation, indicating a comprehensive grasp of the topic.",
+                                "aiSuggestion": "To achieve a perfect score, the student could enhance the essay by providing specific examples or real-life applications of the planning fallacy. This would not only illustrate the concept more vividly but also demonstrate its relevance in practical scenarios.",
+                                "gradedBy": "ai_system",
+                                "gradedAt": "2026-04-10T15:09:44.969242Z"
+                            }
+                        }
+                    ],
+                    "questionTotalScore": 8.0,
+                    "questionMaxScore": 10.0,
+                    "questionPercentage": 80.0
+                },
+                {
+                    "questionId": "q2",
+                    "questionNumber": 2,
+                    "questionText": "Content 2: Explain psychological factors",
+                    "questionType": "essay",
+                    "topicId": "general",
+                    "studentAnswer": {
+                        "id": "answer2",
+                        "answerText": "[Question q1]\nThe planning fallacy is a cognitive bias where individuals underestimate the time, costs, and risks of future actions while overestimating the benefits. This phenomenon was first identified by Daniel Kahneman and Amos Tversky in 1979. The main causes include optimism bias, where people focus on best-case scenarios, and the failure to account for past experiences with similar tasks. People tend to think about the specific task at hand rather than drawing on their general knowledge of how long similar tasks have taken in the past. This inside view leads to systematic underestimation. Additionally, social and motivational factors play a role, as people may feel pressure to commit to optimistic timelines.\n\n[Question q2]\nSeveral psychological factors contribute to the planning fallacy. First, optimism bias causes people to believe they are less likely to experience negative events than others. Second, the focusing illusion makes people concentrate on the task itself while ignoring external factors that could cause delays. Third, anchoring bias means initial estimates become reference points that are insufficiently adjusted. Fourth, the availability heuristic leads people to recall successful completions more easily than failures. Finally, motivated reasoning causes people to unconsciously favor information that supports their desired timeline.",
+                        "submittedAt": null,
+                        "wordCount": 199
+                    },
+                    "criteria": [
+                        {
+                            "criterionId": "q2",
+                            "criterionName": "Content 2: Explain psychological factors",
+                            "description": "AI-generated assessment criteria",
+                            "maxScore": 10.0,
+                            "weight": 1.0,
+                            "grade": {
+                                "manualScore": 8.0,
+                                "aiSuggestedScore": 9.0,
+                                "highlightedText": "First, optimism bias causes people to believe they are less likely to experience negative events than others. Second, the focusing illusion makes people concentrate on the task itself while ignoring external factors that could cause delays. Third, anchoring bias means initial estimates become reference points that are insufficiently adjusted. Fourth, the availability heuristic leads people to recall successful completions more easily than failures. Finally, motivated reasoning causes people to unconsciously favor information that supports their desired timeline.",
+                                "aiJustification": "The student provides a comprehensive explanation of multiple psychological factors contributing to the planning fallacy. They identify five distinct factors: optimism bias, focusing illusion, anchoring bias, availability heuristic, and motivated reasoning. Each factor is clearly defined and explained, demonstrating a strong understanding of how these biases influence decision-making. The explanations are concise and relevant, showcasing the student's grasp of the topic. However, the essay could benefit from specific examples to illustrate how these biases manifest in real-life scenarios, which would enhance the depth of the analysis.",
+                                "aiSuggestion": "To improve the essay, consider adding specific examples or case studies that illustrate how each psychological factor operates in practice. This would provide a more vivid understanding of the concepts and strengthen the overall argument.",
+                                "gradedBy": "ai_system",
+                                "gradedAt": "2026-04-10T15:09:44.969242Z"
+                            }
+                        }
+                    ],
+                    "questionTotalScore": 8.0,
+                    "questionMaxScore": 10.0,
+                    "questionPercentage": 80.0
+                }
+            ],
+            "summary": {
+                "totalScore": 16.0,
+                "maxScore": 20.0,
+                "percentage": 80.0,
+                "grade": "A-",
+                "totalQuestions": 2,
+                "gradedQuestions": 2,
+                "pendingQuestions": 0
+            }
+        },
+        "success": true,
+        "message": "Exam results processed successfully",
+        "_metadata": {
+            "marking_scheme_id": "rubric-1",
+            "assignment_id": "rubric-1",
+            "course_id": "default",
+            "stored_at": "2026-04-10T15:09:44.969242Z"
+        },
+        "id": "grade_20260410_150944_20841234_4769c6",
+        "saved_at": "2026-04-10T15:09:44.969242"
+    }
+]

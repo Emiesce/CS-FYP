@@ -172,7 +172,7 @@ class GradingRequest(BaseModel):
     """Request model for grading operations (supports all exam types)."""
     
     student_id: str = Field(description="Student identifier")
-    answer: str = Field(description="The student's combined answer content (all questions)")
+    answer: Optional[str] = Field(default=None, description="Unused legacy field — use question_answers instead")
     marking_scheme_id: str = Field(description="Marking scheme to use for grading")
     assignment_id: Optional[str] = Field(default=None, description="Assignment identifier (optional)")
     student_name: Optional[str] = Field(default=None, description="Student name (optional)")

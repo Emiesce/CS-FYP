@@ -450,6 +450,9 @@ def convert_grading_response_to_exam_format(
                     }
                 })
 
+            # Use per-question answer text stored in context_metadata, fall back to combined
+            q_answer_text = group_criteria[0].get('context_metadata', {}).get('answer_text') or exam_info.get('answerText', '')
+
             question = {
                 "questionId": q_id,
                 "questionNumber": question_number,
@@ -458,9 +461,9 @@ def convert_grading_response_to_exam_format(
                 "topicId": "general",
                 "studentAnswer": {
                     "id": f"answer{question_number}",
-                    "answerText": exam_info.get('answerText', ''),
+                    "answerText": q_answer_text,
                     "submittedAt": exam_info.get('submittedAt', current_time),
-                    "wordCount": len(exam_info.get('answerText', '').split()) if exam_info.get('answerText') else 0
+                    "wordCount": len(q_answer_text.split()) if q_answer_text else 0
                 },
                 "criteria": criteria_entries,
                 "questionTotalScore": q_total_score,

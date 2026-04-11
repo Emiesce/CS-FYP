@@ -471,7 +471,7 @@ class RAGGradingSystem:
                         'examTitle': marking_scheme.rubric_text.split('\n')[0].replace('Rubric: ', '').strip() or request.marking_scheme_id,
                         'courseId': getattr(request, 'course_id', 'COURSE001'),
                         'submittedAt': getattr(request, 'submitted_at', datetime.now().isoformat() + "Z"),
-                        'answerText': getattr(request, 'answer', '') or getattr(request, 'essay_text', '')
+                        'answerText': ''
                     }
                     
                     result_dict = convert_grading_response_to_exam_format(
@@ -711,12 +711,9 @@ class RAGGradingSystem:
     
     def _validate_grading_request(self, request: GradingRequest) -> None:
         """Validate grading request parameters."""
-        # Support both 'answer' and legacy 'essay_text' field
-        answer_text = getattr(request, 'answer', None) or getattr(request, 'essay_text', None)
-        
-        if not answer_text or not answer_text.strip():
+        if not request.question_answers:
             raise ErrorHandler.handle_validation_error(
-                "answer", answer_text, "Answer content cannot be empty"
+                "question_answers", None, "question_answers map cannot be empty"
             )
         
         if not request.student_id.strip():
@@ -768,29 +765,6 @@ async def create_system(rubrics_json_path: Optional[str] = None) -> RAGGradingSy
         rubrics_json_path: Optional path to the rubrics JSON file
     """
     return await create_azure_system(rubrics_json_path)
-
-
-async def create_test_system(rubrics_json_path: Optional[str] = None) -> RAGGradingSystem:
-    """
-    Create a test instance with mock implementations (no Azure API needed).
-    """
-    try:
-        from implementations.mock_implementations import (
-            MockVectorStore, MockAIClient, MockGradingService
-        )
-    except ImportError:
-        from .implementations.mock_implementations import (
-            MockVectorStore, MockAIClient, MockGradingService
-        )
-
-    vector_store = MockVectorStore()
-    ai_client = MockAIClient()
-    grading_service = MockGradingService(vector_store, ai_client)
-
-    system = RAGGradingSystem(vector_store, ai_client, grading_service, rubrics_json_path)
-    await system.initialize()
-
-    return system
 
 
 async def create_system_with_rubric(rubric_id: str, rubrics_json_path: Optional[str] = None) -> RAGGradingSystem:

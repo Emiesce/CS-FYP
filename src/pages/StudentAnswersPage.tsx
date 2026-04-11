@@ -21,6 +21,12 @@ interface StudentSubmission {
     answers: StudentAnswer[];
 }
 
+interface QuestionScore {
+    questionId: string;
+    score: number;
+    maxScore: number;
+}
+
 interface GradingResult {
     studentId: string;
     studentName: string;
@@ -28,6 +34,7 @@ interface GradingResult {
     totalScore?: number;
     maxScore?: number;
     percentage?: number;
+    questionScores?: QuestionScore[];
     error?: string;
 }
 
@@ -163,14 +170,20 @@ export function StudentAnswersPage() {
         try {
             const batchPayload = {
                 concurrency: 10,
-                submissions: submissions.map(s => ({
-                    student_id: s.studentId,
-                    student_name: s.studentName || s.studentId,
-                    answer: s.answers.map(a => `[Question ${a.questionId}]\n${a.answerText}`).join('\n\n'),
-                    marking_scheme_id: selectedRubricId,
-                    assignment_id: selectedRubricId,
-                    course_id: 'default'
-                }))
+                submissions: submissions.map(s => {
+                    // Build per-question answer map: { questionId: answerText }
+                    const questionAnswers: Record<string, string> = {};
+                    s.answers.forEach(a => { questionAnswers[a.questionId] = a.answerText; });
+                    return {
+                        student_id: s.studentId,
+                        student_name: s.studentName || s.studentId,
+                        // Per-question map so backend grades each question with its own answer
+                        question_answers: questionAnswers,
+                        marking_scheme_id: selectedRubricId,
+                        assignment_id: selectedRubricId,
+                        course_id: 'default'
+                    };
+                })
             };
 
             const response = await fetch(`${GRADING_API}/grade-batch`, {
@@ -198,13 +211,19 @@ export function StudentAnswersPage() {
                 }
                 const r = resultMap[s.studentId];
                 const summary = r?.data?.summary;
+                const questionScores: QuestionScore[] = (r?.data?.questions ?? []).map((q: any) => ({
+                    questionId: q.questionId,
+                    score: q.questionTotalScore ?? 0,
+                    maxScore: q.questionMaxScore ?? 0
+                }));
                 return {
                     studentId: s.studentId,
                     studentName: s.studentName || s.studentId,
                     status: 'done' as const,
                     totalScore: summary?.totalScore ?? 0,
                     maxScore: summary?.maxScore ?? 0,
-                    percentage: summary?.percentage ?? 0
+                    percentage: summary?.percentage ?? 0,
+                    questionScores
                 };
             }));
         } catch (err) {
@@ -437,9 +456,19 @@ export function StudentAnswersPage() {
                                                             <div className="border-t border-gray-100 p-3 space-y-3 bg-gray-50">
                                                                 {s.answers.map((a, idx) => (
                                                                     <div key={a.questionId} className="text-sm">
-                                                                        <span className="text-xs font-medium text-gray-500 uppercase tracking-wide">
-                                                                            Q{idx + 1} ({a.questionId})
-                                                                        </span>
+                                                                        <div className="flex items-center gap-2">
+                                                                            <span className="text-xs font-medium text-gray-500 uppercase tracking-wide">
+                                                                                Question {idx + 1}
+                                                                            </span>
+                                                                            {result?.status === 'done' && (() => {
+                                                                                const qs = result.questionScores?.find(q => q.questionId === a.questionId);
+                                                                                return qs ? (
+                                                                                    <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${scoreColor(qs.maxScore > 0 ? (qs.score / qs.maxScore) * 100 : 0)}`}>
+                                                                                        {qs.score.toFixed(1)} / {qs.maxScore}
+                                                                                    </span>
+                                                                                ) : null;
+                                                                            })()}
+                                                                        </div>
                                                                         <p className="mt-1 text-gray-700 text-xs leading-relaxed line-clamp-4">
                                                                             {a.answerText}
                                                                         </p>

@@ -223,7 +223,7 @@ class ProductionGradingService(GradingService):
         if not scheme:
             raise ValueError(f"Marking scheme {request.marking_scheme_id} not found")
 
-        answer_text = getattr(request, 'answer', None) or getattr(request, 'essay_text', '')
+        answer_text = ''
         # Per-question answers: { question_id: answer_text }
         question_answers = getattr(request, 'question_answers', None) or {}
 
@@ -266,7 +266,7 @@ class ProductionGradingService(GradingService):
                 # Single criterion — use the existing single-criterion call
                 c = q_criteria[0]
                 result = await self.ai_client.grade_essay(
-                    essay=answer_text,
+                    essay=essay_for_question,
                     context=rubric_context,
                     criterion_name=c.get("name", ""),
                     criterion_id=c["id"],
@@ -276,13 +276,14 @@ class ProductionGradingService(GradingService):
                 result.context_metadata = result.context_metadata or {}
                 result.context_metadata['question_id'] = q_id
                 result.context_metadata['question_title'] = c.get('question_title', c.get('name', ''))
+                result.context_metadata['answer_text'] = essay_for_question
                 results.append(result)
                 total_score += result.score
                 max_total_score += result.max_score
             else:
                 # Multiple criteria — one call grades all of them together
                 criterion_results = await self.ai_client.grade_essay_multi_criteria(
-                    essay=answer_text,
+                    essay=essay_for_question,
                     context=rubric_context,
                     criteria=q_criteria,
                     lecture_notes_context=lecture_context
@@ -291,6 +292,7 @@ class ProductionGradingService(GradingService):
                     result.context_metadata = result.context_metadata or {}
                     result.context_metadata['question_id'] = q_id
                     result.context_metadata['question_title'] = q_criteria[0].get('question_title', '')
+                    result.context_metadata['answer_text'] = essay_for_question
                     results.append(result)
                     total_score += result.score
                     max_total_score += result.max_score

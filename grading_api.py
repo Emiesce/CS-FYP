@@ -27,7 +27,7 @@ sys.path.insert(0, str(Path(__file__).parent))
 
 try:
     # Import as package members (src is a package, grading_system uses relative imports)
-    from src.grading_system import create_system, create_azure_system, create_test_system
+    from src.grading_system import create_system, create_azure_system
     from src.models.grading_models import EssayGradingRequest, GradingRequest
     from src.services.lecture_notes_service import LectureNotesService
     from src.utils.lecture_notes_storage import get_default_lecture_notes_storage
@@ -196,7 +196,7 @@ async def grade_answer():
         
         data = request.get_json()
         
-        # Validate required fields (support both 'answer' and legacy 'essay_text')
+        # Validate required fields
         required_fields = ['student_id', 'marking_scheme_id']
         for field in required_fields:
             if field not in data:
@@ -205,23 +205,23 @@ async def grade_answer():
                     'error': f'Missing required field: {field}'
                 }), 400
         
-        # Check for answer field (support both 'answer' and legacy 'essay_text')
-        if 'answer' not in data and 'essay_text' not in data:
+        # Require at least one answer source
+        if not data.get('question_answers') and not data.get('answer') and not data.get('essay_text'):
             return jsonify({
                 'success': False,
-                'error': 'Missing required field: answer (or essay_text for backward compatibility)'
+                'error': 'Missing required field: question_answers'
             }), 400
         
         # Create grading request
         from src.models.grading_models import GradingRequest
         grading_request = GradingRequest(
             student_id=data['student_id'],
-            answer=data.get('answer') or data.get('essay_text'),
             marking_scheme_id=data['marking_scheme_id'],
             student_name=data.get('student_name'),
             assignment_id=data.get('assignment_id'),
             course_id=data.get('course_id'),
-            submitted_at=data.get('submitted_at')
+            submitted_at=data.get('submitted_at'),
+            question_answers=data.get('question_answers')
         )
         
         # Get grading system
@@ -332,12 +332,12 @@ async def grade_batch():
         try:
             req = GradingRequest(
                 student_id=sub['student_id'],
-                answer=sub.get('answer') or sub.get('essay_text', ''),
                 marking_scheme_id=sub['marking_scheme_id'],
                 student_name=sub.get('student_name'),
                 assignment_id=sub.get('assignment_id'),
                 course_id=sub.get('course_id'),
-                submitted_at=sub.get('submitted_at')
+                submitted_at=sub.get('submitted_at'),
+                question_answers=sub.get('question_answers')
             )
             await system.grade_answer(req, save_result=True)
             stored = system.get_student_results(sub['student_id'])

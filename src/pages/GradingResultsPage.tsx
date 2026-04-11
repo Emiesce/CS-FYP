@@ -128,15 +128,13 @@ const TotalScore = memo(({ rubrics }: { rubrics: FlatRubric[] }) => {
         current: scored.reduce((s, r) => s + (r.score as number), 0),
         maximum: rubrics.reduce((s, r) => s + r.maxScore, 0),
     }), [rubrics]);
+
     return (
         <div className="text-right">
-            <div className="text-sm text-gray-600">Total Score</div>
+            <div className="text-sm text-gray-400">Total</div>
             <div className="text-lg font-semibold">
                 {scored.length === 0 ? '—' : total.current} / {total.maximum}
             </div>
-            {scored.length > 0 && scored.length < rubrics.length && (
-                <div className="text-xs text-gray-400">{scored.length}/{rubrics.length} scored</div>
-            )}
         </div>
     );
 });
@@ -171,9 +169,20 @@ const RubricCard = memo(({ rubric, isSelected, onSelect, onScoreUpdate, hasUserE
                         placeholder="—"
                         onChange={(e) => {
                             const val = e.target.value;
-                            if (val !== '') onScoreUpdate(parseFloat(val) || 0);
+                            if (val !== '') {
+                                const clamped = Math.min(rubric.maxScore, Math.max(0, parseFloat(val) || 0));
+                                onScoreUpdate(clamped);
+                            }
                         }}
-                        className="w-16 text-center"
+                        onBlur={(e) => {
+                            // Enforce clamp on blur too
+                            const val = parseFloat(e.target.value);
+                            if (!isNaN(val)) {
+                                const clamped = Math.min(rubric.maxScore, Math.max(0, val));
+                                if (clamped !== val) onScoreUpdate(clamped);
+                            }
+                        }}
+                        className={`w-16 text-center ${rubric.score !== null && (rubric.score > rubric.maxScore || rubric.score < 0) ? 'border-red-400' : ''}`}
                         onClick={(e) => e.stopPropagation()}
                     />
                     <span className="text-sm text-gray-600">/ {rubric.maxScore}</span>
@@ -290,21 +299,6 @@ function StudentList({ records, onSelect, onBack, onToggleSidebar, sidebarCollap
 
 // ─── Grading view — question-first navigation ────────────────────────────────
 // Navigate: Question tabs across top, Student prev/next within each question
-
-/** Extract only the relevant question's answer from a combined answer text.
- *  Handles the "[Question qN]\n..." format stored by the grading system. */
-function extractQuestionAnswer(text: string, questionNumber: number, totalQuestions: number): string {
-    if (totalQuestions <= 1) return text;
-    // Try to split on [Question qN] markers
-    const marker = `[Question q${questionNumber}]`;
-    const idx = text.indexOf(marker);
-    if (idx === -1) return text; // no markers — return as-is
-    const start = idx + marker.length;
-    // Find the next marker
-    const nextMarkerMatch = text.slice(start).search(/\[Question q\d+\]/);
-    const end = nextMarkerMatch === -1 ? text.length : start + nextMarkerMatch;
-    return text.slice(start, end).trim();
-}
 
 function GradingView({ records, initialIndex, onBack, onRecordsUpdate }: {
     records: GradingRecord[];
@@ -522,7 +516,7 @@ function GradingView({ records, initialIndex, onBack, onRecordsUpdate }: {
                                         <p className="text-xs text-gray-500">{data.studentID}</p>
                                     </>
                                 ) : (
-                                    <p className="text-sm text-gray-400 italic">Student identity hidden</p>
+                                    <p className="text-sm text-gray-400 italic">Student identity and total score hidden</p>
                                 )}
                             </div>
                             <button
@@ -533,7 +527,24 @@ function GradingView({ records, initialIndex, onBack, onRecordsUpdate }: {
                                 {showStudentInfo ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
                             </button>
                         </div>
-                        {showStudentInfo && <TotalScore rubrics={allRubrics} />}
+                        {showStudentInfo && (
+                            <div className="flex items-end gap-4">
+                                {questionRubrics && questionRubrics.length > 0 && (() => {
+                                    const qScored = questionRubrics.filter(r => r.score !== null);
+                                    const qTotal = qScored.reduce((s, r) => s + (r.score as number), 0);
+                                    const qMax = questionRubrics.reduce((s, r) => s + r.maxScore, 0);
+                                    return (
+                                        <div className="text-right">
+                                            <div className="text-sm text-blue-400">This Question</div>
+                                            <div className="text-lg font-semibold text-blue-600">
+                                                {qScored.length === 0 ? '—' : qTotal} / {qMax}
+                                            </div>
+                                        </div>
+                                    );
+                                })()}
+                                <TotalScore rubrics={allRubrics} />
+                            </div>
+                        )}
                     </div>
 
                     {currentQuestion && (
@@ -546,7 +557,7 @@ function GradingView({ records, initialIndex, onBack, onRecordsUpdate }: {
                             <div className="prose prose-lg max-w-none">
                                 <div dangerouslySetInnerHTML={{
                                     __html: getHighlightedText(
-                                        extractQuestionAnswer(currentQuestion.studentAnswer?.answerText || '', currentQuestion.questionNumber, totalQuestions),
+                                        currentQuestion.studentAnswer?.answerText || '',
                                         selectedRubric || ''
                                     )
                                 }} />
