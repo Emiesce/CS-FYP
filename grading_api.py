@@ -657,11 +657,18 @@ async def update_grading_result():
         for upd in updates:
             qi = upd.get('question_index', 0)
             ci = upd.get('criterion_index', 0)
-            manual_score = upd.get('manual_score')
-            if manual_score is not None and qi < len(questions):
-                criteria = questions[qi].get('criteria', [])
-                if ci < len(criteria):
-                    criteria[ci]['grade']['manualScore'] = float(manual_score)
+            if qi >= len(questions):
+                continue
+            criteria = questions[qi].get('criteria', [])
+            if ci >= len(criteria):
+                continue
+            grade = criteria[ci]['grade']
+            if upd.get('manual_score') is not None:
+                grade['manualScore'] = float(upd['manual_score'])
+            if upd.get('justification') is not None:
+                grade['aiJustification'] = upd['justification']
+            if upd.get('suggestion') is not None:
+                grade['aiSuggestion'] = upd['suggestion']
 
         # Recalculate question totals using manual score where available
         total_score = 0

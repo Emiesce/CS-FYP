@@ -141,20 +141,28 @@ const TotalScore = memo(({ rubrics }: { rubrics: FlatRubric[] }) => {
 
 // ─── RubricCard (same as GradingPage) ────────────────────────────────────────
 
-const RubricCard = memo(({ rubric, isSelected, onSelect, onScoreUpdate, hasUserEdited }: {
+const RubricCard = memo(({ rubric, isSelected, onSelect, onScoreUpdate, onTextUpdate, hasUserEdited }: {
     rubric: FlatRubric;
     isSelected: boolean;
     onSelect: () => void;
     onScoreUpdate: (score: number) => void;
+    onTextUpdate: (field: 'justification' | 'suggestion', value: string) => void;
     hasUserEdited: boolean;
 }) => (
     <Card className={`p-6 cursor-pointer transition-all ${isSelected ? 'ring-2 ring-blue-500' : ''}`} onClick={onSelect}>
         <h4 className="text-xl font-semibold text-[#2c2828] mb-2">{rubric.title}</h4>
 
-        {/* AI justification as the main description */}
-        {rubric.justification && (
-            <p className="text-sm text-gray-700 mb-4 leading-relaxed">{rubric.justification}</p>
-        )}
+        {/* AI justification — editable */}
+        <div className="mb-4" onClick={(e) => e.stopPropagation()}>
+            <p className="text-xs font-medium text-gray-500 mb-1">Justification</p>
+            <textarea
+                className="w-full text-sm text-gray-700 leading-relaxed border border-gray-200 rounded-md p-2 resize-none focus:outline-none focus:ring-1 focus:ring-blue-400 bg-gray-50"
+                rows={3}
+                value={rubric.justification}
+                onChange={(e) => onTextUpdate('justification', e.target.value)}
+                placeholder="AI justification..."
+            />
+        </div>
 
         <div className="space-y-4">
             <div className="flex items-center justify-between">
@@ -175,7 +183,6 @@ const RubricCard = memo(({ rubric, isSelected, onSelect, onScoreUpdate, hasUserE
                             }
                         }}
                         onBlur={(e) => {
-                            // Enforce clamp on blur too
                             const val = parseFloat(e.target.value);
                             if (!isNaN(val)) {
                                 const clamped = Math.min(rubric.maxScore, Math.max(0, val));
@@ -199,7 +206,7 @@ const RubricCard = memo(({ rubric, isSelected, onSelect, onScoreUpdate, hasUserE
                 )}
             </div>
 
-            {/* AI suggested score — only shown after human enters a score */}
+            {/* AI suggested score */}
             {hasUserEdited && rubric.score !== null && (
                 <div className="flex items-center gap-4 pt-2 border-t border-gray-100">
                     <span className="text-sm font-medium text-blue-600">AI suggested:</span>
@@ -215,13 +222,17 @@ const RubricCard = memo(({ rubric, isSelected, onSelect, onScoreUpdate, hasUserE
                 </div>
             )}
 
-            {/* Suggestion */}
-            {rubric.suggestion && (
-                <div className="pt-2 border-t border-gray-100">
-                    <p className="text-xs font-medium text-blue-600 mb-1">Suggestion</p>
-                    <p className="text-sm text-blue-800">{rubric.suggestion}</p>
-                </div>
-            )}
+            {/* Suggestion — editable */}
+            <div className="pt-2 border-t border-gray-100" onClick={(e) => e.stopPropagation()}>
+                <p className="text-xs font-medium text-blue-600 mb-1">Suggestion</p>
+                <textarea
+                    className="w-full text-sm text-blue-800 border border-blue-100 rounded-md p-2 resize-none focus:outline-none focus:ring-1 focus:ring-blue-400 bg-blue-50"
+                    rows={3}
+                    value={rubric.suggestion}
+                    onChange={(e) => onTextUpdate('suggestion', e.target.value)}
+                    placeholder="Improvement suggestion..."
+                />
+            </div>
         </div>
     </Card>
 ));
@@ -337,6 +348,8 @@ function GradingView({ records, initialIndex, onBack, onRecordsUpdate }: {
 
     // Per-student manual scores: { studentIndex: { "qi-ci": score } }
     const manualScoresRef = useRef<Record<number, Record<string, number>>>({});
+    // Per-student text edits: { studentIndex: { "qi-ci-justification": text, "qi-ci-suggestion": text } }
+    const textEditsRef = useRef<Record<number, Record<string, string>>>({});
     const [, forceUpdate] = useState(0);
 
     const record = localRecords[currentStudentIndex];
@@ -363,6 +376,7 @@ function GradingView({ records, initialIndex, onBack, onRecordsUpdate }: {
     }, [currentStudentIndex]);
 
     const manualScores = manualScoresRef.current[currentStudentIndex] ?? {};
+    const textEdits = textEditsRef.current[currentStudentIndex] ?? {};
     const isSubmitted = localRecords[currentStudentIndex]?.data.status === 'finalized';
 
     // Build rubrics for current question only
@@ -377,8 +391,8 @@ function GradingView({ records, initialIndex, onBack, onRecordsUpdate }: {
             maxScore: c.maxScore,
             aiSuggestedScore: c.grade.aiSuggestedScore,
             highlightedText: c.grade.highlightedText || '',
-            justification: c.grade.aiJustification || '',
-            suggestion: c.grade.aiSuggestion || '',
+            justification: textEdits[`${key}-justification`] ?? c.grade.aiJustification ?? '',
+            suggestion: textEdits[`${key}-suggestion`] ?? c.grade.aiSuggestion ?? '',
             questionIndex: currentQuestionIndex,
             criterionIndex: ci,
         };
@@ -405,6 +419,38 @@ function GradingView({ records, initialIndex, onBack, onRecordsUpdate }: {
         clearTimeout((updateScore as any)._timer);
         (updateScore as any)._timer = setTimeout(() => saveScore(rubricId, score), 1500);
     }, [currentStudentIndex]);
+
+    const updateText = useCallback((rubricId: string, field: 'justification' | 'suggestion', value: string) => {
+        if (!textEditsRef.current[currentStudentIndex]) textEditsRef.current[currentStudentIndex] = {};
+        textEditsRef.current[currentStudentIndex][`${rubricId}-${field}`] = value;
+        forceUpdate(n => n + 1);
+        const textKey = `${rubricId}-${field}`;
+        clearTimeout((updateText as any)[textKey]);
+        (updateText as any)[textKey] = setTimeout(() => saveText(rubricId, field, value), 1500);
+    }, [currentStudentIndex]);
+
+    const saveText = async (rubricId: string, field: 'justification' | 'suggestion', value: string) => {
+        setSaving(true);
+        try {
+            const [qi, ci] = rubricId.split('-').map(Number);
+            const update: Record<string, unknown> = { question_index: qi, criterion_index: ci };
+            update[field] = value;
+            const res = await fetch(`${GRADING_API}/grading-results/update`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ result_id: record.id, student_id: data.studentID, updates: [update] })
+            });
+            if (res.ok) {
+                const result = await res.json();
+                if (result.success) {
+                    setLocalRecords(prev => prev.map(r =>
+                        (r.id === record.id || r.data.studentID === data.studentID) ? result.data : r
+                    ));
+                }
+            }
+        } catch (e) { console.error('Text save failed:', e); }
+        finally { setSaving(false); }
+    };
 
     const saveScore = async (changedKey: string, changedScore: number) => {
         setSaving(true);
@@ -588,6 +634,7 @@ function GradingView({ records, initialIndex, onBack, onRecordsUpdate }: {
                                 isSelected={selectedRubric === rubric.id}
                                 onSelect={() => setSelectedRubric(selectedRubric === rubric.id ? null : rubric.id)}
                                 onScoreUpdate={(score) => updateScore(rubric.id, score)}
+                                onTextUpdate={(field, value) => updateText(rubric.id, field, value)}
                                 hasUserEdited={rubric.score !== null || isSubmitted}
                             />
                         ))}

@@ -311,7 +311,7 @@
       "courseId": "default",
       "submittedAt": null,
       "gradedAt": "2026-04-11T13:03:44.118021Z",
-      "status": "graded",
+      "status": "finalized",
       "questions": [
         {
           "questionId": "q-1775746947332",
@@ -333,7 +333,7 @@
               "maxScore": 10.0,
               "weight": 1.0,
               "grade": {
-                "manualScore": null,
+                "manualScore": 8.0,
                 "aiSuggestedScore": 8.0,
                 "highlightedText": "I was particularly excited to learn about the challenges of working with IoT data, such as limited labelled data, high-dimensionality, and non-iid distributions.",
                 "aiJustification": "The student's reflection is mostly clear and expressive, providing a good overview of what they learned and why it matters. However, some sentences are slightly convoluted, which may hinder full clarity. For example, the phrase 'the advancement in the visualization skills are also fascinating' could be clearer.",
@@ -349,7 +349,7 @@
               "maxScore": 10.0,
               "weight": 1.0,
               "grade": {
-                "manualScore": null,
+                "manualScore": 7.0,
                 "aiSuggestedScore": 7.0,
                 "highlightedText": "This experience broadened my perspective on potential career paths apart from normal software engineering positions.",
                 "aiJustification": "The student demonstrates some analysis of how the seminar experience has influenced their understanding and future goals. However, the reflection lacks depth in questioning personal biases or assumptions. The connection between the seminar and their career aspirations is mentioned but could be explored further.",
@@ -365,7 +365,7 @@
               "maxScore": 10.0,
               "weight": 1.0,
               "grade": {
-                "manualScore": null,
+                "manualScore": 10.0,
                 "aiSuggestedScore": 10.0,
                 "highlightedText": "After attending the seminar, I learnt a lot more about the application and the process of applying machine learning in IoT sensors and devices.",
                 "aiJustification": "The student's response exceeds the 200-word requirement, demonstrating sufficient length for a reflection report.",
