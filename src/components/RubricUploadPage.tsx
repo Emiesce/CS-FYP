@@ -818,16 +818,6 @@ function CreateRubricView({ onSuccess, onError, onCancel, isSubmitting, hookData
                     <div className="rubric-questions-section">
                         <div className="rubric-questions-section-header">
                             <h4 className="rubric-section-title">Questions</h4>
-                            <Button
-                                type="button"
-                                onClick={addQuestion}
-                                variant="default"
-                                size="sm"
-                                disabled={isSubmitting}
-                            >
-                                <Plus className="rubric-button-icon" />
-                                Add Question
-                            </Button>
                         </div>
 
                         {errors.questions && (
@@ -878,6 +868,18 @@ function CreateRubricView({ onSuccess, onError, onCancel, isSubmitting, hookData
                                 ))}
                             </div>
                         )}
+                        <div className="mt-4">
+                            <Button
+                                type="button"
+                                onClick={addQuestion}
+                                variant="default"
+                                size="sm"
+                                disabled={isSubmitting}
+                            >
+                                <Plus className="rubric-button-icon" />
+                                Add Question
+                            </Button>
+                        </div>
                     </div>
 
                     {/* Form Actions */}
@@ -1056,32 +1058,6 @@ function QuestionEditor({
                         <label className="block text-sm font-medium text-gray-700">
                             Scoring Criteria
                         </label>
-                        <div className="flex gap-2">
-                            {/* Flat mode: show "Add Score Level" only when no named criteria */}
-                            {question.criteria.length === 0 && (
-                                <Button
-                                    type="button"
-                                    onClick={onAddCriterion}
-                                    variant="outline"
-                                    size="sm"
-                                    disabled={disabled}
-                                >
-                                    <Plus className="size-4" />
-                                    Add Score Level
-                                </Button>
-                            )}
-                            {/* Always show "Add Criterion" to switch to / extend criteria mode */}
-                            <Button
-                                type="button"
-                                onClick={onAddNamedCriterion}
-                                variant="outline"
-                                size="sm"
-                                disabled={disabled}
-                            >
-                                <Plus className="size-4" />
-                                Add Criterion
-                            </Button>
-                        </div>
                     </div>
 
                     {/* Criteria mode: named criteria with nested score levels */}
@@ -1103,6 +1079,16 @@ function QuestionEditor({
                                     disabled={disabled}
                                 />
                             ))}
+                            <Button
+                                type="button"
+                                onClick={onAddNamedCriterion}
+                                variant="outline"
+                                size="sm"
+                                disabled={disabled}
+                            >
+                                <Plus className="size-4" />
+                                Add Criterion
+                            </Button>
                         </div>
                     ) : (
                         /* Flat mode: score levels directly on the question */
@@ -1117,12 +1103,35 @@ function QuestionEditor({
                                 />
                             ))}
 
-                            {(question.scoringCriteria ?? []).length === 0 && (
+                            {(question.scoringCriteria ?? []).length === 0 ? (
                                 <div className="text-left py-4 px-3 text-gray-500 border-2 border-dashed border-gray-300 rounded-md">
                                     <p className="text-sm">No scoring criteria added</p>
                                     <p className="text-xs">Use "Add Score Level" for simple scoring, or "Add Criterion" for multi-dimensional scoring</p>
                                 </div>
-                            )}
+                            ) : null}
+                            <div className="flex gap-2 mt-2">
+                                <Button
+                                    type="button"
+                                    onClick={onAddCriterion}
+                                    variant="outline"
+                                    size="sm"
+                                    disabled={disabled}
+                                    style={{ backgroundColor: '#f3f4f6', color: '#202021ff', borderColor: '#e5e7eb' }}
+                                >
+                                    <Plus className="size-4" />
+                                    Add Score Level
+                                </Button>
+                                <Button
+                                    type="button"
+                                    onClick={onAddNamedCriterion}
+                                    variant="outline"
+                                    size="sm"
+                                    disabled={disabled}
+                                >
+                                    <Plus className="size-4" />
+                                    Add Criterion
+                                </Button>
+                            </div>
                         </div>
                     )}
                 </div>
@@ -1331,7 +1340,7 @@ function CriterionEditor({
                     variant="outline"
                     size="sm"
                     disabled={disabled}
-                    style={{ marginTop: '0.25rem' }}
+                    style={{ marginTop: '0.25rem', backgroundColor: '#f3f4f6', color: '#515151ff', borderColor: '#e5e7eb' }}
                 >
                     <Plus className="size-4" />
                     Add Score Level
@@ -1929,16 +1938,6 @@ function EditRubricView({ rubric, onSuccess, onError, onCancel, isSubmitting, ho
                     <div className="rubric-questions-section">
                         <div className="rubric-questions-section-header">
                             <h4 className="rubric-section-title">Questions</h4>
-                            <Button
-                                type="button"
-                                onClick={addQuestion}
-                                variant="default"
-                                size="sm"
-                                disabled={isSubmitting}
-                            >
-                                <Plus className="rubric-button-icon" />
-                                Add Question
-                            </Button>
                         </div>
 
                         {errors.questions && (
@@ -1985,6 +1984,18 @@ function EditRubricView({ rubric, onSuccess, onError, onCancel, isSubmitting, ho
                                 ))}
                             </div>
                         )}
+                        <div className="mt-4">
+                            <Button
+                                type="button"
+                                onClick={addQuestion}
+                                variant="default"
+                                size="sm"
+                                disabled={isSubmitting}
+                            >
+                                <Plus className="rubric-button-icon" />
+                                Add Question
+                            </Button>
+                        </div>
                     </div>
 
                     {/* Action Buttons */}
