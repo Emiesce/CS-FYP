@@ -226,6 +226,27 @@ const RubricCard = memo(({ rubric, isSelected, onSelect, onScoreUpdate, hasUserE
     </Card>
 ));
 
+// ─── Highlighted answer renderer ─────────────────────────────────────────────
+
+function HighlightedAnswer({ text, highlight }: { text: string; highlight: string }) {
+    if (!highlight || !text.includes(highlight)) {
+        return <p className="whitespace-pre-wrap text-gray-800 leading-relaxed">{text}</p>;
+    }
+    const parts = text.split(highlight);
+    return (
+        <p className="whitespace-pre-wrap text-gray-800 leading-relaxed">
+            {parts.map((part, i) => (
+                <React.Fragment key={i}>
+                    {part}
+                    {i < parts.length - 1 && (
+                        <mark className="bg-blue-200 text-blue-800 px-0.5 rounded not-italic">{highlight}</mark>
+                    )}
+                </React.Fragment>
+            ))}
+        </p>
+    );
+}
+
 // ─── Exam list card ───────────────────────────────────────────────────────────
 
 function ExamCard({ examId, records, onSelect }: { examId: string; records: GradingRecord[]; onSelect: () => void }) {
@@ -375,17 +396,6 @@ function GradingView({ records, initialIndex, onBack, onRecordsUpdate }: {
             };
         })
     );
-
-    const getHighlightedText = useCallback((text: string, rubricId: string) => {
-        if (!rubricId || selectedRubric !== rubricId) return text;
-        const rubric = questionRubrics.find(r => r.id === rubricId);
-        if (!rubric?.highlightedText) return text;
-        const esc = rubric.highlightedText.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-        try {
-            return text.replace(new RegExp(esc, 'g'),
-                `<span class="bg-blue-200 text-blue-800 px-1 rounded">${rubric.highlightedText}</span>`);
-        } catch { return text; }
-    }, [selectedRubric, questionRubrics]);
 
     const updateScore = useCallback((rubricId: string, score: number) => {
         if (!manualScoresRef.current[currentStudentIndex]) manualScoresRef.current[currentStudentIndex] = {};
@@ -555,12 +565,10 @@ function GradingView({ records, initialIndex, onBack, onRecordsUpdate }: {
                                 </p>
                             )}
                             <div className="prose prose-lg max-w-none">
-                                <div dangerouslySetInnerHTML={{
-                                    __html: getHighlightedText(
-                                        currentQuestion.studentAnswer?.answerText || '',
-                                        selectedRubric || ''
-                                    )
-                                }} />
+                                <HighlightedAnswer
+                                    text={currentQuestion.studentAnswer?.answerText || ''}
+                                    highlight={selectedRubric ? (questionRubrics.find(r => r.id === selectedRubric)?.highlightedText || '') : ''}
+                                />
                             </div>
                         </Card>
                     )}

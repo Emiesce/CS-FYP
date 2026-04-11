@@ -310,7 +310,7 @@
       "examTitle": "Comp 4900 Seminar Reflection",
       "courseId": "default",
       "submittedAt": null,
-      "gradedAt": "2026-04-11T00:13:47.792548Z",
+      "gradedAt": "2026-04-11T13:03:44.118021Z",
       "status": "graded",
       "questions": [
         {
@@ -321,9 +321,108 @@
           "topicId": "general",
           "studentAnswer": {
             "id": "answer1",
-            "answerText": "[Question q1]\nAfter attending the seminar, I learnt a lot more about the application and the process of applying machine learning in IoT sensors and devices. I was particularly excited to learn about the challenges of working with IoT data, such as limited labelled data, high-dimensionality, and non-iid distributions. This experience enriched my knowledge of real-world deployment, complementing the theoretical concepts I’ve learned in class.The use of sensors in detecting early signs and clues of elderlies getting Alzheimer’s disease was very inspiring. It showcases how technology can significantly impact health outcomes. The privacy concerns of having cameras in data collection is also addressed by using mmWave radars, so the data collected will be just cluster of points that do not expose any features, the advancement in the visualization skills are also fascinating.  I studied computer science because I am fascinated by how technology and programming and make an impact to the world, this topic made me feel enlightened as I saw the real application of technology to help people in creating a better living. I am happy to see the broad application of machine learning outside the classroom concepts, reinforcing my enthusiasm for the fieldReflecting on my initial motivation for pursuing computer science, I realized that my goal has always been to apply what I learn to develop solutions for people. I plan to integrate this knowledge into my academic and career pursuits. This experience broadened my perspective on potential career paths apart from normal software engineering positions. Applying machine learning knowledge into research and health technology field is also interesting. ",
+            "answerText": "After attending the seminar, I learnt a lot more about the application and the process of applying machine learning in IoT sensors and devices. I was particularly excited to learn about the challenges of working with IoT data, such as limited labelled data, high-dimensionality, and non-iid distributions. This experience enriched my knowledge of real-world deployment, complementing the theoretical concepts I’ve learned in class.The use of sensors in detecting early signs and clues of elderlies getting Alzheimer’s disease was very inspiring. It showcases how technology can significantly impact health outcomes. The privacy concerns of having cameras in data collection is also addressed by using mmWave radars, so the data collected will be just cluster of points that do not expose any features, the advancement in the visualization skills are also fascinating.  I studied computer science because I am fascinated by how technology and programming and make an impact to the world, this topic made me feel enlightened as I saw the real application of technology to help people in creating a better living. I am happy to see the broad application of machine learning outside the classroom concepts, reinforcing my enthusiasm for the fieldReflecting on my initial motivation for pursuing computer science, I realized that my goal has always been to apply what I learn to develop solutions for people. I plan to integrate this knowledge into my academic and career pursuits. This experience broadened my perspective on potential career paths apart from normal software engineering positions. Applying machine learning knowledge into research and health technology field is also interesting. ",
             "submittedAt": null,
-            "wordCount": 261
+            "wordCount": 259
+          },
+          "criteria": [
+            {
+              "criterionId": "crit-1775746972124",
+              "criterionName": "Clarity and Relevance",
+              "description": "AI-generated assessment criteria",
+              "maxScore": 10.0,
+              "weight": 1.0,
+              "grade": {
+                "manualScore": null,
+                "aiSuggestedScore": 8.0,
+                "highlightedText": "I was particularly excited to learn about the challenges of working with IoT data, such as limited labelled data, high-dimensionality, and non-iid distributions.",
+                "aiJustification": "The student's reflection is mostly clear and expressive, providing a good overview of what they learned and why it matters. However, some sentences are slightly convoluted, which may hinder full clarity. For example, the phrase 'the advancement in the visualization skills are also fascinating' could be clearer.",
+                "aiSuggestion": "Focus on simplifying complex sentences and ensuring that each point is clearly articulated. This will enhance the overall clarity of the reflection.",
+                "gradedBy": "ai_system",
+                "gradedAt": "2026-04-11T13:03:44.118021Z"
+              }
+            },
+            {
+              "criterionId": "crit-1775747071569",
+              "criterionName": "Analysis and Self-Criticism",
+              "description": "AI-generated assessment criteria",
+              "maxScore": 10.0,
+              "weight": 1.0,
+              "grade": {
+                "manualScore": null,
+                "aiSuggestedScore": 7.0,
+                "highlightedText": "This experience broadened my perspective on potential career paths apart from normal software engineering positions.",
+                "aiJustification": "The student demonstrates some analysis of how the seminar experience has influenced their understanding and future goals. However, the reflection lacks depth in questioning personal biases or assumptions. The connection between the seminar and their career aspirations is mentioned but could be explored further.",
+                "aiSuggestion": "Delve deeper into how the seminar challenged or changed your preconceptions about the field. Discuss specific biases or assumptions that were addressed during the seminar.",
+                "gradedBy": "ai_system",
+                "gradedAt": "2026-04-11T13:03:44.118021Z"
+              }
+            },
+            {
+              "criterionId": "crit-1775747120218",
+              "criterionName": "Length",
+              "description": "AI-generated assessment criteria",
+              "maxScore": 10.0,
+              "weight": 1.0,
+              "grade": {
+                "manualScore": null,
+                "aiSuggestedScore": 10.0,
+                "highlightedText": "After attending the seminar, I learnt a lot more about the application and the process of applying machine learning in IoT sensors and devices.",
+                "aiJustification": "The student's response exceeds the 200-word requirement, demonstrating sufficient length for a reflection report.",
+                "aiSuggestion": "Continue to ensure that future reflections maintain a similar length while focusing on clarity and depth of analysis.",
+                "gradedBy": "ai_system",
+                "gradedAt": "2026-04-11T13:03:44.118021Z"
+              }
+            }
+          ],
+          "questionTotalScore": 25.0,
+          "questionMaxScore": 30.0,
+          "questionPercentage": 83.3
+        }
+      ],
+      "summary": {
+        "totalScore": 25.0,
+        "maxScore": 30.0,
+        "percentage": 83.3,
+        "grade": "A-",
+        "totalQuestions": 1,
+        "gradedQuestions": 1,
+        "pendingQuestions": 0
+      }
+    },
+    "success": true,
+    "message": "Exam results processed successfully",
+    "_metadata": {
+      "marking_scheme_id": "rubric-1775747189629",
+      "assignment_id": "rubric-1775747189629",
+      "course_id": "default",
+      "stored_at": "2026-04-11T13:03:44.118021Z"
+    },
+    "id": "grade_20260411_001038_20841235_baabd8",
+    "saved_at": "2026-04-11T13:03:44.118021"
+  },
+  {
+    "data": {
+      "studentID": "20841236",
+      "studentName": "Bob Lam",
+      "examId": "rubric-1775747189629",
+      "examTitle": "Comp 4900 Seminar Reflection",
+      "courseId": "default",
+      "submittedAt": null,
+      "gradedAt": "2026-04-11T13:03:44.635903Z",
+      "status": "finalized",
+      "questions": [
+        {
+          "questionId": "q-1775746947332",
+          "questionNumber": 1,
+          "questionText": "Write a reflection report",
+          "questionType": "essay",
+          "topicId": "general",
+          "studentAnswer": {
+            "id": "answer1",
+            "answerText": "Attending the seminar on Applying AI and Technology in a Conglomerate was a valuable experience that broadened my understanding of how innovative technologies transform various sectors in Sun Hung Kai. The seminar presented practical applications of AI and technology, especially in areas like preventive maintenance, customer service, and operational efficiency.  The seminar introduced innovative transaction-based customer loyalty programs that simplify the customer experience. The feature to redeem rewards without the need to upload receipts enhances efficiency. This feature made me realize how technology can streamline operations while enhancing customer satisfaction. We might not notice it in our daily life, but it is part of the innovation project that SHK did. Furthermore, the integration of smart cameras to monitor traffic and customer interactions in real-time demonstrated the power of data in optimizing operations. The “instant earn” feature for marketing campaigns showcased how AI can reduce production time and costs, fostering creativity in ways I had not previously considered.  The seminar on applying AI and technology in a conglomerate was a valuable learning experience that provided practical insights into the future of engineering and business. By exploring applications in preventive maintenance, customer loyalty, and operational efficiency, I gained a deeper appreciation for the transformative power of technology. This seminar has not only enhanced my understanding of these concepts but also encouraged me to adopt a more innovative mindset as I progress in my engineering career.",
+            "submittedAt": null,
+            "wordCount": 233
           },
           "criteria": [
             {
@@ -334,111 +433,12 @@
               "weight": 1.0,
               "grade": {
                 "manualScore": 8.0,
-                "aiSuggestedScore": 8.0,
-                "highlightedText": "The privacy concerns of having cameras in data collection is also addressed by using mmWave radars, so the data collected will be just cluster of points that do not expose any features.",
-                "aiJustification": "The student's reflection is mostly clear and expressive, providing a good overview of what they learned and why it matters. However, some sentences are slightly convoluted, which may hinder the reader's understanding.",
-                "aiSuggestion": "To enhance clarity, the student could break down complex sentences into simpler ones and ensure that each point is clearly articulated.",
-                "gradedBy": "ai_system",
-                "gradedAt": "2026-04-11T00:13:47.792548Z"
-              }
-            },
-            {
-              "criterionId": "crit-1775747071569",
-              "criterionName": "Analysis and Self-Criticism",
-              "description": "AI-generated assessment criteria",
-              "maxScore": 10.0,
-              "weight": 1.0,
-              "grade": {
-                "manualScore": 1.0,
-                "aiSuggestedScore": 7.0,
-                "highlightedText": "I realized that my goal has always been to apply what I learn to develop solutions for people.",
-                "aiJustification": "The student demonstrates some analysis of how the seminar experience has influenced their understanding of the application of technology in health. However, the reflection lacks depth in questioning personal biases or assumptions.",
-                "aiSuggestion": "The student should delve deeper into how their views on technology and its applications have evolved, perhaps by reflecting on specific biases or preconceptions they had before the seminar.",
-                "gradedBy": "ai_system",
-                "gradedAt": "2026-04-11T00:13:47.792548Z"
-              }
-            },
-            {
-              "criterionId": "crit-1775747120218",
-              "criterionName": "Length",
-              "description": "AI-generated assessment criteria",
-              "maxScore": 10.0,
-              "weight": 1.0,
-              "grade": {
-                "manualScore": null,
-                "aiSuggestedScore": 10.0,
-                "highlightedText": "I was particularly excited to learn about the challenges of working with IoT data, such as limited labelled data, high-dimensionality, and non-iid distributions.",
-                "aiJustification": "The student's response exceeds the minimum word count requirement, providing a comprehensive reflection on their learning experience.",
-                "aiSuggestion": "While the length is sufficient, the student should ensure that all content is relevant and contributes to the overall reflection to maintain engagement.",
-                "gradedBy": "ai_system",
-                "gradedAt": "2026-04-11T00:13:47.792548Z"
-              }
-            }
-          ],
-          "questionTotalScore": 19.0,
-          "questionMaxScore": 30.0,
-          "questionPercentage": 63.3
-        }
-      ],
-      "summary": {
-        "totalScore": 19.0,
-        "maxScore": 30.0,
-        "percentage": 63.3,
-        "grade": "C+",
-        "totalQuestions": 1,
-        "gradedQuestions": 1,
-        "pendingQuestions": 0
-      }
-    },
-    "success": true,
-    "message": "Exam results processed successfully",
-    "_metadata": {
-      "marking_scheme_id": "rubric-1775747189629",
-      "assignment_id": "rubric-1775747189629",
-      "course_id": "default",
-      "stored_at": "2026-04-11T00:13:47.793540Z"
-    },
-    "id": "grade_20260411_001038_20841235_baabd8",
-    "saved_at": "2026-04-11T00:13:47.793540"
-  },
-  {
-    "data": {
-      "studentID": "20841236",
-      "studentName": "Bob Lam",
-      "examId": "rubric-1775747189629",
-      "examTitle": "Comp 4900 Seminar Reflection",
-      "courseId": "default",
-      "submittedAt": null,
-      "gradedAt": "2026-04-11T00:13:49.431477Z",
-      "status": "graded",
-      "questions": [
-        {
-          "questionId": "q-1775746947332",
-          "questionNumber": 1,
-          "questionText": "Write a reflection report",
-          "questionType": "essay",
-          "topicId": "general",
-          "studentAnswer": {
-            "id": "answer1",
-            "answerText": "[Question q1]\nAttending the seminar on Applying AI and Technology in a Conglomerate was a valuable experience that broadened my understanding of how innovative technologies transform various sectors in Sun Hung Kai. The seminar presented practical applications of AI and technology, especially in areas like preventive maintenance, customer service, and operational efficiency.  The seminar introduced innovative transaction-based customer loyalty programs that simplify the customer experience. The feature to redeem rewards without the need to upload receipts enhances efficiency. This feature made me realize how technology can streamline operations while enhancing customer satisfaction. We might not notice it in our daily life, but it is part of the innovation project that SHK did. Furthermore, the integration of smart cameras to monitor traffic and customer interactions in real-time demonstrated the power of data in optimizing operations. The “instant earn” feature for marketing campaigns showcased how AI can reduce production time and costs, fostering creativity in ways I had not previously considered.  The seminar on applying AI and technology in a conglomerate was a valuable learning experience that provided practical insights into the future of engineering and business. By exploring applications in preventive maintenance, customer loyalty, and operational efficiency, I gained a deeper appreciation for the transformative power of technology. This seminar has not only enhanced my understanding of these concepts but also encouraged me to adopt a more innovative mindset as I progress in my engineering career.",
-            "submittedAt": null,
-            "wordCount": 235
-          },
-          "criteria": [
-            {
-              "criterionId": "crit-1775746972124",
-              "criterionName": "Clarity and Relevance",
-              "description": "AI-generated assessment criteria",
-              "maxScore": 10.0,
-              "weight": 1.0,
-              "grade": {
-                "manualScore": null,
                 "aiSuggestedScore": 9.0,
                 "highlightedText": "The seminar presented practical applications of AI and technology, especially in areas like preventive maintenance, customer service, and operational efficiency.",
-                "aiJustification": "The student's reflection is clear and expressive, effectively conveying what they learned from the seminar. They provide specific examples of AI applications that stood out to them, such as 'transaction-based customer loyalty programs' and 'smart cameras to monitor traffic.' The relevance of these insights to their personal and professional growth is well articulated.",
-                "aiSuggestion": "To enhance clarity further, the student could provide more personal context about how these technologies specifically relate to their career aspirations or previous experiences.",
+                "aiJustification": "The student's reflection is clear and well-structured, effectively conveying what they learned from the seminar. The use of specific examples, such as 'innovative transaction-based customer loyalty programs' and 'integration of smart cameras,' helps create a vivid picture of the seminar's content. However, there could be a bit more emphasis on why these learnings are personally significant.",
+                "aiSuggestion": "To enhance clarity and relevance, the student could explicitly connect the insights gained to their personal experiences or future career aspirations.",
                 "gradedBy": "ai_system",
-                "gradedAt": "2026-04-11T00:13:49.431477Z"
+                "gradedAt": "2026-04-11T13:03:44.635903Z"
               }
             },
             {
@@ -448,13 +448,13 @@
               "maxScore": 10.0,
               "weight": 1.0,
               "grade": {
-                "manualScore": null,
+                "manualScore": 8.0,
                 "aiSuggestedScore": 8.0,
                 "highlightedText": "This seminar has not only enhanced my understanding of these concepts but also encouraged me to adopt a more innovative mindset as I progress in my engineering career.",
-                "aiJustification": "The student demonstrates a good level of analysis regarding how the seminar influenced their understanding of technology's role in business. They reflect on the importance of adopting an innovative mindset, indicating a shift in perspective. However, there is limited exploration of personal biases or preconceptions that were challenged.",
-                "aiSuggestion": "The student could deepen their analysis by discussing any preconceived notions they had about technology in business before the seminar and how these were altered by their experience.",
+                "aiJustification": "The reflection demonstrates a good level of analysis, particularly in recognizing how the seminar has influenced the student's understanding of technology's role in business. The mention of adopting a more innovative mindset indicates some self-reflection. However, it lacks deeper questioning of personal biases or preconceptions.",
+                "aiSuggestion": "The student could improve this section by discussing any preconceived notions they had about AI and technology before the seminar and how those may have changed.",
                 "gradedBy": "ai_system",
-                "gradedAt": "2026-04-11T00:13:49.431477Z"
+                "gradedAt": "2026-04-11T13:03:44.635903Z"
               }
             },
             {
@@ -464,26 +464,26 @@
               "maxScore": 10.0,
               "weight": 1.0,
               "grade": {
-                "manualScore": null,
+                "manualScore": 10.0,
                 "aiSuggestedScore": 10.0,
                 "highlightedText": "Attending the seminar on Applying AI and Technology in a Conglomerate was a valuable experience that broadened my understanding of how innovative technologies transform various sectors in Sun Hung Kai.",
                 "aiJustification": "The student's response exceeds the 200-word requirement, providing a comprehensive reflection on their learning experience.",
-                "aiSuggestion": "No improvement needed; the length is appropriate and allows for a thorough exploration of the seminar's impact.",
+                "aiSuggestion": "No improvement needed for length, as the response meets the criteria well.",
                 "gradedBy": "ai_system",
-                "gradedAt": "2026-04-11T00:13:49.431477Z"
+                "gradedAt": "2026-04-11T13:03:44.635903Z"
               }
             }
           ],
-          "questionTotalScore": 27.0,
+          "questionTotalScore": 26.0,
           "questionMaxScore": 30.0,
-          "questionPercentage": 90.0
+          "questionPercentage": 86.7
         }
       ],
       "summary": {
-        "totalScore": 27.0,
+        "totalScore": 26.0,
         "maxScore": 30.0,
-        "percentage": 90.0,
-        "grade": "A+",
+        "percentage": 86.7,
+        "grade": "A",
         "totalQuestions": 1,
         "gradedQuestions": 1,
         "pendingQuestions": 0
@@ -495,10 +495,10 @@
       "marking_scheme_id": "rubric-1775747189629",
       "assignment_id": "rubric-1775747189629",
       "course_id": "default",
-      "stored_at": "2026-04-11T00:13:49.431477Z"
+      "stored_at": "2026-04-11T13:03:44.635903Z"
     },
     "id": "grade_20260411_001038_20841236_202804",
-    "saved_at": "2026-04-11T00:13:49.431477"
+    "saved_at": "2026-04-11T13:03:44.635903"
   },
   {
     "data": {
@@ -508,7 +508,7 @@
       "examTitle": "Comp 4900 Seminar Reflection",
       "courseId": "default",
       "submittedAt": null,
-      "gradedAt": "2026-04-11T00:13:49.943990Z",
+      "gradedAt": "2026-04-11T13:03:43.115863Z",
       "status": "graded",
       "questions": [
         {
@@ -519,9 +519,9 @@
           "topicId": "general",
           "studentAnswer": {
             "id": "answer1",
-            "answerText": "[Question q1]\nThrough this seminar, I learned about the expansive potential of Huawei's technological innovations in various sectors, particularly health, robotics, and cloud computing. The concept of integrating digital transformation into everyday life, from AI-driven healthcare solutions at CUHK Medical Center to the development of a Cantonese LLM, stood out to me as a powerful example of how technology can enhance human capability and social wellbeing. The extensive implications of 5G networks and smart environments, such as the intelligent operations center for managing large-scale events like the Kaitak Sports Park Stadium, were both exciting and eye-opening. This learning matters because it emphasizes the critical role technology plays in driving societal change. For me personally, it resonates with my passion for leveraging innovation to improve the society. Understanding that technology can facilitate smarter healthcare and more efficient urban management illuminates its potential not just for corporate gain but for public benefit. This insight makes me appreciate the responsibility that comes with technological advancement, and it urges me to consider how my future contributions could align with these positive outcomes. Moving forward, I plan to actively engage with these advancements by seeking opportunities in industries that prioritize digital transformation and innovation, especially in healthcare and environmental sustainability. This seminar has inspired me to explore new career paths centered around AI and smart technologies, potentially focusing on their applications in healthcare. I aim to study further in these fields and collaborate on projects that utilize AI for social good, as I believe this integration could be key to a brighter future for communities worldwide. ",
+            "answerText": "Through this seminar, I learned about the expansive potential of Huawei's technological innovations in various sectors, particularly health, robotics, and cloud computing. The concept of integrating digital transformation into everyday life, from AI-driven healthcare solutions at CUHK Medical Center to the development of a Cantonese LLM, stood out to me as a powerful example of how technology can enhance human capability and social wellbeing. The extensive implications of 5G networks and smart environments, such as the intelligent operations center for managing large-scale events like the Kaitak Sports Park Stadium, were both exciting and eye-opening. This learning matters because it emphasizes the critical role technology plays in driving societal change. For me personally, it resonates with my passion for leveraging innovation to improve the society. Understanding that technology can facilitate smarter healthcare and more efficient urban management illuminates its potential not just for corporate gain but for public benefit. This insight makes me appreciate the responsibility that comes with technological advancement, and it urges me to consider how my future contributions could align with these positive outcomes. Moving forward, I plan to actively engage with these advancements by seeking opportunities in industries that prioritize digital transformation and innovation, especially in healthcare and environmental sustainability. This seminar has inspired me to explore new career paths centered around AI and smart technologies, potentially focusing on their applications in healthcare. I aim to study further in these fields and collaborate on projects that utilize AI for social good, as I believe this integration could be key to a brighter future for communities worldwide. ",
             "submittedAt": null,
-            "wordCount": 261
+            "wordCount": 259
           },
           "criteria": [
             {
@@ -534,10 +534,10 @@
                 "manualScore": null,
                 "aiSuggestedScore": 9.0,
                 "highlightedText": "The concept of integrating digital transformation into everyday life, from AI-driven healthcare solutions at CUHK Medical Center to the development of a Cantonese LLM, stood out to me as a powerful example of how technology can enhance human capability and social wellbeing.",
-                "aiJustification": "The student's reflection is clear and expressive, effectively conveying their learning experience. They articulate what they learned and why it matters both personally and in a broader context. The use of specific examples, such as 'AI-driven healthcare solutions at CUHK Medical Center' and 'the intelligent operations center for managing large-scale events,' helps create a vivid mental picture.",
-                "aiSuggestion": "To enhance clarity further, the student could provide more specific examples of how these technologies could impact their future career or personal goals.",
+                "aiJustification": "The student's reflection is clear and expressive, effectively conveying their learning experience. They articulate what they learned and why it matters both personally and in a broader context. The use of specific examples, such as 'AI-driven healthcare solutions at CUHK Medical Center' and 'the intelligent operations center for managing large-scale events,' enhances clarity and relevance.",
+                "aiSuggestion": "To further improve, the student could provide more personal anecdotes or specific instances that illustrate their emotional response to the learning experience.",
                 "gradedBy": "ai_system",
-                "gradedAt": "2026-04-11T00:13:49.943990Z"
+                "gradedAt": "2026-04-11T13:03:43.115863Z"
               }
             },
             {
@@ -550,10 +550,10 @@
                 "manualScore": null,
                 "aiSuggestedScore": 8.5,
                 "highlightedText": "This insight makes me appreciate the responsibility that comes with technological advancement, and it urges me to consider how my future contributions could align with these positive outcomes.",
-                "aiJustification": "The reflection demonstrates a good level of analysis regarding the implications of technology on society and personal responsibility. The student shows an understanding of how their learning aligns with their passion for innovation and societal improvement. However, there is limited questioning of personal biases or preconceptions.",
-                "aiSuggestion": "The student could deepen their analysis by reflecting on any preconceived notions they had about technology before the seminar and how their views may have changed as a result.",
+                "aiJustification": "The reflection demonstrates a good level of analysis regarding how the seminar influenced the student's understanding of technology's role in society and their personal aspirations. They express a desire to align their future contributions with positive societal outcomes, indicating a level of self-awareness and critical thinking.",
+                "aiSuggestion": "The student could enhance their analysis by explicitly questioning any preconceptions they may have had about technology before the seminar and how those views have changed.",
                 "gradedBy": "ai_system",
-                "gradedAt": "2026-04-11T00:13:49.943990Z"
+                "gradedAt": "2026-04-11T13:03:43.115863Z"
               }
             },
             {
@@ -565,11 +565,11 @@
               "grade": {
                 "manualScore": null,
                 "aiSuggestedScore": 10.0,
-                "highlightedText": "This seminar has inspired me to explore new career paths centered around AI and smart technologies, potentially focusing on their applications in healthcare.",
-                "aiJustification": "The student's response exceeds the 200-word requirement, providing a comprehensive reflection that covers all aspects of the prompt.",
-                "aiSuggestion": "No improvement needed; the length is appropriate and effectively supports the depth of the reflection.",
+                "highlightedText": "Through this seminar, I learned about the expansive potential of Huawei's technological innovations in various sectors, particularly health, robotics, and cloud computing.",
+                "aiJustification": "The student's response exceeds the 200-word requirement, demonstrating sufficient length to explore their thoughts and reflections in depth.",
+                "aiSuggestion": "No improvement needed; the length is appropriate and allows for a comprehensive reflection.",
                 "gradedBy": "ai_system",
-                "gradedAt": "2026-04-11T00:13:49.943990Z"
+                "gradedAt": "2026-04-11T13:03:43.115863Z"
               }
             }
           ],
@@ -594,9 +594,9 @@
       "marking_scheme_id": "rubric-1775747189629",
       "assignment_id": "rubric-1775747189629",
       "course_id": "default",
-      "stored_at": "2026-04-11T00:13:49.943990Z"
+      "stored_at": "2026-04-11T13:03:43.115863Z"
     },
     "id": "grade_20260411_001043_20841234_1b3019",
-    "saved_at": "2026-04-11T00:13:49.943990"
+    "saved_at": "2026-04-11T13:03:43.115863"
   }
 ]

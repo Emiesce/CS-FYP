@@ -244,13 +244,20 @@ class ProductionGradingService(GradingService):
                 question_groups[q_id] = []
             question_groups[q_id].append(criterion)
 
+        # Build a positional fallback: if question_answers keys don't match rubric question_ids,
+        # try matching by position (q1→index 0, q2→index 1, or just by list order)
+        positional_answers = list(question_answers.values())
+
         results = []
         total_score = 0.0
         max_total_score = 0.0
 
-        for q_id, q_criteria in question_groups.items():
-            # Use the specific question's answer if available, otherwise fall back to combined
-            essay_for_question = question_answers.get(q_id, answer_text)
+        for q_idx, (q_id, q_criteria) in enumerate(question_groups.items()):
+            # Try exact match first, then positional fallback
+            essay_for_question = question_answers.get(q_id)
+            if not essay_for_question and positional_answers:
+                essay_for_question = positional_answers[q_idx] if q_idx < len(positional_answers) else ''
+            essay_for_question = essay_for_question or ''
             # Retrieve context once per question (covers all criteria)
             context_chunks = await self.vector_store.similarity_search_with_rubric_context(
                 query=f"How to grade: {q_criteria[0].get('question_title', '')}",
