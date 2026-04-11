@@ -310,8 +310,8 @@
       "examTitle": "Comp 4900 Seminar Reflection",
       "courseId": "default",
       "submittedAt": null,
-      "gradedAt": "2026-04-11T13:03:44.118021Z",
-      "status": "finalized",
+      "gradedAt": "2026-04-11T16:50:25.059219Z",
+      "status": "graded",
       "questions": [
         {
           "questionId": "q-1775746947332",
@@ -333,13 +333,13 @@
               "maxScore": 10.0,
               "weight": 1.0,
               "grade": {
-                "manualScore": 8.0,
+                "manualScore": null,
                 "aiSuggestedScore": 8.0,
                 "highlightedText": "I was particularly excited to learn about the challenges of working with IoT data, such as limited labelled data, high-dimensionality, and non-iid distributions.",
-                "aiJustification": "The student's reflection is mostly clear and expressive, providing a good overview of what they learned and why it matters. However, some sentences are slightly convoluted, which may hinder full clarity. For example, the phrase 'the advancement in the visualization skills are also fascinating' could be clearer.",
+                "aiJustification": "The student's reflection is generally clear and expressive, providing a good overview of what they learned and why it matters. However, some sentences are slightly convoluted, which may hinder clarity. For example, the phrase 'the advancement in the visualization skills are also fascinating' could be clearer.",
                 "aiSuggestion": "Focus on simplifying complex sentences and ensuring that each point is clearly articulated. This will enhance the overall clarity of the reflection.",
                 "gradedBy": "ai_system",
-                "gradedAt": "2026-04-11T13:03:44.118021Z"
+                "gradedAt": "2026-04-11T16:50:25.059219Z"
               }
             },
             {
@@ -349,13 +349,13 @@
               "maxScore": 10.0,
               "weight": 1.0,
               "grade": {
-                "manualScore": 7.0,
+                "manualScore": 1.5,
                 "aiSuggestedScore": 7.0,
                 "highlightedText": "This experience broadened my perspective on potential career paths apart from normal software engineering positions.",
-                "aiJustification": "The student demonstrates some analysis of how the seminar experience has influenced their understanding and future goals. However, the reflection lacks depth in questioning personal biases or assumptions. The connection between the seminar and their career aspirations is mentioned but could be explored further.",
-                "aiSuggestion": "Delve deeper into how the seminar challenged or changed your preconceptions about the field. Discuss specific biases or assumptions that were addressed during the seminar.",
+                "aiJustification": "The student demonstrates some analysis of their learning experience and its relevance to their career goals. However, the reflection lacks depth in questioning personal biases or assumptions. The connection between the seminar and their future aspirations could be more explicitly stated.",
+                "aiSuggestion": "Delve deeper into how the seminar challenged or changed your perspectives. Consider discussing any biases or preconceptions you had before attending the seminar.",
                 "gradedBy": "ai_system",
-                "gradedAt": "2026-04-11T13:03:44.118021Z"
+                "gradedAt": "2026-04-11T16:50:25.059219Z"
               }
             },
             {
@@ -365,26 +365,26 @@
               "maxScore": 10.0,
               "weight": 1.0,
               "grade": {
-                "manualScore": 10.0,
+                "manualScore": null,
                 "aiSuggestedScore": 10.0,
-                "highlightedText": "After attending the seminar, I learnt a lot more about the application and the process of applying machine learning in IoT sensors and devices.",
+                "highlightedText": "I studied computer science because I am fascinated by how technology and programming and make an impact to the world.",
                 "aiJustification": "The student's response exceeds the 200-word requirement, demonstrating sufficient length for a reflection report.",
                 "aiSuggestion": "Continue to ensure that future reflections maintain a similar length while focusing on clarity and depth of analysis.",
                 "gradedBy": "ai_system",
-                "gradedAt": "2026-04-11T13:03:44.118021Z"
+                "gradedAt": "2026-04-11T16:50:25.059219Z"
               }
             }
           ],
-          "questionTotalScore": 25.0,
+          "questionTotalScore": 19.5,
           "questionMaxScore": 30.0,
-          "questionPercentage": 83.3
+          "questionPercentage": 65.0
         }
       ],
       "summary": {
-        "totalScore": 25.0,
+        "totalScore": 19.5,
         "maxScore": 30.0,
-        "percentage": 83.3,
-        "grade": "A-",
+        "percentage": 65.0,
+        "grade": "B-",
         "totalQuestions": 1,
         "gradedQuestions": 1,
         "pendingQuestions": 0
@@ -396,10 +396,10 @@
       "marking_scheme_id": "rubric-1775747189629",
       "assignment_id": "rubric-1775747189629",
       "course_id": "default",
-      "stored_at": "2026-04-11T13:03:44.118021Z"
+      "stored_at": "2026-04-11T16:50:25.059219Z"
     },
     "id": "grade_20260411_001038_20841235_baabd8",
-    "saved_at": "2026-04-11T13:03:44.118021"
+    "saved_at": "2026-04-11T16:50:25.059219"
   },
   {
     "data": {
@@ -409,8 +409,8 @@
       "examTitle": "Comp 4900 Seminar Reflection",
       "courseId": "default",
       "submittedAt": null,
-      "gradedAt": "2026-04-11T13:03:44.635903Z",
-      "status": "finalized",
+      "gradedAt": "2026-04-11T16:50:26.808253Z",
+      "status": "graded",
       "questions": [
         {
           "questionId": "q-1775746947332",
@@ -432,13 +432,13 @@
               "maxScore": 10.0,
               "weight": 1.0,
               "grade": {
-                "manualScore": 8.0,
+                "manualScore": null,
                 "aiSuggestedScore": 9.0,
                 "highlightedText": "The seminar presented practical applications of AI and technology, especially in areas like preventive maintenance, customer service, and operational efficiency.",
-                "aiJustification": "The student's reflection is clear and well-structured, effectively conveying what they learned from the seminar. The use of specific examples, such as 'innovative transaction-based customer loyalty programs' and 'integration of smart cameras,' helps create a vivid picture of the seminar's content. However, there could be a bit more emphasis on why these learnings are personally significant.",
-                "aiSuggestion": "To enhance clarity and relevance, the student could explicitly connect the insights gained to their personal experiences or future career aspirations.",
+                "aiJustification": "The student's reflection is clear and well-structured, effectively conveying what they learned from the seminar. They articulate the significance of AI and technology in a conglomerate context, making it relevant to their personal and professional growth. The use of specific examples enhances clarity, such as the mention of 'transaction-based customer loyalty programs' and 'smart cameras.'",
+                "aiSuggestion": "To further enhance clarity, the student could provide more personal insights on how these technologies specifically relate to their career aspirations or interests.",
                 "gradedBy": "ai_system",
-                "gradedAt": "2026-04-11T13:03:44.635903Z"
+                "gradedAt": "2026-04-11T16:50:26.808253Z"
               }
             },
             {
@@ -448,13 +448,13 @@
               "maxScore": 10.0,
               "weight": 1.0,
               "grade": {
-                "manualScore": 8.0,
+                "manualScore": null,
                 "aiSuggestedScore": 8.0,
                 "highlightedText": "This seminar has not only enhanced my understanding of these concepts but also encouraged me to adopt a more innovative mindset as I progress in my engineering career.",
-                "aiJustification": "The reflection demonstrates a good level of analysis, particularly in recognizing how the seminar has influenced the student's understanding of technology's role in business. The mention of adopting a more innovative mindset indicates some self-reflection. However, it lacks deeper questioning of personal biases or preconceptions.",
-                "aiSuggestion": "The student could improve this section by discussing any preconceived notions they had about AI and technology before the seminar and how those may have changed.",
+                "aiJustification": "The student demonstrates a good level of analysis regarding how the seminar impacted their understanding of technology's role in business. They reflect on the implications of the learning experience, such as adopting a more innovative mindset. However, there is limited exploration of personal biases or preconceptions that were challenged.",
+                "aiSuggestion": "The student could deepen their analysis by discussing any preconceived notions they had about technology in business and how the seminar challenged or changed those views.",
                 "gradedBy": "ai_system",
-                "gradedAt": "2026-04-11T13:03:44.635903Z"
+                "gradedAt": "2026-04-11T16:50:26.808253Z"
               }
             },
             {
@@ -464,26 +464,26 @@
               "maxScore": 10.0,
               "weight": 1.0,
               "grade": {
-                "manualScore": 10.0,
+                "manualScore": null,
                 "aiSuggestedScore": 10.0,
                 "highlightedText": "Attending the seminar on Applying AI and Technology in a Conglomerate was a valuable experience that broadened my understanding of how innovative technologies transform various sectors in Sun Hung Kai.",
                 "aiJustification": "The student's response exceeds the 200-word requirement, providing a comprehensive reflection on their learning experience.",
-                "aiSuggestion": "No improvement needed for length, as the response meets the criteria well.",
+                "aiSuggestion": "No improvement needed; the length is appropriate and allows for a thorough exploration of the seminar's impact.",
                 "gradedBy": "ai_system",
-                "gradedAt": "2026-04-11T13:03:44.635903Z"
+                "gradedAt": "2026-04-11T16:50:26.808253Z"
               }
             }
           ],
-          "questionTotalScore": 26.0,
+          "questionTotalScore": 27.0,
           "questionMaxScore": 30.0,
-          "questionPercentage": 86.7
+          "questionPercentage": 90.0
         }
       ],
       "summary": {
-        "totalScore": 26.0,
+        "totalScore": 27.0,
         "maxScore": 30.0,
-        "percentage": 86.7,
-        "grade": "A",
+        "percentage": 90.0,
+        "grade": "A+",
         "totalQuestions": 1,
         "gradedQuestions": 1,
         "pendingQuestions": 0
@@ -495,10 +495,10 @@
       "marking_scheme_id": "rubric-1775747189629",
       "assignment_id": "rubric-1775747189629",
       "course_id": "default",
-      "stored_at": "2026-04-11T13:03:44.635903Z"
+      "stored_at": "2026-04-11T16:50:26.808253Z"
     },
     "id": "grade_20260411_001038_20841236_202804",
-    "saved_at": "2026-04-11T13:03:44.635903"
+    "saved_at": "2026-04-11T16:50:26.808253"
   },
   {
     "data": {
@@ -508,7 +508,7 @@
       "examTitle": "Comp 4900 Seminar Reflection",
       "courseId": "default",
       "submittedAt": null,
-      "gradedAt": "2026-04-11T13:03:43.115863Z",
+      "gradedAt": "2026-04-11T16:50:27.174019Z",
       "status": "graded",
       "questions": [
         {
@@ -534,10 +534,10 @@
                 "manualScore": null,
                 "aiSuggestedScore": 9.0,
                 "highlightedText": "The concept of integrating digital transformation into everyday life, from AI-driven healthcare solutions at CUHK Medical Center to the development of a Cantonese LLM, stood out to me as a powerful example of how technology can enhance human capability and social wellbeing.",
-                "aiJustification": "The student's reflection is clear and expressive, effectively conveying their learning experience. They articulate what they learned and why it matters both personally and in a broader context. The use of specific examples, such as 'AI-driven healthcare solutions at CUHK Medical Center' and 'the intelligent operations center for managing large-scale events,' enhances clarity and relevance.",
-                "aiSuggestion": "To further improve, the student could provide more personal anecdotes or specific instances that illustrate their emotional response to the learning experience.",
+                "aiJustification": "The student's reflection is clear and expressive, effectively conveying their learning experience. They articulate what they learned and why it matters both personally and in a broader context. The use of specific examples, such as AI-driven healthcare solutions and the implications of 5G networks, enhances clarity and relevance.",
+                "aiSuggestion": "To further improve, the student could provide more personal anecdotes or specific instances that illustrate their excitement or challenges faced during the seminar.",
                 "gradedBy": "ai_system",
-                "gradedAt": "2026-04-11T13:03:43.115863Z"
+                "gradedAt": "2026-04-11T16:50:27.174019Z"
               }
             },
             {
@@ -550,10 +550,10 @@
                 "manualScore": null,
                 "aiSuggestedScore": 8.5,
                 "highlightedText": "This insight makes me appreciate the responsibility that comes with technological advancement, and it urges me to consider how my future contributions could align with these positive outcomes.",
-                "aiJustification": "The reflection demonstrates a good level of analysis regarding how the seminar influenced the student's understanding of technology's role in society and their personal aspirations. They express a desire to align their future contributions with positive societal outcomes, indicating a level of self-awareness and critical thinking.",
-                "aiSuggestion": "The student could enhance their analysis by explicitly questioning any preconceptions they may have had about technology before the seminar and how those views have changed.",
+                "aiJustification": "The reflection demonstrates a good level of analysis regarding how the seminar influenced the student's understanding of technology's role in society and their personal aspirations. They show awareness of the responsibility that comes with technological advancement, indicating a shift in perspective.",
+                "aiSuggestion": "The student could deepen their analysis by explicitly questioning their own preconceptions about technology and its societal impact, which would enhance the self-criticism aspect of their reflection.",
                 "gradedBy": "ai_system",
-                "gradedAt": "2026-04-11T13:03:43.115863Z"
+                "gradedAt": "2026-04-11T16:50:27.174019Z"
               }
             },
             {
@@ -566,10 +566,10 @@
                 "manualScore": null,
                 "aiSuggestedScore": 10.0,
                 "highlightedText": "Through this seminar, I learned about the expansive potential of Huawei's technological innovations in various sectors, particularly health, robotics, and cloud computing.",
-                "aiJustification": "The student's response exceeds the 200-word requirement, demonstrating sufficient length to explore their thoughts and reflections in depth.",
-                "aiSuggestion": "No improvement needed; the length is appropriate and allows for a comprehensive reflection.",
+                "aiJustification": "The student's response exceeds the 200-word requirement, providing a comprehensive reflection that covers all necessary aspects of the prompt.",
+                "aiSuggestion": "No improvement needed; the length is appropriate and effectively supports the depth of the reflection.",
                 "gradedBy": "ai_system",
-                "gradedAt": "2026-04-11T13:03:43.115863Z"
+                "gradedAt": "2026-04-11T16:50:27.174019Z"
               }
             }
           ],
@@ -594,9 +594,9 @@
       "marking_scheme_id": "rubric-1775747189629",
       "assignment_id": "rubric-1775747189629",
       "course_id": "default",
-      "stored_at": "2026-04-11T13:03:43.115863Z"
+      "stored_at": "2026-04-11T16:50:27.174019Z"
     },
     "id": "grade_20260411_001043_20841234_1b3019",
-    "saved_at": "2026-04-11T13:03:43.115863"
+    "saved_at": "2026-04-11T16:50:27.174019"
   }
 ]

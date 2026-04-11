@@ -9,6 +9,33 @@ import { Sidebar } from '../components/Sidebar';
 
 const GRADING_API = 'http://localhost:5000';
 
+// ─── Drag-to-resize divider ───────────────────────────────────────────────────
+
+function usePanelResize(initialRightWidth: number) {
+    const [rightWidth, setRightWidth] = useState(initialRightWidth);
+    const dragging = useRef(false);
+
+    const onMouseDown = useCallback((e: React.MouseEvent) => {
+        e.preventDefault();
+        dragging.current = true;
+        const onMove = (ev: MouseEvent) => {
+            if (!dragging.current) return;
+            const containerRight = window.innerWidth;
+            const newWidth = Math.max(280, Math.min(800, containerRight - ev.clientX));
+            setRightWidth(newWidth);
+        };
+        const onUp = () => {
+            dragging.current = false;
+            window.removeEventListener('mousemove', onMove);
+            window.removeEventListener('mouseup', onUp);
+        };
+        window.addEventListener('mousemove', onMove);
+        window.addEventListener('mouseup', onUp);
+    }, []);
+
+    return { rightWidth, onMouseDown };
+}
+
 // ─── Types ────────────────────────────────────────────────────────────────────
 
 interface GradeEntry {
@@ -148,94 +175,110 @@ const RubricCard = memo(({ rubric, isSelected, onSelect, onScoreUpdate, onTextUp
     onScoreUpdate: (score: number) => void;
     onTextUpdate: (field: 'justification' | 'suggestion', value: string) => void;
     hasUserEdited: boolean;
-}) => (
-    <Card className={`p-6 cursor-pointer transition-all ${isSelected ? 'ring-2 ring-blue-500' : ''}`} onClick={onSelect}>
-        <h4 className="text-xl font-semibold text-[#2c2828] mb-2">{rubric.title}</h4>
+}) => {
+    const justificationRef = useRef<HTMLTextAreaElement>(null);
 
-        {/* AI justification — editable */}
-        <div className="mb-4" onClick={(e) => e.stopPropagation()}>
-            <p className="text-xs font-medium text-gray-500 mb-1">Justification</p>
-            <textarea
-                className="w-full text-sm text-gray-700 leading-relaxed border border-gray-200 rounded-md p-2 resize-none focus:outline-none focus:ring-1 focus:ring-blue-400 bg-gray-50"
-                rows={3}
-                value={rubric.justification}
-                onChange={(e) => onTextUpdate('justification', e.target.value)}
-                placeholder="AI justification..."
-            />
-        </div>
+    // Auto-resize justification textarea to fit content
+    useEffect(() => {
+        const el = justificationRef.current;
+        if (!el) return;
+        el.style.height = 'auto';
+        el.style.height = `${el.scrollHeight}px`;
+    }, [rubric.justification]);
 
-        <div className="space-y-4">
-            <div className="flex items-center justify-between">
-                <div className="flex items-center gap-4">
-                    <span className="text-sm font-medium">Score:</span>
-                    <Input
-                        type="number"
-                        min="0"
-                        max={rubric.maxScore}
-                        step={0.5}
-                        value={rubric.score ?? ''}
-                        placeholder="—"
-                        onChange={(e) => {
-                            const val = e.target.value;
-                            if (val !== '') {
-                                const clamped = Math.min(rubric.maxScore, Math.max(0, parseFloat(val) || 0));
-                                onScoreUpdate(clamped);
-                            }
-                        }}
-                        onBlur={(e) => {
-                            const val = parseFloat(e.target.value);
-                            if (!isNaN(val)) {
-                                const clamped = Math.min(rubric.maxScore, Math.max(0, val));
-                                if (clamped !== val) onScoreUpdate(clamped);
-                            }
-                        }}
-                        className={`w-16 text-center ${rubric.score !== null && (rubric.score > rubric.maxScore || rubric.score < 0) ? 'border-red-400' : ''}`}
-                        onClick={(e) => e.stopPropagation()}
-                    />
-                    <span className="text-sm text-gray-600">/ {rubric.maxScore}</span>
-                </div>
+    return (
+        <Card className={`p-6 cursor-pointer transition-all ${isSelected ? 'ring-2 ring-blue-500' : ''}`} onClick={onSelect}>
+            <h4 className="text-xl font-semibold text-[#2c2828] mb-2">{rubric.title}</h4>
 
-                {rubric.highlightedText && (
-                    <Button
-                        variant={isSelected ? 'default' : 'outline'}
-                        size="sm"
-                        onClick={(e: React.MouseEvent) => { e.stopPropagation(); onSelect(); }}
-                    >
-                        {isSelected ? 'Hide' : 'Show'} Highlight
-                    </Button>
-                )}
-            </div>
-
-            {/* AI suggested score */}
-            {hasUserEdited && rubric.score !== null && (
-                <div className="flex items-center gap-4 pt-2 border-t border-gray-100">
-                    <span className="text-sm font-medium text-blue-600">AI suggested:</span>
-                    <div className="flex items-center gap-2">
-                        <span className="text-sm font-semibold text-blue-700">{rubric.aiSuggestedScore}</span>
-                        <span className="text-sm text-gray-600">/ {rubric.maxScore}</span>
-                        {rubric.aiSuggestedScore !== rubric.score && (
-                            <Badge variant="outline" className={`text-xs ${rubric.score > rubric.aiSuggestedScore ? 'border-green-300 text-green-700' : 'border-orange-300 text-orange-700'}`}>
-                                {rubric.score > rubric.aiSuggestedScore ? '+' : ''}{(rubric.score - rubric.aiSuggestedScore).toFixed(1)}
-                            </Badge>
-                        )}
-                    </div>
-                </div>
-            )}
-
-            {/* Suggestion — editable */}
-            <div className="pt-2 border-t border-gray-100" onClick={(e) => e.stopPropagation()}>
-                <p className="text-xs font-medium text-blue-600 mb-1">Suggestion</p>
+            {/* AI justification — editable */}
+            <div className="mb-4" onClick={(e) => e.stopPropagation()}>
+                <p className="text-xs font-medium text-gray-500 mb-1">Justification</p>
                 <textarea
-                    className="w-full text-sm text-blue-800 border border-blue-100 rounded-md p-2 resize-none focus:outline-none focus:ring-1 focus:ring-blue-400 bg-blue-50"
-                    rows={3}
-                    value={rubric.suggestion}
-                    onChange={(e) => onTextUpdate('suggestion', e.target.value)}
-                    placeholder="Improvement suggestion..."
+                    ref={justificationRef}
+                    className="w-full text-sm text-gray-700 leading-relaxed border border-gray-200 rounded-md p-2 resize-none focus:outline-none focus:ring-1 focus:ring-blue-400 bg-gray-50 overflow-hidden"
+                    value={rubric.justification}
+                    onChange={(e) => {
+                        onTextUpdate('justification', e.target.value);
+                        e.target.style.height = 'auto';
+                        e.target.style.height = `${e.target.scrollHeight}px`;
+                    }}
+                    placeholder="AI justification..."
                 />
             </div>
-        </div>
-    </Card>
-));
+
+            <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-4">
+                        <span className="text-sm font-medium">Score:</span>
+                        <Input
+                            type="number"
+                            min="0"
+                            max={rubric.maxScore}
+                            step={0.5}
+                            value={rubric.score ?? ''}
+                            placeholder="—"
+                            onChange={(e) => {
+                                const val = e.target.value;
+                                if (val !== '') {
+                                    const clamped = Math.min(rubric.maxScore, Math.max(0, parseFloat(val) || 0));
+                                    onScoreUpdate(clamped);
+                                }
+                            }}
+                            onBlur={(e) => {
+                                const val = parseFloat(e.target.value);
+                                if (!isNaN(val)) {
+                                    const clamped = Math.min(rubric.maxScore, Math.max(0, val));
+                                    if (clamped !== val) onScoreUpdate(clamped);
+                                }
+                            }}
+                            className={`w-16 text-center ${rubric.score !== null && (rubric.score > rubric.maxScore || rubric.score < 0) ? 'border-red-400' : ''}`}
+                            onClick={(e) => e.stopPropagation()}
+                        />
+                        <span className="text-sm text-gray-600">/ {rubric.maxScore}</span>
+                    </div>
+
+                    {rubric.highlightedText && (
+                        <Button
+                            variant={isSelected ? 'default' : 'outline'}
+                            size="sm"
+                            onClick={(e: React.MouseEvent) => { e.stopPropagation(); onSelect(); }}
+                        >
+                            {isSelected ? 'Hide' : 'Show'} Highlight
+                        </Button>
+                    )}
+                </div>
+
+                {/* AI suggested score */}
+                {hasUserEdited && rubric.score !== null && (
+                    <div className="flex items-center gap-4 pt-2 border-t border-gray-100">
+                        <span className="text-sm font-medium text-blue-600">AI suggested:</span>
+                        <div className="flex items-center gap-2">
+                            <span className="text-sm font-semibold text-blue-700">{rubric.aiSuggestedScore}</span>
+                            <span className="text-sm text-gray-600">/ {rubric.maxScore}</span>
+                            {rubric.aiSuggestedScore !== rubric.score && (
+                                <Badge variant="outline" className={`text-xs ${rubric.score > rubric.aiSuggestedScore ? 'border-green-300 text-green-700' : 'border-orange-300 text-orange-700'}`}>
+                                    {rubric.score > rubric.aiSuggestedScore ? '+' : ''}{(rubric.score - rubric.aiSuggestedScore).toFixed(1)}
+                                </Badge>
+                            )}
+                        </div>
+                    </div>
+                )}
+
+                {/* Suggestion — editable */}
+                <div className="pt-2 border-t border-gray-100" onClick={(e) => e.stopPropagation()}>
+                    <p className="text-xs font-medium text-blue-600 mb-1">Suggestion</p>
+                    <textarea
+                        className="w-full text-sm text-blue-800 border border-blue-100 rounded-md p-2 resize-none focus:outline-none focus:ring-1 focus:ring-blue-400 bg-blue-50"
+                        rows={3}
+                        value={rubric.suggestion}
+                        onChange={(e) => onTextUpdate('suggestion', e.target.value)}
+                        placeholder="Improvement suggestion..."
+                    />
+                </div>
+            </div>
+        </Card>
+    );
+});
 
 // ─── Highlighted answer renderer ─────────────────────────────────────────────
 
@@ -345,6 +388,7 @@ function GradingView({ records, initialIndex, onBack, onRecordsUpdate }: {
     const [saving, setSaving] = useState(false);
     const [localRecords, setLocalRecords] = useState(records);
     const [showStudentInfo, setShowStudentInfo] = useState(false);
+    const { rightWidth, onMouseDown: onDividerMouseDown } = usePanelResize(535);
 
     // Per-student manual scores: { studentIndex: { "qi-ci": score } }
     const manualScoresRef = useRef<Record<number, Record<string, number>>>({});
@@ -519,9 +563,9 @@ function GradingView({ records, initialIndex, onBack, onRecordsUpdate }: {
     };
 
     return (
-        <div className="bg-[#fafbff] min-h-screen flex flex-col">
+        <div className="bg-[#fafbff] h-screen flex flex-col">
             {/* Top Bar */}
-            <div className="bg-[#cee5ff] p-4 shadow-sm flex-shrink-0">
+            <div className="bg-[#cee5ff] p-4 shadow-sm flex-shrink-0 relative z-10">
                 <div className="flex items-center justify-between">
                     <div className="flex items-center gap-4">
                         <Button variant="ghost" size="sm" onClick={handleBack} className="flex items-center gap-2">
@@ -557,11 +601,12 @@ function GradingView({ records, initialIndex, onBack, onRecordsUpdate }: {
                 </div>
             </div>
 
-            <div className="flex flex-1 overflow-hidden">
+            <div className="flex flex-1 overflow-hidden items-stretch">
                 <Sidebar collapsed={sidebarCollapsed} onToggle={() => setSidebarCollapsed(!sidebarCollapsed)} />
 
                 {/* Student answer for current question */}
                 <div className="flex-1 p-4 overflow-y-auto">
+
                     <div className="mb-4 p-4 bg-white rounded-lg shadow-sm flex items-center justify-between">
                         <div className="flex items-center gap-3">
                             <FileText className="size-5 text-blue-600" />
@@ -620,8 +665,18 @@ function GradingView({ records, initialIndex, onBack, onRecordsUpdate }: {
                     )}
                 </div>
 
+                {/* Drag divider */}
+                <div
+                    style={{ width: '8px', cursor: 'col-resize', flexShrink: 0, background: '#f3f4f6', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                    onMouseDown={onDividerMouseDown}
+                    onMouseEnter={e => (e.currentTarget.style.background = '#dbeafe')}
+                    onMouseLeave={e => (e.currentTarget.style.background = '#f3f4f6')}
+                >
+                    <div style={{ width: '2px', height: '48px', borderRadius: '9999px', background: '#9ca3af' }} />
+                </div>
+
                 {/* Right panel — criteria for current question only */}
-                <div className="w-[535px] p-4 flex flex-col h-full overflow-hidden">
+                <div style={{ width: rightWidth }} className="p-4 flex flex-col h-full overflow-hidden flex-shrink-0">
                     <h3 className="text-lg font-semibold text-[#2c2828] mb-3 flex-shrink-0">
                         {totalQuestions > 1 ? `Q${currentQuestionIndex + 1} Criteria` : 'Criteria'}
                     </h3>
