@@ -156,7 +156,7 @@
     "courseId": "course-1",
     "assignmentId": "assignment-1",
     "createdAt": "2024-01-15T00:00:00.000Z",
-    "updatedAt": "2026-04-10T05:53:06.767Z",
+    "updatedAt": "2026-04-11T13:51:54.490Z",
     "lectureNotes": [
       {
         "id": "note-1775665762853-0",
@@ -173,13 +173,13 @@
         "processedAt": null
       },
       {
-        "id": "note-1775800276943-0",
-        "backendId": "eca5f407-3690-4df7-a9b2-56d535e6e0f7",
-        "filename": "Unit 2.7 Escalation of commitment (2025).pdf",
-        "originalName": "Unit 2.7 Escalation of commitment (2025).pdf",
-        "fileSize": 1427876,
+        "id": "note-1775915490755-0",
+        "backendId": "975bb7fa-4d90-4964-81dd-eb07b791e3c4",
+        "filename": "Unit 2.5 Prospect theory (2025).pdf",
+        "originalName": "Unit 2.5 Prospect theory (2025).pdf",
+        "fileSize": 2805214,
         "fileType": "pdf",
-        "uploadedAt": "2026-04-10T05:52:47.662Z",
+        "uploadedAt": "2026-04-11T13:51:50.364Z",
         "associatedRubrics": [],
         "metadata": {
           "processingStatus": "completed"

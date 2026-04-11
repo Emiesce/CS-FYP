@@ -10,6 +10,7 @@ from pathlib import Path
 
 import chromadb
 from chromadb.config import Settings
+from chromadb import EmbeddingFunction, Embeddings
 
 try:
     from ..interfaces.vector_store import VectorStore
@@ -53,9 +54,15 @@ class ChromaVectorStore(VectorStore):
             settings=Settings(anonymized_telemetry=False)
         )
 
+        # Use a no-op embedding function — embeddings are generated externally via Azure
+        class NoOpEmbeddingFunction(EmbeddingFunction):
+            def __call__(self, input: list) -> Embeddings:
+                raise NotImplementedError("Embeddings are provided externally")
+
         # Single collection for all documents (rubrics + lecture notes)
         self.collection = self.client.get_or_create_collection(
             name="grading_documents",
+            embedding_function=NoOpEmbeddingFunction(),
             metadata={"hnsw:space": "cosine"}
         )
 

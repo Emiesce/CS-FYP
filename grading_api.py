@@ -193,7 +193,7 @@ async def _parse_rubric_with_gpt(content: str, filename: str) -> dict:
 Analyze the following document and extract its rubric structure.
 
 IMPORTANT DEFINITIONS:
-- A "question" is a top-level task or essay prompt that students must answer (e.g. "Describe the planning fallacy", "Write a reflection report"). A rubric typically has 1-5 questions.
+- A "question" is a top-level question or essay prompt that students must answer (e.g. "Describe the planning fallacy", "Write a reflection report"). A rubric typically has 1-5 questions.
 - A "criterion" is a scoring DIMENSION used to evaluate a student's answer to a question (e.g. "Content", "Critical Thinking", "Writing Quality"). One question can have multiple criteria.
 - A "score level" describes what a specific score range looks like (e.g. "8-10: Excellent, demonstrates deep understanding...").
 

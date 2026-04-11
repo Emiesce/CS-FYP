@@ -512,7 +512,7 @@ Respond only with the JSON object, no additional text."""
 {context}
 
 **GRADING INSTRUCTIONS:**
-1. Carefully read the student's essay
+1. Carefully read the student's answer
 2. Review the provided rubric context
 3. Evaluate the essay specifically for the criterion: **{criterion_name}**
 4. Assign a score between 0 and {max_score} in increments of 0.5 only (e.g. 7.0, 7.5, 8.0 — not 7.3 or 8.2)
