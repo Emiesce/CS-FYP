@@ -477,6 +477,7 @@ interface CreateRubricViewProps {
 
 interface RubricQuestion {
     id: string;
+    label?: string;  // custom label e.g. "1a", "1a(ii)" — overrides auto-number
     title: string;
     description: string;
     minScore: number;
@@ -953,7 +954,18 @@ function QuestionEditor({
     return (
         <div className="rubric-question-block">
             <div className="rubric-question-header">
-                <h5 className="rubric-question-title">Question {index + 1}</h5>
+                <div className="flex items-center gap-2">
+                    <span className="rubric-question-title text-sm font-medium text-gray-500">Q</span>
+                    <input
+                        type="text"
+                        value={question.label ?? String(index + 1)}
+                        onChange={(e) => onUpdate({ label: e.target.value })}
+                        className="w-20 px-2 py-1 text-sm font-semibold border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                        placeholder={String(index + 1)}
+                        disabled={disabled}
+                        title="Question label (e.g. 1, 1a, 1a(ii))"
+                    />
+                </div>
                 <Button
                     type="button"
                     onClick={onRemove}

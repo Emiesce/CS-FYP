@@ -283,6 +283,7 @@ class ProductionGradingService(GradingService):
                 result.context_metadata = result.context_metadata or {}
                 result.context_metadata['question_id'] = q_id
                 result.context_metadata['question_title'] = c.get('question_title', c.get('name', ''))
+                result.context_metadata['question_label'] = c.get('question_label', '')
                 result.context_metadata['answer_text'] = essay_for_question
                 results.append(result)
                 total_score += result.score
@@ -299,6 +300,7 @@ class ProductionGradingService(GradingService):
                     result.context_metadata = result.context_metadata or {}
                     result.context_metadata['question_id'] = q_id
                     result.context_metadata['question_title'] = q_criteria[0].get('question_title', '')
+                    result.context_metadata['question_label'] = q_criteria[0].get('question_label', '')
                     result.context_metadata['answer_text'] = essay_for_question
                     results.append(result)
                     total_score += result.score

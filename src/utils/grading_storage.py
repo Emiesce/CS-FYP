@@ -416,13 +416,15 @@ def convert_grading_response_to_exam_format(
             ctx = crit_dict.get('context_metadata') or {}
             q_id = ctx.get('question_id') or crit_dict.get('criterion_id', '')
             q_title = ctx.get('question_title') or crit_dict.get('criterion_name', '')
+            q_label = ctx.get('question_label', '')
             if q_id not in question_groups:
-                question_groups[q_id] = {'title': q_title, 'criteria': []}
+                question_groups[q_id] = {'title': q_title, 'label': q_label, 'criteria': []}
             question_groups[q_id]['criteria'].append(crit_dict)
 
         for q_id, group in question_groups.items():
             group_criteria = group['criteria']
             q_title = group['title']
+            q_label = group.get('label', '') or str(question_number)
 
             # Build the criteria array for this question
             criteria_entries = []
@@ -455,7 +457,7 @@ def convert_grading_response_to_exam_format(
 
             question = {
                 "questionId": q_id,
-                "questionNumber": question_number,
+                "questionNumber": q_label,
                 "questionText": q_title,
                 "questionType": "essay",
                 "topicId": "general",

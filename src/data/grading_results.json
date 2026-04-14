@@ -7,12 +7,12 @@
       "examTitle": "MGMT 3130 Rubric",
       "courseId": "default",
       "submittedAt": null,
-      "gradedAt": "2026-04-11T21:53:50.815084Z",
+      "gradedAt": "2026-04-14T12:31:58.900071Z",
       "status": "graded",
       "questions": [
         {
           "questionId": "q1",
-          "questionNumber": 1,
+          "questionNumber": "1a",
           "questionText": "Explain the concept of planning fallacy",
           "questionType": "essay",
           "topicId": "general",
@@ -33,10 +33,10 @@
                 "manualScore": null,
                 "aiSuggestedScore": 5.0,
                 "highlightedText": "Planning fallacy is when you think something will take less time than it actually does. I have experienced this many times when doing homework. The reason is that people are too optimistic.",
-                "aiJustification": "The student provides a basic definition of the planning fallacy, stating that it is when one thinks something will take less time than it actually does. However, the explanation lacks depth and does not explore multiple causes or factors contributing to the planning fallacy. The mention of optimism as a reason is a start, but it is insufficient to demonstrate a comprehensive understanding of the concept.",
-                "aiSuggestion": "To improve the essay, the student should elaborate on the definition of planning fallacy and include additional causes, such as cognitive biases, past experiences, or lack of awareness of time requirements. Providing examples or personal anecdotes related to these causes could also enhance the understanding of the concept.",
+                "aiJustification": "The student provides a basic definition of planning fallacy, stating that it is when one thinks something will take less time than it actually does. However, the explanation lacks depth and does not identify multiple causes or provide a comprehensive understanding of the concept. The mention of optimism as a reason is a start, but it is too simplistic and does not explore other psychological factors or contextual elements that contribute to the planning fallacy.",
+                "aiSuggestion": "To improve, the student should expand on the definition of planning fallacy by including more detailed explanations and examples. They could discuss additional causes such as overconfidence, lack of experience, or the influence of past experiences. Including real-life examples or studies related to planning fallacy would also enhance the essay's depth.",
                 "gradedBy": "ai_system",
-                "gradedAt": "2026-04-11T21:53:50.815084Z"
+                "gradedAt": "2026-04-14T12:31:58.900071Z"
               }
             }
           ],
@@ -46,7 +46,7 @@
         },
         {
           "questionId": "q2",
-          "questionNumber": 2,
+          "questionNumber": "1b",
           "questionText": "Explain psychological factors related to planning fallacy",
           "questionType": "essay",
           "topicId": "general",
@@ -67,10 +67,10 @@
                 "manualScore": null,
                 "aiSuggestedScore": 3.0,
                 "highlightedText": "People are optimistic and do not think about problems that might happen. They also forget about past failures and only remember when things went well.",
-                "aiJustification": "The essay provides a very basic mention of psychological factors related to planning fallacy, specifically touching on optimism and selective memory of past experiences. However, it lacks depth and fails to explain how these factors contribute to the planning fallacy. There are no examples provided, and the concepts are not clearly articulated, which limits the understanding of the topic.",
-                "aiSuggestion": "To improve the essay, the student should elaborate on the psychological factors contributing to the planning fallacy, such as overconfidence, optimism bias, and the impact of past experiences on future planning. Including specific examples or studies that illustrate these factors would enhance the explanation and demonstrate a deeper understanding of the topic.",
+                "aiJustification": "The essay provides a very limited explanation of psychological factors related to planning fallacy. It mentions optimism and the tendency to forget past failures, but these points are not elaborated upon or connected to the concept of planning fallacy. There is no clear definition of planning fallacy or a discussion of multiple psychological factors, which is necessary for a higher score.",
+                "aiSuggestion": "To improve the essay, the student should provide a clear definition of planning fallacy and discuss additional psychological factors such as overconfidence, optimism bias, and the impact of past experiences on future planning. Including examples to illustrate these factors would also enhance the explanation.",
                 "gradedBy": "ai_system",
-                "gradedAt": "2026-04-11T21:53:50.815084Z"
+                "gradedAt": "2026-04-14T12:31:58.900071Z"
               }
             }
           ],
@@ -95,10 +95,10 @@
       "marking_scheme_id": "rubric-1",
       "assignment_id": "rubric-1",
       "course_id": "default",
-      "stored_at": "2026-04-11T21:53:50.815084Z"
+      "stored_at": "2026-04-14T12:31:58.900071Z"
     },
     "id": "grade_20260411_000706_20841236_97df28",
-    "saved_at": "2026-04-11T21:53:50.815084"
+    "saved_at": "2026-04-14T12:31:58.900071"
   },
   {
     "data": {
@@ -108,12 +108,12 @@
       "examTitle": "MGMT 3130 Rubric",
       "courseId": "default",
       "submittedAt": null,
-      "gradedAt": "2026-04-11T21:53:51.564938Z",
+      "gradedAt": "2026-04-14T12:31:58.851523Z",
       "status": "graded",
       "questions": [
         {
           "questionId": "q1",
-          "questionNumber": 1,
+          "questionNumber": "1a",
           "questionText": "Explain the concept of planning fallacy",
           "questionType": "essay",
           "topicId": "general",
@@ -134,10 +134,10 @@
                 "manualScore": null,
                 "aiSuggestedScore": 7.0,
                 "highlightedText": "Planning fallacy refers to the tendency to underestimate how long a task will take. It happens because people are overly optimistic and do not consider past experiences. For example, students often think they can finish an assignment in one day but end up taking three days.",
-                "aiJustification": "The student demonstrates a good understanding of the planning fallacy, providing a clear definition and an example. However, the essay lacks depth in exploring multiple causes of the planning fallacy. The mention of optimism and not considering past experiences is a good start, but further elaboration on additional psychological factors or examples would enhance the response.",
-                "aiSuggestion": "To improve the essay, the student should include more detailed explanations of the causes of the planning fallacy, such as cognitive biases, overconfidence, or the impact of time management skills. Adding more examples or research findings could also strengthen the argument.",
+                "aiJustification": "The student demonstrates a good understanding of the planning fallacy, providing a clear definition and an example. The definition states that it is the tendency to underestimate how long a task will take, which is accurate. However, the essay lacks depth in exploring multiple causes of the planning fallacy beyond optimism and not considering past experiences. The mention of Kahneman and Tversky adds credibility but does not expand on the psychological factors involved.",
+                "aiSuggestion": "To improve the essay, the student should elaborate on additional causes of the planning fallacy, such as cognitive biases like the optimism bias or the impact of overconfidence. Including more examples or discussing the implications of the planning fallacy in various contexts could also enhance the depth of understanding.",
                 "gradedBy": "ai_system",
-                "gradedAt": "2026-04-11T21:53:51.564938Z"
+                "gradedAt": "2026-04-14T12:31:58.851523Z"
               }
             }
           ],
@@ -147,7 +147,7 @@
         },
         {
           "questionId": "q2",
-          "questionNumber": 2,
+          "questionNumber": "1b",
           "questionText": "Explain psychological factors related to planning fallacy",
           "questionType": "essay",
           "topicId": "general",
@@ -168,10 +168,10 @@
                 "manualScore": null,
                 "aiSuggestedScore": 7.0,
                 "highlightedText": "The psychological factors include optimism bias where people think things will go better than they usually do. There is also the inside view problem where people focus too much on the specific plan without considering base rates. Ego depletion can also play a role as people become less careful in their estimates when tired. Social pressure from supervisors or peers can also cause people to give overly optimistic estimates.",
-                "aiJustification": "The student provides a good explanation of several psychological factors related to the planning fallacy, including optimism bias, inside view problem, ego depletion, and social pressure. However, the explanations lack depth and specific examples that would enhance understanding. For instance, while the mention of 'optimism bias' is relevant, the student does not elaborate on how it specifically impacts planning or provide an example to illustrate the concept. Similarly, the other factors are mentioned but not sufficiently explained in terms of their implications for planning fallacy.",
-                "aiSuggestion": "To improve the essay, the student should provide more detailed explanations of each psychological factor, including examples or scenarios that illustrate how these factors contribute to the planning fallacy. This would help to create a more comprehensive understanding of the topic.",
+                "aiJustification": "The student provides a good explanation of several psychological factors related to the planning fallacy, including optimism bias, inside view problem, ego depletion, and social pressure. However, the explanations lack depth and specific examples that would enhance understanding. For instance, while the mention of 'optimism bias' is relevant, the student does not elaborate on how it specifically impacts planning or provide an example to illustrate this point. The overall structure is clear, but the analysis could be more comprehensive.",
+                "aiSuggestion": "To improve the essay, the student should provide more detailed explanations of each psychological factor mentioned, including specific examples or scenarios that illustrate how these factors contribute to the planning fallacy. This would enhance the clarity and depth of the analysis.",
                 "gradedBy": "ai_system",
-                "gradedAt": "2026-04-11T21:53:51.564938Z"
+                "gradedAt": "2026-04-14T12:31:58.851523Z"
               }
             }
           ],
@@ -196,10 +196,10 @@
       "marking_scheme_id": "rubric-1",
       "assignment_id": "rubric-1",
       "course_id": "default",
-      "stored_at": "2026-04-11T21:53:51.565900Z"
+      "stored_at": "2026-04-14T12:31:58.851523Z"
     },
     "id": "grade_20260411_000707_20841235_19306a",
-    "saved_at": "2026-04-11T21:53:51.565900"
+    "saved_at": "2026-04-14T12:31:58.851523"
   },
   {
     "data": {
@@ -209,12 +209,12 @@
       "examTitle": "MGMT 3130 Rubric",
       "courseId": "default",
       "submittedAt": null,
-      "gradedAt": "2026-04-11T21:53:51.734002Z",
+      "gradedAt": "2026-04-14T12:32:52.715389Z",
       "status": "graded",
       "questions": [
         {
           "questionId": "q1",
-          "questionNumber": 1,
+          "questionNumber": "1a",
           "questionText": "Explain the concept of planning fallacy",
           "questionType": "essay",
           "topicId": "general",
@@ -235,10 +235,10 @@
                 "manualScore": null,
                 "aiSuggestedScore": 9.0,
                 "highlightedText": "The planning fallacy is a cognitive bias where individuals underestimate the time, costs, and risks of future actions while overestimating the benefits. The main causes include optimism bias, where people focus on best-case scenarios, and the failure to account for past experiences with similar tasks.",
-                "aiJustification": "The student demonstrates an excellent understanding of the planning fallacy, providing a clear definition and identifying multiple causes. The definition is concise and accurate, stating that the planning fallacy is a cognitive bias where individuals underestimate time, costs, and risks while overestimating benefits. The essay effectively discusses optimism bias and the inside view as key causes, showcasing a deep understanding of the concept. However, it could benefit from a few more examples or elaboration on the social and motivational factors mentioned.",
-                "aiSuggestion": "To enhance the essay, consider providing specific examples or case studies that illustrate the planning fallacy in real-world scenarios. This would strengthen the argument and provide a more comprehensive understanding of the concept.",
+                "aiJustification": "The student demonstrates an excellent understanding of the planning fallacy, providing a clear definition and identifying multiple causes. The definition is concise and accurate, stating that the planning fallacy is a cognitive bias where individuals underestimate time, costs, and risks while overestimating benefits. The essay effectively discusses optimism bias and the inside view as key causes, which shows a deep understanding of the concept. However, it could benefit from a few more examples or elaboration on how these biases manifest in real-life scenarios to reach a perfect score.",
+                "aiSuggestion": "To enhance the essay, consider including specific examples or case studies that illustrate the planning fallacy in action. This would provide a more comprehensive understanding and strengthen the argument.",
                 "gradedBy": "ai_system",
-                "gradedAt": "2026-04-11T21:53:51.734002Z"
+                "gradedAt": "2026-04-14T12:32:52.715389Z"
               }
             }
           ],
@@ -248,7 +248,7 @@
         },
         {
           "questionId": "q2",
-          "questionNumber": 2,
+          "questionNumber": "1b",
           "questionText": "Explain psychological factors related to planning fallacy",
           "questionType": "essay",
           "topicId": "general",
@@ -267,25 +267,25 @@
               "weight": 1.0,
               "grade": {
                 "manualScore": null,
-                "aiSuggestedScore": 9.0,
+                "aiSuggestedScore": 8.0,
                 "highlightedText": "First, optimism bias causes people to believe they are less likely to experience negative events than others. Second, the focusing illusion makes people concentrate on the task itself while ignoring external factors that could cause delays. Third, anchoring bias means initial estimates become reference points that are insufficiently adjusted. Fourth, the availability heuristic leads people to recall successful completions more easily than failures. Finally, motivated reasoning causes people to unconsciously favor information that supports their desired timeline.",
-                "aiJustification": "The student provides a comprehensive explanation of multiple psychological factors contributing to the planning fallacy. Each factor is clearly identified and explained, demonstrating a strong understanding of the topic. The factors mentioned—optimism bias, focusing illusion, anchoring bias, availability heuristic, and motivated reasoning—are relevant and well-articulated. However, the essay lacks specific examples that could further illustrate these concepts, which would enhance the depth of the explanation.",
-                "aiSuggestion": "To improve the essay, the student should include specific examples or scenarios that illustrate how each psychological factor manifests in real-life situations related to the planning fallacy. This would provide a more comprehensive understanding and strengthen the argument.",
+                "aiJustification": "The student provides a good explanation of several psychological factors contributing to the planning fallacy, including optimism bias, focusing illusion, anchoring bias, availability heuristic, and motivated reasoning. Each factor is identified clearly, demonstrating a solid understanding of their roles in the planning fallacy. However, the essay lacks specific examples that could enhance the explanations and provide a more comprehensive understanding of how these factors manifest in real-life scenarios.",
+                "aiSuggestion": "To improve the essay, the student should include specific examples or scenarios that illustrate how each psychological factor contributes to the planning fallacy. This would not only strengthen the explanations but also provide a clearer connection to the concept being discussed.",
                 "gradedBy": "ai_system",
-                "gradedAt": "2026-04-11T21:53:51.734002Z"
+                "gradedAt": "2026-04-14T12:32:52.715389Z"
               }
             }
           ],
-          "questionTotalScore": 9.0,
+          "questionTotalScore": 8.0,
           "questionMaxScore": 10.0,
-          "questionPercentage": 90.0
+          "questionPercentage": 80.0
         }
       ],
       "summary": {
-        "totalScore": 18.0,
+        "totalScore": 17.0,
         "maxScore": 20.0,
-        "percentage": 90.0,
-        "grade": "A+",
+        "percentage": 85.0,
+        "grade": "A",
         "totalQuestions": 2,
         "gradedQuestions": 2,
         "pendingQuestions": 0
@@ -297,10 +297,10 @@
       "marking_scheme_id": "rubric-1",
       "assignment_id": "rubric-1",
       "course_id": "default",
-      "stored_at": "2026-04-11T21:53:51.735010Z"
+      "stored_at": "2026-04-14T12:32:52.715389Z"
     },
     "id": "grade_20260411_000715_20841234_8ba30e",
-    "saved_at": "2026-04-11T21:53:51.735010"
+    "saved_at": "2026-04-14T12:32:52.715389"
   },
   {
     "data": {

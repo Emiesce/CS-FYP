@@ -197,6 +197,7 @@ class RAGGradingSystem:
                             # Keep parent question context for grouping in results
                             "question_id": question.get('id', ''),
                             "question_title": question.get('title', ''),
+                            "question_label": question.get('label', ''),
                         })
                 else:
                     # Flat mode: the question itself is one criterion
@@ -219,6 +220,7 @@ class RAGGradingSystem:
                         "rubric_text": rubric_text,
                         "question_id": question.get('id', ''),
                         "question_title": question.get('title', ''),
+                        "question_label": question.get('label', ''),
                     })
             
             # Build rubric_text from all questions and scoring criteria

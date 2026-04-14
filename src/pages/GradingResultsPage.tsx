@@ -54,7 +54,7 @@ interface Criterion {
 }
 
 interface Question {
-    questionNumber: number;
+    questionNumber: number | string;
     questionText: string;
     studentAnswer: { answerText: string };
     criteria: Criterion[];
@@ -678,7 +678,7 @@ function GradingView({ records, initialIndex, onBack, onRecordsUpdate }: {
                 {/* Right panel — criteria for current question only */}
                 <div style={{ width: rightWidth }} className="p-4 flex flex-col h-full overflow-hidden flex-shrink-0">
                     <h3 className="text-lg font-semibold text-[#2c2828] mb-3 flex-shrink-0">
-                        {totalQuestions > 1 ? `Q${currentQuestionIndex + 1} Criteria` : 'Criteria'}
+                        {totalQuestions > 1 ? `Q${currentQuestion?.questionNumber ?? currentQuestionIndex + 1} Criteria` : 'Criteria'}
                     </h3>
 
                     <div className="flex-1 space-y-4 overflow-y-auto px-1">

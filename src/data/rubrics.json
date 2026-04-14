@@ -75,7 +75,8 @@
               }
             ]
           }
-        ]
+        ],
+        "label": "1a"
       },
       {
         "id": "q2",
@@ -148,7 +149,8 @@
               }
             ]
           }
-        ]
+        ],
+        "label": "1b"
       }
     ],
     "totalMinPoints": 0,
@@ -156,7 +158,7 @@
     "courseId": "course-1",
     "assignmentId": "assignment-1",
     "createdAt": "2024-01-15T00:00:00.000Z",
-    "updatedAt": "2026-04-11T13:51:54.490Z",
+    "updatedAt": "2026-04-14T04:31:13.037Z",
     "lectureNotes": [
       {
         "id": "note-1775665762853-0",
@@ -1057,6 +1059,118 @@
     "totalMaxPoints": 58,
     "createdAt": "2026-04-11T14:38:48.432Z",
     "updatedAt": "2026-04-11T16:50:35.106Z",
+    "lectureNotes": []
+  },
+  {
+    "id": "rubric-1776142890281",
+    "title": "Sosc 3900 Individual Paper Grading Rubrics",
+    "description": "This rubric assesses the quality of the individual paper submitted for the course SOSC3900 Abnormal Psychology.",
+    "questions": [
+      {
+        "id": "q1",
+        "title": "Address the following questions using your own words with proper APA citation: Psychologists normally adopt the 'three Ds' (i.e., deviance, dysfunction, and distress) to define abnormality. Which ONE of the 'Ds' do you think a better dimension to define abnormal behaviors? Illustrate your stance with a specific psychological disorder.",
+        "description": "Students should demonstrate their understanding of the three Ds of abnormality and relate one of them to a specific psychological disorder covered in the course.",
+        "minScore": 0,
+        "maxScore": 20,
+        "scoringCriteria": [
+          {
+            "id": "sc1",
+            "scoreRange": "0-20",
+            "description": "This score level indicates the overall quality of the paper based on the combined evaluation of all criteria.",
+            "minPoints": 0,
+            "maxPoints": 20
+          }
+        ],
+        "criteria": [
+          {
+            "id": "crit1",
+            "name": "Content (15%)",
+            "scoreLevels": [
+              {
+                "id": "sl1",
+                "scoreRange": "15-20",
+                "description": "Demonstrated an outstanding understanding about the three 'Ds' to define abnormality. Elaborated very clearly how the specific psychological disorder is linked with one of the Ds. Provided very insightful and unique discussions on the issue with literature.",
+                "minPoints": 15,
+                "maxPoints": 20
+              },
+              {
+                "id": "sl2",
+                "scoreRange": "10-14",
+                "description": "Demonstrated a good understanding about the three 'Ds' to define abnormality. Elaborated clearly how the specific psychological disorder is linked with one of the Ds. Provided insightful discussions on the issue with literature.",
+                "minPoints": 10,
+                "maxPoints": 14
+              },
+              {
+                "id": "sl3",
+                "scoreRange": "5-9",
+                "description": "Demonstrated satisfactory understanding about the three 'Ds' to define abnormality. Elaborated how the specific psychological disorder is linked with one of the Ds, but with some confusing points. Provided appropriate discussions on the issue, but did not support with literature.",
+                "minPoints": 5,
+                "maxPoints": 9
+              },
+              {
+                "id": "sl4",
+                "scoreRange": "1-4",
+                "description": "Demonstrated mere understanding about the three 'Ds' to define abnormality. Elaborated fairly how the specific psychological disorder is linked with one of the Ds, but with a lot of confusing points. Provided fair discussions on the issue without literature support.",
+                "minPoints": 1,
+                "maxPoints": 4
+              },
+              {
+                "id": "sl5",
+                "scoreRange": "0",
+                "description": "Demonstrated poor understanding about the three 'Ds' to define abnormality. Did not elaborate fairly how the specific psychological disorder is linked with one of the Ds and with a lot of confusing points. Did not provide discussions on the issue.",
+                "minPoints": 0,
+                "maxPoints": 0
+              }
+            ]
+          },
+          {
+            "id": "crit2",
+            "name": "Organization and Writing (5%)",
+            "scoreLevels": [
+              {
+                "id": "sl1",
+                "scoreRange": "5",
+                "description": "Very smooth, coherent and well-organized logic of presentation. The writing style follows APA citation and referencing very appropriately.",
+                "minPoints": 5,
+                "maxPoints": 5
+              },
+              {
+                "id": "sl2",
+                "scoreRange": "4",
+                "description": "A coherent and organized logic of presentation. The writing style in general follows APA citation and referencing.",
+                "minPoints": 4,
+                "maxPoints": 4
+              },
+              {
+                "id": "sl3",
+                "scoreRange": "3",
+                "description": "A logic of presentation, but with flaws in coherency of arguments. The writing style in general follows APA citation and referencing.",
+                "minPoints": 3,
+                "maxPoints": 3
+              },
+              {
+                "id": "sl4",
+                "scoreRange": "2",
+                "description": "An unorganized logic of presentation, and with a lot of flaws in coherency of arguments. The writing style did not follow APA citation and referencing.",
+                "minPoints": 2,
+                "maxPoints": 2
+              },
+              {
+                "id": "sl5",
+                "scoreRange": "1",
+                "description": "A poor logic of presentation with incoherency of arguments. The writing style did not follow APA citation and referencing at all.",
+                "minPoints": 1,
+                "maxPoints": 1
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "totalMinPoints": 0,
+    "totalMaxPoints": 20,
+    "createdAt": "2026-04-14T05:01:30.282Z",
+    "updatedAt": "2026-04-14T05:03:15.711Z",
     "lectureNotes": []
   }
 ]

@@ -56,12 +56,13 @@ export interface RubricData {
 
 export interface RubricQuestion {
     id: string;
+    label?: string;  // custom label e.g. "1a", "1a(ii)" — overrides auto-number
     title: string;
     description?: string;
-    minScore: number; // float
-    maxScore: number; // float
-    scoringCriteria: ScoringCriterion[];       // legacy flat format (kept for backward compat)
-    criteria?: RubricCriterion[];              // new hierarchical format
+    minScore: number;
+    maxScore: number;
+    scoringCriteria: ScoringCriterion[];
+    criteria?: RubricCriterion[];
 }
 
 export interface ScoringCriterion {
