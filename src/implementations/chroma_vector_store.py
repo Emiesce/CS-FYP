@@ -222,7 +222,10 @@ class ChromaVectorStore(VectorStore):
             conditions.append({"source_type": {"$eq": source_type}})
 
         if rubric_id:
-            conditions.append({"associated_rubrics": {"$contains": rubric_id}})
+            # associated_rubrics is stored as a comma-joined string.
+            # ChromaDB doesn't support $contains, so we match exact single-rubric
+            # entries or fall back to no rubric filter (source_type filter is enough).
+            conditions.append({"associated_rubrics": {"$eq": rubric_id}})
 
         if len(conditions) == 0:
             return None

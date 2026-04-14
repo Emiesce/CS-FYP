@@ -918,6 +918,7 @@ function CreateRubricView({ onSuccess, onError, onCancel, isSubmitting, hookData
 interface QuestionEditorProps {
     question: RubricQuestion;
     index: number;
+    rubricId?: string;
     onUpdate: (updates: Partial<RubricQuestion>) => void;
     onRemove: () => void;
     onAddCriterion: () => void;
@@ -937,6 +938,7 @@ interface QuestionEditorProps {
 function QuestionEditor({
     question,
     index,
+    rubricId,
     onUpdate,
     onRemove,
     onAddCriterion,
@@ -951,6 +953,53 @@ function QuestionEditor({
     errors,
     disabled
 }: QuestionEditorProps) {
+    const [aiLoading, setAiLoading] = useState(false);
+    const [aiError, setAiError] = useState<string | null>(null);
+    const [numCriteria, setNumCriteria] = useState(1);
+
+    const suggestCriteria = async () => {
+        if (!question.title.trim()) {
+            setAiError('Please enter a question title first.');
+            return;
+        }
+        setAiLoading(true);
+        setAiError(null);
+        try {
+            const res = await fetch('http://localhost:5000/suggest-rubric-criteria', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    question_title: question.title,
+                    description: question.description || '',
+                    max_score: question.maxScore || 10,
+                    model_answer: question.modelAnswer || '',
+                    num_criteria: numCriteria,
+                    rubric_id: rubricId || undefined,
+                }),
+            });
+            const data = await res.json();
+            if (!data.success) throw new Error(data.error || 'AI suggestion failed');
+
+            // Apply suggested criteria — replace existing criteria
+            const newCriteria: RubricCriterion[] = data.criteria.map((c: any) => ({
+                id: c.id,
+                name: c.name,
+                scoreLevels: (c.scoreLevels || []).map((sl: any) => ({
+                    id: sl.id,
+                    scoreRange: sl.scoreRange,
+                    description: sl.description,
+                    minPoints: sl.minPoints,
+                    maxPoints: sl.maxPoints,
+                })),
+            }));
+            onUpdate({ criteria: newCriteria });
+        } catch (e: any) {
+            setAiError(e.message || 'Failed to get AI suggestion');
+        } finally {
+            setAiLoading(false);
+        }
+    };
+
     return (
         <div className="rubric-question-block">
             <div className="rubric-question-header">
@@ -1070,7 +1119,31 @@ function QuestionEditor({
                         <label className="block text-sm font-medium text-gray-700">
                             Scoring Criteria
                         </label>
+                        <div className="flex items-center gap-2">
+                            <select
+                                value={numCriteria}
+                                onChange={(e) => setNumCriteria(Number(e.target.value))}
+                                className="text-xs border border-gray-200 rounded px-1 py-1 text-gray-500"
+                                disabled={disabled || aiLoading}
+                                title="Number of criteria for AI to generate"
+                            >
+                                {[1, 2, 3, 4, 5].map(n => (
+                                    <option key={n} value={n}>{n} criterion{n > 1 ? 'ia' : ''}</option>
+                                ))}
+                            </select>
+                            <Button
+                                type="button"
+                                onClick={suggestCriteria}
+                                variant="outline"
+                                size="sm"
+                                disabled={disabled || aiLoading || !question.title.trim()}
+                                title="Ask AI to suggest scoring criteria based on the question"
+                            >
+                                {aiLoading ? '...' : '✨ AI Suggest'}
+                            </Button>
+                        </div>
                     </div>
+                    {aiError && <p className="text-xs text-red-500 mb-2">{aiError}</p>}
 
                     {/* Criteria mode: named criteria with nested score levels */}
                     {question.criteria.length > 0 ? (
@@ -1969,6 +2042,7 @@ function EditRubricView({ rubric, onSuccess, onError, onCancel, isSubmitting, ho
                                         key={question.id}
                                         question={question}
                                         index={index}
+                                        rubricId={rubric.id}
                                         onUpdate={(updates) => updateQuestion(question.id, updates)}
                                         onRemove={() => removeQuestion(question.id)}
                                         onAddCriterion={() => addScoringCriterion(question.id)}

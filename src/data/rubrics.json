@@ -1172,5 +1172,76 @@
     "createdAt": "2026-04-14T05:01:30.282Z",
     "updatedAt": "2026-04-14T05:03:15.711Z",
     "lectureNotes": []
+  },
+  {
+    "id": "rubric-1776183292802",
+    "title": "Management Essay",
+    "description": "",
+    "questions": [
+      {
+        "id": "q-1776183197272",
+        "title": "Explain the psychology factor of planning fallacy",
+        "description": "",
+        "minScore": 0,
+        "maxScore": 20,
+        "modelAnswer": "",
+        "criteria": [
+          {
+            "id": "crit-ai-cb297247",
+            "name": "Understanding of Planning Fallacy",
+            "scoreLevels": [
+              {
+                "id": "sl-ai-1b3cfb4b",
+                "scoreRange": "18-20",
+                "description": "Demonstrates a comprehensive understanding of the planning fallacy, including its psychological underpinnings, such as optimism bias and cognitive dissonance. Provides detailed examples and integrates relevant theories, such as the role of temporal discounting and the impact of past experiences on future predictions.",
+                "minPoints": 18,
+                "maxPoints": 20
+              },
+              {
+                "id": "sl-ai-6eb59e8f",
+                "scoreRange": "14-17",
+                "description": "Shows a good understanding of the planning fallacy, discussing key psychological factors like optimism bias. Provides some examples but may lack depth in explaining the underlying theories or fail to connect them effectively to the concept of planning fallacy.",
+                "minPoints": 14,
+                "maxPoints": 17
+              },
+              {
+                "id": "sl-ai-d149969f",
+                "scoreRange": "10-13",
+                "description": "Demonstrates a basic understanding of the planning fallacy, mentioning some psychological factors but lacking clarity or depth. Examples may be vague or not directly related to the concept, and there is minimal reference to relevant theories.",
+                "minPoints": 10,
+                "maxPoints": 13
+              },
+              {
+                "id": "sl-ai-336d2c68",
+                "scoreRange": "0-9",
+                "description": "Shows little to no understanding of the planning fallacy. Fails to identify key psychological factors or provide relevant examples. The response may be off-topic or demonstrate significant misconceptions about the concept.",
+                "minPoints": 0,
+                "maxPoints": 9
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "totalMinPoints": 0,
+    "totalMaxPoints": 20,
+    "lectureNotes": [
+      {
+        "id": "note-1776183194941-0",
+        "backendId": "5ac90612-fa1c-4daf-bd24-da3c2f4687fa",
+        "filename": "Unit 2.7 Escalation of commitment (2025).pdf",
+        "originalName": "Unit 2.7 Escalation of commitment (2025).pdf",
+        "fileSize": 1427876,
+        "fileType": "pdf",
+        "uploadedAt": "2026-04-14T16:14:19.598Z",
+        "associatedRubrics": [],
+        "metadata": {
+          "processingStatus": "completed"
+        },
+        "processedAt": null
+      }
+    ],
+    "createdAt": "2026-04-14T16:14:52.802Z",
+    "updatedAt": "2026-04-14T16:14:52.802Z"
   }
 ]

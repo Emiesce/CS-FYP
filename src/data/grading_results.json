@@ -895,5 +895,835 @@
     },
     "id": "grade_20260411_214229_20841236_bb3bb8",
     "saved_at": "2026-04-11T21:48:05.611768"
+  },
+  {
+    "data": {
+      "studentID": "25801224",
+      "studentName": "Eva Poon",
+      "examId": "rubric-1776142890281",
+      "examTitle": "Sosc 3900 Individual Paper Grading Rubrics",
+      "courseId": "default",
+      "submittedAt": null,
+      "gradedAt": "2026-04-15T00:42:12.910823Z",
+      "status": "graded",
+      "questions": [
+        {
+          "questionId": "q1",
+          "questionNumber": "1",
+          "questionText": "Address the following questions using your own words with proper APA citation: Psychologists normally adopt the 'three Ds' (i.e., deviance, dysfunction, and distress) to define abnormality. Which ONE of the 'Ds' do you think a better dimension to define abnormal behaviors? Illustrate your stance with a specific psychological disorder.",
+          "questionType": "essay",
+          "topicId": "general",
+          "studentAnswer": {
+            "id": "answer1",
+            "answerText": "Among the three Ds used to define abnormality—deviance, dysfunction, and distress—I think dysfunction is the most convincing dimension because it focuses on whether a behavior interferes with normal life. A behavior may look unusual or even upsetting, but the most important question is whether it prevents a person from studying, working, maintaining relationships, or taking care of themselves. In that sense, dysfunction is a practical and meaningful way to judge abnormality.One reason dysfunction is stronger than deviance is that deviance can vary across cultures and situations. A behavior that seems strange in one group may be acceptable in another. If we rely too much on deviance, we may confuse difference with disorder. Dysfunction avoids that problem because it asks about the actual impact of the behavior on daily functioning. This makes it more useful in psychology, where the goal is not just to label difference, but to understand when someone needs help.A good example is obsessive-compulsive disorder, or OCD. People with OCD often experience unwanted thoughts and feel forced to repeat certain actions such as checking, cleaning, or counting. At first glance, these behaviors may seem strange to other people. However, the real issue is that they can take up a lot of time and interfere with normal routines. For example, a person may check the door many times before leaving home, causing them to be late for work or school. Another person may spend so much time on cleaning rituals that they cannot focus on other responsibilities. In this case, the disorder is not only about unusual behavior, but about how much it disrupts everyday life.Research has shown that OCD can seriously affect quality of life and functioning. People with OCD may struggle with work, family life, and social relationships because their symptoms are difficult to manage. This supports the idea that dysfunction is a key feature of abnormality. In fact, even if a person does not openly express much distress, the disorder may still be obvious because it disrupts their ability to function normally. That is why dysfunction can be more informative than distress alone.Distress is still important, of course, because many disorders involve suffering, anxiety, sadness, or fear. But distress is not always the clearest sign. Some people may hide their suffering, and others may feel distress for reasons that are temporary or not related to mental disorder. Dysfunction is easier to observe because it shows up in real-life problems such as missed deadlines, poor performance, withdrawal from others, or inability to complete normal tasks. This makes it a more balanced and practical criterion.In conclusion, dysfunction is the best of the three Ds because it shows whether a behavior is actually harming a person’s life. Deviance may be too culturally dependent, and distress may not always be obvious, but dysfunction clearly shows when behavior is interfering with daily functioning. OCD is a useful example because its symptoms may look odd, but what makes the disorder significant is the way it disrupts normal living. For these reasons, dysfunction is a strong dimension for defining abnormal behavior.",
+            "submittedAt": null,
+            "wordCount": 508
+          },
+          "criteria": [
+            {
+              "criterionId": "crit1",
+              "criterionName": "Content (15%)",
+              "description": "AI-generated assessment criteria",
+              "maxScore": 20.0,
+              "weight": 1.0,
+              "grade": {
+                "manualScore": null,
+                "aiSuggestedScore": 18.0,
+                "highlightedText": "In conclusion, dysfunction is the best of the three Ds because it shows whether a behavior is actually harming a person’s life.",
+                "aiJustification": "The student demonstrates a strong understanding of the three Ds of abnormality, particularly focusing on dysfunction as the most convincing dimension. They effectively link this concept to obsessive-compulsive disorder (OCD), providing clear examples of how OCD disrupts daily functioning. The discussion is insightful and well-articulated, although it could benefit from more direct citations from relevant literature to strengthen the argument.",
+                "aiSuggestion": "Incorporate specific APA citations to support claims and enhance the academic rigor of the discussion.",
+                "gradedBy": "ai_system",
+                "gradedAt": "2026-04-15T00:42:12.910823Z"
+              }
+            },
+            {
+              "criterionId": "crit2",
+              "criterionName": "Organization and Writing (5%)",
+              "description": "AI-generated assessment criteria",
+              "maxScore": 5.0,
+              "weight": 1.0,
+              "grade": {
+                "manualScore": null,
+                "aiSuggestedScore": 4.5,
+                "highlightedText": "A behavior may look unusual or even upsetting, but the most important question is whether it prevents a person from studying, working, maintaining relationships, or taking care of themselves.",
+                "aiJustification": "The writing is coherent and well-organized, with a logical flow of ideas. The student presents their arguments clearly, making it easy to follow their reasoning. However, there are minor lapses in the use of APA citation style, which could be improved.",
+                "aiSuggestion": "Ensure that all statements that require citation are properly referenced in APA format to enhance clarity and adherence to academic standards.",
+                "gradedBy": "ai_system",
+                "gradedAt": "2026-04-15T00:42:12.910823Z"
+              }
+            }
+          ],
+          "questionTotalScore": 22.5,
+          "questionMaxScore": 25.0,
+          "questionPercentage": 90.0
+        }
+      ],
+      "summary": {
+        "totalScore": 22.5,
+        "maxScore": 25.0,
+        "percentage": 90.0,
+        "grade": "A+",
+        "totalQuestions": 1,
+        "gradedQuestions": 1,
+        "pendingQuestions": 0
+      }
+    },
+    "success": true,
+    "message": "Exam results processed successfully",
+    "_metadata": {
+      "marking_scheme_id": "rubric-1776142890281",
+      "assignment_id": "rubric-1776142890281",
+      "course_id": "default",
+      "stored_at": "2026-04-15T00:42:12.910823Z"
+    },
+    "id": "grade_20260415_004212_25801224_94cea4",
+    "saved_at": "2026-04-15T00:42:12.910823"
+  },
+  {
+    "data": {
+      "studentID": "25841264",
+      "studentName": "Stephanie Chow",
+      "examId": "rubric-1776142890281",
+      "examTitle": "Sosc 3900 Individual Paper Grading Rubrics",
+      "courseId": "default",
+      "submittedAt": null,
+      "gradedAt": "2026-04-15T00:42:13.160627Z",
+      "status": "graded",
+      "questions": [
+        {
+          "questionId": "q1",
+          "questionNumber": "1",
+          "questionText": "Address the following questions using your own words with proper APA citation: Psychologists normally adopt the 'three Ds' (i.e., deviance, dysfunction, and distress) to define abnormality. Which ONE of the 'Ds' do you think a better dimension to define abnormal behaviors? Illustrate your stance with a specific psychological disorder.",
+          "questionType": "essay",
+          "topicId": "general",
+          "studentAnswer": {
+            "id": "answer1",
+            "answerText": "Among the three Ds used to define abnormality—deviance, dysfunction, and distress—I think dysfunction is the strongest dimension because it focuses on whether a behavior actually interferes with a person’s ability to live normally. A behavior may be unusual, emotionally painful, or different from social expectations, but what matters most clinically is whether it disrupts daily functioning. This makes dysfunction a practical and balanced way to judge abnormality.One major advantage of dysfunction is that it avoids the problem of cultural bias. Deviance can be misleading because what is considered “normal” varies across cultures, communities, and historical periods. A behavior that seems strange in one context may be completely acceptable in another. Distress is also useful, but it is not always enough on its own, because some people may suffer without having a mental disorder, while others may not clearly express their suffering even when their functioning is badly affected. Dysfunction gets closer to the real question psychologists should ask: is the person able to study, work, maintain relationships, and care for themselves effectively?A strong example is obsessive-compulsive disorder, or OCD. People with OCD may have intrusive thoughts and feel driven to perform repeated rituals such as checking locks, washing hands, or arranging objects in a very specific way. These behaviors may look odd to outsiders, but the real issue is the degree to which they interfere with everyday life. For instance, a student with OCD might spend so much time checking homework or re-reading notes that they cannot finish assignments on time. A worker might repeatedly return home to make sure appliances are turned off, causing lateness and stress. In such cases, the behavior is abnormal not because it is merely unusual, but because it disrupts the person’s daily functioning.OCD also shows why dysfunction is more convincing than deviance alone. Some compulsive behaviors may appear strange, but strange behavior does not automatically mean mental disorder. What makes OCD clinically significant is that the obsessions and compulsions consume time, create barriers to normal routine, and reduce quality of life. This is why many psychological definitions of disorder emphasize impairment or disability. The focus is not simply on difference, but on the extent to which the behavior prevents a person from living well.Dysfunction is also useful because it is easier to observe in practical terms. Psychologists can look at whether a person is missing school, losing jobs, avoiding responsibilities, or struggling with relationships. These signs give a clearer picture than relying only on whether someone feels upset or behaves differently. In OCD, the impairment often becomes visible through poor concentration, exhaustion, lateness, social withdrawal, and constant interference with normal tasks. That makes dysfunction a strong indicator that intervention may be needed.In conclusion, dysfunction is the best of the three Ds because it captures the real-life impact of abnormal behavior. Deviance may be too dependent on social norms, and distress may not always be clear or sufficient, but dysfunction shows whether the behavior is truly harming a person’s ability to function. OCD is a useful example because its symptoms become most meaningful when they interfere with ordinary living. For that reason, dysfunction is the most effective dimension for defining abnormal behavior.",
+            "submittedAt": null,
+            "wordCount": 527
+          },
+          "criteria": [
+            {
+              "criterionId": "crit1",
+              "criterionName": "Content (15%)",
+              "description": "AI-generated assessment criteria",
+              "maxScore": 20.0,
+              "weight": 1.0,
+              "grade": {
+                "manualScore": null,
+                "aiSuggestedScore": 19.0,
+                "highlightedText": "This makes dysfunction a practical and balanced way to judge abnormality.",
+                "aiJustification": "The student demonstrates an outstanding understanding of the three Ds of abnormality, particularly focusing on dysfunction. They clearly articulate how dysfunction is the most relevant dimension for defining abnormal behavior, using obsessive-compulsive disorder (OCD) as a specific example. The discussion is insightful and well-supported, addressing the limitations of deviance and distress effectively.",
+                "aiSuggestion": "To enhance the response further, the student could incorporate specific literature citations to support their arguments, which would strengthen the academic rigor of the discussion.",
+                "gradedBy": "ai_system",
+                "gradedAt": "2026-04-15T00:42:13.160627Z"
+              }
+            },
+            {
+              "criterionId": "crit2",
+              "criterionName": "Organization and Writing (5%)",
+              "description": "AI-generated assessment criteria",
+              "maxScore": 5.0,
+              "weight": 1.0,
+              "grade": {
+                "manualScore": null,
+                "aiSuggestedScore": 5.0,
+                "highlightedText": "Dysfunction is also useful because it is easier to observe in practical terms.",
+                "aiJustification": "The writing is very smooth, coherent, and well-organized. The arguments flow logically, and the writing style is appropriate for an academic context. There are no noticeable issues with clarity or organization.",
+                "aiSuggestion": "While the organization is strong, the student should ensure that all claims are properly cited in APA format to meet academic standards fully.",
+                "gradedBy": "ai_system",
+                "gradedAt": "2026-04-15T00:42:13.160627Z"
+              }
+            }
+          ],
+          "questionTotalScore": 24.0,
+          "questionMaxScore": 25.0,
+          "questionPercentage": 96.0
+        }
+      ],
+      "summary": {
+        "totalScore": 24.0,
+        "maxScore": 25.0,
+        "percentage": 96.0,
+        "grade": "A+",
+        "totalQuestions": 1,
+        "gradedQuestions": 1,
+        "pendingQuestions": 0
+      }
+    },
+    "success": true,
+    "message": "Exam results processed successfully",
+    "_metadata": {
+      "marking_scheme_id": "rubric-1776142890281",
+      "assignment_id": "rubric-1776142890281",
+      "course_id": "default",
+      "stored_at": "2026-04-15T00:42:13.160627Z"
+    },
+    "id": "grade_20260415_004213_25841264_ceeaba",
+    "saved_at": "2026-04-15T00:42:13.160627"
+  },
+  {
+    "data": {
+      "studentID": "20841235",
+      "studentName": "Peter Wong",
+      "examId": "rubric-1776142890281",
+      "examTitle": "Sosc 3900 Individual Paper Grading Rubrics",
+      "courseId": "default",
+      "submittedAt": null,
+      "gradedAt": "2026-04-15T00:42:13.621987Z",
+      "status": "graded",
+      "questions": [
+        {
+          "questionId": "q1",
+          "questionNumber": "1",
+          "questionText": "Address the following questions using your own words with proper APA citation: Psychologists normally adopt the 'three Ds' (i.e., deviance, dysfunction, and distress) to define abnormality. Which ONE of the 'Ds' do you think a better dimension to define abnormal behaviors? Illustrate your stance with a specific psychological disorder.",
+          "questionType": "essay",
+          "topicId": "general",
+          "studentAnswer": {
+            "id": "answer1",
+            "answerText": "Among the three Ds of abnormality—deviance, dysfunction, and distress—I think distress is the most important dimension because it captures the human experience of mental disorder most directly. A behavior should not be considered abnormal only because it is unusual or disruptive; it becomes especially concerning when it causes significant suffering to the person involved.Distress is a strong criterion because mental disorders are not just about appearing different from others. They involve pain, fear, sadness, shame, or unbearable tension that affects how a person experiences daily life. A person may behave in a way that looks strange to others, but if there is no suffering and no negative impact, the behavior may simply reflect individuality. Distress therefore helps distinguish ordinary differences from genuine psychological problems. It is also easier to connect with clinically, because the presence of suffering often motivates people to seek help.A clear example is major depressive disorder. People with depression often experience persistent sadness, hopelessness, guilt, loss of interest, and emotional pain. These symptoms are not just unpleasant; they can feel overwhelming and exhausting. A student with depression may still attend classes, but feel emotionally empty and unable to enjoy anything. A worker may continue doing their job, yet struggle with constant inner suffering. In this case, the most obvious sign of abnormality is not deviance, because sadness is not socially unusual, and not always dysfunction, because some people continue functioning outwardly. What makes depression especially significant is the intense distress it causes. This is why distress is a useful dimension for identifying abnormal behavior.Distress is also more compassionate than deviance. If we focus too much on deviance, we may label people as abnormal simply because they do not fit social expectations. But abnormal psychology should not be about judging people who are merely different. It should focus on whether a person is suffering and needs support. Distress keeps the focus on well-being rather than social conformity, which is especially important in mental health.At the same time, distress is not perfect on its own. Some conditions may involve limited awareness of suffering, and some people may feel distress for reasons that are not mental disorders. Even so, distress is still the most meaningful starting point because it reflects the core purpose of psychology and counseling: to understand and reduce human suffering. In that sense, distress is not only a symptom but also a signal that help may be needed.In conclusion, although all three Ds have value, distress is the best dimension for defining abnormality because it captures the subjective pain that makes mental disorders clinically important. Using major depressive disorder as an example, we can see that suffering is often the clearest sign that something is wrong. Compared with deviance and dysfunction, distress places human experience at the center of diagnosis, which makes it the most appropriate and humane criterion",
+            "submittedAt": null,
+            "wordCount": 472
+          },
+          "criteria": [
+            {
+              "criterionId": "crit1",
+              "criterionName": "Content (15%)",
+              "description": "AI-generated assessment criteria",
+              "maxScore": 20.0,
+              "weight": 1.0,
+              "grade": {
+                "manualScore": null,
+                "aiSuggestedScore": 18.0,
+                "highlightedText": "Distress is a strong criterion because mental disorders are not just about appearing different from others. They involve pain, fear, sadness, shame, or unbearable tension that affects how a person experiences daily life.",
+                "aiJustification": "The student demonstrates a strong understanding of the three Ds of abnormality, particularly focusing on distress as the most significant dimension. They effectively link major depressive disorder to distress, illustrating how it captures the subjective pain associated with the disorder. The discussion is insightful and well-articulated, although it could benefit from more literature support to enhance the argument.",
+                "aiSuggestion": "Incorporate relevant literature or studies to support the claims made about distress and its significance in defining abnormality.",
+                "gradedBy": "ai_system",
+                "gradedAt": "2026-04-15T00:42:13.621987Z"
+              }
+            },
+            {
+              "criterionId": "crit2",
+              "criterionName": "Organization and Writing (5%)",
+              "description": "AI-generated assessment criteria",
+              "maxScore": 5.0,
+              "weight": 1.0,
+              "grade": {
+                "manualScore": null,
+                "aiSuggestedScore": 4.5,
+                "highlightedText": "In conclusion, although all three Ds have value, distress is the best dimension for defining abnormality because it captures the subjective pain that makes mental disorders clinically important.",
+                "aiJustification": "The writing is coherent and well-organized, with a logical flow of ideas. The arguments are presented clearly, making it easy for the reader to follow the student's reasoning. However, there are minor lapses in clarity that could be improved.",
+                "aiSuggestion": "Ensure that all points are clearly articulated and consider breaking down complex sentences for better readability.",
+                "gradedBy": "ai_system",
+                "gradedAt": "2026-04-15T00:42:13.621987Z"
+              }
+            }
+          ],
+          "questionTotalScore": 22.5,
+          "questionMaxScore": 25.0,
+          "questionPercentage": 90.0
+        }
+      ],
+      "summary": {
+        "totalScore": 22.5,
+        "maxScore": 25.0,
+        "percentage": 90.0,
+        "grade": "A+",
+        "totalQuestions": 1,
+        "gradedQuestions": 1,
+        "pendingQuestions": 0
+      }
+    },
+    "success": true,
+    "message": "Exam results processed successfully",
+    "_metadata": {
+      "marking_scheme_id": "rubric-1776142890281",
+      "assignment_id": "rubric-1776142890281",
+      "course_id": "default",
+      "stored_at": "2026-04-15T00:42:13.621987Z"
+    },
+    "id": "grade_20260415_004213_20841235_79f480",
+    "saved_at": "2026-04-15T00:42:13.621987"
+  },
+  {
+    "data": {
+      "studentID": "25841024",
+      "studentName": "Paula Poon",
+      "examId": "rubric-1776142890281",
+      "examTitle": "Sosc 3900 Individual Paper Grading Rubrics",
+      "courseId": "default",
+      "submittedAt": null,
+      "gradedAt": "2026-04-15T00:42:13.723776Z",
+      "status": "graded",
+      "questions": [
+        {
+          "questionId": "q1",
+          "questionNumber": "1",
+          "questionText": "Address the following questions using your own words with proper APA citation: Psychologists normally adopt the 'three Ds' (i.e., deviance, dysfunction, and distress) to define abnormality. Which ONE of the 'Ds' do you think a better dimension to define abnormal behaviors? Illustrate your stance with a specific psychological disorder.",
+          "questionType": "essay",
+          "topicId": "general",
+          "studentAnswer": {
+            "id": "answer1",
+            "answerText": "Among the three Ds, I think deviance is the best way to define abnormal behavior because it is the most obvious thing to look at. If a person does something that is different from what most people do, then that behavior is probably abnormal. Normal people usually follow the rules and act in a regular way, so when someone acts differently, it shows that something is not right. This makes deviance the easiest dimension to use because it is simple and clear.A good example is schizophrenia. People with schizophrenia may hear voices, talk to themselves, or believe things that others do not believe. These behaviors are not common in society, so they are deviant. Since they are strange, they can be used to show abnormality. For this reason, schizophrenia is a good example of why deviance is the best D.Also, deviance is better than distress because not all abnormal people feel upset. Some of them may not even know they are different. It is also better than dysfunction because some people can still do daily activities even if their behavior is strange. So deviance is the most useful of the three Ds because it can identify abnormal behavior quickly and easily. If something is not normal, then it should be considered abnormal.In conclusion, deviance is the best dimension because it separates normal behavior from abnormal behavior. People who do unusual things are different from most others, and this difference is what makes them abnormal. Schizophrenia shows this clearly because the person acts in a way that is very unusual. Therefore, deviance should be the main way to define abnormality.",
+            "submittedAt": null,
+            "wordCount": 269
+          },
+          "criteria": [
+            {
+              "criterionId": "crit1",
+              "criterionName": "Content (15%)",
+              "description": "AI-generated assessment criteria",
+              "maxScore": 20.0,
+              "weight": 1.0,
+              "grade": {
+                "manualScore": null,
+                "aiSuggestedScore": 12.0,
+                "highlightedText": "deviance is the best way to define abnormal behavior because it is the most obvious thing to look at.",
+                "aiJustification": "The student demonstrates a good understanding of the three Ds of abnormality, particularly focusing on deviance. They provide a clear link between deviance and schizophrenia, stating that 'People with schizophrenia may hear voices, talk to themselves, or believe things that others do not believe.' However, the discussion lacks depth and does not reference relevant literature to support their claims.",
+                "aiSuggestion": "To improve, the student should incorporate relevant psychological literature to support their arguments and provide a more nuanced discussion of how deviance compares to dysfunction and distress.",
+                "gradedBy": "ai_system",
+                "gradedAt": "2026-04-15T00:42:13.723776Z"
+              }
+            },
+            {
+              "criterionId": "crit2",
+              "criterionName": "Organization and Writing (5%)",
+              "description": "AI-generated assessment criteria",
+              "maxScore": 5.0,
+              "weight": 1.0,
+              "grade": {
+                "manualScore": null,
+                "aiSuggestedScore": 4.0,
+                "highlightedText": "deviance is the most useful of the three Ds because it can identify abnormal behavior quickly and easily.",
+                "aiJustification": "The writing is generally coherent and organized, with a logical flow of ideas. The student effectively presents their argument for deviance as the best dimension of abnormality. However, there are minor lapses in clarity and some repetitive statements.",
+                "aiSuggestion": "To enhance clarity, the student should work on reducing redundancy in their arguments and ensure that each point is distinct and contributes to the overall discussion.",
+                "gradedBy": "ai_system",
+                "gradedAt": "2026-04-15T00:42:13.723776Z"
+              }
+            }
+          ],
+          "questionTotalScore": 16.0,
+          "questionMaxScore": 25.0,
+          "questionPercentage": 64.0
+        }
+      ],
+      "summary": {
+        "totalScore": 16.0,
+        "maxScore": 25.0,
+        "percentage": 64.0,
+        "grade": "C+",
+        "totalQuestions": 1,
+        "gradedQuestions": 1,
+        "pendingQuestions": 0
+      }
+    },
+    "success": true,
+    "message": "Exam results processed successfully",
+    "_metadata": {
+      "marking_scheme_id": "rubric-1776142890281",
+      "assignment_id": "rubric-1776142890281",
+      "course_id": "default",
+      "stored_at": "2026-04-15T00:42:13.724783Z"
+    },
+    "id": "grade_20260415_004213_25841024_350880",
+    "saved_at": "2026-04-15T00:42:13.724783"
+  },
+  {
+    "data": {
+      "studentID": "20841224",
+      "studentName": "Kathy Wong",
+      "examId": "rubric-1776142890281",
+      "examTitle": "Sosc 3900 Individual Paper Grading Rubrics",
+      "courseId": "default",
+      "submittedAt": null,
+      "gradedAt": "2026-04-15T00:42:13.850451Z",
+      "status": "graded",
+      "questions": [
+        {
+          "questionId": "q1",
+          "questionNumber": "1",
+          "questionText": "Address the following questions using your own words with proper APA citation: Psychologists normally adopt the 'three Ds' (i.e., deviance, dysfunction, and distress) to define abnormality. Which ONE of the 'Ds' do you think a better dimension to define abnormal behaviors? Illustrate your stance with a specific psychological disorder.",
+          "questionType": "essay",
+          "topicId": "general",
+          "studentAnswer": {
+            "id": "answer1",
+            "answerText": "Among the three Ds used to define abnormality—deviance, dysfunction, and distress—I believe dysfunction is the best dimension because it focuses on whether a behavior actually interferes with a person’s ability to live normally. A behavior may be unusual or even upsetting, but if it does not disrupt daily life, it may not truly be abnormal in a clinical sense.Dysfunction is the strongest criterion because mental disorders are not only about differences from social norms. Many people behave in ways that are uncommon, yet they still function well at school, at work, and in relationships. What makes behavior clinically concerning is when it prevents a person from carrying out ordinary responsibilities. For this reason, dysfunction is more practical than deviance, which can be strongly influenced by culture and social expectations. It is also more useful than distress alone, because some people may suffer emotionally without having a mental disorder, while others may not fully recognize their own suffering even when their functioning is seriously impaired.A good example is obsessive-compulsive disorder. People with OCD often have persistent intrusive thoughts and repeated rituals such as checking, cleaning, or counting. At first glance, these behaviors may seem merely strange or excessive. However, the real problem is that they consume time and interfere with normal functioning. A student may spend so long repeating rituals that they cannot finish assignments. A person may repeatedly check the stove or door and become late for work. In severe cases, OCD can damage family relationships, social life, and overall quality of life. Research has shown that OCD is associated with major functional impairment and reduced quality of life.This example shows why dysfunction should be prioritized. The behavior is not abnormal simply because it looks odd to others. It is abnormal because it disrupts the person’s ability to function effectively in daily life. This makes dysfunction a more objective and clinically meaningful standard than deviance. Deviance depends too much on what a society considers “normal,” which can vary across cultures and historical periods. A behavior that is unusual in one setting may be perfectly acceptable in another. Dysfunction avoids this problem by asking whether the person’s life is actually being harmed.Dysfunction also has an important advantage in treatment. If a psychologist identifies that a behavior is impairing functioning, they can focus on helping the person regain control, independence, and stability. In OCD, treatment often aims to reduce compulsive rituals so that the person can return to a more normal routine. This shows that dysfunction is not only a way to define abnormality, but also a way to understand the real need for intervention. Mental disorder definitions in the DSM tradition also emphasize clinically significant impairment, which supports the importance of dysfunction.In conclusion, dysfunction is the best of the three Ds because it identifies behavior that truly interferes with everyday living. While deviance and distress are useful, they are less reliable as single criteria. OCD clearly demonstrates why dysfunction matters: the disorder becomes clinically significant when it disrupts study, work, relationships, and personal functioning. For this reason, dysfunction is the most convincing dimension for defining abnormal behavior.",
+            "submittedAt": null,
+            "wordCount": 516
+          },
+          "criteria": [
+            {
+              "criterionId": "crit1",
+              "criterionName": "Content (15%)",
+              "description": "AI-generated assessment criteria",
+              "maxScore": 20.0,
+              "weight": 1.0,
+              "grade": {
+                "manualScore": null,
+                "aiSuggestedScore": 18.0,
+                "highlightedText": "Dysfunction is the strongest criterion because mental disorders are not only about differences from social norms.",
+                "aiJustification": "The student demonstrates a strong understanding of the three Ds of abnormality, particularly focusing on dysfunction as the most relevant dimension. The explanation of how obsessive-compulsive disorder (OCD) exemplifies dysfunction is clear and well-articulated, showing insight into the clinical implications of the disorder. The student effectively links the disorder to the concept of dysfunction, stating, 'the real problem is that they consume time and interfere with normal functioning.'",
+                "aiSuggestion": "To achieve a higher score, the student could enhance the discussion by incorporating specific literature or studies that support their claims about dysfunction and its clinical significance.",
+                "gradedBy": "ai_system",
+                "gradedAt": "2026-04-15T00:42:13.850451Z"
+              }
+            },
+            {
+              "criterionId": "crit2",
+              "criterionName": "Organization and Writing (5%)",
+              "description": "AI-generated assessment criteria",
+              "maxScore": 5.0,
+              "weight": 1.0,
+              "grade": {
+                "manualScore": null,
+                "aiSuggestedScore": 4.5,
+                "highlightedText": "This makes dysfunction a more objective and clinically meaningful standard than deviance.",
+                "aiJustification": "The writing is generally coherent and well-organized, with a logical flow of ideas. The student effectively presents their argument and supports it with relevant examples. However, there are minor lapses in clarity in some transitions between points.",
+                "aiSuggestion": "Improving transitions between paragraphs and ensuring that each point clearly connects to the next could enhance the overall coherence of the argument.",
+                "gradedBy": "ai_system",
+                "gradedAt": "2026-04-15T00:42:13.850451Z"
+              }
+            }
+          ],
+          "questionTotalScore": 22.5,
+          "questionMaxScore": 25.0,
+          "questionPercentage": 90.0
+        }
+      ],
+      "summary": {
+        "totalScore": 22.5,
+        "maxScore": 25.0,
+        "percentage": 90.0,
+        "grade": "A+",
+        "totalQuestions": 1,
+        "gradedQuestions": 1,
+        "pendingQuestions": 0
+      }
+    },
+    "success": true,
+    "message": "Exam results processed successfully",
+    "_metadata": {
+      "marking_scheme_id": "rubric-1776142890281",
+      "assignment_id": "rubric-1776142890281",
+      "course_id": "default",
+      "stored_at": "2026-04-15T00:42:13.850451Z"
+    },
+    "id": "grade_20260415_004213_20841224_d33e71",
+    "saved_at": "2026-04-15T00:42:13.851454"
+  },
+  {
+    "data": {
+      "studentID": "26841264",
+      "studentName": "Evana Yeung",
+      "examId": "rubric-1776142890281",
+      "examTitle": "Sosc 3900 Individual Paper Grading Rubrics",
+      "courseId": "default",
+      "submittedAt": null,
+      "gradedAt": "2026-04-15T00:42:14.143839Z",
+      "status": "graded",
+      "questions": [
+        {
+          "questionId": "q1",
+          "questionNumber": "1",
+          "questionText": "Address the following questions using your own words with proper APA citation: Psychologists normally adopt the 'three Ds' (i.e., deviance, dysfunction, and distress) to define abnormality. Which ONE of the 'Ds' do you think a better dimension to define abnormal behaviors? Illustrate your stance with a specific psychological disorder.",
+          "questionType": "essay",
+          "topicId": "general",
+          "studentAnswer": {
+            "id": "answer1",
+            "answerText": "Among the three Ds used to define abnormality—deviance, dysfunction, and distress—I think dysfunction is the best dimension because it shows whether a behavior is actually interfering with a person’s daily life. A behavior may look unusual or even upsetting to other people, but if it does not prevent the person from studying, working, or maintaining relationships, it may not be truly abnormal in a clinical sense.One reason dysfunction is stronger than deviance is that deviance depends heavily on social and cultural expectations. What seems strange in one setting may be completely acceptable in another. If we rely too much on deviance, we may confuse difference with disorder. Dysfunction avoids that problem by focusing on real-life impact. It asks a more practical question: is the behavior making it hard for the person to live normally? That is a more useful way to judge abnormality because it is less likely to unfairly label people who simply behave differently.A good example is obsessive-compulsive disorder, or OCD. People with OCD often experience intrusive thoughts and repetitive behaviors such as checking, cleaning, counting, or arranging objects. At first, these behaviors may seem odd to outsiders. However, the real concern is that they can take up a huge amount of time and interfere with everyday routines. For example, a person may check the stove repeatedly before leaving home and become late for work or school. Another person may spend so much time washing or organizing that they cannot finish other important tasks. In this case, the behavior is not only unusual, but also disruptive.OCD shows why dysfunction is such an important dimension. The disorder becomes clinically meaningful because it affects the person’s ability to function in normal life. Even when the person knows the behavior is excessive, they may feel unable to stop because of the anxiety linked to the obsessions. Over time, this can lead to exhaustion, poor concentration, social withdrawal, and strained relationships. This makes dysfunction a clear sign that the person may need help. In other words, what makes the behavior abnormal is not just that it is strange, but that it gets in the way of living.Distress is also important, but it is not always the best single criterion. Some people may feel distress even when they do not have a mental disorder, such as during grief or temporary stress. Others may not openly show distress even though their functioning is severely affected. Dysfunction is easier to observe because it appears in practical problems like missed deadlines, poor performance, or difficulty completing daily tasks. That makes it a more reliable indicator in many cases.In conclusion, dysfunction is the best of the three Ds because it focuses on the real consequences of abnormal behavior. Deviance may be too dependent on culture, and distress may not always be visible, but dysfunction clearly shows when behavior is interfering with everyday life. OCD is a strong example because its symptoms become clinically significant when they disrupt normal functioning. For that reason, dysfunction is the most convincing dimension for defining abnormality.",
+            "submittedAt": null,
+            "wordCount": 504
+          },
+          "criteria": [
+            {
+              "criterionId": "crit1",
+              "criterionName": "Content (15%)",
+              "description": "AI-generated assessment criteria",
+              "maxScore": 20.0,
+              "weight": 1.0,
+              "grade": {
+                "manualScore": null,
+                "aiSuggestedScore": 18.0,
+                "highlightedText": "OCD shows why dysfunction is such an important dimension. The disorder becomes clinically meaningful because it affects the person’s ability to function in normal life.",
+                "aiJustification": "The student demonstrates a strong understanding of the three Ds of abnormality, particularly focusing on dysfunction. They effectively link this dimension to obsessive-compulsive disorder (OCD), providing clear examples of how OCD disrupts daily functioning. The discussion is insightful and well-articulated, showing depth in understanding the implications of dysfunction in defining abnormality.",
+                "aiSuggestion": "To enhance the response, the student could incorporate specific literature or studies that support their arguments about dysfunction and its relevance in clinical settings.",
+                "gradedBy": "ai_system",
+                "gradedAt": "2026-04-15T00:42:14.143839Z"
+              }
+            },
+            {
+              "criterionId": "crit2",
+              "criterionName": "Organization and Writing (5%)",
+              "description": "AI-generated assessment criteria",
+              "maxScore": 5.0,
+              "weight": 1.0,
+              "grade": {
+                "manualScore": null,
+                "aiSuggestedScore": 4.5,
+                "highlightedText": "Dysfunction avoids that problem by focusing on real-life impact.",
+                "aiJustification": "The writing is coherent and well-organized, with a logical flow of ideas. The student presents their arguments clearly, making it easy to follow their reasoning. However, there are minor lapses in the use of APA citation, as no citations are provided in the text.",
+                "aiSuggestion": "The student should ensure to include proper APA citations for any references or concepts that are not their own, which would strengthen the academic rigor of the response.",
+                "gradedBy": "ai_system",
+                "gradedAt": "2026-04-15T00:42:14.143839Z"
+              }
+            }
+          ],
+          "questionTotalScore": 22.5,
+          "questionMaxScore": 25.0,
+          "questionPercentage": 90.0
+        }
+      ],
+      "summary": {
+        "totalScore": 22.5,
+        "maxScore": 25.0,
+        "percentage": 90.0,
+        "grade": "A+",
+        "totalQuestions": 1,
+        "gradedQuestions": 1,
+        "pendingQuestions": 0
+      }
+    },
+    "success": true,
+    "message": "Exam results processed successfully",
+    "_metadata": {
+      "marking_scheme_id": "rubric-1776142890281",
+      "assignment_id": "rubric-1776142890281",
+      "course_id": "default",
+      "stored_at": "2026-04-15T00:42:14.143839Z"
+    },
+    "id": "grade_20260415_004214_26841264_5b074a",
+    "saved_at": "2026-04-15T00:42:14.143839"
+  },
+  {
+    "data": {
+      "studentID": "29841224",
+      "studentName": "Paul Wong",
+      "examId": "rubric-1776142890281",
+      "examTitle": "Sosc 3900 Individual Paper Grading Rubrics",
+      "courseId": "default",
+      "submittedAt": null,
+      "gradedAt": "2026-04-15T00:42:14.487849Z",
+      "status": "graded",
+      "questions": [
+        {
+          "questionId": "q1",
+          "questionNumber": "1",
+          "questionText": "Address the following questions using your own words with proper APA citation: Psychologists normally adopt the 'three Ds' (i.e., deviance, dysfunction, and distress) to define abnormality. Which ONE of the 'Ds' do you think a better dimension to define abnormal behaviors? Illustrate your stance with a specific psychological disorder.",
+          "questionType": "essay",
+          "topicId": "general",
+          "studentAnswer": {
+            "id": "answer1",
+            "answerText": "Among the three Ds, I think deviance is the best because abnormal behavior is different from normal behavior. If someone acts in a strange way, then that person may be abnormal. This is easy to understand because people who are not normal usually do things that are not common in society. Deviance is important because it shows how people can be different from others.For example, schizophrenia can be seen as deviant because people may say unusual things or behave strangely. Since these behaviors are not normal, they can be considered abnormal. Therefore, deviance is the most important D because it helps us tell who is normal and who is not normal.In conclusion, deviance is the best dimension because abnormal people are different from normal people. If someone does something unusual, it probably means there is something wrong. So deviance should be used to define abnormality.",
+            "submittedAt": null,
+            "wordCount": 145
+          },
+          "criteria": [
+            {
+              "criterionId": "crit1",
+              "criterionName": "Content (15%)",
+              "description": "AI-generated assessment criteria",
+              "maxScore": 20.0,
+              "weight": 1.0,
+              "grade": {
+                "manualScore": null,
+                "aiSuggestedScore": 10.0,
+                "highlightedText": "Deviance is important because it shows how people can be different from others. For example, schizophrenia can be seen as deviant because people may say unusual things or behave strangely.",
+                "aiJustification": "The student demonstrates a basic understanding of deviance as a dimension of abnormality but lacks depth in discussing the three Ds. The connection to schizophrenia is made, but the explanation is somewhat superficial and does not explore the implications of deviance in detail. The argument is repetitive and lacks supporting literature.",
+                "aiSuggestion": "To improve, the student should provide a more nuanced discussion of the three Ds, particularly how deviance interacts with dysfunction and distress. Including relevant literature to support their claims would strengthen the argument.",
+                "gradedBy": "ai_system",
+                "gradedAt": "2026-04-15T00:42:14.487849Z"
+              }
+            },
+            {
+              "criterionId": "crit2",
+              "criterionName": "Organization and Writing (5%)",
+              "description": "AI-generated assessment criteria",
+              "maxScore": 5.0,
+              "weight": 1.0,
+              "grade": {
+                "manualScore": null,
+                "aiSuggestedScore": 3.5,
+                "highlightedText": "If someone acts in a strange way, then that person may be abnormal. This is easy to understand because people who are not normal usually do things that are not common in society.",
+                "aiJustification": "The writing presents a logical flow but contains some repetitive phrases and lacks coherence in the argumentation. The structure could be improved for clarity, and there is no evidence of APA citation.",
+                "aiSuggestion": "The student should work on organizing their thoughts more clearly and avoid repetition. Additionally, they should ensure proper APA citation and referencing to enhance the academic quality of their writing.",
+                "gradedBy": "ai_system",
+                "gradedAt": "2026-04-15T00:42:14.487849Z"
+              }
+            }
+          ],
+          "questionTotalScore": 13.5,
+          "questionMaxScore": 25.0,
+          "questionPercentage": 54.0
+        }
+      ],
+      "summary": {
+        "totalScore": 13.5,
+        "maxScore": 25.0,
+        "percentage": 54.0,
+        "grade": "C-",
+        "totalQuestions": 1,
+        "gradedQuestions": 1,
+        "pendingQuestions": 0
+      }
+    },
+    "success": true,
+    "message": "Exam results processed successfully",
+    "_metadata": {
+      "marking_scheme_id": "rubric-1776142890281",
+      "assignment_id": "rubric-1776142890281",
+      "course_id": "default",
+      "stored_at": "2026-04-15T00:42:14.487968Z"
+    },
+    "id": "grade_20260415_004214_29841224_9688e4",
+    "saved_at": "2026-04-15T00:42:14.487968"
+  },
+  {
+    "data": {
+      "studentID": "25845224",
+      "studentName": "Evan Chan",
+      "examId": "rubric-1776142890281",
+      "examTitle": "Sosc 3900 Individual Paper Grading Rubrics",
+      "courseId": "default",
+      "submittedAt": null,
+      "gradedAt": "2026-04-15T00:42:14.544283Z",
+      "status": "graded",
+      "questions": [
+        {
+          "questionId": "q1",
+          "questionNumber": "1",
+          "questionText": "Address the following questions using your own words with proper APA citation: Psychologists normally adopt the 'three Ds' (i.e., deviance, dysfunction, and distress) to define abnormality. Which ONE of the 'Ds' do you think a better dimension to define abnormal behaviors? Illustrate your stance with a specific psychological disorder.",
+          "questionType": "essay",
+          "topicId": "general",
+          "studentAnswer": {
+            "id": "answer1",
+            "answerText": "Among the three Ds used to define abnormality—deviance, dysfunction, and distress—I think distress is the most important dimension because it captures the emotional pain that often lies at the center of mental disorder. A behavior may look unusual or may even interfere with life, but if it does not cause suffering, it may not reflect the true seriousness of the problem. Distress matters because psychology is not only about observing behavior from the outside; it is also about understanding what the person feels on the inside.One strength of distress is that it highlights the human side of abnormality. When people experience depression, anxiety, trauma, or panic, the most obvious sign is often suffering. They may feel hopeless, frightened, exhausted, or overwhelmed. This suffering is important because it is usually what pushes people to seek help. If a person is deeply distressed, then even if others cannot immediately see the problem, the person’s inner experience shows that something is wrong. In this way, distress helps psychologists identify problems that may not be obvious from behavior alone.A good example is major depressive disorder. Someone with depression may feel sad most of the time, lose interest in activities they once enjoyed, and struggle with feelings of worthlessness or guilt. Even if they still go to school or work, they may feel emotionally drained and unhappy throughout the day. Their suffering is not just temporary sadness; it can be persistent and heavy. This makes distress a powerful way to understand the disorder. Depression is a clear case where the emotional pain is central, not secondary.Distress is also useful because deviance can be misleading. Some people may behave in ways that are unusual but not harmful, while others may suffer greatly even though their behavior does not look very strange to outsiders. If we focus only on deviance, we may miss people who are quietly suffering. Distress helps avoid that problem by focusing on the person’s internal experience. This is especially important in cases like depression, where the individual may appear calm on the outside but be in serious emotional pain on the inside.Of course, distress is not a perfect criterion on its own. Some disorders may involve limited awareness of suffering, and some people may experience distress for reasons that are not mental disorders, such as grief or stress from life events. Even so, distress remains highly valuable because it reminds us that abnormality is not just about breaking rules or failing to function. It is also about suffering, and suffering is often the reason treatment is needed.In conclusion, distress is the most important of the three Ds because it reflects the real emotional burden of mental disorder. While deviance and dysfunction can be useful, distress best captures the personal suffering that makes abnormal behavior clinically meaningful. Major depressive disorder shows this clearly, since the disorder is defined largely by intense and persistent emotional pain. For these reasons, distress should be seen as a central dimension in defining abnormality.",
+            "submittedAt": null,
+            "wordCount": 495
+          },
+          "criteria": [
+            {
+              "criterionId": "crit1",
+              "criterionName": "Content (15%)",
+              "description": "AI-generated assessment criteria",
+              "maxScore": 20.0,
+              "weight": 1.0,
+              "grade": {
+                "manualScore": null,
+                "aiSuggestedScore": 19.0,
+                "highlightedText": "Distress matters because psychology is not only about observing behavior from the outside; it is also about understanding what the person feels on the inside.",
+                "aiJustification": "The student demonstrates an outstanding understanding of the three Ds of abnormality, particularly focusing on distress. They clearly articulate how distress is linked to major depressive disorder, providing insightful discussions on the emotional pain associated with the disorder. The answer is well-supported by relevant examples and explanations.",
+                "aiSuggestion": "To enhance the response further, the student could incorporate specific literature citations to support their arguments, which would strengthen the academic rigor of the discussion.",
+                "gradedBy": "ai_system",
+                "gradedAt": "2026-04-15T00:42:14.544283Z"
+              }
+            },
+            {
+              "criterionId": "crit2",
+              "criterionName": "Organization and Writing (5%)",
+              "description": "AI-generated assessment criteria",
+              "maxScore": 5.0,
+              "weight": 1.0,
+              "grade": {
+                "manualScore": null,
+                "aiSuggestedScore": 4.5,
+                "highlightedText": "This suffering is important because it is usually what pushes people to seek help.",
+                "aiJustification": "The writing is coherent and well-organized, with a logical flow of ideas. The student effectively presents their argument and supports it with relevant examples. However, there are minor lapses in clarity that could be improved.",
+                "aiSuggestion": "The student should ensure that all points are clearly articulated and consider breaking down complex sentences for better readability.",
+                "gradedBy": "ai_system",
+                "gradedAt": "2026-04-15T00:42:14.544283Z"
+              }
+            }
+          ],
+          "questionTotalScore": 23.5,
+          "questionMaxScore": 25.0,
+          "questionPercentage": 94.0
+        }
+      ],
+      "summary": {
+        "totalScore": 23.5,
+        "maxScore": 25.0,
+        "percentage": 94.0,
+        "grade": "A+",
+        "totalQuestions": 1,
+        "gradedQuestions": 1,
+        "pendingQuestions": 0
+      }
+    },
+    "success": true,
+    "message": "Exam results processed successfully",
+    "_metadata": {
+      "marking_scheme_id": "rubric-1776142890281",
+      "assignment_id": "rubric-1776142890281",
+      "course_id": "default",
+      "stored_at": "2026-04-15T00:42:14.544283Z"
+    },
+    "id": "grade_20260415_004214_25845224_a17a30",
+    "saved_at": "2026-04-15T00:42:14.544283"
+  },
+  {
+    "data": {
+      "studentID": "21841234",
+      "studentName": "Chris Wong",
+      "examId": "rubric-1776142890281",
+      "examTitle": "Sosc 3900 Individual Paper Grading Rubrics",
+      "courseId": "default",
+      "submittedAt": null,
+      "gradedAt": "2026-04-15T00:42:17.513312Z",
+      "status": "graded",
+      "questions": [
+        {
+          "questionId": "q1",
+          "questionNumber": "1",
+          "questionText": "Address the following questions using your own words with proper APA citation: Psychologists normally adopt the 'three Ds' (i.e., deviance, dysfunction, and distress) to define abnormality. Which ONE of the 'Ds' do you think a better dimension to define abnormal behaviors? Illustrate your stance with a specific psychological disorder.",
+          "questionType": "essay",
+          "topicId": "general",
+          "studentAnswer": {
+            "id": "answer1",
+            "answerText": "Abnormality is assessed through the three dimensions, including distress, dysfunction, deviance. Among the three, distress is a better dimension for defining abnormality because it directly addresses the emotional suffering. Psychological disorders often involve by significant emotional pain with clinically significant distress as a key diagnostic criteria and indicator (APA, 2013). By focusing on the individual’s subjective experience, distress aligns with the of person-centered psychology emphasis on alleviating emotional suffering and incongruence (Sanders & Joseph, 2016). By examining distress in the context of Major Depressive Disorder (MDD), this essay demonstrates its role as a critical, measurable, and clinically significant dimension of abnormality. Distress is a good dimension in reflecting the individual's subjective suffering and motivates help-seeking. In DSM-5, MDD is characterized by persistent depressed mood, loss of interest or pleasure in activities, and other symptoms that cause significant distress to the individual (APA,2013). In particular, the depressed mood and distress manifests as feelings of sadness, emptiness, hopelessness, accompanied by cognitive disturbance such as low self-esteem, self-depreciation, worthlessness and suicidal thoughts (Stefanis & Stefanis,1999). Patients may suffer from recurrent thoughts of death and suicidal ideation, causing immense distress to their well-being. These maladaptive distress captures the internal emotional pain or discomfort experienced by the person, which contributes to the primary reason and motive to seek psychological help or treatment (Kearney & Trull,2018). Higher self-reported distress can significantly predicted elevations of depression (Pfund et al.,2017), showcasing its role as a defining abnormality.Although distress is subjective, the severity of suffering can be measured different existing measures, such as Kessler Psychological Distress Scale (Kessler,1996) and Beck Depression Inventory (BDI) (Indiana State Medical Association,2024), which quantifies distress by assessing symptoms such as guilt, tearfulness, and suicidal ideation through patient self-reporting. The severity of depressive symtoms become more quantifiable and assists clinicians on evaluating the patient’s well-being. Recognizing that the subjective experience and expression of distress are not uniform across all individuals and cultures, cultural concepts of distress are also addressed in the DSM-5. The framework includes cultural syndromes and the local interpretation of distress, for instance Nervios and Susto include emotional distress symptoms in Latin America, resemble symptoms in MDD. (American Psychiatric Association,2013). Locally recognized syndromes and culturally specific ways of expressing suffering are addressed. Solving the concern of misinterpreting culturally normative behaviors. Clinicians can better understand and validate the patient's distress within their specific cultural context, leading to more culturally sensitive and effective treatment plans. Distress with cultural context consideration makes distress a better dimension than deviance. Deviance from statistics and social norms is a highly quantifiable and measurable indicator of abnormality. However, it is highly context-specific; what is deviant in one culture may be acceptable in another (Kearney & Trull,2018). This limitation makes deviance a less comprehensive indicator of abnormality, particularly in the case of MDD, which is not included as a diagnostic criterion.  Distress also precedes and often leads to impairments in normal functioning. Dysfunction focuses on the practical consequences of psychological symptoms, in particular when patients failed to fulfil their independent, social and occupational function (Kearney & Trull,2018). While dysfunction is essential for defining abnormality, it is based on identified behaviours that stem from distress. It may not fully capture the internal experience of individuals who maintain external functionality despite significant psychological challenges. In major depressive disorders, patients first suffer from depressed mood and losing interest or pleasure in activities they used to enjoy, which is categorized as anhedonia (Stefanis & Stefanis,1999). The diminished motivation contributes to feelings of frustration, sadness, and hopelessness. Consequently, this distress impairs pleasure received from social interactions over time, negatively affecting their motivation to perform at school or at work. Patients begin to withdraw from social activities as these interactions no longer provide emotional reward or satisfaction. Thus, dysfunction in social and occupational functioning are secondary consequences that emerge after distress is experienced. Abnormality should be defined with distress as long as the patient faces internal struggles, before it exacerbates and manifests in daily function impairments. When a patient reports significant and persistent distress that impacts their quality of life, it signals a genuine need for attention and support and abnormality, regardless of whether their behavior is overtly deviant or their functional impairment is readily apparent. In conclusion, while deviance and dysfunction offer valuable perspectives on abnormal behavior, distress stands out as a particularly salient and ethically important dimension. Its focus on the individual's internal experience of suffering provides a more direct and person-centered understanding of psychological problems. By prioritizing distress, alongside careful consideration of deviance and dysfunction, a more comprehensive and compassionate understanding in defining abnormal behavior can be achieved.",
+            "submittedAt": null,
+            "wordCount": 764
+          },
+          "criteria": [
+            {
+              "criterionId": "crit1",
+              "criterionName": "Content (15%)",
+              "description": "AI-generated assessment criteria",
+              "maxScore": 20.0,
+              "weight": 1.0,
+              "grade": {
+                "manualScore": null,
+                "aiSuggestedScore": 18.0,
+                "highlightedText": "Distress is a good dimension in reflecting the individual's subjective suffering and motivates help-seeking.",
+                "aiJustification": "The student demonstrates a strong understanding of the three Ds of abnormality, particularly focusing on distress as the preferred dimension. They effectively link distress to Major Depressive Disorder (MDD) and provide relevant literature to support their arguments. The discussion is insightful and well-elaborated, showcasing the significance of distress in understanding psychological disorders.",
+                "aiSuggestion": "To achieve a higher score, the student could include more unique insights or perspectives on the implications of prioritizing distress over the other Ds, perhaps by discussing potential limitations or counterarguments.",
+                "gradedBy": "ai_system",
+                "gradedAt": "2026-04-15T00:42:17.513312Z"
+              }
+            },
+            {
+              "criterionId": "crit2",
+              "criterionName": "Organization and Writing (5%)",
+              "description": "AI-generated assessment criteria",
+              "maxScore": 5.0,
+              "weight": 1.0,
+              "grade": {
+                "manualScore": null,
+                "aiSuggestedScore": 4.5,
+                "highlightedText": "In DSM-5, MDD is characterized by persistent depressed mood, loss of interest or pleasure in activities, and other symptoms that cause significant distress to the individual (APA,2013).",
+                "aiJustification": "The writing is generally coherent and well-organized, with a logical flow of ideas. The student adheres to APA citation style appropriately, although there are minor issues with punctuation and spacing in some citations.",
+                "aiSuggestion": "To improve further, the student should ensure consistent formatting in citations and check for minor grammatical errors to enhance clarity.",
+                "gradedBy": "ai_system",
+                "gradedAt": "2026-04-15T00:42:17.513312Z"
+              }
+            }
+          ],
+          "questionTotalScore": 22.5,
+          "questionMaxScore": 25.0,
+          "questionPercentage": 90.0
+        }
+      ],
+      "summary": {
+        "totalScore": 22.5,
+        "maxScore": 25.0,
+        "percentage": 90.0,
+        "grade": "A+",
+        "totalQuestions": 1,
+        "gradedQuestions": 1,
+        "pendingQuestions": 0
+      }
+    },
+    "success": true,
+    "message": "Exam results processed successfully",
+    "_metadata": {
+      "marking_scheme_id": "rubric-1776142890281",
+      "assignment_id": "rubric-1776142890281",
+      "course_id": "default",
+      "stored_at": "2026-04-15T00:42:17.513438Z"
+    },
+    "id": "grade_20260415_004217_21841234_81f4de",
+    "saved_at": "2026-04-15T00:42:17.513438"
+  },
+  {
+    "data": {
+      "studentID": "25841265",
+      "studentName": "Evana Lam",
+      "examId": "rubric-1776142890281",
+      "examTitle": "Sosc 3900 Individual Paper Grading Rubrics",
+      "courseId": "default",
+      "submittedAt": null,
+      "gradedAt": "2026-04-15T00:42:17.951132Z",
+      "status": "graded",
+      "questions": [
+        {
+          "questionId": "q1",
+          "questionNumber": "1",
+          "questionText": "Address the following questions using your own words with proper APA citation: Psychologists normally adopt the 'three Ds' (i.e., deviance, dysfunction, and distress) to define abnormality. Which ONE of the 'Ds' do you think a better dimension to define abnormal behaviors? Illustrate your stance with a specific psychological disorder.",
+          "questionType": "essay",
+          "topicId": "general",
+          "studentAnswer": {
+            "id": "answer1",
+            "answerText": "Among the three Ds used to define abnormality—deviance, dysfunction, and distress—I think dysfunction is the best dimension because it focuses on whether a behavior actually disrupts a person’s life. A behavior may look unusual or even make other people uncomfortable, but the most important issue is whether it interferes with daily functioning, such as studying, working, maintaining relationships, or taking care of oneself. This makes dysfunction a practical and meaningful way to identify abnormal behavior.One reason dysfunction is more useful than deviance is that deviance can be very relative. What is considered strange or unacceptable in one culture may be normal in another. If we define abnormality mainly by deviance, we may end up judging people too quickly based on social expectations rather than real psychological problems. Dysfunction avoids this problem because it asks a more important question: does the behavior stop the person from living effectively? In psychology, that is often a better indicator of a disorder than simple difference from the norm.A clear example is obsessive-compulsive disorder. People with OCD may have persistent unwanted thoughts and repetitive behaviors such as checking, washing, counting, or arranging objects. At first glance, these actions may seem merely odd or excessive. However, the serious issue is that they can take up large amounts of time and disrupt normal routines. A student may spend so long checking homework or cleaning that they cannot complete school tasks. A worker may repeatedly return home to make sure the door is locked, causing lateness and stress. In this case, the behavior is abnormal not just because it looks unusual, but because it creates real functional problems.OCD shows why dysfunction is a strong criterion. The disorder becomes clinically meaningful when it interferes with daily life. Even if a person knows the behavior is irrational, they may still feel unable to stop because of the anxiety linked to the obsessions. This can lead to exhaustion, avoidance, poor performance, and strained relationships. Research has shown that OCD is associated with reduced quality of life and significant impairment in work, social life, and family functioning. That supports the idea that dysfunction is not only noticeable, but also one of the clearest signs that help is needed.Distress is important too, because many people with mental disorders suffer emotionally. But distress alone is not always enough. Some people may feel distress without having a disorder, while others may not openly show their suffering even though their functioning is badly affected. Dysfunction is more concrete because it can be seen in real-life consequences. If someone cannot finish tasks, cannot maintain routines, or cannot keep up with responsibilities, then the behavior is affecting their life in a serious way.In conclusion, dysfunction is the best of the three Ds because it shows whether abnormal behavior is truly harming a person’s ability to function. Deviance may depend too much on cultural standards, and distress may not always be obvious, but dysfunction directly reflects the impact of the behavior on everyday life. OCD is a strong example because its symptoms become abnormal mainly when they interfere with normal living. For that reason, dysfunction should be considered the most important dimension in defining abnormal behavior.",
+            "submittedAt": null,
+            "wordCount": 527
+          },
+          "criteria": [
+            {
+              "criterionId": "crit1",
+              "criterionName": "Content (15%)",
+              "description": "AI-generated assessment criteria",
+              "maxScore": 20.0,
+              "weight": 1.0,
+              "grade": {
+                "manualScore": null,
+                "aiSuggestedScore": 18.0,
+                "highlightedText": "A clear example is obsessive-compulsive disorder. People with OCD may have persistent unwanted thoughts and repetitive behaviors... the disorder becomes clinically meaningful when it interferes with daily life.",
+                "aiJustification": "The student demonstrates a strong understanding of the three Ds of abnormality, particularly focusing on dysfunction as the most relevant dimension. The explanation of how obsessive-compulsive disorder (OCD) exemplifies dysfunction is clear and well-articulated, showing a solid connection between the disorder and the chosen dimension. The discussion is insightful and highlights the practical implications of dysfunction in assessing abnormal behavior.",
+                "aiSuggestion": "To enhance the response, the student could incorporate specific literature or studies that support their claims about dysfunction and its relevance in defining abnormality. This would provide a stronger academic foundation for their arguments.",
+                "gradedBy": "ai_system",
+                "gradedAt": "2026-04-15T00:42:17.951132Z"
+              }
+            },
+            {
+              "criterionId": "crit2",
+              "criterionName": "Organization and Writing (5%)",
+              "description": "AI-generated assessment criteria",
+              "maxScore": 5.0,
+              "weight": 1.0,
+              "grade": {
+                "manualScore": null,
+                "aiSuggestedScore": 5.0,
+                "highlightedText": "In conclusion, dysfunction is the best of the three Ds because it shows whether abnormal behavior is truly harming a person’s ability to function.",
+                "aiJustification": "The response is well-organized and presents a coherent argument throughout. The flow of ideas is logical, and the writing style is clear and articulate, adhering to the expected academic standards.",
+                "aiSuggestion": "While the organization is strong, the student should ensure that all claims are properly cited in APA format to meet academic standards fully. Adding citations would enhance the credibility of the arguments presented.",
+                "gradedBy": "ai_system",
+                "gradedAt": "2026-04-15T00:42:17.951132Z"
+              }
+            }
+          ],
+          "questionTotalScore": 23.0,
+          "questionMaxScore": 25.0,
+          "questionPercentage": 92.0
+        }
+      ],
+      "summary": {
+        "totalScore": 23.0,
+        "maxScore": 25.0,
+        "percentage": 92.0,
+        "grade": "A+",
+        "totalQuestions": 1,
+        "gradedQuestions": 1,
+        "pendingQuestions": 0
+      }
+    },
+    "success": true,
+    "message": "Exam results processed successfully",
+    "_metadata": {
+      "marking_scheme_id": "rubric-1776142890281",
+      "assignment_id": "rubric-1776142890281",
+      "course_id": "default",
+      "stored_at": "2026-04-15T00:42:17.951132Z"
+    },
+    "id": "grade_20260415_004217_25841265_374c29",
+    "saved_at": "2026-04-15T00:42:17.951132"
   }
 ]

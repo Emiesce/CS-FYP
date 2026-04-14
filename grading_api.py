@@ -1511,6 +1511,153 @@ async def get_lecture_notes_statistics():
         }), 500
 
 
+# ─── AI Rubric Suggestion endpoint ──────────────────────────────────────────
+
+@app.route('/suggest-rubric-criteria', methods=['POST'])
+@async_route
+async def suggest_rubric_criteria():
+    """
+    Given a question title, description, max score, and optional model answer,
+    use GPT to suggest scoring criteria with score levels.
+
+    Request body:
+    {
+        "question_title": "Explain the concept of planning fallacy",
+        "description": "Student should demonstrate understanding of causes and effects",
+        "max_score": 10,
+        "model_answer": "Optional model answer or key points...",
+        "num_criteria": 3   // optional, default 1 (single criterion with score levels)
+    }
+
+    Response:
+    {
+        "success": true,
+        "criteria": [
+            {
+                "name": "Content & Understanding",
+                "scoreLevels": [
+                    { "scoreRange": "9-10", "description": "...", "minPoints": 9, "maxPoints": 10 },
+                    ...
+                ]
+            }
+        ]
+    }
+    """
+    if not GRADING_AVAILABLE:
+        return jsonify({'success': False, 'error': 'Grading system not available'}), 503
+
+    if not request.is_json:
+        return jsonify({'success': False, 'error': 'Request must be JSON'}), 400
+
+    data = request.get_json()
+    question_title = data.get('question_title', '').strip()
+    if not question_title:
+        return jsonify({'success': False, 'error': 'question_title is required'}), 400
+
+    description = data.get('description', '')
+    max_score = int(data.get('max_score', 10))
+    model_answer = data.get('model_answer', '')
+    num_criteria = max(1, min(int(data.get('num_criteria', 1)), 5))
+    rubric_id = data.get('rubric_id')  # optional — used to filter lecture notes by association
+
+    try:
+        system = await get_grading_system()
+
+        # Retrieve relevant lecture note chunks for context
+        lecture_context = ''
+        try:
+            query = f"{question_title} {description}".strip()
+            chunks = await system.vector_store.similarity_search(
+                query=query,
+                k=6,
+                source_type="lecture_note",
+                rubric_id=rubric_id or None,
+            )
+            if chunks:
+                lecture_context = "\n\n".join(c.content for c in chunks)
+        except Exception as e:
+            logger.warning(f"Lecture note retrieval failed (continuing without context): {e}")
+
+        model_answer_section = f"\nModel Answer / Key Points:\n{model_answer}" if model_answer.strip() else ""
+        description_section = f"\nQuestion Context: {description}" if description.strip() else ""
+        lecture_section = f"\n\nRelevant Lecture Note Content (use this to make criteria specific and accurate):\n{lecture_context[:3000]}" if lecture_context else ""
+
+        prompt = f"""You are an expert academic assessor helping design a marking rubric.
+
+Question: {question_title}{description_section}{model_answer_section}{lecture_section}
+
+Total marks available: {max_score}
+Number of scoring criteria to create: {num_criteria}
+
+{"Create exactly 1 holistic scoring criterion with 4 score levels." if num_criteria == 1 else f"Create exactly {num_criteria} distinct scoring dimensions (e.g. Content, Analysis, Clarity). Each criterion should have 4 score levels and their maxPoints should sum to {max_score} across all criteria."}
+
+Return ONLY a JSON array of criteria objects with this exact structure:
+[
+  {{
+    "name": "<criterion name, e.g. 'Content & Understanding'>",
+    "scoreLevels": [
+      {{
+        "scoreRange": "<e.g. {int(max_score * 0.9)}-{max_score}>",
+        "description": "<detailed description of what earns this score>",
+        "minPoints": <number>,
+        "maxPoints": <number>
+      }},
+      {{
+        "scoreRange": "<e.g. {int(max_score * 0.7)}-{int(max_score * 0.89)}>",
+        "description": "<detailed description>",
+        "minPoints": <number>,
+        "maxPoints": <number>
+      }},
+      {{
+        "scoreRange": "<e.g. {int(max_score * 0.5)}-{int(max_score * 0.69)}>",
+        "description": "<detailed description>",
+        "minPoints": <number>,
+        "maxPoints": <number>
+      }},
+      {{
+        "scoreRange": "<e.g. 0-{int(max_score * 0.49)}>",
+        "description": "<detailed description>",
+        "minPoints": 0,
+        "maxPoints": <number>
+      }}
+    ]
+  }}
+]
+
+Rules:
+- Score levels must be specific and actionable, not vague
+- Each level should clearly differentiate from the others
+- Use the actual question content to make descriptions relevant
+- If lecture note content is provided, reference specific concepts, theories, or terminology from it in the score level descriptions
+- Return ONLY the JSON array, no markdown, no explanation"""
+
+        from langchain_core.messages import HumanMessage
+        response = await system.ai_client.chat_client.ainvoke([HumanMessage(content=prompt)])
+        raw = response.content.strip()
+
+        # Strip markdown fences if present
+        if raw.startswith('```'):
+            raw = raw.split('```')[1]
+            if raw.startswith('json'):
+                raw = raw[4:]
+        raw = raw.strip()
+
+        criteria = json.loads(raw)
+
+        # Attach generated IDs
+        import uuid
+        for ci, crit in enumerate(criteria):
+            crit['id'] = f"crit-ai-{uuid.uuid4().hex[:8]}"
+            for si, sl in enumerate(crit.get('scoreLevels', [])):
+                sl['id'] = f"sl-ai-{uuid.uuid4().hex[:8]}"
+
+        return jsonify({'success': True, 'criteria': criteria})
+
+    except Exception as e:
+        logger.error(f"AI rubric suggestion failed: {e}")
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+
 # ─── Rubrics persistence endpoint ────────────────────────────────────────────
 
 RUBRICS_FILE = os.path.join(os.path.dirname(__file__), 'src', 'data', 'rubrics.json')
