@@ -147,10 +147,16 @@ function LoginPageContent() {
           <strong>Demo Credentials</strong>
           <ul style={{ margin: "var(--space-2) 0 0", paddingLeft: "1.2rem", lineHeight: 1.8 }}>
             <li>
-              Teaching Staff: <code>teach@ust.hk</code> / <code>teaching123</code>
+              Administrator: <code>admin@ust.hk</code> / <code>admin123</code>
             </li>
             <li>
-              Student: <code>student@ust.hl</code> / <code>student123</code>
+              Instructor: <code>instructor@ust.hk</code> / <code>instructor123</code>
+            </li>
+            <li>
+              Teaching Assistant: <code>ta@ust.hk</code> / <code>ta123</code>
+            </li>
+            <li>
+              Student: <code>student@ust.hk</code> / <code>student123</code>
             </li>
           </ul>
         </div>

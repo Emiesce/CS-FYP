@@ -81,7 +81,7 @@ export default function StaffPastProctoringPage({
 }) {
   const { examId } = use(params);
   return (
-    <AuthenticatedShell requiredRole="teaching_staff">
+    <AuthenticatedShell requiredRole="staff">
       <ProctoringReviewContent examId={examId} />
     </AuthenticatedShell>
   );

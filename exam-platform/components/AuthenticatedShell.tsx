@@ -10,11 +10,20 @@ import { useRouter } from "next/navigation";
 import { SessionProvider, useSession, dashboardPath } from "@/features/auth";
 import { clearPersistedProctoringSessions } from "@/features/proctoring/live-session-store";
 import { RoleSwitchButton } from "@/components/ui";
+import { isStaffRole } from "@/types";
 import type { UserRole } from "@/types";
 
+/** Roles accepted by AuthenticatedShell. "staff" matches both instructor & TA. */
+type AcceptedRole = UserRole | "staff";
+
 interface AuthGuardProps {
-  requiredRole: UserRole;
+  requiredRole: AcceptedRole;
   children: React.ReactNode;
+}
+
+function roleMatches(userRole: UserRole, required: AcceptedRole): boolean {
+  if (required === "staff") return isStaffRole(userRole);
+  return userRole === required;
 }
 
 function AuthGuard({ requiredRole, children }: AuthGuardProps) {
@@ -24,12 +33,12 @@ function AuthGuard({ requiredRole, children }: AuthGuardProps) {
   useEffect(() => {
     if (!isAuthenticated) {
       router.replace("/login");
-    } else if (user && user.role !== requiredRole) {
+    } else if (user && !roleMatches(user.role, requiredRole)) {
       router.replace(dashboardPath(user.role));
     }
   }, [isAuthenticated, user, requiredRole, router]);
 
-  if (!isAuthenticated || !user || user.role !== requiredRole) return null;
+  if (!isAuthenticated || !user || !roleMatches(user.role, requiredRole)) return null;
 
   return <>{children}</>;
 }
@@ -38,7 +47,7 @@ export function AuthenticatedShell({
   requiredRole,
   children,
 }: {
-  requiredRole: UserRole;
+  requiredRole: AcceptedRole;
   children: React.ReactNode;
 }) {
   useEffect(() => {

@@ -2,8 +2,19 @@
 /*  HKUST CSE Exam Platform – Domain Types                            */
 /* ------------------------------------------------------------------ */
 
-/** User roles supported by the MVP. */
-export type UserRole = "student" | "teaching_staff";
+/** User roles supported by the platform. */
+export type UserRole = "student" | "instructor" | "teaching_assistant" | "administrator";
+
+/** Convenience grouping: roles that can access the staff dashboard. */
+export type StaffRole = "instructor" | "teaching_assistant";
+
+/** Check helpers */
+export function isStaffRole(role: UserRole): role is StaffRole {
+  return role === "instructor" || role === "teaching_assistant";
+}
+export function isAdminRole(role: UserRole): role is "administrator" {
+  return role === "administrator";
+}
 
 /** All proctoring event categories the engine can emit. */
 export type ProctoringEventType =
@@ -65,6 +76,7 @@ export interface Exam {
   location: string;
   status: ExamStatus;
   studentCount?: number;
+  semesterId?: string;
 }
 
 /* ------------------------------------------------------------------ */
@@ -299,4 +311,89 @@ export interface ExamAttempt {
   responses: QuestionResponse[];
   currentQuestionIndex: number;
   flaggedQuestionIds: string[];
+}
+
+/* ------------------------------------------------------------------ */
+/*  HKUST Semesters                                                   */
+/* ------------------------------------------------------------------ */
+
+/**
+ * HKUST academic calendar semesters:
+ * - fall:   Sep 1 – Dec 31
+ * - winter: Jan 1 – Jan 31
+ * - spring: Feb 1 – May 31
+ * - summer: Jun 1 – Aug 31
+ */
+export type SemesterTerm = "fall" | "winter" | "spring" | "summer";
+
+export interface Semester {
+  id: string;                // e.g. "2025-26-spring"
+  label: string;             // e.g. "Spring 2025-26"
+  term: SemesterTerm;
+  academicYear: string;      // e.g. "2025-26"
+  startDate: string;         // ISO date
+  endDate: string;           // ISO date
+}
+
+export const SEMESTER_TERM_LABELS: Record<SemesterTerm, string> = {
+  fall: "Fall",
+  winter: "Winter",
+  spring: "Spring",
+  summer: "Summer",
+};
+
+/* ------------------------------------------------------------------ */
+/*  Courses (admin-managed)                                           */
+/* ------------------------------------------------------------------ */
+
+export interface Course {
+  id: string;
+  code: string;             // e.g. "COMP3511"
+  name: string;             // e.g. "Operating Systems"
+  semesterId: string;       // links to Semester
+  instructorIds: string[];  // User ids with instructor role
+  taIds: string[];          // User ids with teaching_assistant role
+  studentIds: string[];     // enrolled student User ids
+  createdAt: string;
+  updatedAt: string;
+}
+
+/* ------------------------------------------------------------------ */
+/*  Permissions – per-role capability matrix                          */
+/* ------------------------------------------------------------------ */
+
+export type Permission =
+  | "exam:create"
+  | "exam:edit"
+  | "exam:publish"
+  | "exam:delete"
+  | "exam:grade"
+  | "exam:monitor"
+  | "exam:take"
+  | "exam:view_questions"
+  | "course:create"
+  | "course:edit"
+  | "course:delete"
+  | "user:manage_roles";
+
+export const ROLE_PERMISSIONS: Record<UserRole, Permission[]> = {
+  administrator: [
+    "course:create", "course:edit", "course:delete",
+    "user:manage_roles",
+  ],
+  instructor: [
+    "exam:create", "exam:edit", "exam:publish", "exam:delete",
+    "exam:grade", "exam:monitor", "exam:view_questions",
+    "course:edit",
+  ],
+  teaching_assistant: [
+    "exam:grade", "exam:monitor", "exam:view_questions",
+  ],
+  student: [
+    "exam:take",
+  ],
+};
+
+export function hasPermission(role: UserRole, permission: Permission): boolean {
+  return ROLE_PERMISSIONS[role].includes(permission);
 }

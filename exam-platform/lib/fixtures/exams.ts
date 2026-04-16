@@ -17,6 +17,7 @@ export const DEMO_CURRENT_EXAM: Exam = {
   location: "LT-A",
   status: "current",
   studentCount: 48,
+  semesterId: "2025-26-spring",
 };
 
 export const UPCOMING_EXAMS: Exam[] = [
@@ -31,6 +32,7 @@ export const UPCOMING_EXAMS: Exam[] = [
     location: "Hall A",
     status: "upcoming",
     studentCount: 65,
+    semesterId: "2025-26-spring",
   },
   {
     id: "exam-up-002",
@@ -43,6 +45,7 @@ export const UPCOMING_EXAMS: Exam[] = [
     location: "LT-J",
     status: "upcoming",
     studentCount: 120,
+    semesterId: "2025-26-spring",
   },
 ];
 
@@ -58,6 +61,7 @@ export const PAST_EXAMS: Exam[] = [
     location: "LT-A",
     status: "past",
     studentCount: 48,
+    semesterId: "2025-26-spring",
   },
   {
     id: "exam-past-002",
@@ -70,6 +74,20 @@ export const PAST_EXAMS: Exam[] = [
     location: "LT-J",
     status: "past",
     studentCount: 118,
+    semesterId: "2025-26-spring",
+  },
+  {
+    id: "exam-past-003",
+    courseCode: "COMP3511",
+    courseName: "Operating Systems",
+    title: "Final Examination",
+    date: "2025-12-18",
+    startTime: "09:00",
+    durationSeconds: 7200,
+    location: "LT-A",
+    status: "past",
+    studentCount: 52,
+    semesterId: "2025-26-fall",
   },
 ];
 

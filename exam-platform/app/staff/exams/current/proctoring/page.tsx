@@ -22,7 +22,7 @@ import Link from "next/link";
 
 function StaffLiveProctoringContent() {
   const [session, setSession] = useState<PersistedProctoringSession | null>(null);
-  const [now, setNow] = useState(() => Date.now());
+  const [now, setNow] = useState(0);
 
   useEffect(() => {
     const unsubscribe = subscribeToLiveSession(setSession);
@@ -101,7 +101,7 @@ function StaffLiveProctoringContent() {
 
 export default function StaffCurrentProctoringPage() {
   return (
-    <AuthenticatedShell requiredRole="teaching_staff">
+    <AuthenticatedShell requiredRole="staff">
       <StaffLiveProctoringContent />
     </AuthenticatedShell>
   );

@@ -202,7 +202,7 @@ function ExamEditorContent() {
 
 export default function ExamEditPage() {
   return (
-    <AuthenticatedShell requiredRole="teaching_staff">
+    <AuthenticatedShell requiredRole="instructor">
       <ExamEditorContent />
     </AuthenticatedShell>
   );

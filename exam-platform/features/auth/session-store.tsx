@@ -14,6 +14,7 @@ import {
   type ReactNode,
 } from "react";
 import type { User, UserRole } from "@/types";
+import { isStaffRole } from "@/types";
 
 const SESSION_KEY = "hkust_exam_session";
 const SESSION_EVENT = "hkust_exam_session_change";
@@ -115,15 +116,18 @@ export function useSession(): SessionContextValue {
 }
 
 /**
- * Return the opposite role for the floating role-switch button.
+ * Return the opposite demo role for the floating role-switch button.
  */
 export function oppositeRole(role: UserRole): UserRole {
-  return role === "student" ? "teaching_staff" : "student";
+  if (role === "student") return "instructor";
+  return "student";
 }
 
 /**
  * Return the dashboard path for a given role.
  */
 export function dashboardPath(role: UserRole): string {
-  return role === "student" ? "/student" : "/staff";
+  if (role === "administrator") return "/admin";
+  if (isStaffRole(role)) return "/staff";
+  return "/student";
 }
