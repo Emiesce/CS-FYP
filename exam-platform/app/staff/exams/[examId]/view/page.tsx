@@ -259,8 +259,8 @@ function ExamViewerContent() {
         <div className="panel">
           <p style={{ margin: 0, color: "var(--muted)", fontSize: "0.9rem" }}>
             Exam ID: <code>{definition.id}</code><br />
-            Created: {new Date(definition.createdAt).toLocaleString()}<br />
-            Last updated: {new Date(definition.updatedAt).toLocaleString()}
+            Created: {definition.createdAt.replace("T", " ").slice(0, 16)} UTC<br />
+            Last updated: {definition.updatedAt.replace("T", " ").slice(0, 16)} UTC
           </p>
         </div>
       )}
