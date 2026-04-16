@@ -1,0 +1,88 @@
+[
+    {
+        "studentId": "001",
+        "studentName": "1",
+        "fileName": "sample1.pdf",
+        "answers": [
+            {
+                "questionId": "Problem 1",
+                "answerText": "True/False Table: (a)F, (b)F, (c)F, (d)T, (e)F, (f)T, (g)T, (h)F, (i)T, (j)T"
+            },
+            {
+                "questionId": "Problem 2a",
+                "answerText": "0, 2, 6, 5, 12, 8, /"
+            },
+            {
+                "questionId": "Problem 2b",
+                "answerText": "The value that the function returns: 162. Reason for the termination: It stops as to it runs out of items naturally."
+            },
+            {
+                "questionId": "Problem 3a(i)",
+                "answerText": "def is_divisible (n: int, k: int) -> bool: return (n% k == 0)"
+            },
+            {
+                "questionId": "Problem 3a(ii)",
+                "answerText": "def is_prime (n: int) -> bool: for divisor in range (2, (n** (1/2)) //10+1); if is divisible (n, divisor): return False return True"
+            },
+            {
+                "questionId": "Problem 3a(iii)",
+                "answerText": "def get_primes (n: int) -> tuple [int, list [int]]: primes = [ ] for num in range (2, n): if is-prime (num): primes.append (num) return len(primes), primes"
+            },
+            {
+                "questionId": "Problem 3b",
+                "answerText": "def rotate_clockwise (lst: list [list (int))) -> list [list [int]]: return [lst[r][c] for r in range (len(lst)-1, -1, -1) for c in range (len(lst[0]))]"
+            },
+            {
+                "questionId": "Problem 4a",
+                "answerText": "def print_balance(balance): print (f'Your balance is ${balance}')"
+            },
+            {
+                "questionId": "Problem 4b",
+                "answerText": "def print_bag (bag): print ('Your bag contains: ', *bag)"
+            }
+        ]
+    },
+    {
+        "studentId": "002",
+        "studentName": "2",
+        "fileName": "sample2.pdf",
+        "answers": [
+            {
+                "questionId": "Problem 1",
+                "answerText": "True/False Table: (a)F, (b)F, (c)F, (d)T, (e)F, (f)T, (g)T, (h)F, (i)T, (j)T"
+            },
+            {
+                "questionId": "Problem 2a",
+                "answerText": "0, 2, 6, 5, 12, 8."
+            },
+            {
+                "questionId": "Problem 2b",
+                "answerText": "The value that the function returns: 162. Reason for the termination: running out of items naturally."
+            },
+            {
+                "questionId": "Problem 3a(i)",
+                "answerText": "def is_divisible(n: int, k: int) -> bool: return n% k==0"
+            },
+            {
+                "questionId": "Problem 3a(ii)",
+                "answerText": "def is_prime (n: int) -> bool: for i in range(2, n): if is_divisible (n, i): return False; return True"
+            },
+            {
+                "questionId": "Problem 3a(iii)",
+                "answerText": "def get_primes (n: int) -> tuple [int, list [int]]: results=[]; for i in range(2, n+1): if is_prime(i): results.append(i); return len(results), results"
+            },
+            {
+                "questionId": "Problem 3b",
+                "answerText": "def rotate_clockwise (lst: list [list (int))) -> list [list (int)): n=len(lst); results = [[0]*n for _ in range(n)]; for row in range(n): for col in range (n): results [row][col] = lst [n-col-1][row]; return results"
+            },
+            {
+                "questionId": "Problem 4a",
+                "answerText": "def print_balance (balance): print(\" Your balance is $ balance \")"
+            },
+            {
+                "questionId": "Problem 4b",
+                "answerText": "def print_bag(bag): bag_str = ' '.join(bag); print(f\"Your bag contains: {bag_str}\")"
+            }
+        ]
+    }
+]

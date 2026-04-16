@@ -8,7 +8,7 @@ import { RubricGrid } from "./rubric/RubricGrid";
 import { LoadingSpinner, LoadingState } from "./ui/loading-spinner";
 import { useToast } from "./ui/toast";
 import { ErrorBoundary } from "./ui/error-boundary";
-import { RubricData, LectureNote, RubricCriterion, ScoreLevel } from "../types";
+import { RubricData, LectureNote, RubricCriterion, ScoreLevel, QuestionType, ExactMatchItem } from "../types";
 import { LectureNotesSection } from "./rubric/LectureNotesSection";
 import { LectureNotesDisplay } from "./rubric/LectureNotesDisplay";
 import "./rubric-styles.css";
@@ -483,6 +483,8 @@ interface RubricQuestion {
     minScore: number;
     maxScore: number;
     modelAnswer?: string;
+    questionType?: QuestionType;
+    exactMatchItems?: ExactMatchItem[];
     criteria: RubricCriterion[];
     scoringCriteria?: ScoringCriterion[]; // legacy flat format, kept for backward compat
 }
@@ -696,11 +698,31 @@ function CreateRubricView({ onSuccess, onError, onCancel, isSubmitting, hookData
             if (question.maxScore <= question.minScore) {
                 newErrors[`question-${index}-score`] = 'Maximum score must be greater than minimum score';
             }
+
+            // Exact-match validation
+            if (question.questionType === 'true_false' || question.questionType === 'multiple_choice') {
+                const items = question.exactMatchItems ?? [];
+                if (items.length === 0 || items.some(i => !i.answer.trim())) {
+                    newErrors[`question-${index}-items`] = 'All items must have a correct answer';
+                }
+            }
         });
 
         setErrors(newErrors);
         return Object.keys(newErrors).length === 0;
     };
+
+    // Serialise exactMatchItems into modelAnswer and coerce type before submit
+    const prepareQuestionsForSubmit = (qs: RubricQuestion[]) =>
+        qs.map(q => {
+            if (q.questionType === 'true_false' || q.questionType === 'multiple_choice') {
+                const modelAnswer = (q.exactMatchItems ?? [])
+                    .map(i => `(${i.label})${i.answer}`)
+                    .join(', ');
+                return { ...q, questionType: 'exact_match' as const, modelAnswer };
+            }
+            return q;
+        });
 
     // Handle form submission
     const handleSubmit = async (e: React.FormEvent) => {
@@ -716,7 +738,7 @@ function CreateRubricView({ onSuccess, onError, onCancel, isSubmitting, hookData
             const rubricData = {
                 title: rubricTitle,
                 description: rubricDescription,
-                questions: questions,
+                questions: prepareQuestionsForSubmit(questions),
                 totalMinPoints,
                 totalMaxPoints,
                 lectureNotes: lectureNotes
@@ -1098,114 +1120,170 @@ function QuestionEditor({
                     <p className="text-sm text-red-600">{errors[`question-${index}-score`]}</p>
                 )}
 
-                {/* Model Answer */}
+                {/* Model Answer / Question Type */}
                 <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Model Answer (Optional)
-                    </label>
-                    <textarea
-                        value={question.modelAnswer || ''}
-                        onChange={(e) => onUpdate({ modelAnswer: e.target.value })}
-                        rows={3}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-                        placeholder="Provide a model answer or key points for this question..."
-                        disabled={disabled}
-                    />
-                </div>
-
-                {/* Scoring Section — criteria mode or flat mode */}
-                <div>
-                    <div className="flex items-center justify-between mb-3">
+                    <div className="flex items-center justify-between mb-1">
                         <label className="block text-sm font-medium text-gray-700">
-                            Scoring Criteria
+                            Question Type
                         </label>
-                        <div className="flex items-center gap-2">
-                            <select
-                                value={numCriteria}
-                                onChange={(e) => setNumCriteria(Number(e.target.value))}
-                                className="text-xs border border-gray-200 rounded px-1 py-1 text-gray-500"
-                                disabled={disabled || aiLoading}
-                                title="Number of criteria for AI to generate"
-                            >
-                                {[1, 2, 3, 4, 5].map(n => (
-                                    <option key={n} value={n}>{n} criterion{n > 1 ? 'ia' : ''}</option>
-                                ))}
-                            </select>
-                            <Button
-                                type="button"
-                                onClick={suggestCriteria}
-                                variant="outline"
-                                size="sm"
-                                disabled={disabled || aiLoading || !question.title.trim()}
-                                title="Ask AI to suggest scoring criteria based on the question"
-                            >
-                                {aiLoading ? '...' : '✨ AI Suggest'}
-                            </Button>
-                        </div>
+                        <select
+                            value={question.questionType ?? 'essay'}
+                            onChange={(e) => {
+                                const newType = e.target.value as QuestionType;
+                                const isExact = newType === 'true_false' || newType === 'multiple_choice';
+                                const wasExact = question.questionType === 'true_false' || question.questionType === 'multiple_choice';
+                                if (!isExact && wasExact) {
+                                    // Leaving exact-match mode — clear sub-items and modelAnswer
+                                    onUpdate({ questionType: newType, exactMatchItems: [], modelAnswer: '' });
+                                } else {
+                                    onUpdate({ questionType: newType });
+                                }
+                            }}
+                            disabled={disabled}
+                            className="text-sm border border-gray-300 rounded-md px-2 py-1 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                        >
+                            <option value="essay">Essay</option>
+                            <option value="short_answer">Short Answer</option>
+                            <option value="math">Math</option>
+                            <option value="programming">Programming</option>
+                            <option value="true_false">True/False</option>
+                            <option value="multiple_choice">Multiple Choice</option>
+                        </select>
                     </div>
-                    {aiError && <p className="text-xs text-red-500 mb-2">{aiError}</p>}
 
-                    {/* Criteria mode: named criteria with nested score levels */}
-                    {question.criteria.length > 0 ? (
-                        <div className="space-y-3">
-                            {question.criteria.map((criterion) => (
-                                <CriterionEditor
-                                    key={criterion.id}
-                                    criterion={criterion}
-                                    onUpdateCriterion={(updates) => onUpdateNamedCriterion(criterion.id, updates)}
-                                    onRemoveCriterion={() => onRemoveNamedCriterion(criterion.id)}
-                                    onAddScoreLevel={() => onAddScoreLevel(criterion.id)}
-                                    onUpdateScoreLevel={(scoreLevelId, updates) =>
-                                        onUpdateScoreLevel(criterion.id, scoreLevelId, updates)
-                                    }
-                                    onRemoveScoreLevel={(scoreLevelId) =>
-                                        onRemoveScoreLevel(criterion.id, scoreLevelId)
-                                    }
-                                    disabled={disabled}
-                                />
+                    {/* Exact-match sub-items for True/False and Multiple Choice */}
+                    {(question.questionType === 'true_false' || question.questionType === 'multiple_choice') ? (
+                        <div className="mt-2 space-y-2">
+                            <label className="block text-sm font-medium text-gray-700">Answer Items</label>
+                            {(question.exactMatchItems ?? []).map((item) => (
+                                <div key={item.id} className="flex items-center gap-2">
+                                    <input
+                                        type="text"
+                                        value={item.label}
+                                        onChange={(e) => {
+                                            const updated = (question.exactMatchItems ?? []).map(i =>
+                                                i.id === item.id ? { ...i, label: e.target.value } : i
+                                            );
+                                            onUpdate({ exactMatchItems: updated });
+                                        }}
+                                        className="w-20 px-2 py-1 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                                        placeholder="subquestion e.g. a, 1 , ii"
+                                        disabled={disabled}
+                                        title="Item label (e.g. a, 1, (ii))"
+                                    />
+                                    <input
+                                        type="text"
+                                        value={item.answer}
+                                        onChange={(e) => {
+                                            const updated = (question.exactMatchItems ?? []).map(i =>
+                                                i.id === item.id ? { ...i, answer: e.target.value } : i
+                                            );
+                                            onUpdate({ exactMatchItems: updated });
+                                        }}
+                                        className="flex-1 px-2 py-1 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                                        placeholder="Correct answer (e.g. True, B)"
+                                        disabled={disabled}
+                                    />
+                                    <Button
+                                        type="button"
+                                        onClick={() => {
+                                            const updated = (question.exactMatchItems ?? []).filter(i => i.id !== item.id);
+                                            onUpdate({ exactMatchItems: updated });
+                                        }}
+                                        variant="ghost"
+                                        size="sm"
+                                        disabled={disabled}
+                                    >
+                                        <X className="rubric-button-icon" />
+                                    </Button>
+                                </div>
                             ))}
                             <Button
                                 type="button"
-                                onClick={onAddNamedCriterion}
+                                onClick={() => {
+                                    const newItem: ExactMatchItem = {
+                                        id: `item-${Date.now()}`,
+                                        label: '',
+                                        answer: ''
+                                    };
+                                    onUpdate({ exactMatchItems: [...(question.exactMatchItems ?? []), newItem] });
+                                }}
                                 variant="outline"
                                 size="sm"
                                 disabled={disabled}
                             >
                                 <Plus className="size-4" />
-                                Add Criterion
+                                Add item
                             </Button>
+                            {errors[`question-${index}-items`] && (
+                                <p className="text-sm text-red-600">{errors[`question-${index}-items`]}</p>
+                            )}
                         </div>
                     ) : (
-                        /* Flat mode: score levels directly on the question */
-                        <div className="space-y-2">
-                            {(question.scoringCriteria ?? []).map((criterion) => (
-                                <ScoringCriterionEditor
-                                    key={criterion.id}
-                                    criterion={criterion}
-                                    onUpdate={(updates) => onUpdateCriterion(criterion.id, updates)}
-                                    onRemove={() => onRemoveCriterion(criterion.id)}
-                                    disabled={disabled}
-                                />
-                            ))}
+                        /* GPT-graded types: show model answer textarea */
+                        <textarea
+                            value={question.modelAnswer || ''}
+                            onChange={(e) => onUpdate({ modelAnswer: e.target.value })}
+                            rows={3}
+                            className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                            placeholder="Provide a model answer or key points for this question..."
+                            disabled={disabled}
+                        />
+                    )}
+                </div>
 
-                            {(question.scoringCriteria ?? []).length === 0 ? (
-                                <div className="text-left py-4 px-3 text-gray-500 border-2 border-dashed border-gray-300 rounded-md">
-                                    <p className="text-sm">No scoring criteria added</p>
-                                    <p className="text-xs">Use "Add Score Level" for simple scoring, or "Add Criterion" for multi-dimensional scoring</p>
-                                </div>
-                            ) : null}
-                            <div className="flex gap-2 mt-2">
+                {/* Scoring Section — hidden for exact-match types */}
+                {(question.questionType !== 'true_false' && question.questionType !== 'multiple_choice') && (
+                    <div>
+                        <div className="flex items-center justify-between mb-3">
+                            <label className="block text-sm font-medium text-gray-700">
+                                Scoring Criteria
+                            </label>
+                            <div className="flex items-center gap-2">
+                                <select
+                                    value={numCriteria}
+                                    onChange={(e) => setNumCriteria(Number(e.target.value))}
+                                    className="text-xs border border-gray-200 rounded px-1 py-1 text-gray-500"
+                                    disabled={disabled || aiLoading}
+                                    title="Number of criteria for AI to generate"
+                                >
+                                    {[1, 2, 3, 4, 5].map(n => (
+                                        <option key={n} value={n}>{n} criterion{n > 1 ? 'ia' : ''}</option>
+                                    ))}
+                                </select>
                                 <Button
                                     type="button"
-                                    onClick={onAddCriterion}
+                                    onClick={suggestCriteria}
                                     variant="outline"
                                     size="sm"
-                                    disabled={disabled}
-                                    style={{ backgroundColor: '#f3f4f6', color: '#202021ff', borderColor: '#e5e7eb' }}
+                                    disabled={disabled || aiLoading || !question.title.trim()}
+                                    title="Ask AI to suggest scoring criteria based on the question"
                                 >
-                                    <Plus className="size-4" />
-                                    Add Score Level
+                                    {aiLoading ? '...' : '✨ AI Suggest'}
                                 </Button>
+                            </div>
+                        </div>
+                        {aiError && <p className="text-xs text-red-500 mb-2">{aiError}</p>}
+
+                        {/* Criteria mode: named criteria with nested score levels */}
+                        {question.criteria.length > 0 ? (
+                            <div className="space-y-3">
+                                {question.criteria.map((criterion) => (
+                                    <CriterionEditor
+                                        key={criterion.id}
+                                        criterion={criterion}
+                                        onUpdateCriterion={(updates) => onUpdateNamedCriterion(criterion.id, updates)}
+                                        onRemoveCriterion={() => onRemoveNamedCriterion(criterion.id)}
+                                        onAddScoreLevel={() => onAddScoreLevel(criterion.id)}
+                                        onUpdateScoreLevel={(scoreLevelId, updates) =>
+                                            onUpdateScoreLevel(criterion.id, scoreLevelId, updates)
+                                        }
+                                        onRemoveScoreLevel={(scoreLevelId) =>
+                                            onRemoveScoreLevel(criterion.id, scoreLevelId)
+                                        }
+                                        disabled={disabled}
+                                    />
+                                ))}
                                 <Button
                                     type="button"
                                     onClick={onAddNamedCriterion}
@@ -1217,9 +1295,52 @@ function QuestionEditor({
                                     Add Criterion
                                 </Button>
                             </div>
-                        </div>
-                    )}
-                </div>
+                        ) : (
+                            /* Flat mode: score levels directly on the question */
+                            <div className="space-y-2">
+                                {(question.scoringCriteria ?? []).map((criterion) => (
+                                    <ScoringCriterionEditor
+                                        key={criterion.id}
+                                        criterion={criterion}
+                                        onUpdate={(updates) => onUpdateCriterion(criterion.id, updates)}
+                                        onRemove={() => onRemoveCriterion(criterion.id)}
+                                        disabled={disabled}
+                                    />
+                                ))}
+
+                                {(question.scoringCriteria ?? []).length === 0 ? (
+                                    <div className="text-left py-4 px-3 text-gray-500 border-2 border-dashed border-gray-300 rounded-md">
+                                        <p className="text-sm">No scoring criteria added</p>
+                                        <p className="text-xs">Use "Add Score Level" for simple scoring, or "Add Criterion" for multi-dimensional scoring</p>
+                                    </div>
+                                ) : null}
+                                <div className="flex gap-2 mt-2">
+                                    <Button
+                                        type="button"
+                                        onClick={onAddCriterion}
+                                        variant="outline"
+                                        size="sm"
+                                        disabled={disabled}
+                                        style={{ backgroundColor: '#f3f4f6', color: '#202021ff', borderColor: '#e5e7eb' }}
+                                    >
+                                        <Plus className="size-4" />
+                                        Add Score Level
+                                    </Button>
+                                    <Button
+                                        type="button"
+                                        onClick={onAddNamedCriterion}
+                                        variant="outline"
+                                        size="sm"
+                                        disabled={disabled}
+                                    >
+                                        <Plus className="size-4" />
+                                        Add Criterion
+                                    </Button>
+                                </div>
+                            </div>
+                        )}
+                    </div>
+                )}
             </div>
         </div>
     );
@@ -1905,11 +2026,31 @@ function EditRubricView({ rubric, onSuccess, onError, onCancel, isSubmitting, ho
             if (question.maxScore <= question.minScore) {
                 newErrors[`question-${index}-score`] = 'Maximum score must be greater than minimum score';
             }
+
+            // Exact-match validation
+            if (question.questionType === 'true_false' || question.questionType === 'multiple_choice') {
+                const items = question.exactMatchItems ?? [];
+                if (items.length === 0 || items.some(i => !i.answer.trim())) {
+                    newErrors[`question-${index}-items`] = 'All items must have a correct answer';
+                }
+            }
         });
 
         setErrors(newErrors);
         return Object.keys(newErrors).length === 0;
     };
+
+    // Serialise exactMatchItems into modelAnswer and coerce type before submit
+    const prepareQuestionsForSubmit = (qs: RubricQuestion[]) =>
+        qs.map(q => {
+            if (q.questionType === 'true_false' || q.questionType === 'multiple_choice') {
+                const modelAnswer = (q.exactMatchItems ?? [])
+                    .map(i => `(${i.label})${i.answer}`)
+                    .join(', ');
+                return { ...q, questionType: 'exact_match' as const, modelAnswer };
+            }
+            return q;
+        });
 
     // Handle form submission
     const handleSubmit = async (e: React.FormEvent) => {
@@ -1926,7 +2067,7 @@ function EditRubricView({ rubric, onSuccess, onError, onCancel, isSubmitting, ho
             const updatedRubricData = {
                 title: rubricTitle,
                 description: rubricDescription,
-                questions: questions,
+                questions: prepareQuestionsForSubmit(questions),
                 totalMinPoints,
                 totalMaxPoints,
                 lectureNotes: lectureNotes,

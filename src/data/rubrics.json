@@ -431,17 +431,10 @@
         "description": "Students must answer a series of true/false questions accurately.",
         "minScore": 0,
         "maxScore": 10,
-        "scoringCriteria": [
-          {
-            "id": "c-1775923748233",
-            "scoreRange": "0-10",
-            "description": "from (a) to (j), 1 point for each correct answer",
-            "minPoints": 0,
-            "maxPoints": 10
-          }
-        ],
+        "scoringCriteria": [],
         "criteria": [],
-        "modelAnswer": "(a)F(b)F(c)F(d)T(e)F(f)T(g)T(h)F(i)T(j)T"
+        "modelAnswer": "",
+        "questionType": "true_false"
       },
       {
         "id": "q2",
@@ -1243,5 +1236,703 @@
     ],
     "createdAt": "2026-04-14T16:14:52.802Z",
     "updatedAt": "2026-04-14T16:14:52.802Z"
+  },
+  {
+    "id": "rubric-1775918328433",
+    "title": "COMP 1023 Midterm Exam Rubric 2",
+    "description": "This rubric assesses students' understanding and application of programming concepts in Python as demonstrated through various problem-solving tasks.",
+    "questions": [
+      {
+        "id": "q1",
+        "title": "True/False Questions",
+        "description": "Students must answer a series of true/false questions accurately.",
+        "minScore": 0,
+        "maxScore": 10,
+        "scoringCriteria": [],
+        "criteria": [],
+        "modelAnswer": "",
+        "questionType": "true_false",
+        "exactMatchItems": [
+          {
+            "id": "item-1776320773021",
+            "label": "a",
+            "answer": "T"
+          },
+          {
+            "id": "item-1776320780625",
+            "label": "b",
+            "answer": "F"
+          },
+          {
+            "id": "item-1776320781656",
+            "label": "c",
+            "answer": "F"
+          },
+          {
+            "id": "item-1776320782837",
+            "label": "d",
+            "answer": "T"
+          },
+          {
+            "id": "item-1776320783816",
+            "label": "e",
+            "answer": "F"
+          },
+          {
+            "id": "item-1776320785046",
+            "label": "f",
+            "answer": "T"
+          },
+          {
+            "id": "item-1776320785976",
+            "label": "g",
+            "answer": "T"
+          },
+          {
+            "id": "item-1776320801622",
+            "label": "h",
+            "answer": "F"
+          },
+          {
+            "id": "item-1776320804196",
+            "label": "i",
+            "answer": "T"
+          },
+          {
+            "id": "item-1776320805874",
+            "label": "j",
+            "answer": "T"
+          }
+        ]
+      },
+      {
+        "id": "q2",
+        "title": "2a Branching and Looping Statements",
+        "description": "Students must demonstrate their understanding of branching and looping statements through coding tasks.",
+        "minScore": 0,
+        "maxScore": 7,
+        "scoringCriteria": [
+          {
+            "id": "sc1",
+            "scoreRange": "0-10",
+            "description": "Score reflects the accuracy of the total value and reasoning for termination.",
+            "minPoints": 0,
+            "maxPoints": 10
+          }
+        ],
+        "criteria": [
+          {
+            "id": "crit1",
+            "name": "Correct Value",
+            "scoreLevels": [
+              {
+                "id": "sl1",
+                "scoreRange": "0-7",
+                "description": " 1 point for each correct total value",
+                "minPoints": 0,
+                "maxPoints": 7
+              }
+            ]
+          }
+        ],
+        "modelAnswer": "0, 2, 5, 6, 5, 12, 8, /",
+        "questionType": "essay",
+        "label": "2a",
+        "exactMatchItems": []
+      },
+      {
+        "id": "q3",
+        "title": "2b",
+        "description": "",
+        "minScore": 0,
+        "maxScore": 3,
+        "scoringCriteria": [
+          {
+            "id": "sc1",
+            "scoreRange": "0-18",
+            "description": "Score reflects the correctness and completeness of the functions implemented.",
+            "minPoints": 0,
+            "maxPoints": 18
+          }
+        ],
+        "criteria": [
+          {
+            "id": "crit1",
+            "name": "Correct value",
+            "scoreLevels": [
+              {
+                "id": "sl1",
+                "scoreRange": "0-1.5",
+                "description": "absolute 1.5 points for the correct return value, else 0",
+                "minPoints": 0,
+                "maxPoints": 1.5
+              }
+            ]
+          },
+          {
+            "id": "crit2",
+            "name": "Correct reasoning",
+            "scoreLevels": [
+              {
+                "id": "sl1",
+                "scoreRange": "0-1.5",
+                "description": "absolute 1.5 points for the correct reason for termination, else 0 ",
+                "minPoints": 0,
+                "maxPoints": 1.5
+              }
+            ]
+          }
+        ],
+        "modelAnswer": "The value that the function returns: 162. Reason for the termination: run out of items naturally",
+        "label": "2b"
+      },
+      {
+        "id": "q4",
+        "title": "3a(i)",
+        "description": "Programming question in python",
+        "minScore": 0,
+        "maxScore": 1,
+        "scoringCriteria": [
+          {
+            "id": "sc1",
+            "scoreRange": "0-20",
+            "description": "Score reflects the functionality and correctness of the mini store system.",
+            "minPoints": 0,
+            "maxPoints": 20
+          }
+        ],
+        "criteria": [
+          {
+            "id": "crit1",
+            "name": " checking divisibility",
+            "scoreLevels": [
+              {
+                "id": "sl1",
+                "scoreRange": "0-0.5",
+                "description": " 0.5 points for checking divisibility using the modulus operator (%) without loops.",
+                "minPoints": 0,
+                "maxPoints": 0.5
+              }
+            ]
+          },
+          {
+            "id": "crit2",
+            "name": "correctly returning a boolean value.",
+            "scoreLevels": [
+              {
+                "id": "sl1",
+                "scoreRange": "0-0.5",
+                "description": "0.5 points for correctly returning a boolean value.",
+                "minPoints": 0,
+                "maxPoints": 0.5
+              }
+            ]
+          }
+        ],
+        "modelAnswer": "def is_divisible(n: int, k: int)-> bool: return n % k == 0",
+        "label": "3a(i)"
+      },
+      {
+        "id": "q5",
+        "title": "3a(ii)",
+        "description": "",
+        "minScore": 0,
+        "maxScore": 4,
+        "scoringCriteria": [
+          {
+            "id": "sc1",
+            "scoreRange": "0-26",
+            "description": "Score reflects the correctness and functionality of the number guessing game.",
+            "minPoints": 0,
+            "maxPoints": 26
+          }
+        ],
+        "criteria": [
+          {
+            "id": "crit1",
+            "name": "using the is_divisible function correctly from part (a)(i).",
+            "scoreLevels": [
+              {
+                "id": "sl1",
+                "scoreRange": "0-1",
+                "description": "using the is_divisible function correctly from part (a)(i).",
+                "minPoints": 0,
+                "maxPoints": 1
+              }
+            ]
+          },
+          {
+            "id": "crit2",
+            "name": "breaking the loop early when the divisor is found",
+            "scoreLevels": [
+              {
+                "id": "sl1",
+                "scoreRange": "0-1",
+                "description": "1 point for breaking the loop early when the divisor is found",
+                "minPoints": 0,
+                "maxPoints": 1
+              }
+            ]
+          },
+          {
+            "id": "crit3",
+            "name": "running the loop",
+            "scoreLevels": [
+              {
+                "id": "sl1",
+                "scoreRange": "0-1",
+                "description": "running the loop from 2 to at least √n (it is acceptable if the loop runs from 2 to n)",
+                "minPoints": 0,
+                "maxPoints": 1
+              }
+            ]
+          },
+          {
+            "id": "crit-1775924786137",
+            "name": "correctly handling the edge case",
+            "scoreLevels": [
+              {
+                "id": "sl-1775924794671",
+                "scoreRange": "0-1",
+                "description": "1 point for correctly handling the edge case (i.e., n==2). If the loop iterates from 2 to n, it is acceptable not to include explicit edge-case handling.– If the loop starts from 0 (i.e., for divisor in n), the edge cases divisor == 0, divisor == 1 should be handled.– If the loop runs beyond n, the edge case divisor == n should be handled.",
+                "minPoints": 0,
+                "maxPoints": 1
+              }
+            ]
+          }
+        ],
+        "modelAnswer": " def is_prime(n: int)-> bool:\nif n == 2:\nreturn True\nfor i in range(2, int(n**0.5) + 1):\nif is_divisible(n, i):\nreturn False\nreturn True",
+        "label": "3a(ii)"
+      },
+      {
+        "id": "q-1775924258998",
+        "title": "3a(iii)",
+        "description": "",
+        "minScore": 0,
+        "maxScore": 6,
+        "modelAnswer": " def get_primes(n: int)-> tuple[int, list[int]]:\ncount: int = 0\nprimes: list[int] = []\nfor i in range(2, n + 1):\nif is_prime(i):\ncount += 1\nprimes.append(i)\nreturn count, primes",
+        "criteria": [
+          {
+            "id": "crit-1775924855024",
+            "name": "using the is_prime function from part (a)(ii).",
+            "scoreLevels": [
+              {
+                "id": "sl-1775924859097",
+                "scoreRange": "0-1.5",
+                "description": " 1.5 points for using the is_prime function from part (a)(ii).",
+                "minPoints": 0,
+                "maxPoints": 1.5
+              }
+            ]
+          },
+          {
+            "id": "crit-1775924873602",
+            "name": " running the loop from 2 to n+1",
+            "scoreLevels": [
+              {
+                "id": "sl-1775924879676",
+                "scoreRange": "0-1.5",
+                "description": " 1.5 points for running the loop from 2 to n+1",
+                "minPoints": 0,
+                "maxPoints": 1.5
+              }
+            ]
+          },
+          {
+            "id": "crit-1775924897632",
+            "name": "correctly counting the primes",
+            "scoreLevels": [
+              {
+                "id": "sl-1775924903594",
+                "scoreRange": "0-1.5",
+                "description": " 1.5 points for correctly counting the primes",
+                "minPoints": 0,
+                "maxPoints": 1.5
+              }
+            ]
+          },
+          {
+            "id": "crit-1775924920050",
+            "name": "correctly returning the counted value.",
+            "scoreLevels": [
+              {
+                "id": "sl-1775924922007",
+                "scoreRange": "0-1.5",
+                "description": " 1.5 points for correctly returning the counted value.",
+                "minPoints": 0,
+                "maxPoints": 1.5
+              }
+            ]
+          }
+        ],
+        "label": "3a(iii)"
+      },
+      {
+        "id": "q-1775924941965",
+        "title": "3b",
+        "description": "Deduct 0.25 points for each syntax error. 0 point for hardcoding.  Additional functions not allowed",
+        "minScore": 0,
+        "maxScore": 7,
+        "modelAnswer": "  def rotate_clockwise(lst: list[list[int]])-> list[list[int]]:\nn: int = len(lst)\n# Create a new n x n 2D list filled with zeros\nrotated: list[list[int]] = [[0] * n for _ in range(n)]\nfor i in range(n):\nfor j in range(n):\n# The element at [i][j] goes to [j][n-1-i] in clockwise rotation\nrotated[j][n- 1- i] = lst[i][j]\nreturn rotated\nor \ndef rotate_clockwise(lst):\nn = len(lst)\nrotated = []\nfor i in range(n):\nnew_row = []\nfor j in range(n-1,-1,-1): #-0.25 for each mistake in the range function\nnew_row.append(lst[j][i])\nrotated.append(new_row)\nreturn rotated\nor\ndef rotate_clockwise(lst):\nn = len(lst)\nrotated = []\nfor i in range(n):\nnew_row = []\nfor j in range(n):\nnew_row.append(lst[n-j-1][i])\nrotated.append(new_row)\nreturn (rotated)",
+        "criteria": [
+          {
+            "id": "crit-1775924970382",
+            "name": " points for n = len(lst)",
+            "scoreLevels": [
+              {
+                "id": "sl-1775924975265",
+                "scoreRange": "0-0.5",
+                "description": " 0.5 points for n = len(lst)",
+                "minPoints": 0,
+                "maxPoints": 0.5
+              }
+            ]
+          },
+          {
+            "id": "crit-1775924986425",
+            "name": "initializing a new n×n 2D list",
+            "scoreLevels": [
+              {
+                "id": "sl-1775924991816",
+                "scoreRange": "0-2",
+                "description": "2 points for initializing a new n×n 2D list.",
+                "minPoints": 0,
+                "maxPoints": 2
+              }
+            ]
+          },
+          {
+            "id": "crit-1775925004590",
+            "name": " having two loops that run from 0 to n",
+            "scoreLevels": [
+              {
+                "id": "sl-1775925014370",
+                "scoreRange": "0-1.5",
+                "description": " 1.5 points for having two loops that run from 0 to n",
+                "minPoints": 0,
+                "maxPoints": 1.5
+              }
+            ]
+          },
+          {
+            "id": "crit-1775925026431",
+            "name": " value assignment",
+            "scoreLevels": [
+              {
+                "id": "sl-1775925028942",
+                "scoreRange": "0-2",
+                "description": "2 points for the value assignment",
+                "minPoints": 0,
+                "maxPoints": 2
+              }
+            ]
+          },
+          {
+            "id": "crit-1775925042203",
+            "name": " correctly returning the rotated 2D list",
+            "scoreLevels": [
+              {
+                "id": "sl-1775925044264",
+                "scoreRange": "1",
+                "description": " correctly returning the rotated 2D list.",
+                "minPoints": 1,
+                "maxPoints": 1
+              },
+              {
+                "id": "sl-1775925053144",
+                "scoreRange": "0",
+                "description": "No point with only the return statement without the correct variable.)",
+                "minPoints": 0,
+                "maxPoints": 0
+              }
+            ]
+          }
+        ],
+        "label": "3b"
+      },
+      {
+        "id": "q-1775925245985",
+        "title": "4a Mini Store System",
+        "description": " Print the Balance",
+        "minScore": 0,
+        "maxScore": 2,
+        "modelAnswer": " def print_balance(balance: int)-> None:\nprint(\"Your balance is $\" + str(balance))",
+        "criteria": [
+          {
+            "id": "crit-1775925414316",
+            "name": " defining the function with the name print_balance",
+            "scoreLevels": [
+              {
+                "id": "sl-1775925421229",
+                "scoreRange": "0-0.5",
+                "description": "0.5 points for correctly defining the function with the name print_balance.",
+                "minPoints": 0,
+                "maxPoints": 0.5
+              }
+            ]
+          },
+          {
+            "id": "crit-1775925414549",
+            "name": "defining the function parameter balance.",
+            "scoreLevels": [
+              {
+                "id": "sl-1775925422318",
+                "scoreRange": "0-0.5",
+                "description": "0.5 points for correctly defining the function parameter balance.",
+                "minPoints": 0,
+                "maxPoints": 0.5
+              }
+            ]
+          },
+          {
+            "id": "crit-1775925415853",
+            "name": " correctly printing Your balance is $",
+            "scoreLevels": [
+              {
+                "id": "sl-1775925423480",
+                "scoreRange": "0-0.5",
+                "description": " 0.5 points for correctly printing “Your balance is $”.",
+                "minPoints": 0,
+                "maxPoints": 0.5
+              }
+            ]
+          },
+          {
+            "id": "crit-1775925419324",
+            "name": "correctly printing balance",
+            "scoreLevels": [
+              {
+                "id": "sl-1775925425647",
+                "scoreRange": "0-0.5",
+                "description": " 0.5 points for correctly printing balance.",
+                "minPoints": 0,
+                "maxPoints": 0.5
+              }
+            ]
+          }
+        ],
+        "label": "4a"
+      },
+      {
+        "id": "q-1775925246929",
+        "title": "4b",
+        "description": " Print the Bag ",
+        "minScore": 0,
+        "maxScore": 6,
+        "modelAnswer": " def print_bag(bag: list[str])-> None:\nprint(\"Your bag contains: \", end=\"\")\nfor item in bag:\nprint(item, end=\" \")\nprint()\nor another version:\ndef print_bag(bag: list[str])-> None:\nprint(\"Your bag contains:\", *bag)",
+        "criteria": [
+          {
+            "id": "crit-1775925498938",
+            "name": "correctly defining the function with the name print_bag.",
+            "scoreLevels": [
+              {
+                "id": "sl-1775925504195",
+                "scoreRange": "0-0.5",
+                "description": " 0.5 points for correctly defining the function with the name print_bag.",
+                "minPoints": 0,
+                "maxPoints": 0.5
+              }
+            ]
+          },
+          {
+            "id": "crit-1775925499152",
+            "name": "correctly defining the function parameter bag.",
+            "scoreLevels": [
+              {
+                "id": "sl-1775925505358",
+                "scoreRange": "0-0.5",
+                "description": " 0.5 points for correctly defining the function parameter bag.",
+                "minPoints": 0,
+                "maxPoints": 0.5
+              }
+            ]
+          },
+          {
+            "id": "crit-1775925499267",
+            "name": " correctly printing Your bag contains:.",
+            "scoreLevels": [
+              {
+                "id": "sl-1775925506610",
+                "scoreRange": "0-1",
+                "description": "1 point for correctly printing Your bag contains:.",
+                "minPoints": 0,
+                "maxPoints": 1
+              }
+            ]
+          },
+          {
+            "id": "crit-1775925499488",
+            "name": " correctly using a loop to print items.",
+            "scoreLevels": [
+              {
+                "id": "sl-1775925507660",
+                "scoreRange": "0-2",
+                "description": "2 points for correctly using a loop to print items.",
+                "minPoints": 0,
+                "maxPoints": 2
+              }
+            ]
+          },
+          {
+            "id": "crit-1775925538132",
+            "name": "correctly printing the statement and output format",
+            "scoreLevels": [
+              {
+                "id": "sl-1775925541500",
+                "scoreRange": "0-2",
+                "description": " 2 points for correctly printing the statement and output format",
+                "minPoints": 0,
+                "maxPoints": 2
+              }
+            ]
+          }
+        ],
+        "label": "4b"
+      },
+      {
+        "id": "q-1775925248294",
+        "title": "4c",
+        "description": "",
+        "minScore": 0,
+        "maxScore": 4,
+        "modelAnswer": "def put_in_bag(bag: list[str], item: str, amount: int)-> list[str]:\nfor _ in range(amount):\nbag.append(item)\nreturn bag",
+        "criteria": [
+          {
+            "id": "crit-1775925597518",
+            "name": "correctly defining the function with the name put_in_bag.",
+            "scoreLevels": [
+              {
+                "id": "sl-1775925599137",
+                "scoreRange": "0-0.5",
+                "description": " 0.5 points for correctly defining the function with the name put_in_bag.",
+                "minPoints": 0,
+                "maxPoints": 0.5
+              }
+            ]
+          },
+          {
+            "id": "crit-1775925597668",
+            "name": " correctly defining the function parameters bag, item, amount.",
+            "scoreLevels": [
+              {
+                "id": "sl-1775925599925",
+                "scoreRange": "0-1",
+                "description": " 1 point for correctly defining the function parameters bag, item, amount.",
+                "minPoints": 0,
+                "maxPoints": 1
+              }
+            ]
+          },
+          {
+            "id": "crit-1775925597817",
+            "name": "correctly using a loop to add multiple items.",
+            "scoreLevels": [
+              {
+                "id": "sl-1775925610701",
+                "scoreRange": "0-2",
+                "description": "2 points for correctly using a loop to add multiple items.",
+                "minPoints": 0,
+                "maxPoints": 2
+              }
+            ]
+          },
+          {
+            "id": "crit-1775925597975",
+            "name": "orrectly returning the updated bag.",
+            "scoreLevels": [
+              {
+                "id": "sl-1775925618187",
+                "scoreRange": " 0-0.5",
+                "description": " 0.5 points for correctly returning the updated bag.",
+                "minPoints": 0,
+                "maxPoints": 0.5
+              }
+            ]
+          }
+        ],
+        "label": "4c"
+      },
+      {
+        "id": "q-1775925362400",
+        "title": "4d",
+        "description": "",
+        "minScore": 0,
+        "maxScore": 8,
+        "modelAnswer": " def purchase_item(balance: int, item: str, price: int,\namount: int = 1)-> tuple[int, str, int]:\nif balance >= price * amount:\nbalance-= price * amount\nreturn balance, item, amount\nelse:\nreturn balance, item, 0\nAnother version:\ndef purchase_item(balance: int, item: str, price: int, amount: int = 1) \\-> tuple[int, str, int]:\nreturn (balance- price * amount, item, amount) \\\nif balance >= price * amount else (balance, item, 0)",
+        "criteria": [
+          {
+            "id": "crit-1775925689589",
+            "name": " correctly defining the function with the name purchase_item",
+            "scoreLevels": [
+              {
+                "id": "sl-1775925695032",
+                "scoreRange": "0-0.5",
+                "description": " 0.5 points for correctly defining the function with the name purchase_item.",
+                "minPoints": 0,
+                "maxPoints": 0.5
+              }
+            ]
+          },
+          {
+            "id": "crit-1775925689829",
+            "name": "defining the function parameters balance, item, price, amount",
+            "scoreLevels": [
+              {
+                "id": "sl-1775925699961",
+                "scoreRange": "0-1.5",
+                "description": " 1.5points for correctly defining the function parameters balance, item, price, amount",
+                "minPoints": 0,
+                "maxPoints": 1.5
+              }
+            ]
+          },
+          {
+            "id": "crit-1775925689887",
+            "name": "correctly handling the default parameter value, i.e., amount = 1.",
+            "scoreLevels": [
+              {
+                "id": "sl-1775925705158",
+                "scoreRange": "0-1",
+                "description": " 1 point for correctly handling the default parameter value, i.e., amount = 1.",
+                "minPoints": 0,
+                "maxPoints": 1
+              }
+            ]
+          },
+          {
+            "id": "crit-1775925690022",
+            "name": "correctly implementing the balance deduction logic.",
+            "scoreLevels": [
+              {
+                "id": "sl-1775925708195",
+                "scoreRange": "0-2.5",
+                "description": "2.5 points for correctly implementing the balance deduction logic.",
+                "minPoints": 0,
+                "maxPoints": 2.5
+              }
+            ]
+          },
+          {
+            "id": "crit-1775925690165",
+            "name": "correctly returning the value (tuple structure).",
+            "scoreLevels": [
+              {
+                "id": "sl-1775925712776",
+                "scoreRange": "0-2.5",
+                "description": "2.5 points for correctly returning the value (tuple structure).",
+                "minPoints": 0,
+                "maxPoints": 2.5
+              }
+            ]
+          }
+        ],
+        "label": "4d"
+      }
+    ],
+    "totalMinPoints": 0,
+    "totalMaxPoints": 58,
+    "createdAt": "2026-04-11T14:38:48.432Z",
+    "updatedAt": "2026-04-16T06:46:30.749Z",
+    "lectureNotes": []
   }
 ]

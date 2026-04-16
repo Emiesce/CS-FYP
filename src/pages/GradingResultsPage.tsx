@@ -328,6 +328,14 @@ function ExamCard({ examId, records, onSelect }: { examId: string; records: Grad
 
 function StudentList({ records, onSelect, onBack, onToggleSidebar, sidebarCollapsed }: { records: GradingRecord[]; onSelect: (i: number) => void; onBack: () => void; onToggleSidebar: () => void; sidebarCollapsed: boolean }) {
     const title = records[0]?.data.examTitle || '';
+    const [query, setQuery] = useState('');
+    const filtered = query.trim()
+        ? records.filter((r, _i) => {
+            const q = query.toLowerCase();
+            return r.data.studentName?.toLowerCase().includes(q) || r.data.studentID?.toLowerCase().includes(q);
+        })
+        : records;
+
     return (
         <div className="bg-[#fafbff] min-h-screen">
             <div className="bg-[#cee5ff] p-4 shadow-sm flex items-center gap-3">
@@ -339,10 +347,23 @@ function StudentList({ records, onSelect, onBack, onToggleSidebar, sidebarCollap
                 <Button variant="ghost" size="sm" onClick={onBack} className="flex items-center gap-2">
                     <ChevronLeft className="size-4" /> Back
                 </Button>
+                <div className="flex-1 flex justify-center">
+                    <input
+                        type="text"
+                        value={query}
+                        onChange={e => setQuery(e.target.value)}
+                        placeholder="Search by name or ID..."
+                        className="px-3 py-1.5 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-400 bg-white w-64"
+                    />
+                </div>
                 <h2 className="text-xl font-medium">{title}</h2>
             </div>
             <div className="p-6 space-y-3">
-                {records.map((r, i) => {
+                {filtered.length === 0 && (
+                    <p className="text-sm text-gray-400 text-center py-8">No students match "{query}"</p>
+                )}
+                {filtered.map((r) => {
+                    const i = records.indexOf(r);
                     const s = r.data.summary;
                     const pct = s?.percentage ?? 0;
                     const pctColor = pct >= 80 ? 'bg-green-100 text-green-800' : pct >= 60 ? 'bg-yellow-100 text-yellow-800' : 'bg-red-100 text-red-800';
@@ -739,6 +760,7 @@ export function GradingResultsPage() {
     const [loading, setLoading] = useState(true);
     const [view, setView] = useState<View>({ type: 'exams' });
     const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+    const [examSearch, setExamSearch] = useState('');
 
     useEffect(() => { loadResults(); }, []);
 
@@ -829,6 +851,15 @@ export function GradingResultsPage() {
                         </Button>
                     )}
                     <h1 className="text-xl font-medium">Grading Results</h1>
+                    <div className="flex-1 flex justify-center">
+                        <input
+                            type="text"
+                            value={examSearch}
+                            onChange={e => setExamSearch(e.target.value)}
+                            placeholder="Search exams..."
+                            className="px-3 py-1.5 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-400 bg-white w-64"
+                        />
+                    </div>
                 </div>
                 <div className="p-8" style={{ paddingLeft: '3rem', paddingRight: '3rem' }}>
                     <p className="text-sm text-gray-500 mb-6">Select an exam to start grading</p>
@@ -840,9 +871,11 @@ export function GradingResultsPage() {
                         </div>
                     ) : (
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                            {Object.entries(examGroups).map(([examId, recs]) => (
-                                <ExamCard key={examId} examId={examId} records={recs} onSelect={() => setView({ type: 'students', examId })} />
-                            ))}
+                            {Object.entries(examGroups)
+                                .filter(([examId, recs]) => !examSearch.trim() || examId.toLowerCase().includes(examSearch.toLowerCase()) || recs[0]?.data.examTitle?.toLowerCase().includes(examSearch.toLowerCase()))
+                                .map(([examId, recs]) => (
+                                    <ExamCard key={examId} examId={examId} records={recs} onSelect={() => setView({ type: 'students', examId })} />
+                                ))}
                         </div>
                     )}
                 </div>

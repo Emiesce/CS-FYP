@@ -418,7 +418,7 @@ def convert_grading_response_to_exam_format(
             q_title = ctx.get('question_title') or crit_dict.get('criterion_name', '')
             q_label = ctx.get('question_label', '')
             if q_id not in question_groups:
-                question_groups[q_id] = {'title': q_title, 'label': q_label, 'criteria': []}
+                question_groups[q_id] = {'title': q_title, 'label': q_label, 'criteria': [], 'question_type': ctx.get('question_type', 'essay')}
             question_groups[q_id]['criteria'].append(crit_dict)
 
         for q_id, group in question_groups.items():
@@ -459,7 +459,7 @@ def convert_grading_response_to_exam_format(
                 "questionId": q_id,
                 "questionNumber": q_label,
                 "questionText": q_title,
-                "questionType": "essay",
+                "questionType": group.get('question_type', 'essay'),
                 "topicId": "general",
                 "studentAnswer": {
                     "id": f"answer{question_number}",

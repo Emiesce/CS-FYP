@@ -3,9 +3,10 @@ Production GradingService implementation.
 Uses real VectorStore and AIClient — no mock logic.
 """
 
+import re
 import uuid
 import logging
-from typing import List, Dict, Any, Optional
+from typing import List, Dict, Any, Optional, Tuple
 from datetime import datetime
 
 try:
@@ -32,6 +33,150 @@ except ImportError:
     )
 
 logger = logging.getLogger(__name__)
+
+
+def _get_model_answer_from_criterion(c: dict) -> str:
+    """Extract model answer — prefer the direct field, fall back to parsing rubric_text."""
+    direct = c.get('model_answer', '').strip()
+    if direct:
+        return direct
+    for line in c.get('rubric_text', '').splitlines():
+        if line.startswith('Model Answer:'):
+            return line[len('Model Answer:'):].strip()
+    return ''
+
+
+def _parse_keyed_answers(text: str) -> Dict[str, str]:
+    """
+    Parse structured answer strings like "(a)F, (b)T, (c)F" or "a: F, b: T"
+    into a dict { "a": "F", "b": "T", ... }.
+    Returns empty dict if the text doesn't look like a keyed answer list.
+    """
+    # Match patterns like (a)F, (a)T, (b)F — value is T/F/Y/N/A-E/0/1 (case insensitive)
+    matches = re.findall(r'\(([a-zA-Z0-9]+)\)\s*([TFYNABCDEtfynabcde01])', text)
+    if not matches:
+        # fallback: key: value or key=value format
+        matches = re.findall(r'([a-zA-Z0-9]+)\s*[:=]\s*([TFYNABCDEtfynabcde01])', text)
+    if not matches:
+        return {}
+    return {k.lower(): v.upper() for k, v in matches}
+
+
+def _should_exact_match(c: dict) -> bool:
+    """Return True if this criterion should be scored without GPT."""
+    q_type = c.get('question_type', 'essay').lower()
+    if q_type in ('exact_match', 'true_false', 'multiple_choice', 'mc'):
+        return True
+    # Auto-detect: model answer must look like a compact keyed list (≥3 matches, short text)
+    # This avoids false positives on code answers that happen to contain (x)y patterns
+    model_ans = _get_model_answer_from_criterion(c)
+    if model_ans:
+        parsed = _parse_keyed_answers(model_ans)
+        # Only auto-detect if we get ≥3 keyed answers AND the answer is short (not code)
+        if len(parsed) >= 3 and len(model_ans) < 200:
+            return True
+    return False
+
+
+def _exact_match_score(
+    student_text: str,
+    model_answer: str,
+    max_score: float
+) -> Optional[Tuple[float, str]]:
+    """
+    If both student answer and model answer look like keyed answer lists,
+    compute the score mechanically and return (score, comparison_summary).
+    Returns None if the format isn't parseable.
+    """
+    student_map = _parse_keyed_answers(student_text)
+    model_map = _parse_keyed_answers(model_answer)
+
+    logger.info(f"[EXACT_MATCH_SCORE] student_map={student_map} model_map={model_map}")
+
+    if not student_map or not model_map:
+        return None
+
+    # Only proceed if they share the same keys
+    common_keys = sorted(set(model_map.keys()) & set(student_map.keys()))
+    if len(common_keys) < len(model_map) * 0.5:
+        return None  # too few matching keys, not a reliable comparison
+
+    correct = [k for k in common_keys if student_map.get(k) == model_map.get(k)]
+    wrong = [k for k in common_keys if student_map.get(k) != model_map.get(k)]
+    total = len(model_map)
+    score = round((len(correct) / total) * max_score * 2) / 2  # 0.5 increments
+
+    lines = [f"Exact-match comparison ({len(correct)}/{total} correct):"]
+    for k in sorted(model_map.keys()):
+        s = student_map.get(k, '?')
+        m = model_map[k]
+        mark = '✓' if s == m else '✗'
+        lines.append(f"  ({k}) student={s} model={m} {mark}")
+    summary = "\n".join(lines)
+
+    return score, summary
+
+
+def _parse_positional_sequence(text: str) -> Optional[list]:
+    """
+    Parse a comma-separated sequence like "0, 2, 5, 6, 5, 12, 8, /"
+    Returns a list of stripped tokens, or None if it doesn't look like a sequence.
+    """
+    # Strip trailing punctuation
+    text = text.strip().rstrip('.')
+    # Must have at least 2 comma-separated tokens
+    parts = [p.strip() for p in text.split(',')]
+    if len(parts) < 2:
+        return None
+    # Each token should be short (number, letter, symbol — not a sentence)
+    if any(len(p) > 30 for p in parts):
+        return None
+    # At least half the tokens should be numeric or short symbols
+    short_tokens = sum(1 for p in parts if len(p) <= 10)
+    if short_tokens < len(parts) * 0.5:
+        return None
+    return parts
+
+
+def _positional_sequence_score(
+    student_text: str,
+    model_answer: str,
+    max_score: float
+) -> Optional[Tuple[float, str]]:
+    """
+    Compare comma-separated sequences position by position.
+    Returns (score, summary) or None if not applicable.
+    """
+    # Extract just the sequence part from student text (may have prefix like "answer: 0, 2, ...")
+    student_seq = None
+    for candidate in [student_text, student_text.split(':')[-1].strip(), student_text.split('\n')[-1].strip()]:
+        seq = _parse_positional_sequence(candidate)
+        if seq and len(seq) >= 2:
+            student_seq = seq
+            break
+
+    model_seq = _parse_positional_sequence(model_answer)
+
+    logger.info(f"[POSITIONAL_SCORE] student_seq={student_seq} model_seq={model_seq}")
+
+    if not student_seq or not model_seq:
+        return None
+
+    total = len(model_seq)
+    # Align by position, pad student if shorter
+    correct = 0
+    lines = [f"Positional comparison ({total} positions):"]
+    for i, m in enumerate(model_seq):
+        s = student_seq[i] if i < len(student_seq) else '(missing)'
+        match = s.strip().lower() == m.strip().lower()
+        if match:
+            correct += 1
+        mark = '✓' if match else '✗'
+        lines.append(f"  [{i+1}] student={s} model={m} {mark}")
+
+    score = round((correct / total) * max_score * 2) / 2
+    summary = "\n".join([f"Positional-match comparison ({correct}/{total} correct):"] + lines[1:])
+    return score, summary
 
 
 class ProductionGradingService(GradingService):
@@ -253,6 +398,7 @@ class ProductionGradingService(GradingService):
         max_total_score = 0.0
 
         for q_idx, (q_id, q_criteria) in enumerate(question_groups.items()):
+            logger.info(f"[QUESTION_GROUP] q_id={q_id} criteria_count={len(q_criteria)} names={[c.get('name','?') for c in q_criteria]}")
             # Try exact match first, then positional fallback
             essay_for_question = question_answers.get(q_id)
             if not essay_for_question and positional_answers:
@@ -270,37 +416,94 @@ class ProductionGradingService(GradingService):
             lecture_context = "\n\n".join(lecture_parts) if lecture_parts else None
 
             if len(q_criteria) == 1:
-                # Single criterion — use the existing single-criterion call
                 c = q_criteria[0]
-                result = await self.ai_client.grade_essay(
-                    essay=essay_for_question,
-                    context=rubric_context,
-                    criterion_name=c.get("name", ""),
-                    criterion_id=c["id"],
-                    max_score=c.get("max_score", 10),
-                    lecture_notes_context=lecture_context
-                )
+                model_ans = _get_model_answer_from_criterion(c)
+                should_em = _should_exact_match(c)
+                logger.info(f"[EXACT_MATCH_CHECK] criterion={c.get('name','')} question_type={c.get('question_type','?')} model_ans_present={bool(model_ans)} should_exact_match={should_em} model_ans_preview={model_ans[:50] if model_ans else 'NONE'}")
+                pre_scored = _exact_match_score(essay_for_question, model_ans, c.get('max_score', 10)) if should_em and model_ans else None
+                if pre_scored is None and should_em and model_ans:
+                    pre_scored = _positional_sequence_score(essay_for_question, model_ans, c.get('max_score', 10))
+
+                if pre_scored is not None:
+                    computed_score, comparison_summary = pre_scored
+                    logger.info(f"Exact-match pre-score for {c.get('name','')}: {computed_score}/{c.get('max_score',10)}")
+                    result = GradingCriterion(
+                        criterion_id=c['id'],
+                        criterion_name=c.get('name', ''),
+                        matched_level='',
+                        score=computed_score,
+                        max_score=c.get('max_score', 10),
+                        justification=comparison_summary,
+                        suggestion_for_improvement='Review the incorrect items against the model answer.',
+                        highlighted_text=essay_for_question[:200],
+                        context_metadata={"has_rubric_context": True, "exact_match_scored": True}
+                    )
+                else:
+                    result = await self.ai_client.grade_essay(
+                        essay=essay_for_question,
+                        context=rubric_context,
+                        criterion_name=c.get("name", ""),
+                        criterion_id=c["id"],
+                        max_score=c.get("max_score", 10),
+                        lecture_notes_context=lecture_context
+                    )
                 result.context_metadata = result.context_metadata or {}
                 result.context_metadata['question_id'] = q_id
                 result.context_metadata['question_title'] = c.get('question_title', c.get('name', ''))
                 result.context_metadata['question_label'] = c.get('question_label', '')
+                result.context_metadata['question_type'] = c.get('question_type', 'essay')
                 result.context_metadata['answer_text'] = essay_for_question
                 results.append(result)
                 total_score += result.score
                 max_total_score += result.max_score
             else:
-                # Multiple criteria — one call grades all of them together
-                criterion_results = await self.ai_client.grade_essay_multi_criteria(
-                    essay=essay_for_question,
-                    context=rubric_context,
-                    criteria=q_criteria,
-                    lecture_notes_context=lecture_context
-                )
-                for result in criterion_results:
+                # Multiple criteria — exact-match per criterion where applicable, GPT for the rest
+                criterion_results = []
+                needs_gpt = []
+                for c in q_criteria:
+                    model_ans = _get_model_answer_from_criterion(c)
+                    should_em = _should_exact_match(c)
+                    logger.info(f"[EXACT_MATCH_CHECK_MULTI] criterion={c.get('name','')} question_type={c.get('question_type','?')} model_ans_present={bool(model_ans)} should_exact_match={should_em}")
+                    pre_scored = _exact_match_score(essay_for_question, model_ans, c.get('max_score', 10)) if should_em and model_ans else None
+                    if pre_scored is None and should_em and model_ans:
+                        pre_scored = _positional_sequence_score(essay_for_question, model_ans, c.get('max_score', 10))
+                    if pre_scored is not None:
+                        computed_score, comparison_summary = pre_scored
+                        logger.info(f"Exact-match pre-score for {c.get('name','')}: {computed_score}/{c.get('max_score',10)}")
+                        criterion_results.append(GradingCriterion(
+                            criterion_id=c['id'],
+                            criterion_name=c.get('name', ''),
+                            matched_level='',
+                            score=computed_score,
+                            max_score=c.get('max_score', 10),
+                            justification=comparison_summary,
+                            suggestion_for_improvement='Review the incorrect items against the model answer.',
+                            highlighted_text=essay_for_question[:200],
+                            context_metadata={"has_rubric_context": True, "exact_match_scored": True}
+                        ))
+                    else:
+                        needs_gpt.append((len(criterion_results), c))
+                        criterion_results.append(None)
+
+                if needs_gpt:
+                    gpt_criteria = [c for _, c in needs_gpt]
+                    gpt_results = await self.ai_client.grade_essay_multi_criteria(
+                        essay=essay_for_question,
+                        context=rubric_context,
+                        criteria=gpt_criteria,
+                        lecture_notes_context=lecture_context
+                    )
+                    for (idx, _), gpt_result in zip(needs_gpt, gpt_results):
+                        criterion_results[idx] = gpt_result
+
+                for result, c in zip(criterion_results, q_criteria):
+                    if result is None:
+                        continue
                     result.context_metadata = result.context_metadata or {}
                     result.context_metadata['question_id'] = q_id
                     result.context_metadata['question_title'] = q_criteria[0].get('question_title', '')
                     result.context_metadata['question_label'] = q_criteria[0].get('question_label', '')
+                    result.context_metadata['question_type'] = c.get('question_type', 'essay')
                     result.context_metadata['answer_text'] = essay_for_question
                     results.append(result)
                     total_score += result.score

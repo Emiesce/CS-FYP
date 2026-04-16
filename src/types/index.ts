@@ -54,6 +54,20 @@ export interface RubricData {
     lectureNotes?: LectureNote[];
 }
 
+export type QuestionType =
+    | 'true_false'
+    | 'multiple_choice'
+    | 'short_answer'
+    | 'essay'
+    | 'math'
+    | 'programming';
+
+export interface ExactMatchItem {
+    id: string;
+    label: string;   // free-text, e.g. "a", "1", "(ii)"
+    answer: string;  // correct answer, e.g. "True", "B"
+}
+
 export interface RubricQuestion {
     id: string;
     label?: string;  // custom label e.g. "1a", "1a(ii)" — overrides auto-number
@@ -63,6 +77,8 @@ export interface RubricQuestion {
     maxScore: number;
     scoringCriteria: ScoringCriterion[];
     criteria?: RubricCriterion[];
+    questionType?: QuestionType;
+    exactMatchItems?: ExactMatchItem[];
 }
 
 export interface ScoringCriterion {

@@ -176,6 +176,8 @@ class RAGGradingSystem:
                             f"Criterion: {criterion.get('name', '')}",
                             f"Description: {question.get('description', '')}",
                         ]
+                        if question.get('modelAnswer', '').strip():
+                            rubric_text_parts.append(f"Model Answer: {question.get('modelAnswer', '')}")
                         for sl in score_levels:
                             rubric_text_parts.append(
                                 f"Score {sl.get('scoreRange', '')}: {sl.get('description', '')}"
@@ -188,16 +190,24 @@ class RAGGradingSystem:
                             default=question.get('maxScore', 0)
                         )
 
+                        # Build model_answer from exactMatchItems if available (more reliable)
+                        exact_items = question.get('exactMatchItems', [])
+                        if exact_items:
+                            model_answer = ', '.join(f"({item['label']}){item['answer']}" for item in exact_items)
+                        else:
+                            model_answer = question.get('modelAnswer', '')
+
                         criteria.append({
                             "id": criterion.get('id', ''),
                             "name": criterion.get('name', ''),
                             "description": question.get('description', ''),
                             "max_score": max_score,
                             "rubric_text": rubric_text,
-                            # Keep parent question context for grouping in results
                             "question_id": question.get('id', ''),
                             "question_title": question.get('title', ''),
                             "question_label": question.get('label', ''),
+                            "question_type": question.get('questionType', 'essay'),
+                            "model_answer": model_answer,
                         })
                 else:
                     # Flat mode: the question itself is one criterion
@@ -206,11 +216,20 @@ class RAGGradingSystem:
                         f"Description: {question.get('description', '')}",
                         f"Score Range: {question.get('minScore', 0)} - {question.get('maxScore', 0)} points"
                     ]
+                    if question.get('modelAnswer', '').strip():
+                        rubric_text_parts.append(f"Model Answer: {question.get('modelAnswer', '')}")
                     for sc in question.get('scoringCriteria', []):
                         rubric_text_parts.append(
                             f"Score {sc.get('scoreRange', '')}: {sc.get('description', '')}"
                         )
                     rubric_text = "\n".join(rubric_text_parts)
+
+                    # Build model_answer from exactMatchItems if available (more reliable)
+                    exact_items = question.get('exactMatchItems', [])
+                    if exact_items:
+                        model_answer = ', '.join(f"({item['label']}){item['answer']}" for item in exact_items)
+                    else:
+                        model_answer = question.get('modelAnswer', '')
 
                     criteria.append({
                         "id": question.get('id', ''),
@@ -221,6 +240,8 @@ class RAGGradingSystem:
                         "question_id": question.get('id', ''),
                         "question_title": question.get('title', ''),
                         "question_label": question.get('label', ''),
+                        "question_type": question.get('questionType', 'essay'),
+                        "model_answer": model_answer,
                     })
             
             # Build rubric_text from all questions and scoring criteria
@@ -434,25 +455,28 @@ class RAGGradingSystem:
             # Validate request
             self._validate_grading_request(request)
             
-            # Always reload the marking scheme from JSON to pick up latest rubric structure
-            logger.info(f"Loading marking scheme {request.marking_scheme_id} from JSON")
-            marking_scheme = await self.load_marking_scheme_from_json(request.marking_scheme_id)
+            # Load marking scheme from JSON — use in-memory cache to avoid reloading
+            # for every student in a batch (cache is invalidated on server restart)
+            scheme_id = request.marking_scheme_id
+            if scheme_id not in self._loaded_schemes:
+                logger.info(f"Loading marking scheme {scheme_id} from JSON")
+                marking_scheme = await self.load_marking_scheme_from_json(scheme_id)
 
-            if not marking_scheme:
-                raise ValidationError(f"Marking scheme {request.marking_scheme_id} not found in JSON file")
+                if not marking_scheme:
+                    raise ValidationError(f"Marking scheme {scheme_id} not found in JSON file")
 
-            # Register in the grading service's own cache (overwrites any stale version)
-            logger.info(f"Marking scheme has {len(marking_scheme.criteria)} criteria: {[c.get('name','?') for c in marking_scheme.criteria]}")
-            await self.grading_service.create_marking_scheme({
-                "id": marking_scheme.id,
-                "question_id": marking_scheme.question_id,
-                "criteria": marking_scheme.criteria,
-                "rubric_text": marking_scheme.rubric_text,
-                "created_by": marking_scheme.created_by,
-            })
-
-            # Index into vector store
-            await self.grading_service.load_marking_scheme_to_rag(marking_scheme.id)
+                logger.info(f"Marking scheme has {len(marking_scheme.criteria)} criteria: {[c.get('name','?') for c in marking_scheme.criteria]}")
+                await self.grading_service.create_marking_scheme({
+                    "id": marking_scheme.id,
+                    "question_id": marking_scheme.question_id,
+                    "criteria": marking_scheme.criteria,
+                    "rubric_text": marking_scheme.rubric_text,
+                    "created_by": marking_scheme.created_by,
+                })
+                await self.grading_service.load_marking_scheme_to_rag(marking_scheme.id)
+                self._loaded_schemes[scheme_id] = marking_scheme
+            else:
+                marking_scheme = self._loaded_schemes[scheme_id]
             
             # Perform grading
             response = await self.grading_service.grade_essay_all_criteria(request)

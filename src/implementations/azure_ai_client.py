@@ -394,9 +394,13 @@ class AzureAIClient(AIClient):
 **GRADING INSTRUCTIONS:**
 1. Read the student's answer carefully
 2. Grade the answer against EACH criterion listed above independently
-3. For each criterion, assign a score in 0.5 increments only (e.g. 7.0, 7.5, 8.0 — not 7.3)
-4. Provide specific justification and improvement suggestion for each criterion
-5. Quote relevant text from the student's answer as highlighted_text
+3. For each criterion, follow this strict priority order:
+   - If "Model Answer:" is present in the criterion: compare the student's answer directly and mechanically against it item by item. Do NOT infer, assume, or add any correctness judgement beyond what the model answer explicitly states. Count matches exactly.
+   - Else if score level descriptors are present (e.g. "Score 8-10: ..."): apply them strictly as written, do not add your own criteria.
+   - Else: use the criterion description to evaluate.
+4. For each criterion, assign a score in 0.5 increments only (e.g. 7.0, 7.5, 8.0 — not 7.3)
+5. Provide justification that explicitly states which model answer items matched or did not match
+6. Quote relevant text from the student's answer as highlighted_text
 
 **RESPONSE FORMAT:**
 Respond with a valid JSON array — one object per criterion, in the same order as listed above:
@@ -480,12 +484,14 @@ Respond only with the JSON array, no additional text."""
 1. Carefully read the student's answer
 2. Review the rubric criteria for the criterion: **{criterion_name}**
 3. Consider the relevant lecture content to understand expected knowledge and concepts
-4. Evaluate how well the student demonstrates understanding of course concepts
+4. Follow this strict priority order when grading:
+   - If "Model Answer:" is present: compare the student's answer directly and mechanically against it item by item. Do NOT infer, assume, or add any correctness judgement beyond what the model answer explicitly states. Count matches exactly.
+   - Else if score level descriptors are present (e.g. "Score 8-10: ..."):  apply them strictly as written, do not add your own criteria.
+   - Else: use the rubric description and lecture content to evaluate.
 5. Assign a score between 0 and {max_score} in increments of 0.5 only (e.g. 7.0, 7.5, 8.0 — not 7.3 or 8.2)
-6. Provide detailed justification that references specific lecture concepts when relevant
-7. Offer constructive suggestions that guide toward better integration of course materials
-8. If you reference specific lecture content, note which materials you're citing
-9. Identify specific text excerpts that support your evaluation
+6. Provide justification that explicitly states which model answer items matched or did not match
+7. Offer constructive suggestions
+8. Identify specific text excerpts that support your evaluation
 
 **RESPONSE FORMAT:**
 You must respond with a valid JSON object matching this exact schema:
@@ -514,10 +520,14 @@ Respond only with the JSON object, no additional text."""
 **GRADING INSTRUCTIONS:**
 1. Carefully read the student's answer
 2. Review the provided rubric context
-3. Evaluate the essay specifically for the criterion: **{criterion_name}**
-4. Assign a score between 0 and {max_score} in increments of 0.5 only (e.g. 7.0, 7.5, 8.0 — not 7.3 or 8.2)
-5. Provide detailed justification and constructive suggestions
-6. Identify specific text excerpts that support your evaluation
+3. Follow this strict priority order when grading:
+   - If "Model Answer:" is present: compare the student's answer directly and mechanically against it item by item. Do NOT infer, assume, or add any correctness judgement beyond what the model answer explicitly states. Count matches exactly.
+   - Else if score level descriptors are present (e.g. "Score 8-10: ..."): apply them strictly as written, do not add your own criteria.
+   - Else: use the rubric description to evaluate.
+4. Evaluate the essay specifically for the criterion: **{criterion_name}**
+5. Assign a score between 0 and {max_score} in increments of 0.5 only (e.g. 7.0, 7.5, 8.0 — not 7.3 or 8.2)
+6. Provide justification that explicitly states which model answer items matched or did not match
+7. Identify specific text excerpts that support your evaluation
 
 **RESPONSE FORMAT:**
 You must respond with a valid JSON object matching this exact schema:

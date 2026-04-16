@@ -1662,6 +1662,18 @@ Rules:
 
 RUBRICS_FILE = os.path.join(os.path.dirname(__file__), 'src', 'data', 'rubrics.json')
 
+
+@app.route('/clear-cache', methods=['POST'])
+def clear_cache():
+    """Clear the in-memory marking scheme cache so next grading reloads from JSON."""
+    global grading_system
+    if grading_system is not None:
+        grading_system._loaded_schemes.clear()
+        if hasattr(grading_system, 'grading_service') and grading_system.grading_service is not None:
+            grading_system.grading_service.marking_schemes.clear()
+        return jsonify({'success': True, 'message': 'Cache cleared'})
+    return jsonify({'success': True, 'message': 'No cache to clear'})
+
 @app.route('/rubrics', methods=['POST', 'OPTIONS'])
 def save_rubrics():
     if request.method == 'OPTIONS':
@@ -1677,6 +1689,15 @@ def save_rubrics():
         os.makedirs(os.path.dirname(RUBRICS_FILE), exist_ok=True)
         with open(RUBRICS_FILE, 'w', encoding='utf-8') as f:
             json.dump(rubrics, f, indent=2, ensure_ascii=False)
+
+        # Invalidate the marking scheme cache so next grading picks up the updated rubric
+        global grading_system
+        if grading_system is not None:
+            grading_system._loaded_schemes.clear()
+            # Also clear the grading service's internal cache
+            if hasattr(grading_system, 'grading_service') and grading_system.grading_service is not None:
+                grading_system.grading_service.marking_schemes.clear()
+
         return jsonify({'success': True, 'message': f'Saved {len(rubrics)} rubrics'})
     except Exception as e:
         return jsonify({'success': False, 'error': str(e)}), 500
