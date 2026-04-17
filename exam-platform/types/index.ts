@@ -397,3 +397,128 @@ export const ROLE_PERMISSIONS: Record<UserRole, Permission[]> = {
 export function hasPermission(role: UserRole, permission: Permission): boolean {
   return ROLE_PERMISSIONS[role].includes(permission);
 }
+
+/* ------------------------------------------------------------------ */
+/*  Grading – Rubric, Results, Evidence                               */
+/* ------------------------------------------------------------------ */
+
+/** Grading lane used to grade a question. */
+export type GradingLane = "deterministic" | "cheap_llm" | "quality_llm" | "escalated";
+
+/** Status of a single question grading job. */
+export type QuestionGradingStatus =
+  | "pending"
+  | "grading"
+  | "graded"
+  | "escalated"
+  | "reviewed"
+  | "finalized";
+
+/** Overall status of a grading run. */
+export type GradingRunStatus =
+  | "pending"
+  | "in_progress"
+  | "completed"
+  | "failed"
+  | "reviewed";
+
+/** A single rubric criterion with score bands. */
+export interface RubricCriterion {
+  id: string;
+  label: string;
+  description: string;
+  maxPoints: number;
+  scoreBands: RubricScoreBand[];
+}
+
+/** Score band within a rubric criterion. */
+export interface RubricScoreBand {
+  label: string;           // e.g. "Excellent", "Good", "Poor"
+  minPoints: number;
+  maxPoints: number;
+  description: string;
+}
+
+/** Structured rubric for a question (parsed from text / generated). */
+export interface StructuredRubric {
+  questionId: string;
+  criteria: RubricCriterion[];
+  totalPoints: number;
+  generatedBy?: string;     // model id if AI-generated
+  version: number;
+}
+
+/** Evidence span highlighting a portion of the student answer. */
+export interface EvidenceSpan {
+  startIndex: number;
+  endIndex: number;
+  quote: string;
+  criterionId: string;
+  reason: string;
+}
+
+/** Grading result for one rubric criterion. */
+export interface CriterionGradeResult {
+  criterionId: string;
+  criterionLabel: string;
+  score: number;
+  maxPoints: number;
+  rationale: string;
+  evidenceSpans: EvidenceSpan[];
+}
+
+/** Grading result for one question within an attempt. */
+export interface QuestionGradeResult {
+  questionId: string;
+  questionType: QuestionType;
+  status: QuestionGradingStatus;
+  lane: GradingLane;
+  model?: string;
+  rawScore: number;
+  maxPoints: number;
+  normalizedScore: number;   // 0-1
+  confidence: number;        // 0-1
+  rationale: string;
+  criterionResults: CriterionGradeResult[];
+  evidenceSpans: EvidenceSpan[];
+  escalationNotes?: string;
+  latencyMs?: number;
+  tokenUsage?: { prompt: number; completion: number };
+}
+
+/** Staff review decision for a graded question. */
+export interface GradingReviewDecision {
+  questionId: string;
+  reviewerId: string;
+  originalScore: number;
+  overrideScore?: number;
+  comment?: string;
+  accepted: boolean;
+  reviewedAt: string;
+}
+
+/** A complete grading run for one student attempt. */
+export interface GradingRun {
+  id: string;
+  examId: string;
+  attemptId: string;
+  studentId: string;
+  status: GradingRunStatus;
+  questionResults: QuestionGradeResult[];
+  totalScore: number;
+  maxTotalPoints: number;
+  reviews: GradingReviewDecision[];
+  startedAt: string;
+  completedAt?: string;
+  modelUsage: ModelUsageRecord[];
+}
+
+/** Tracks token/cost usage per model call. */
+export interface ModelUsageRecord {
+  model: string;
+  questionId: string;
+  promptTokens: number;
+  completionTokens: number;
+  latencyMs: number;
+  cached: boolean;
+}
