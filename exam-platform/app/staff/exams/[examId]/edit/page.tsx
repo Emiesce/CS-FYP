@@ -183,6 +183,7 @@ function ExamEditorContent() {
           <QuestionEditorPanel
             key={activeQuestion.id}
             question={activeQuestion}
+            examId={params.examId}
             onChange={handleQuestionChange}
             onDelete={handleQuestionDelete}
           />

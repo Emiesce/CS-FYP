@@ -78,17 +78,22 @@ def build_rubric_generation_prompt(
     points: float,
     instructor_notes: str | None = None,
     support_text: str | None = None,
+    model_answer: str | None = None,
 ) -> str:
     parts = [
         f"## Question ({question_type}, {points} points)\n{question_prompt}",
     ]
+    if model_answer:
+        parts.append(f"## Model Answer\n{model_answer}")
     if instructor_notes:
         parts.append(f"## Instructor Notes\n{instructor_notes}")
     if support_text:
         parts.append(f"## Support Material\n{support_text}")
     parts.append(
         "Generate a structured rubric for this question. "
-        "The criteria max_points must sum exactly to the question points."
+        "The criteria max_points must sum exactly to the question points. "
+        "If a model answer is provided, use it to produce detailed and specific "
+        "score band descriptions that explain what level of quality corresponds to each band."
     )
     return "\n\n".join(parts)
 

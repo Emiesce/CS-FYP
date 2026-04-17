@@ -49,4 +49,6 @@ export interface RubricGeneratePayload {
   points: number;
   instructorNotes?: string;
   supportFileText?: string;
+  /** Optional model answer(s) to help the AI produce better band descriptions. */
+  modelAnswer?: string;
 }

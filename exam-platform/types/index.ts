@@ -190,6 +190,8 @@ export const QUESTION_TYPE_LABELS: Record<QuestionType, string> = {
 export interface QuestionRubric {
   /** Structured rubric text (e.g. markdown / plain text criteria). */
   text: string;
+  /** Fully structured rubric with criteria and score bands. */
+  structuredRubric?: StructuredRubric;
   /** Optional file attachment metadata for demo. */
   attachment?: {
     fileName: string;
@@ -435,6 +437,8 @@ export interface RubricCriterion {
   description: string;
   maxPoints: number;
   scoreBands: RubricScoreBand[];
+  /** Optional model answer to guide AI grading for this criterion. */
+  modelAnswer?: string;
 }
 
 /** Score band within a rubric criterion. */

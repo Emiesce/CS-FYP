@@ -45,6 +45,7 @@ async def api_generate_rubric(body: RubricGenerateRequest) -> RubricGenerateResp
             points=body.points,
             instructor_notes=body.instructor_notes,
             support_text=body.support_file_text,
+            model_answer=body.model_answer,
         )
     except ValueError as e:
         raise HTTPException(status_code=422, detail=str(e))

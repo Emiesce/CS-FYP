@@ -109,6 +109,7 @@ async def generate_rubric(
     points: float,
     instructor_notes: str | None = None,
     support_text: str | None = None,
+    model_answer: str | None = None,
 ) -> tuple[StructuredRubric, str, int]:
     """
     Generate a structured rubric for a question.
@@ -125,6 +126,7 @@ async def generate_rubric(
         points=points,
         instructor_notes=instructor_notes,
         support_text=support_text,
+        model_answer=model_answer,
     )
 
     messages = [

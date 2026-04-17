@@ -55,6 +55,7 @@ class RubricCriterion(BaseModel):
     description: str = ""
     max_points: float = Field(ge=0)
     score_bands: list[RubricScoreBand] = Field(default_factory=list)
+    model_answer: Optional[str] = None
 
 
 class StructuredRubric(BaseModel):
@@ -74,6 +75,7 @@ class RubricGenerateRequest(BaseModel):
     points: float = Field(ge=0)
     instructor_notes: Optional[str] = None
     support_file_text: Optional[str] = None
+    model_answer: Optional[str] = None
 
 
 class RubricGenerateResponse(BaseModel):
