@@ -24,7 +24,13 @@ export type ProctoringEventType =
   | "face_missing"
   | "camera_unavailable"
   | "tab_switch"
-  | "window_exit";
+  | "window_exit"
+  | "clipboard_paste"
+  | "clipboard_copy"
+  | "clipboard_cut"
+  | "select_all"
+  | "browser_shortcut"
+  | "devtools_open";
 
 /** Status of an exam from the student's perspective. */
 export type ExamStatus = "current" | "upcoming" | "past";

@@ -13,6 +13,7 @@ import { COMP1023_EXAM, COMP1023_EXAM_DEFINITION, COMP1023_EXAM_ID } from "@/lib
 import { ALL_EXAMS } from "@/lib/fixtures";
 import {
   saveDraftAnswers,
+  loadDraftAnswers,
   submitExamAnswers,
   isExamSubmitted,
 } from "@/features/exams/exam-answer-store";
@@ -23,6 +24,7 @@ import {
 import type { PersistedProctoringSession } from "@/features/proctoring/live-session-store";
 import { useProctoringSession } from "@/features/proctoring/useProctoringSession";
 import { useScreenMonitor } from "@/features/proctoring/useScreenMonitor";
+import { useKeyboardMonitor } from "@/features/proctoring/useKeyboardMonitor";
 import { useCountdown } from "@/features/exams/useCountdown";
 import { DETECTION_CADENCE_MS } from "@/lib/constants";
 import { computeRiskScore, countHighSeverityEvents } from "@/lib/utils/risk-score";
@@ -80,6 +82,20 @@ function Comp1023ExamContent({ examId }: { examId: string }) {
     onViolation: recordViolation,
     onStatusChange: updateLiveStatus,
   });
+
+  // Keyboard shortcut monitoring (paste, copy, devtools, etc.)
+  useKeyboardMonitor({
+    active: started,
+    examId,
+    studentId,
+    onViolation: recordViolation,
+  });
+
+  // Load persisted draft answers so they survive tab switches
+  const initialResponses = useMemo(
+    () => loadDraftAnswers(examId, studentId),
+    [examId, studentId],
+  );
 
   const requestCameraAccess = useCallback(async () => {
     setCameraPrecheckError(null);
@@ -303,6 +319,11 @@ function Comp1023ExamContent({ examId }: { examId: string }) {
       {/* Exam workspace / monitoring tabs */}
       {started && !isComplete && (
         <>
+          {/* Webcam always active in background during exam */}
+          <div style={{ display: activeTab === "monitoring" ? "block" : "none" }}>
+            {/* Only visually hidden; WebcamPreview stays mounted below */}
+          </div>
+
           <div className="tab-list" role="tablist" aria-label="Exam workspace tabs">
             <button type="button" role="tab" aria-selected={activeTab === "exam"}
               className={`tab-button ${activeTab === "exam" ? "is-active" : ""}`}
@@ -316,47 +337,50 @@ function Comp1023ExamContent({ examId }: { examId: string }) {
             </button>
           </div>
 
-          {activeTab === "exam" ? (
+          {/* Exam tab – always mounted, hidden via CSS to preserve answers */}
+          <div style={{ display: activeTab === "exam" ? "block" : "none" }}>
             <ExamWorkspaceShell
               definition={definition}
+              initialResponses={initialResponses}
               onResponsesChange={handleResponsesChange}
               onSubmit={handleSubmit}
             />
-          ) : (
-            <div style={{ display: "grid", gap: "var(--space-6)" }}>
-              <div className="grid grid-2">
-                <WebcamPreview
-                  active={isRunning}
-                  onFrame={sendFrame}
-                  captureIntervalMs={DETECTION_CADENCE_MS}
-                  onPermissionDenied={handleCameraPermissionDenied}
-                  onPermissionGranted={handleCameraPermissionGranted}
-                  onClipChunk={pushClipChunk}
-                />
-                <div style={{ display: "grid", gap: "var(--space-4)", alignContent: "start" }}>
-                  <div className="panel">
-                    <div className="title-with-icon" style={{ marginBottom: "var(--space-3)" }}>
-                      <Icon name="shield" />
-                      <h2 style={{ margin: 0, fontSize: "1rem" }}>Live Status</h2>
-                    </div>
-                    <LiveStatusPanel status={liveStatus} />
+          </div>
+
+          {/* Monitoring tab */}
+          <div style={{ display: activeTab === "monitoring" ? "grid" : "none", gap: "var(--space-6)" }}>
+            <div className="grid grid-2">
+              <WebcamPreview
+                active={isRunning}
+                onFrame={sendFrame}
+                captureIntervalMs={DETECTION_CADENCE_MS}
+                onPermissionDenied={handleCameraPermissionDenied}
+                onPermissionGranted={handleCameraPermissionGranted}
+                onClipChunk={pushClipChunk}
+              />
+              <div style={{ display: "grid", gap: "var(--space-4)", alignContent: "start" }}>
+                <div className="panel">
+                  <div className="title-with-icon" style={{ marginBottom: "var(--space-3)" }}>
+                    <Icon name="shield" />
+                    <h2 style={{ margin: 0, fontSize: "1rem" }}>Live Status</h2>
                   </div>
-                  {cameraError && (
-                    <div className="badge-danger" style={{ padding: "var(--space-3) var(--space-4)", borderRadius: "var(--radius-sm)" }}>
-                      Camera permission was denied. Proctoring data will be limited.
-                    </div>
-                  )}
-                  {screenError && (
-                    <div className="badge-warning" style={{ padding: "var(--space-3) var(--space-4)", borderRadius: "var(--radius-sm)" }}>
-                      {screenError}
-                    </div>
-                  )}
+                  <LiveStatusPanel status={liveStatus} />
                 </div>
+                {cameraError && (
+                  <div className="badge-danger" style={{ padding: "var(--space-3) var(--space-4)", borderRadius: "var(--radius-sm)" }}>
+                    Camera permission was denied. Proctoring data will be limited.
+                  </div>
+                )}
+                {screenError && (
+                  <div className="badge-warning" style={{ padding: "var(--space-3) var(--space-4)", borderRadius: "var(--radius-sm)" }}>
+                    {screenError}
+                  </div>
+                )}
               </div>
-              <SuspiciousActivityChart events={events} durationSeconds={exam.durationSeconds} startedAt={sessionStartedAt} title="Exam Alert Timeline" />
-              <WarningFeed events={events} />
             </div>
-          )}
+            <SuspiciousActivityChart events={events} durationSeconds={exam.durationSeconds} startedAt={sessionStartedAt} title="Exam Alert Timeline" />
+            <WarningFeed events={events} />
+          </div>
         </>
       )}
     </div>
