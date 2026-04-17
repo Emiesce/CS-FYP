@@ -372,7 +372,7 @@ class AzureAIClient(AIClient):
             f'"max_score": {c.get("max_score",10)}, '
             f'"justification": "<explanation>", '
             f'"suggestion_for_improvement": "<feedback>", '
-            f'"highlighted_text": "<excerpt>"}}'
+            f'"highlighted_text": "<verbatim excerpt copied exactly from the student answer>"}}'
             for c in criteria
         )
 
@@ -400,7 +400,7 @@ class AzureAIClient(AIClient):
    - Else: use the criterion description to evaluate.
 4. For each criterion, assign a score in 0.5 increments only (e.g. 7.0, 7.5, 8.0 — not 7.3)
 5. Provide justification that explicitly states which model answer items matched or did not match
-6. Quote relevant text from the student's answer as highlighted_text
+6. For highlighted_text: copy a SHORT, VERBATIM excerpt (max 200 chars) directly from the student's answer above that best supports your score. It MUST be an exact copy of words that appear in the student's answer — do not paraphrase or summarise.
 
 **RESPONSE FORMAT:**
 Respond with a valid JSON array — one object per criterion, in the same order as listed above:
@@ -491,7 +491,7 @@ Respond only with the JSON array, no additional text."""
 5. Assign a score between 0 and {max_score} in increments of 0.5 only (e.g. 7.0, 7.5, 8.0 — not 7.3 or 8.2)
 6. Provide justification that explicitly states which model answer items matched or did not match
 7. Offer constructive suggestions
-8. Identify specific text excerpts that support your evaluation
+8. For highlighted_text: Identify specific text excerpts directly from the student's answer above that best supports your score. It MUST be an exact copy of words that appear in the student's answer — do not paraphrase or summarise.
 
 **RESPONSE FORMAT:**
 You must respond with a valid JSON object matching this exact schema:
@@ -502,7 +502,7 @@ You must respond with a valid JSON object matching this exact schema:
   "max_score": {max_score},
   "justification": "<detailed explanation with lecture references if applicable>",
   "suggestion_for_improvement": "<constructive feedback incorporating course materials>",
-  "highlighted_text": "<relevant answer excerpts>",
+  "highlighted_text": "<verbatim excerpts copied exactly from the student's answer>",
   "lecture_notes_references": ["<list of lecture concepts or materials referenced>"]
 }}
 
@@ -527,7 +527,7 @@ Respond only with the JSON object, no additional text."""
 4. Evaluate the essay specifically for the criterion: **{criterion_name}**
 5. Assign a score between 0 and {max_score} in increments of 0.5 only (e.g. 7.0, 7.5, 8.0 — not 7.3 or 8.2)
 6. Provide justification that explicitly states which model answer items matched or did not match
-7. Identify specific text excerpts that support your evaluation
+7. For highlighted_text: copy a SHORT, VERBATIM excerpt (max 200 chars) directly from the student's answer above that best supports your score. It MUST be an exact copy of words that appear in the student's answer — do not paraphrase or summarise.
 
 **RESPONSE FORMAT:**
 You must respond with a valid JSON object matching this exact schema:
@@ -538,7 +538,7 @@ You must respond with a valid JSON object matching this exact schema:
   "max_score": {max_score},
   "justification": "<detailed explanation>",
   "suggestion_for_improvement": "<constructive feedback>",
-  "highlighted_text": "<relevant essay excerpts>"
+  "highlighted_text": "<verbatim excerpt copied exactly from the student's answer>"
 }}
 
 Respond only with the JSON object, no additional text."""

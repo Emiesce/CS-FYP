@@ -283,21 +283,57 @@ const RubricCard = memo(({ rubric, isSelected, onSelect, onScoreUpdate, onTextUp
 // ─── Highlighted answer renderer ─────────────────────────────────────────────
 
 function HighlightedAnswer({ text, highlight }: { text: string; highlight: string }) {
-    if (!highlight || !text.includes(highlight)) {
+    if (!highlight || !text) {
         return <p className="whitespace-pre-wrap text-gray-800 leading-relaxed">{text}</p>;
     }
-    const parts = text.split(highlight);
+
+    // Try exact substring match first
+    if (text.includes(highlight)) {
+        const parts = text.split(highlight);
+        return (
+            <p className="whitespace-pre-wrap text-gray-800 leading-relaxed">
+                {parts.map((part, i) => (
+                    <React.Fragment key={i}>
+                        {part}
+                        {i < parts.length - 1 && (
+                            <mark className="bg-blue-200 text-blue-800 px-0.5 rounded not-italic">{highlight}</mark>
+                        )}
+                    </React.Fragment>
+                ))}
+            </p>
+        );
+    }
+
+    // Fuzzy fallback: find the longest contiguous word sequence from highlight that exists in text
+    const highlightWords = highlight.trim().split(/\s+/);
+    for (let len = highlightWords.length; len >= 2; len--) {
+        for (let start = 0; start <= highlightWords.length - len; start++) {
+            const phrase = highlightWords.slice(start, start + len).join(' ');
+            if (text.toLowerCase().includes(phrase.toLowerCase())) {
+                const idx = text.toLowerCase().indexOf(phrase.toLowerCase());
+                const matched = text.slice(idx, idx + phrase.length);
+                const before = text.slice(0, idx);
+                const after = text.slice(idx + phrase.length);
+                return (
+                    <p className="whitespace-pre-wrap text-gray-800 leading-relaxed">
+                        {before}
+                        <mark className="bg-blue-200 text-blue-800 px-0.5 rounded not-italic">{matched}</mark>
+                        {after}
+                    </p>
+                );
+            }
+        }
+    }
+
+    // No match found — show the highlighted text as a quoted callout below the answer
     return (
-        <p className="whitespace-pre-wrap text-gray-800 leading-relaxed">
-            {parts.map((part, i) => (
-                <React.Fragment key={i}>
-                    {part}
-                    {i < parts.length - 1 && (
-                        <mark className="bg-blue-200 text-blue-800 px-0.5 rounded not-italic">{highlight}</mark>
-                    )}
-                </React.Fragment>
-            ))}
-        </p>
+        <>
+            <p className="whitespace-pre-wrap text-gray-800 leading-relaxed">{text}</p>
+            <div className="mt-3 p-3 bg-blue-50 border-l-4 border-blue-400 rounded text-sm text-blue-800">
+                <span className="font-medium text-blue-600 block mb-1">AI referenced:</span>
+                <span className="italic">"{highlight}"</span>
+            </div>
+        </>
     );
 }
 

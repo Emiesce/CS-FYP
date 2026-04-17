@@ -1,0 +1,145 @@
+{
+    "id": "rubric-1776183292802",
+    "title": "Management Essay",
+    "description": "",
+    "questions": [
+        {
+            "id": "q-1776183197272",
+            "title": "Explain the psychology factor of planning fallacy",
+            "description": "",
+            "minScore": 0,
+            "maxScore": 20,
+            "modelAnswer": "",
+            "criteria": [
+                {
+                    "id": "crit-ai-cb297247",
+                    "name": "Explaining planning fallacy with Inside-Outside Model",
+                    "scoreLevels": [
+                        {
+                            "id": "sl-ai-1b3cfb4b",
+                            "scoreRange": "7-10",
+                            "description": "Demonstrates a deep understanding of the Inside-Outside Model. Correctly explains the heavy reliance on singular information (inside view) over distributional information (outside view)",
+                            "minPoints": 7,
+                            "maxPoints": 10
+                        },
+                        {
+                            "id": "sl-ai-d149969f",
+                            "scoreRange": "4-7",
+                            "description": "Mentions the model or the \"inside view\" but provides only a surface-level explanation.",
+                            "minPoints": 4,
+                            "maxPoints": 7
+                        },
+                        {
+                            "id": "sl-ai-336d2c68",
+                            "scoreRange": "0-3",
+                            "description": "Fails to mention or incorrectly defines the Inside-Outside Model.",
+                            "minPoints": 0,
+                            "maxPoints": 3
+                        }
+                    ]
+                },
+                {
+                    "id": "crit-1776397749240",
+                    "name": "Explaining planning fallacy with Bias & Attribution",
+                    "scoreLevels": [
+                        {
+                            "id": "sl-1776397764202",
+                            "scoreRange": "7-10",
+                            "description": "Clearly integrates Conjunctive-events bias (overestimating the success of multiple \"AND\" steps) and Attributional processes (blaming past failures on external, unstable factors)",
+                            "minPoints": 7,
+                            "maxPoints": 10
+                        },
+                        {
+                            "id": "sl-1776397775155",
+                            "scoreRange": "4-7",
+                            "description": "Briefly mentions cognitive biases but does not link them specifically to the planning fallacy",
+                            "minPoints": 4,
+                            "maxPoints": 7
+                        },
+                        {
+                            "id": "sl-1776397777345",
+                            "scoreRange": "0-3",
+                            "description": "Does not identify relevant biases or attributional errors.",
+                            "minPoints": 0,
+                            "maxPoints": 3
+                        }
+                    ]
+                },
+                {
+                    "id": "crit-1776397830693",
+                    "name": " Explaining planning fallacy with Motivated Reasoning",
+                    "scoreLevels": [
+                        {
+                            "id": "sl-1776397842539",
+                            "scoreRange": "7-10",
+                            "description": "Accurately describes how the goal to finish quickly enhances the accessibility of \"success-only\" information and reduces focus on obstacles.",
+                            "minPoints": 7,
+                            "maxPoints": 10
+                        },
+                        {
+                            "id": "sl-1776397843228",
+                            "scoreRange": "4-7",
+                            "description": "Identifies motivated reasoning as a factor but provides limited detail on how it biases information search",
+                            "minPoints": 4,
+                            "maxPoints": 7
+                        },
+                        {
+                            "id": "sl-1776397844781",
+                            "scoreRange": "0-3",
+                            "description": "Fails to address motivated reasoning or the role of goal-driven bias.",
+                            "minPoints": 0,
+                            "maxPoints": 3
+                        }
+                    ]
+                },
+                {
+                    "id": "crit-1776397892064",
+                    "name": "Evidence & Application",
+                    "scoreLevels": [
+                        {
+                            "id": "sl-1776397898768",
+                            "scoreRange": "7-10",
+                            "description": "Explain with examples and good elaboration",
+                            "minPoints": 7,
+                            "maxPoints": 10
+                        },
+                        {
+                            "id": "sl-1776397970733",
+                            "scoreRange": "4-7",
+                            "description": "Provides generic examples without applying the specific theories discussed.",
+                            "minPoints": 4,
+                            "maxPoints": 7
+                        },
+                        {
+                            "id": "sl-1776397987062",
+                            "scoreRange": "0-3",
+                            "description": "No examples provided, or examples are irrelevant to the planning fallacy.",
+                            "minPoints": 0,
+                            "maxPoints": 3
+                        }
+                    ]
+                }
+            ]
+        }
+    ],
+    "totalMinPoints": 0,
+    "totalMaxPoints": 20,
+    "lectureNotes": [
+        {
+            "id": "note-1776398377565-0",
+            "backendId": "5d03560b-abfa-4e45-92b8-0e0d661e3680",
+            "filename": "Unit 2.6 Planning fallacy (2025).pdf",
+            "originalName": "Unit 2.6 Planning fallacy (2025).pdf",
+            "fileSize": 840674,
+            "fileType": "pdf",
+            "uploadedAt": "2026-04-17T03:59:53.902Z",
+            "associatedRubrics": [],
+            "metadata": {
+                "processingStatus": "completed"
+            },
+            "processedAt": null
+        }
+    ],
+    "createdAt": "2026-04-14T16:14:52.802Z",
+    "updatedAt": "2026-04-17T04:06:57.351Z"
+}

@@ -148,21 +148,33 @@ class ChromaVectorStore(VectorStore):
 
         query_embedding = await self.ai_client.generate_embedding(query)
 
-        # Filter: documents associated with this rubric_id
-        where = {"associated_rubrics": {"$contains": rubric_id}}
-
+        # associated_rubrics is stored as a comma-joined string e.g. "rubric-1,rubric-2".
+        # ChromaDB doesn't support $contains on strings, so we fetch all docs and
+        # post-filter by rubric_id presence in the comma-separated field.
         try:
             results = self.collection.query(
                 query_embeddings=[query_embedding],
-                n_results=min(k, self.collection.count()),
-                where=where,
+                n_results=min(k * 4, self.collection.count()),  # over-fetch then filter
                 include=["documents", "metadatas", "distances"]
             )
         except Exception as e:
             logger.warning(f"Rubric context search failed, falling back to unfiltered: {e}")
             return await self.similarity_search(query, k)
 
-        return self._results_to_chunks(results)
+        all_chunks = self._results_to_chunks(results)
+
+        # Post-filter: keep only chunks associated with this rubric_id
+        filtered = [
+            c for c in all_chunks
+            if rubric_id in c.associated_rubrics
+        ]
+
+        # Fall back to unfiltered if nothing matched (rubric not yet indexed)
+        if not filtered:
+            logger.debug(f"No chunks matched rubric_id={rubric_id}, returning top-k unfiltered")
+            return all_chunks[:k]
+
+        return filtered[:k]
 
     async def remove_documents_by_source(self, source_id: str, source_type: str) -> None:
         """Remove all documents from a specific source."""
