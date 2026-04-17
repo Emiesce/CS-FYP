@@ -33,12 +33,6 @@ def validate_grade_result(result: QuestionGradeResult) -> list[str]:
             f"normalized_score ({result.normalized_score}) out of [0, 1] range"
         )
 
-    # Confidence range
-    if result.confidence < 0 or result.confidence > 1.01:
-        issues.append(
-            f"confidence ({result.confidence}) out of [0, 1] range"
-        )
-
     # Criterion scores consistency
     if result.criterion_results:
         criterion_total = sum(cr.score for cr in result.criterion_results)

@@ -11,7 +11,7 @@ import {
   readCompletedSession,
   subscribeToPersistedProctoringSessions,
 } from "@/features/proctoring/live-session-store";
-import { ALL_EXAMS, PAST_EXAM_RISK_SUMMARIES } from "@/lib/fixtures";
+import { ALL_EXAMS, PAST_EXAM_RISK_SUMMARIES, COMP1023_EXAM } from "@/lib/fixtures";
 import { EmptyState, MetricCard } from "@/components/ui";
 import { formatDate } from "@/lib/utils/format";
 import { computeRiskScore, countHighSeverityEvents } from "@/lib/utils/risk-score";

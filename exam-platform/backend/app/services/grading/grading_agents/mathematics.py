@@ -18,15 +18,16 @@ from app.models.grading_models import (
     StructuredRubric,
     TokenUsage,
 )
+from app.models.exam_models import QuestionType
+from app.services.grading.llm.json_extraction import extract_json_dict
 from app.services.grading.grading_agents.deterministic import grade_numeric_match
-from app.services.grading.llm.model_registry import get_model_for_lane
+from app.services.grading.llm.model_registry import get_model_for_question_type
 from app.services.grading.llm.openrouter_client import get_openrouter_client
 from app.services.grading.llm.prompt_templates import (
     GRADING_OUTPUT_SCHEMA,
     GRADING_SYSTEM_PREFIX,
     build_grading_user_prompt,
 )
-from app.services.grading.settings import get_grading_settings
 
 logger = logging.getLogger(__name__)
 
@@ -57,7 +58,7 @@ async def grade_mathematics(
 
     # ---- LLM path ----
     lane = GradingLane.CHEAP_LLM if mode != "quality_first" else GradingLane.QUALITY_LLM
-    model = get_model_for_lane(lane)
+    model = get_model_for_question_type(QuestionType.MATHEMATICS)
     assert model is not None
 
     rubric_json = json.dumps(
@@ -75,8 +76,6 @@ async def grade_mathematics(
     )
 
     client = get_openrouter_client()
-    settings = get_grading_settings()
-
     result = await client.chat_completion(
         model=model,
         messages=[
@@ -88,8 +87,9 @@ async def grade_mathematics(
     )
 
     try:
-        data = json.loads(result["content"])
-    except json.JSONDecodeError:
+        data = extract_json_dict(result["content"], context=f"math:{question_id}")
+    except ValueError as parse_err:
+        logger.warning("Math parse error for %s: %s", question_id, parse_err)
         return QuestionGradeResult(
             question_id=question_id,
             question_type="mathematics",
@@ -101,43 +101,9 @@ async def grade_mathematics(
             normalized_score=0,
             confidence=0,
             rationale="Failed to parse grading output.",
-            escalation_notes="Malformed JSON from model",
+            student_answer=student_answer,
+            escalation_notes=f"Malformed JSON from model: {parse_err}",
         )
-
-    confidence = data.get("confidence", 0.5)
-
-    # Escalate low-confidence math to quality model
-    if confidence < settings.confidence_threshold and lane == GradingLane.CHEAP_LLM:
-        logger.info("Escalating math %s: confidence=%.2f", question_id, confidence)
-        lane = GradingLane.ESCALATED
-        model = get_model_for_lane(lane)
-        assert model is not None
-
-        result = await client.chat_completion(
-            model=model,
-            messages=[
-                {"role": "system", "content": GRADING_SYSTEM_PREFIX},
-                {"role": "user", "content": user_prompt},
-            ],
-            json_schema=GRADING_OUTPUT_SCHEMA,
-            max_tokens=2048,
-        )
-
-        try:
-            data = json.loads(result["content"])
-        except json.JSONDecodeError:
-            return QuestionGradeResult(
-                question_id=question_id,
-                question_type="mathematics",
-                status=QuestionGradingStatus.ESCALATED,
-                lane=lane,
-                model=model,
-                raw_score=0,
-                max_points=max_points,
-                normalized_score=0,
-                confidence=0,
-                rationale="Failed to parse grading output after escalation.",
-            )
 
     # Build result
     criterion_results = []
@@ -178,8 +144,9 @@ async def grade_mathematics(
         raw_score=raw,
         max_points=max_points,
         normalized_score=min(raw / max_points, 1.0) if max_points > 0 else 0,
-        confidence=data.get("confidence", 0.5),
+        confidence=1.0,
         rationale=data.get("rationale", ""),
+        student_answer=student_answer,
         criterion_results=criterion_results,
         evidence_spans=evidence_spans,
         latency_ms=result.get("latency_ms"),

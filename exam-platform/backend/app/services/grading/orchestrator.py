@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import asyncio
 import logging
+import re
 import time
 import uuid
 from datetime import datetime
@@ -26,7 +27,6 @@ from app.models.exam_models import (
 from app.models.grading_models import (
     GradingLane,
     GradingRunOut,
-    GradingRunRequest,
     GradingRunStatus,
     ModelUsageRecord,
     QuestionGradeResult,
@@ -39,6 +39,7 @@ from app.services.grading.grading_agents.short_answer import grade_short_answer
 from app.services.grading.grading_agents.long_answer import grade_long_answer
 from app.services.grading.grading_agents.coding import grade_coding
 from app.services.grading.grading_agents.mathematics import grade_mathematics
+from app.services.grading.grading_agents.verification import verify_question_result
 from app.services.grading.routing import route_question
 from app.services.grading.settings import get_grading_settings
 from app.services.grading.validation.output_validation import (
@@ -80,6 +81,86 @@ async def intake_node(state: GradingState) -> GradingState:
     return state
 
 
+def _answer_to_text(answer: Any) -> str:
+    """Normalize a stored answer to plain text for UI/debugging."""
+    if isinstance(answer, str):
+        return answer
+    if isinstance(answer, list):
+        return " ".join(str(part) for part in answer)
+    return str(answer) if answer is not None else ""
+
+
+def _is_blank_answer(answer: Any) -> bool:
+    """Return True when the response is effectively empty."""
+    if isinstance(answer, str):
+        return answer.strip() == ""
+    if isinstance(answer, list):
+        return all((part.strip() == "" if isinstance(part, str) else not part) for part in answer)
+    return not answer
+
+
+def _build_incomplete_result(*, question: ExamQuestionIn, student_answer: str | None = None) -> QuestionGradeResult:
+    """Build a zero-score result for unanswered/blank questions."""
+    return QuestionGradeResult(
+        question_id=question.id,
+        question_type=question.type_data.type,
+        status=QuestionGradingStatus.GRADED,
+        lane=GradingLane.INCOMPLETE,
+        raw_score=0,
+        max_points=question.points,
+        normalized_score=0,
+        confidence=1.0,
+        rationale="Incomplete – question was not attempted.",
+        student_answer=student_answer,
+    )
+
+
+def _build_failed_result(*, question: ExamQuestionIn, error: Exception | str, student_answer: str | None = None) -> QuestionGradeResult:
+    """Build a fallback result for a failed grading task."""
+    return QuestionGradeResult(
+        question_id=question.id,
+        question_type=question.type_data.type,
+        status=QuestionGradingStatus.ESCALATED,
+        lane=GradingLane.QUALITY_LLM,
+        raw_score=0,
+        max_points=question.points,
+        normalized_score=0,
+        confidence=0,
+        rationale=f"Grading failed: {error}",
+        student_answer=student_answer,
+        escalation_notes=str(error),
+    )
+
+
+def _sort_results_by_exam_order(exam: ExamDefinitionOut, results: list[QuestionGradeResult]) -> list[QuestionGradeResult]:
+    """Return results ordered exactly as questions appear in the exam."""
+    order_map = {question.id: index for index, question in enumerate(exam.questions)}
+    return sorted(results, key=lambda result: order_map.get(result.question_id, len(order_map)))
+
+
+def _derive_short_answer_acceptable_answers(
+    question: ExamQuestionIn,
+    rubric: StructuredRubric | None,
+) -> list[str] | None:
+    """Extract exact-answer candidates from question/rubric text when obvious."""
+    candidates: list[str] = []
+    sources = []
+    if question.rubric and question.rubric.text:
+        sources.append(question.rubric.text)
+    if rubric:
+        sources.extend(criterion.description for criterion in rubric.criteria if criterion.description)
+
+    for source in sources:
+        expected_match = re.search(r"Expected:\s*(.+)", source, re.IGNORECASE)
+        if expected_match:
+            candidate = expected_match.group(1).strip().rstrip(".")
+            if candidate:
+                candidates.append(candidate)
+
+    unique_candidates = list(dict.fromkeys(candidates))
+    return unique_candidates or None
+
+
 # ---- Node: Fan-out grading per question ------------------------------
 
 async def grade_questions_node(state: GradingState) -> GradingState:
@@ -88,10 +169,7 @@ async def grade_questions_node(state: GradingState) -> GradingState:
     attempt = state["attempt"]
     rubrics = state["rubrics"]
     mode = state["mode"]
-    settings = get_grading_settings()
-
     # Build lookup maps
-    question_map: dict[str, ExamQuestionIn] = {q.id: q for q in exam.questions}
     response_map: dict[str, Any] = {r.question_id: r for r in attempt.responses}
 
     # Create grading tasks
@@ -102,39 +180,45 @@ async def grade_questions_node(state: GradingState) -> GradingState:
         response = response_map.get(question.id)
         if response is None:
             # Unanswered → zero score
+            state["question_results"].append(_build_incomplete_result(question=question))
+            continue
+
+        answer_val = response.value
+        answer_text = _answer_to_text(answer_val)
+
+        if _is_blank_answer(answer_val):
             state["question_results"].append(
-                QuestionGradeResult(
-                    question_id=question.id,
-                    question_type=question.type_data.type,
-                    status=QuestionGradingStatus.GRADED,
-                    lane=GradingLane.DETERMINISTIC,
-                    raw_score=0,
-                    max_points=question.points,
-                    normalized_score=0,
-                    confidence=1.0,
-                    rationale="Question was not answered.",
-                )
+                _build_incomplete_result(question=question, student_answer=answer_text)
             )
             continue
 
         rubric = rubrics.get(question.id)
-        student_answer = response.value if isinstance(response.value, str) else response.value
         q_type = question.type_data.type
+
+        if q_type == QuestionType.MCQ.value:
+            correct_ids = [o.id for o in question.type_data.options if o.is_correct]
+            qr = await grade_mcq_question(
+                question_id=question.id,
+                student_answer=answer_val,
+                correct_option_ids=correct_ids,
+                allow_multiple=question.type_data.allow_multiple,
+                max_points=question.points,
+                rubric=rubric,
+            )
+            qr.student_answer = answer_text
+            state["question_results"].append(qr)
+            continue
 
         tasks.append(
             _grade_single_question(
                 question=question,
-                student_answer=student_answer,
+                student_answer=answer_val,
                 rubric=rubric,
                 mode=mode,
             )
         )
         task_question_ids.append(question.id)
         task_questions.append(question)
-
-    # Fan-out: run all grading tasks concurrently with concurrency limits
-    cheap_sem = asyncio.Semaphore(settings.cheap_concurrency)
-    quality_sem = asyncio.Semaphore(settings.quality_concurrency)
 
     results = await asyncio.gather(*tasks, return_exceptions=True)
 
@@ -144,20 +228,9 @@ async def grade_questions_node(state: GradingState) -> GradingState:
             q = task_questions[i]
             logger.error("Grading task failed for %s: %s", qid, r)
             state["errors"].append(f"{qid}: {r}")
-            # Create a fallback result so the question isn't lost
+            answer_val = response_map.get(qid).value if response_map.get(qid) is not None else None
             state["question_results"].append(
-                QuestionGradeResult(
-                    question_id=qid,
-                    question_type=q.type_data.type,
-                    status=QuestionGradingStatus.ESCALATED,
-                    lane=GradingLane.QUALITY_LLM,
-                    raw_score=0,
-                    max_points=q.points,
-                    normalized_score=0,
-                    confidence=0,
-                    rationale=f"Grading failed: {r}",
-                    escalation_notes=str(r),
-                )
+                _build_failed_result(question=q, error=r, student_answer=_answer_to_text(answer_val))
             )
         elif isinstance(r, QuestionGradeResult):
             state["question_results"].append(r)
@@ -197,6 +270,7 @@ async def _grade_single_question(
             student_answer=answer_str,
             max_points=question.points,
             rubric=rubric,
+            acceptable_answers=_derive_short_answer_acceptable_answers(question, rubric),
             mode=mode,
         )
 
@@ -240,6 +314,7 @@ async def _grade_single_question(
             student_answer=answer_str,
             max_points=question.points,
             rubric=rubric,
+            acceptable_answers=_derive_short_answer_acceptable_answers(question, rubric),
             mode=mode,
         )
 
@@ -248,6 +323,10 @@ async def _grade_single_question(
 
 async def evidence_node(state: GradingState) -> GradingState:
     """Add evidence spans where missing."""
+    settings = get_grading_settings()
+    if not settings.enable_evidence_fallback:
+        return state
+
     attempt = state["attempt"]
     response_map = {r.question_id: r for r in attempt.responses}
 
@@ -343,7 +422,6 @@ async def run_grading(
 
     Returns a GradingRunOut with all question results, scores, and evidence.
     """
-    t0 = time.monotonic()
     run_id = f"run-{uuid.uuid4().hex[:8]}"
 
     initial_state: GradingState = {
@@ -360,13 +438,14 @@ async def run_grading(
     graph = build_grading_graph()
     compiled = graph.compile()
     final_state = await compiled.ainvoke(initial_state)
+    final_results = _sort_results_by_exam_order(exam, final_state["question_results"])
 
-    total_score = sum(qr.raw_score for qr in final_state["question_results"])
-    max_total = sum(qr.max_points for qr in final_state["question_results"])
+    total_score = sum(qr.raw_score for qr in final_results)
+    max_total = sum(qr.max_points for qr in final_results)
 
     # Collect model usage
     usage_records: list[ModelUsageRecord] = []
-    for qr in final_state["question_results"]:
+    for qr in final_results:
         if qr.model and qr.token_usage:
             usage_records.append(
                 ModelUsageRecord(
@@ -386,7 +465,7 @@ async def run_grading(
         attempt_id=attempt.id,
         student_id=attempt.student_id,
         status=GradingRunStatus(final_state["status"]),
-        question_results=final_state["question_results"],
+        question_results=final_results,
         total_score=total_score,
         max_total_points=max_total,
         reviews=[],
@@ -413,9 +492,9 @@ async def run_grading_streaming(
     Grade questions concurrently but stream each result via on_result callback
     as soon as it completes, before evidence/verify passes.
     """
-    t0 = time.monotonic()
     run_id = f"run-{uuid.uuid4().hex[:8]}"
     rubrics = rubrics or {}
+    settings = get_grading_settings()
 
     response_map: dict[str, Any] = {r.question_id: r for r in attempt.responses}
     all_results: list[QuestionGradeResult] = []
@@ -428,27 +507,43 @@ async def run_grading_streaming(
     for question in exam.questions:
         response = response_map.get(question.id)
         if response is None:
-            qr = QuestionGradeResult(
-                question_id=question.id,
-                question_type=question.type_data.type,
-                status=QuestionGradingStatus.GRADED,
-                lane=GradingLane.DETERMINISTIC,
-                raw_score=0, max_points=question.points,
-                normalized_score=0, confidence=1.0,
-                rationale="Question was not answered.",
-            )
+            qr = _build_incomplete_result(question=question)
+            all_results.append(qr)
+            if on_result:
+                await on_result(qr)
+            continue
+
+        answer_val = response.value
+        answer_text = _answer_to_text(answer_val)
+
+        if _is_blank_answer(answer_val):
+            qr = _build_incomplete_result(question=question, student_answer=answer_text)
             all_results.append(qr)
             if on_result:
                 await on_result(qr)
             continue
 
         rubric = rubrics.get(question.id)
-        student_answer = response.value if isinstance(response.value, str) else response.value
+        if question.type_data.type == QuestionType.MCQ.value:
+            correct_ids = [o.id for o in question.type_data.options if o.is_correct]
+            qr = await grade_mcq_question(
+                question_id=question.id,
+                student_answer=answer_val,
+                correct_option_ids=correct_ids,
+                allow_multiple=question.type_data.allow_multiple,
+                max_points=question.points,
+                rubric=rubric,
+            )
+            qr.student_answer = answer_text
+            all_results.append(qr)
+            if on_result:
+                await on_result(qr)
+            continue
 
         tasks.append(
             _grade_single_question(
                 question=question,
-                student_answer=student_answer,
+                student_answer=answer_val,
                 rubric=rubric,
                 mode=mode,
             )
@@ -471,52 +566,41 @@ async def run_grading_streaming(
             if exc is not None:
                 logger.error("Grading task failed for %s: %s", qid, exc)
                 errors.append(f"{qid}: {exc}")
-                qr = QuestionGradeResult(
-                    question_id=qid,
-                    question_type=q.type_data.type,
-                    status=QuestionGradingStatus.ESCALATED,
-                    lane=GradingLane.QUALITY_LLM,
-                    raw_score=0, max_points=q.points,
-                    normalized_score=0, confidence=0,
-                    rationale=f"Grading failed: {exc}",
-                    escalation_notes=str(exc),
+                response = response_map.get(qid)
+                qr = _build_failed_result(
+                    question=q,
+                    error=exc,
+                    student_answer=_answer_to_text(response.value) if response is not None else None,
                 )
             else:
                 qr = t.result()
             # Clamp
             qr = clamp_scores(qr)
+            if settings.enable_verification_pass:
+                try:
+                    resp = response_map.get(qr.question_id)
+                    ans_text = ""
+                    if resp:
+                        ans_text = _answer_to_text(resp.value)
+                    qr = await verify_question_result(
+                        question_id=qr.question_id,
+                        question_prompt=q.prompt,
+                        student_answer=ans_text,
+                        grading_result=qr,
+                        max_points=q.points,
+                    )
+                except Exception as ve:
+                    logger.warning("Verification error for %s (non-blocking): %s", qid, ve)
             all_results.append(qr)
             if on_result:
                 await on_result(qr)
 
-    # Evidence pass
-    for i, qr in enumerate(all_results):
-        if needs_evidence_pass(qr):
-            response = response_map.get(qr.question_id)
-            if response is None:
-                continue
-            answer = response.value if isinstance(response.value, str) else " ".join(response.value)
-            try:
-                spans = await add_evidence(student_answer=answer, grading_result=qr)
-                all_results[i].evidence_spans = spans
-                span_map: dict[str, list] = {}
-                for s in spans:
-                    span_map.setdefault(s.criterion_id, []).append(s)
-                for cr in all_results[i].criterion_results:
-                    if cr.criterion_id in span_map:
-                        cr.evidence_spans = span_map[cr.criterion_id]
-                # Stream updated result with evidence
-                if on_result:
-                    await on_result(all_results[i])
-            except Exception as e:
-                logger.warning("Evidence pass failed for %s: %s", qr.question_id, e)
-
-    total_score = sum(qr.raw_score for qr in all_results)
-    max_total = sum(qr.max_points for qr in all_results)
-    elapsed_ms = int((time.monotonic() - t0) * 1000)
+    sorted_results = _sort_results_by_exam_order(exam, all_results)
+    total_score = sum(qr.raw_score for qr in sorted_results)
+    max_total = sum(qr.max_points for qr in sorted_results)
 
     usage_records: list[ModelUsageRecord] = []
-    for qr in all_results:
+    for qr in sorted_results:
         if qr.model and qr.token_usage:
             usage_records.append(
                 ModelUsageRecord(
@@ -536,7 +620,7 @@ async def run_grading_streaming(
         attempt_id=attempt.id,
         student_id=attempt.student_id,
         status=GradingRunStatus.COMPLETED,
-        question_results=all_results,
+        question_results=sorted_results,
         total_score=total_score,
         max_total_points=max_total,
         reviews=[],

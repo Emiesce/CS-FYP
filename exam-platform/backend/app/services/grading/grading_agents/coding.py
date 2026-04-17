@@ -20,7 +20,9 @@ from app.models.grading_models import (
     StructuredRubric,
     TokenUsage,
 )
-from app.services.grading.llm.model_registry import get_model_for_lane
+from app.models.exam_models import QuestionType
+from app.services.grading.llm.json_extraction import extract_json_dict
+from app.services.grading.llm.model_registry import get_model_for_lane, get_model_for_question_type
 from app.services.grading.llm.openrouter_client import get_openrouter_client
 from app.services.grading.llm.prompt_templates import (
     GRADING_OUTPUT_SCHEMA,
@@ -60,7 +62,7 @@ async def grade_coding(
 
     # ---- LLM grading ----
     lane = GradingLane.QUALITY_LLM
-    model = get_model_for_lane(lane)
+    model = get_model_for_question_type(QuestionType.CODING)
     assert model is not None
 
     rubric_json = json.dumps(
@@ -93,8 +95,9 @@ async def grade_coding(
     )
 
     try:
-        data = json.loads(result["content"])
-    except json.JSONDecodeError:
+        data = extract_json_dict(result["content"], context=f"coding:{question_id}")
+    except ValueError as parse_err:
+        logger.warning("Coding parse error for %s: %s", question_id, parse_err)
         return QuestionGradeResult(
             question_id=question_id,
             question_type="coding",
@@ -106,7 +109,8 @@ async def grade_coding(
             normalized_score=0,
             confidence=0,
             rationale="Failed to parse grading output.",
-            escalation_notes="Malformed JSON from model",
+            student_answer=student_answer,
+            escalation_notes=f"Malformed JSON from model: {parse_err}",
         )
 
     criterion_results = []
@@ -148,8 +152,9 @@ async def grade_coding(
         raw_score=raw,
         max_points=max_points,
         normalized_score=min(raw / max_points, 1.0) if max_points > 0 else 0,
-        confidence=data.get("confidence", 0.5),
+        confidence=1.0,
         rationale=data.get("rationale", ""),
+        student_answer=student_answer,
         criterion_results=criterion_results,
         evidence_spans=evidence_spans,
         latency_ms=result.get("latency_ms"),

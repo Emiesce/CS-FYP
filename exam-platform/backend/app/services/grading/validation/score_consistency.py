@@ -15,7 +15,6 @@ def clamp_scores(result: QuestionGradeResult) -> QuestionGradeResult:
     result.normalized_score = (
         result.raw_score / result.max_points if result.max_points > 0 else 0
     )
-    result.confidence = max(0, min(result.confidence, 1.0))
 
     for cr in result.criterion_results:
         cr.score = max(0, min(cr.score, cr.max_points))

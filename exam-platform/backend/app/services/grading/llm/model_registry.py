@@ -6,12 +6,26 @@ Maps grading lanes and question types to model IDs.
 
 from __future__ import annotations
 
+from typing import Optional
 from app.models.exam_models import QuestionType
 from app.models.grading_models import GradingLane
 from app.services.grading.settings import get_grading_settings
 
 
-def get_model_for_lane(lane: GradingLane) -> str | None:
+def get_model_for_question_type(question_type: QuestionType) -> str:
+    """Return the model ID for a given question type."""
+    s = get_grading_settings()
+    mapping = {
+        QuestionType.SHORT_ANSWER: s.short_answer_model,
+        QuestionType.MATHEMATICS: s.math_model,
+        QuestionType.CODING: s.coding_model,
+        QuestionType.LONG_ANSWER: s.long_answer_model,
+        QuestionType.ESSAY: s.essay_model,
+    }
+    return mapping.get(question_type, s.cheap_model)
+
+
+def get_model_for_lane(lane: GradingLane) -> Optional[str]:
     """Return the model ID for a given grading lane, or None for deterministic."""
     s = get_grading_settings()
     if lane == GradingLane.DETERMINISTIC:
@@ -23,6 +37,11 @@ def get_model_for_lane(lane: GradingLane) -> str | None:
     if lane == GradingLane.ESCALATED:
         return s.quality_model
     return s.cheap_model
+
+
+def get_evidence_model() -> str:
+    """Return the model ID for evidence highlighting and verification."""
+    return get_grading_settings().evidence_model
 
 
 def select_lane(

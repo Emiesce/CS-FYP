@@ -55,13 +55,13 @@ const API = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
 /*  Problem metadata                                                   */
 /* ------------------------------------------------------------------ */
 
-const PROBLEM_META: Record<string, { title: string; icon: string }> = {
-  "1": { title: "True / False Questions", icon: "✓✗" },
-  "2": { title: "Branching & Looping", icon: "🔄" },
-  "3": { title: "Functions & Lists", icon: "📋" },
-  "4": { title: "Mini Store System", icon: "🏪" },
-  "5": { title: "Number Guessing Game", icon: "🎯" },
-  "6": { title: "Car Accessories Sales", icon: "🚗" },
+const PROBLEM_META: Record<string, { title: string }> = {
+  "1": { title: "True / False Questions" },
+  "2": { title: "Branching & Looping" },
+  "3": { title: "Functions & Lists" },
+  "4": { title: "Mini Store System" },
+  "5": { title: "Number Guessing Game" },
+  "6": { title: "Car Accessories Sales" },
 };
 
 function getProblemNum(title: string): string {
@@ -104,10 +104,32 @@ export default function TestGradingPage() {
   const [streamedResults, setStreamedResults] = useState<QuestionGradeResult[]>([]);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
+  // Restore persisted grading run on mount
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem("grading_run");
+      if (saved) {
+        const parsed = JSON.parse(saved) as GradingRun;
+        setGradingRun(parsed);
+        setStreamedResults(parsed.question_results ?? []);
+        setGradingDone(true);
+      }
+    } catch { /* ignore corrupt data */ }
+  }, []);
+
   useEffect(() => {
     fetch(`${API}/api/test-grading/exam`)
       .then((r) => { if (!r.ok) throw new Error(`HTTP ${r.status}`); return r.json(); })
-      .then((data: ExamData) => { setExam(data); setPhase("exam"); })
+      .then((data: ExamData) => {
+        setExam(data);
+        // If we have a persisted run, go straight to review
+        const saved = localStorage.getItem("grading_run");
+        if (saved) {
+          setPhase("review");
+        } else {
+          setPhase("exam");
+        }
+      })
       .catch((e) => setError(e.message));
   }, []);
 
@@ -187,6 +209,8 @@ export default function TestGradingPage() {
                 setGradingDone(true);
                 if (timerRef.current) clearInterval(timerRef.current);
                 setGradingRun(data as GradingRun);
+                // Persist so results survive navigation
+                try { localStorage.setItem("grading_run", JSON.stringify(data)); } catch {}
               } else if (eventType === "error") {
                 setError(data.error);
               }
@@ -210,7 +234,9 @@ export default function TestGradingPage() {
         body: JSON.stringify({ question_id: questionId, override_score: overrideScore, comment, accepted: true }),
       });
       if (!res.ok) throw new Error("Review failed");
-      setGradingRun(await res.json());
+      const updated = await res.json();
+      setGradingRun(updated);
+      try { localStorage.setItem("grading_run", JSON.stringify(updated)); } catch {}
     } catch (e: unknown) {
       setError(e instanceof Error ? e.message : String(e));
     }
@@ -260,7 +286,15 @@ export default function TestGradingPage() {
     return <GradingLoader elapsed={gradingElapsed} totalQuestions={exam?.questions.length ?? 0} />;
 
   if (phase === "review" && liveRun && exam)
-    return <ReviewView exam={exam} run={liveRun} answers={answers} onOverride={handleOverride} error={error} gradingDone={gradingDone} gradingElapsed={gradingElapsed} totalGradingTime={totalGradingTime} />;
+    return <ReviewView exam={exam} run={liveRun} answers={answers} onOverride={handleOverride} error={error} gradingDone={gradingDone} gradingElapsed={gradingElapsed} totalGradingTime={totalGradingTime} onReset={() => {
+      localStorage.removeItem("grading_run");
+      setGradingRun(null);
+      setStreamedResults([]);
+      setGradingDone(false);
+      setTotalGradingTime(null);
+      setAnswers({});
+      setPhase("exam");
+    }} />;
 
   return <ExamView exam={exam!} answers={answers} onUpdate={updateAnswer} onSubmit={handleSubmit} error={error} />;
 }
@@ -386,7 +420,7 @@ function ExamView({
         {/* Tab bar */}
         <div style={{ ...S.container, paddingBottom: "var(--space-2)", display: "flex", gap: "var(--space-1)", overflowX: "auto" }}>
           {groups.map(([, , problemNum], idx) => {
-            const meta = PROBLEM_META[problemNum] ?? { title: "Other", icon: "📝" };
+            const meta = PROBLEM_META[problemNum] ?? { title: "Other" };
             const groupQs = groups[idx][1];
             const allDone = groupQs.every((q) => (answers[q.id] ?? "").trim() !== "");
             const isActive = activeGroup === idx;
@@ -396,7 +430,7 @@ function ExamView({
                 fontSize: "0.8rem", padding: "0.4rem 0.75rem",
                 ...(isActive ? { background: "var(--info-bg)", color: "var(--info-text)", borderColor: "transparent" } : {}),
               }}>
-                <span>{meta.icon}</span> P{problemNum}
+                P{problemNum}
                 {allDone && <span style={{ color: "var(--success-text)" }}>✓</span>}
               </button>
             );
@@ -415,13 +449,12 @@ function ExamView({
       <div className="page-shell" style={S.container}>
         <div className="section-stack">
           {groups.map(([groupTitle, questions, problemNum], idx) => {
-            const meta = PROBLEM_META[problemNum] ?? { title: groupTitle, icon: "📝" };
+            const meta = PROBLEM_META[problemNum] ?? { title: groupTitle };
             const groupPts = questions.reduce((s, q) => s + q.points, 0);
             return (
               <div key={groupTitle} ref={(el) => { sectionRefs.current[idx] = el; }} style={S.surfaceStrong}>
                 <div style={{ padding: "var(--space-4) var(--space-6)", borderBottom: "1px solid var(--border-subtle)", background: "var(--surface-muted)", borderRadius: "var(--radius-lg) var(--radius-lg) 0 0" }}>
                   <div style={{ display: "flex", alignItems: "center", gap: "var(--space-3)" }}>
-                    <span style={{ fontSize: "1.5rem" }}>{meta.icon}</span>
                     <div>
                       <h2 style={{ margin: 0, fontSize: "1.05rem", fontWeight: 700, color: "var(--slate-950)" }}>
                         Problem {problemNum} — {meta.title}
@@ -714,11 +747,12 @@ const codePreStyle: React.CSSProperties = {
 /* ================================================================== */
 
 function ReviewView({
-  exam, run, answers, onOverride, error, gradingDone, gradingElapsed, totalGradingTime,
+  exam, run, answers, onOverride, error, gradingDone, gradingElapsed, totalGradingTime, onReset,
 }: {
   exam: ExamData; run: GradingRun; answers: Record<string, string>;
   onOverride: (qid: string, score: number, comment: string) => void; error: string | null;
   gradingDone: boolean; gradingElapsed: number; totalGradingTime: number | null;
+  onReset: () => void;
 }) {
   const [selectedQ, setSelectedQ] = useState<string | null>(run.question_results[0]?.question_id ?? null);
   const [overrideScore, setOverrideScore] = useState("");
@@ -726,19 +760,64 @@ function ReviewView({
   const [highlightedCriterion, setHighlightedCriterion] = useState<string | null>(null);
   const criterionRef = useRef<HTMLDivElement>(null);
 
+  // ---- Anti-anchoring: track which questions the human has reviewed ----
+  // Deterministic questions (MCQ, unanswered) are auto-revealed.
+  // For AI-graded questions, the human must submit their own score first.
+  const [humanReviewed, setHumanReviewed] = useState<Record<string, { score: number; comment: string }>>({});
+  // Per-criterion human scores for the current question
+  const [criterionScores, setCriterionScores] = useState<Record<string, string>>({});
+
+  const isDeterministic = (qr: QuestionGradeResult) =>
+    qr.lane === "deterministic" || qr.question_type === "mcq" || qr.rationale.startsWith("Incomplete");
+
   const qMap = Object.fromEntries(exam.questions.map((q) => [q.id, q]));
   const resultMap = Object.fromEntries(run.question_results.map((r) => [r.question_id, r]));
   const selectedResult = selectedQ ? resultMap[selectedQ] : null;
   const selectedExamQ = selectedQ ? qMap[selectedQ] : null;
 
+  const isRevealed = (qid: string) => {
+    const qr = resultMap[qid];
+    if (!qr) return false;
+    return isDeterministic(qr) || qid in humanReviewed;
+  };
+
   const pctVal = run.max_total_points > 0 ? (run.total_score / run.max_total_points) * 100 : 0;
   const pct = pctVal.toFixed(1);
   const groups = groupQuestions(exam.questions);
+
+  // Count reviewed questions for progress
+  const totalGraded = run.question_results.length;
+  const totalReviewed = run.question_results.filter(
+    (qr) => isDeterministic(qr) || qr.question_id in humanReviewed
+  ).length;
+  const needsReviewCount = run.question_results.filter(
+    (qr) => !isDeterministic(qr) && !(qr.question_id in humanReviewed)
+  ).length;
 
   const handleSubmitOverride = () => {
     if (!selectedQ || overrideScore === "") return;
     onOverride(selectedQ, parseFloat(overrideScore), overrideComment);
     setOverrideScore(""); setOverrideComment("");
+  };
+
+  // Human submits their independent review before seeing AI scores
+  const handleHumanReview = () => {
+    if (!selectedQ || !selectedResult) return;
+    // Collect total from criterion scores or fallback to overrideScore
+    const totalHumanScore = selectedResult.criterion_results.length > 0
+      ? selectedResult.criterion_results.reduce((sum, cr) => {
+          const val = parseFloat(criterionScores[cr.criterion_id] ?? "0");
+          return sum + (isNaN(val) ? 0 : val);
+        }, 0)
+      : parseFloat(overrideScore || "0");
+    if (isNaN(totalHumanScore)) return;
+    setHumanReviewed((prev) => ({
+      ...prev,
+      [selectedQ]: { score: totalHumanScore, comment: overrideComment },
+    }));
+    setCriterionScores({});
+    setOverrideScore("");
+    setOverrideComment("");
   };
 
   const handleHighlightCriterion = (criterionId: string) => {
@@ -782,11 +861,19 @@ function ReviewView({
             </p>
           </div>
           <div style={{ textAlign: "right" }}>
-            <div className={`risk-score risk-${scoreSemantic(pctVal) === "success" ? "low" : scoreSemantic(pctVal) === "warning" ? "medium" : "high"}`}
-              style={{ fontSize: "1.5rem", minWidth: "auto", padding: "0.5rem 1rem" }}>
-              {run.total_score.toFixed(1)} / {run.max_total_points}
+            <div style={{ fontSize: "1.3rem", fontWeight: 800, color: "var(--brand-primary)" }}>
+              {totalReviewed} / {exam.questions.length}
             </div>
-            <div style={{ fontSize: "0.85rem", ...S.textMuted, marginTop: "var(--space-1)" }}>{pct}%</div>
+            <div style={{ fontSize: "0.78rem", ...S.textMuted, marginTop: 2 }}>
+              {needsReviewCount > 0
+                ? `${needsReviewCount} question${needsReviewCount !== 1 ? "s" : ""} awaiting your review`
+                : "All questions reviewed"}
+            </div>
+            {gradingDone && (
+              <button style={{ ...S.btnGhost, marginTop: "var(--space-2)", fontSize: "0.78rem" }} onClick={onReset}>
+                Reset &amp; Retake
+              </button>
+            )}
           </div>
         </div>
       </div>
@@ -803,27 +890,27 @@ function ReviewView({
         {/* Sidebar */}
         <div style={{ width: 280, flexShrink: 0 }}>
           <div style={{ ...S.surfaceStrong, position: "sticky", top: "var(--space-6)", overflow: "hidden" }}>
-            {/* Score header */}
+            {/* Progress header */}
             <div style={{
               padding: "var(--space-4)",
               borderBottom: "1px solid var(--border-subtle)",
               textAlign: "center",
-              background: pctVal >= 80 ? "var(--success-bg)" : pctVal >= 50 ? "var(--warning-bg)" : "var(--danger-bg)",
+              background: needsReviewCount === 0 ? "var(--success-bg)" : "var(--info-bg)",
             }}>
-              <div style={{ fontSize: "1.5rem", fontWeight: 800, color: pctVal >= 80 ? "var(--success-text)" : pctVal >= 50 ? "var(--warning-text)" : "var(--danger-text)" }}>
-                {pct}%
+              <div style={{ fontSize: "1.5rem", fontWeight: 800, color: needsReviewCount === 0 ? "var(--success-text)" : "var(--info-text)" }}>
+                {totalReviewed} / {exam.questions.length}
               </div>
               <div style={{ fontSize: "0.78rem", ...S.textMuted }}>
-                {run.question_results.filter((r) => r.status === "graded" || r.status === "reviewed").length} / {run.question_results.length} graded
+                {needsReviewCount > 0 ? "questions reviewed" : "✓ review complete"}
               </div>
             </div>
             <div style={{ padding: "var(--space-3)", maxHeight: "60vh", overflowY: "auto" }}>
               {groups.map(([, questions, problemNum]) => {
-                const meta = PROBLEM_META[problemNum] ?? { title: "Other", icon: "📝" };
+                const meta = PROBLEM_META[problemNum] ?? { title: "Other" };
                 return (
                   <div key={problemNum} style={{ marginBottom: "var(--space-3)" }}>
                     <div style={{ fontSize: "0.72rem", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.05em", ...S.textMuted, padding: "0 var(--space-2)", marginBottom: "var(--space-1)" }}>
-                      {meta.icon} P{problemNum}
+                      P{problemNum}
                     </div>
                     {questions.map((q) => {
                       const qr = resultMap[q.id];
@@ -849,8 +936,9 @@ function ReviewView({
                       }
                       const qPct = qr.max_points > 0 ? (qr.raw_score / qr.max_points) * 100 : 0;
                       const sem = scoreSemantic(qPct);
+                      const revealed = isRevealed(q.id);
                       return (
-                        <button key={q.id} onClick={() => { setSelectedQ(q.id); setHighlightedCriterion(null); }}
+                        <button key={q.id} onClick={() => { setSelectedQ(q.id); setHighlightedCriterion(null); setCriterionScores({}); }}
                           style={{
                             width: "100%", textAlign: "left",
                             padding: "var(--space-2) var(--space-3)",
@@ -864,17 +952,25 @@ function ReviewView({
                           }}>
                           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                             <span style={{ fontWeight: 600, color: "var(--text-primary)" }}>{q.title}</span>
-                            <span style={{
-                              fontFamily: "monospace", fontWeight: 800,
-                              color: sem === "success" ? "var(--success-text)" : sem === "warning" ? "var(--warning-text)" : "var(--danger-text)",
-                            }}>{qr.raw_score.toFixed(1)}/{qr.max_points}</span>
+                            {revealed ? (
+                              <span style={{
+                                fontFamily: "monospace", fontWeight: 800,
+                                color: sem === "success" ? "var(--success-text)" : sem === "warning" ? "var(--warning-text)" : "var(--danger-text)",
+                              }}>{qr.raw_score.toFixed(1)}/{qr.max_points}</span>
+                            ) : (
+                              <span style={{ fontSize: "0.72rem", fontWeight: 700, color: "var(--muted)" }}>??/{qr.max_points}</span>
+                            )}
                           </div>
                           <div style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 2 }}>
                             <span style={{
                               width: 6, height: 6, borderRadius: "50%", display: "inline-block",
-                              background: qr.lane === "deterministic" ? "var(--slate-500)" : qr.lane === "cheap_llm" ? "var(--info-text)" : "var(--brand-secondary)",
+                              background: revealed
+                                ? (qr.lane === "deterministic" ? "var(--slate-500)" : qr.lane === "cheap_llm" ? "var(--info-text)" : "var(--brand-secondary)")
+                                : "var(--warning-text)",
                             }}/>
-                            <span style={{ ...S.textMuted, fontSize: "0.72rem" }}>{qr.lane.replace(/_/g, " ")}</span>
+                            <span style={{ ...S.textMuted, fontSize: "0.72rem" }}>
+                              {revealed ? qr.lane.replace(/_/g, " ") : "awaiting review"}
+                            </span>
                             {qr.status === "escalated" && (
                               <span className="badge-danger" style={{ fontSize: "0.65rem", padding: "0.1rem 0.35rem", minHeight: "auto" }}>error</span>
                             )}
@@ -909,7 +1005,7 @@ function ReviewView({
                 <h4 style={{ margin: "0 0 var(--space-3)", fontSize: "1rem", fontWeight: 700, display: "flex", alignItems: "center", gap: "var(--space-2)" }}>
                   <span style={{ width: 22, height: 22, borderRadius: "var(--radius-sm)", background: "var(--info-bg)", display: "inline-flex", alignItems: "center", justifyContent: "center", fontSize: "0.7rem" }}>📝</span>
                   Student Answer
-                  {selectedResult.evidence_spans.length > 0 && (
+                  {isRevealed(selectedQ!) && selectedResult.evidence_spans.length > 0 && (
                     <span className="badge-warning" style={{ fontSize: "0.72rem", marginLeft: "auto" }}>
                       {selectedResult.evidence_spans.length} evidence span{selectedResult.evidence_spans.length !== 1 ? "s" : ""} — hover to inspect
                     </span>
@@ -919,139 +1015,280 @@ function ReviewView({
                   <div className="badge-info" style={{ fontSize: "1rem", padding: "var(--space-2) var(--space-4)" }}>
                     Selected: <strong>{answers[selectedQ!] || "—"}</strong>
                   </div>
-                ) : (
+                ) : isRevealed(selectedQ!) ? (
                   <HighlightedAnswer
                     answer={answers[selectedQ!] || "(no answer)"}
                     evidenceSpans={selectedResult.evidence_spans}
                     criterionResults={selectedResult.criterion_results}
                     onHighlightCriterion={handleHighlightCriterion}
                   />
+                ) : (
+                  /* Before human review: show answer without evidence highlights */
+                  <div style={{ background: "var(--surface-muted)", borderRadius: "var(--radius-md)", padding: "var(--space-4)", border: "1px solid var(--border-subtle)" }}>
+                    <pre style={{ whiteSpace: "pre-wrap", fontFamily: selectedExamQ.question_type === "coding" ? "monospace" : "inherit", fontSize: "0.9rem", margin: 0, lineHeight: 1.6 }}>
+                      {answers[selectedQ!] || "(no answer)"}
+                    </pre>
+                  </div>
                 )}
               </div>
 
-              {/* AI grading result */}
-              <div className="panel">
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "var(--space-4)" }}>
-                  <h4 style={{ margin: 0, fontSize: "1rem", fontWeight: 700, display: "flex", alignItems: "center", gap: "var(--space-2)" }}>
-                    <span style={{ width: 22, height: 22, borderRadius: "var(--radius-sm)", background: "rgba(168,85,247,0.12)", display: "inline-flex", alignItems: "center", justifyContent: "center", fontSize: "0.7rem" }}>🤖</span>
-                    AI Grading Result
+              {/* ---- ANTI-ANCHORING: Human Review FIRST (for non-deterministic) ---- */}
+              {!isDeterministic(selectedResult) && !isRevealed(selectedQ!) && (
+                <div className="panel" style={{ border: "2px solid var(--brand-primary)" }}>
+                  <h4 style={{ margin: "0 0 var(--space-2)", fontSize: "1rem", fontWeight: 700, display: "flex", alignItems: "center", gap: "var(--space-2)" }}>
+                    <span style={{ width: 22, height: 22, borderRadius: "var(--radius-sm)", background: "var(--warning-bg)", display: "inline-flex", alignItems: "center", justifyContent: "center", fontSize: "0.7rem" }}>✏️</span>
+                    Your Independent Review
                   </h4>
-                  <div className={`risk-score risk-${scoreSemantic(selectedResult.normalized_score * 100) === "success" ? "low" : scoreSemantic(selectedResult.normalized_score * 100) === "warning" ? "medium" : "high"}`}>
-                    {selectedResult.raw_score.toFixed(1)} / {selectedResult.max_points}
-                  </div>
-                </div>
+                  <p style={{ fontSize: "0.82rem", ...S.textMuted, marginBottom: "var(--space-4)" }}>
+                    Score this question independently before viewing the AI&apos;s assessment. This prevents anchoring bias.
+                  </p>
 
-                {/* Badges */}
-                <div style={{ display: "flex", flexWrap: "wrap", gap: "var(--space-2)", marginBottom: "var(--space-4)" }}>
-                  <span className={`badge badge-${selectedResult.lane === "deterministic" ? "info" : selectedResult.lane === "cheap_llm" ? "info" : "warning"}`}>
-                    Lane: {selectedResult.lane.replace(/_/g, " ")}
-                  </span>
-                  <span className={`badge badge-${selectedResult.confidence >= 0.7 ? "success" : "warning"}`}>
-                    Confidence: {(selectedResult.confidence * 100).toFixed(0)}%
-                  </span>
-                  <span className="badge badge-info">
-                    Model: {selectedResult.model ?? "deterministic"}
-                  </span>
-                  {selectedResult.status === "escalated" && (
-                    <span className="badge badge-danger">Failed / Escalated</span>
-                  )}
-                </div>
-
-                {/* Rationale */}
-                <div style={{ background: "var(--surface-muted)", borderRadius: "var(--radius-md)", padding: "var(--space-4)", fontSize: "0.9rem", ...S.textSecondary, marginBottom: "var(--space-4)", border: "1px solid var(--border-subtle)" }}>
-                  <strong style={{ color: "var(--text-primary)" }}>Rationale: </strong>
-                  {selectedResult.rationale}
-                </div>
-
-                {selectedResult.escalation_notes && (
-                  <div style={{ background: "var(--warning-bg)", borderRadius: "var(--radius-md)", padding: "var(--space-4)", fontSize: "0.9rem", color: "var(--warning-text)", marginBottom: "var(--space-4)", border: "1px solid rgba(154,103,0,0.2)" }}>
-                    <strong>⚠ Escalation: </strong>{selectedResult.escalation_notes}
-                  </div>
-                )}
-
-                {/* Criterion results */}
-                {selectedResult.criterion_results.length > 0 && (
-                  <div ref={criterionRef}>
-                    <h5 style={{ margin: "0 0 var(--space-3)", fontSize: "0.92rem", fontWeight: 700, color: "var(--slate-950)" }}>Criteria Breakdown</h5>
-                    <div className="list-stack">
-                      {selectedResult.criterion_results.map((cr) => {
-                        const crPct = cr.max_points > 0 ? (cr.score / cr.max_points) * 100 : 0;
-                        const sem = scoreSemantic(crPct);
-                        const isHighlighted = highlightedCriterion === cr.criterion_id;
-                        return (
+                  {/* Per-criterion scoring if criteria exist */}
+                  {selectedResult.criterion_results.length > 0 ? (
+                    <div style={{ marginBottom: "var(--space-4)" }}>
+                      <h5 style={{ margin: "0 0 var(--space-3)", fontSize: "0.88rem", fontWeight: 700 }}>Criteria</h5>
+                      <div className="list-stack">
+                        {selectedResult.criterion_results.map((cr) => (
                           <div key={cr.criterion_id} style={{
-                            display: "flex", alignItems: "flex-start", gap: "var(--space-3)",
+                            display: "flex", alignItems: "center", gap: "var(--space-3)",
                             padding: "var(--space-3)",
                             borderRadius: "var(--radius-md)",
-                            border: isHighlighted ? "2px solid var(--brand-primary)" : "1px solid var(--border-subtle)",
-                            background: isHighlighted ? "var(--info-bg)" : "var(--surface-muted)",
-                            transition: "all 0.3s",
+                            border: "1px solid var(--border-subtle)",
+                            background: "var(--surface-muted)",
                           }}>
-                            <div className={`risk-score risk-${sem === "success" ? "low" : sem === "warning" ? "medium" : "high"}`}
-                              style={{ fontSize: "0.82rem", minWidth: 55, flexShrink: 0 }}>
-                              {cr.score}/{cr.max_points}
-                            </div>
                             <div style={{ flex: 1, minWidth: 0 }}>
-                              <div style={{ fontWeight: 700, fontSize: "0.9rem", color: "var(--text-primary)" }}>{cr.criterion_label}</div>
-                              <div style={{ fontSize: "0.82rem", ...S.textMuted, marginTop: 2, lineHeight: 1.5 }}>{cr.rationale}</div>
-                              {/* Show evidence for this criterion inline */}
-                              {cr.evidence_spans.length > 0 && (
-                                <div style={{ marginTop: "var(--space-2)" }}>
-                                  {cr.evidence_spans.map((es, ei) => (
-                                    <div key={ei} style={{ background: "var(--warning-bg)", borderRadius: "var(--radius-sm)", padding: "var(--space-2) var(--space-3)", fontSize: "0.78rem", marginBottom: 2, display: "flex", gap: "var(--space-2)", lineHeight: 1.4 }}>
-                                      <span style={{ color: "var(--warning-text)", fontFamily: "monospace" }}>&ldquo;{es.quote}&rdquo;</span>
-                                      <span style={{ ...S.textMuted }}>→ {es.reason}</span>
-                                    </div>
-                                  ))}
-                                </div>
-                              )}
+                              <div style={{ fontWeight: 700, fontSize: "0.88rem", color: "var(--text-primary)" }}>{cr.criterion_label}</div>
+                              <div style={{ fontSize: "0.75rem", ...S.textMuted }}>max {cr.max_points} pts</div>
                             </div>
+                            <input
+                              type="number" min={0} max={cr.max_points} step={0.5}
+                              value={criterionScores[cr.criterion_id] ?? ""}
+                              onChange={(e) => setCriterionScores((prev) => ({ ...prev, [cr.criterion_id]: e.target.value }))}
+                              placeholder="—"
+                              style={{ ...S.input, width: 80, textAlign: "center", fontWeight: 700 }}
+                            />
                           </div>
-                        );
-                      })}
+                        ))}
+                      </div>
+                      <div style={{ marginTop: "var(--space-3)", fontSize: "0.85rem", fontWeight: 700, textAlign: "right" }}>
+                        Your total:{" "}
+                        {selectedResult.criterion_results.reduce((sum, cr) => {
+                          const v = parseFloat(criterionScores[cr.criterion_id] ?? "0");
+                          return sum + (isNaN(v) ? 0 : v);
+                        }, 0).toFixed(1)}{" "}
+                        / {selectedResult.max_points}
+                      </div>
                     </div>
-                  </div>
-                )}
-              </div>
+                  ) : (
+                    /* No criteria — single score input */
+                    <div style={{ marginBottom: "var(--space-4)" }}>
+                      <label style={{ display: "block", fontSize: "0.8rem", ...S.textMuted, marginBottom: "var(--space-1)", fontWeight: 700 }}>
+                        Your Score (0–{selectedResult.max_points})
+                      </label>
+                      <input type="number" min={0} max={selectedResult.max_points} step={0.5}
+                        value={overrideScore} onChange={(e) => setOverrideScore(e.target.value)}
+                        style={{ ...S.input, width: 120 }}
+                        placeholder="—" />
+                    </div>
+                  )}
 
-              {/* Override */}
-              <div className="panel">
-                <h4 style={{ margin: "0 0 var(--space-3)", fontSize: "1rem", fontWeight: 700, display: "flex", alignItems: "center", gap: "var(--space-2)" }}>
-                  <span style={{ width: 22, height: 22, borderRadius: "var(--radius-sm)", background: "var(--warning-bg)", display: "inline-flex", alignItems: "center", justifyContent: "center", fontSize: "0.7rem" }}>✏️</span>
-                  Manual Override
-                </h4>
-                <div style={{ display: "flex", gap: "var(--space-3)", alignItems: "flex-end" }}>
-                  <div>
-                    <label style={{ display: "block", fontSize: "0.8rem", ...S.textMuted, marginBottom: "var(--space-1)", fontWeight: 700 }}>
-                      Score (0–{selectedResult.max_points})
-                    </label>
-                    <input type="number" min={0} max={selectedResult.max_points} step={0.5}
-                      value={overrideScore} onChange={(e) => setOverrideScore(e.target.value)}
-                      style={{ ...S.input, width: 90 }} />
-                  </div>
-                  <div style={{ flex: 1 }}>
-                    <label style={{ display: "block", fontSize: "0.8rem", ...S.textMuted, marginBottom: "var(--space-1)", fontWeight: 700 }}>Comment</label>
+                  <div style={{ marginBottom: "var(--space-4)" }}>
+                    <label style={{ display: "block", fontSize: "0.8rem", ...S.textMuted, marginBottom: "var(--space-1)", fontWeight: 700 }}>Comment (optional)</label>
                     <input type="text" value={overrideComment} onChange={(e) => setOverrideComment(e.target.value)}
-                      style={S.input} placeholder="Optional justification…" />
+                      style={S.input} placeholder="Notes on your scoring…" />
                   </div>
-                  <button onClick={handleSubmitOverride} disabled={overrideScore === ""}
-                    style={{ ...S.btn, background: "var(--brand-secondary)", opacity: overrideScore === "" ? 0.4 : 1 }}>
-                    Override
+
+                  <button
+                    onClick={handleHumanReview}
+                    disabled={
+                      selectedResult.criterion_results.length > 0
+                        ? selectedResult.criterion_results.some((cr) => (criterionScores[cr.criterion_id] ?? "") === "")
+                        : overrideScore === ""
+                    }
+                    style={{
+                      ...S.btn,
+                      width: "100%",
+                      opacity: (selectedResult.criterion_results.length > 0
+                        ? selectedResult.criterion_results.some((cr) => (criterionScores[cr.criterion_id] ?? "") === "")
+                        : overrideScore === "") ? 0.4 : 1,
+                    }}>
+                    Submit Review &amp; Reveal AI Score →
                   </button>
                 </div>
+              )}
 
-                {run.reviews.filter((r) => r.question_id === selectedQ).length > 0 && (
-                  <div style={{ marginTop: "var(--space-4)", borderTop: "1px solid var(--border-subtle)", paddingTop: "var(--space-3)" }}>
-                    <h5 style={{ margin: "0 0 var(--space-2)", fontSize: "0.78rem", fontWeight: 700, textTransform: "uppercase", ...S.textMuted }}>History</h5>
-                    {run.reviews.filter((r) => r.question_id === selectedQ).map((r, i) => (
-                      <div key={i} style={{ fontSize: "0.8rem", background: "var(--surface-muted)", borderRadius: "var(--radius-sm)", padding: "var(--space-2) var(--space-3)", marginBottom: 2, border: "1px solid var(--border-subtle)" }}>
-                        <strong>{r.original_score} → {r.override_score ?? "accepted"}</strong>
-                        {r.comment && <span style={S.textMuted}> — {r.comment}</span>}
+              {/* ---- REVEALED: AI Grading Result (shown for deterministic or after human review) ---- */}
+              {isRevealed(selectedQ!) && (
+                <>
+                  {/* Comparison banner for human-reviewed questions */}
+                  {selectedQ! in humanReviewed && (
+                    <div className="panel" style={{ background: "var(--info-bg)", border: "1px solid rgba(59,130,246,0.2)" }}>
+                      <h4 style={{ margin: "0 0 var(--space-2)", fontSize: "0.92rem", fontWeight: 700, color: "var(--info-text)" }}>
+                        📊 Score Comparison
+                      </h4>
+                      <div style={{ display: "flex", gap: "var(--space-6)", alignItems: "center" }}>
+                        <div>
+                          <div style={{ fontSize: "0.75rem", ...S.textMuted, fontWeight: 700, textTransform: "uppercase" }}>Your Score</div>
+                          <div style={{ fontSize: "1.3rem", fontWeight: 800, color: "var(--text-primary)" }}>
+                            {humanReviewed[selectedQ!].score.toFixed(1)} / {selectedResult.max_points}
+                          </div>
+                        </div>
+                        <div style={{ fontSize: "1.5rem", color: "var(--text-muted)" }}>vs</div>
+                        <div>
+                          <div style={{ fontSize: "0.75rem", ...S.textMuted, fontWeight: 700, textTransform: "uppercase" }}>AI Score</div>
+                          <div style={{ fontSize: "1.3rem", fontWeight: 800, color: "var(--brand-primary)" }}>
+                            {selectedResult.raw_score.toFixed(1)} / {selectedResult.max_points}
+                          </div>
+                        </div>
+                        {(() => {
+                          const diff = selectedResult.raw_score - humanReviewed[selectedQ!].score;
+                          if (Math.abs(diff) < 0.1) return <span style={{ fontSize: "0.85rem", fontWeight: 700, color: "var(--success-text)" }}>✓ Agreement</span>;
+                          return <span style={{ fontSize: "0.85rem", fontWeight: 700, color: "var(--warning-text)" }}>Δ {diff > 0 ? "+" : ""}{diff.toFixed(1)}</span>;
+                        })()}
                       </div>
-                    ))}
+                      {humanReviewed[selectedQ!].comment && (
+                        <div style={{ marginTop: "var(--space-2)", fontSize: "0.82rem", ...S.textMuted }}>
+                          Your note: {humanReviewed[selectedQ!].comment}
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  <div className="panel">
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "var(--space-4)" }}>
+                      <h4 style={{ margin: 0, fontSize: "1rem", fontWeight: 700, display: "flex", alignItems: "center", gap: "var(--space-2)" }}>
+                        <span style={{ width: 22, height: 22, borderRadius: "var(--radius-sm)", background: "rgba(168,85,247,0.12)", display: "inline-flex", alignItems: "center", justifyContent: "center", fontSize: "0.7rem" }}>🤖</span>
+                        AI Grading Result
+                      </h4>
+                      <div className={`risk-score risk-${scoreSemantic(selectedResult.normalized_score * 100) === "success" ? "low" : scoreSemantic(selectedResult.normalized_score * 100) === "warning" ? "medium" : "high"}`}>
+                        {selectedResult.raw_score.toFixed(1)} / {selectedResult.max_points}
+                      </div>
+                    </div>
+
+                    {/* Badges */}
+                    <div style={{ display: "flex", flexWrap: "wrap", gap: "var(--space-2)", marginBottom: "var(--space-4)" }}>
+                      <span className={`badge badge-${selectedResult.lane === "deterministic" ? "info" : selectedResult.lane === "cheap_llm" ? "info" : "warning"}`}>
+                        Lane: {selectedResult.lane.replace(/_/g, " ")}
+                      </span>
+                      <span className="badge badge-info">
+                        Model: {selectedResult.model ?? "deterministic"}
+                      </span>
+                      {selectedResult.status === "escalated" && (
+                        <span className="badge badge-danger">Failed / Escalated</span>
+                      )}
+                    </div>
+
+                    {/* Rationale */}
+                    <div style={{ background: "var(--surface-muted)", borderRadius: "var(--radius-md)", padding: "var(--space-4)", fontSize: "0.9rem", ...S.textSecondary, marginBottom: "var(--space-4)", border: "1px solid var(--border-subtle)" }}>
+                      <strong style={{ color: "var(--text-primary)" }}>Rationale: </strong>
+                      {selectedResult.rationale}
+                    </div>
+
+                    {selectedResult.escalation_notes && (
+                      <div style={{ background: "var(--warning-bg)", borderRadius: "var(--radius-md)", padding: "var(--space-4)", fontSize: "0.9rem", color: "var(--warning-text)", marginBottom: "var(--space-4)", border: "1px solid rgba(154,103,0,0.2)" }}>
+                        <strong>⚠ Escalation: </strong>{selectedResult.escalation_notes}
+                      </div>
+                    )}
+
+                    {/* Criterion results */}
+                    {selectedResult.criterion_results.length > 0 && (
+                      <div ref={criterionRef}>
+                        <h5 style={{ margin: "0 0 var(--space-2)", fontSize: "0.88rem", fontWeight: 700, color: "var(--slate-950)" }}>Criteria Breakdown</h5>
+                        <div className="list-stack">
+                          {selectedResult.criterion_results.map((cr) => {
+                            const crPct = cr.max_points > 0 ? (cr.score / cr.max_points) * 100 : 0;
+                            const sem = scoreSemantic(crPct);
+                            const isHighlighted = highlightedCriterion === cr.criterion_id;
+                            // Show human score comparison if available
+                            const humanCrScore = humanReviewed[selectedQ!]
+                              ? parseFloat(criterionScores[cr.criterion_id] ?? "")
+                              : NaN;
+                            return (
+                              <div key={cr.criterion_id} style={{
+                                display: "flex", alignItems: "flex-start", gap: "var(--space-3)",
+                                padding: "var(--space-3)",
+                                borderRadius: "var(--radius-md)",
+                                border: isHighlighted ? "2px solid var(--brand-primary)" : "1px solid var(--border-subtle)",
+                                background: isHighlighted ? "var(--info-bg)" : "var(--surface-muted)",
+                                transition: "all 0.3s",
+                              }}>
+                                <div className={`risk-score risk-${sem === "success" ? "low" : sem === "warning" ? "medium" : "high"}`}
+                                  style={{ fontSize: "0.82rem", minWidth: 55, flexShrink: 0 }}>
+                                  {cr.score}/{cr.max_points}
+                                </div>
+                                <div style={{ flex: 1, minWidth: 0 }}>
+                                  <div style={{ fontWeight: 700, fontSize: "0.85rem", color: "var(--text-primary)" }}>{cr.criterion_label}</div>
+                                  <div style={{
+                                    fontSize: "0.8rem", marginTop: 4, lineHeight: 1.5,
+                                    background: "rgba(255, 235, 130, 0.25)",
+                                    border: "1px solid rgba(200, 170, 50, 0.3)",
+                                    borderRadius: "var(--radius-sm)",
+                                    padding: "var(--space-2) var(--space-3)",
+                                    color: "var(--text-secondary)",
+                                  }}>
+                                    <span style={{ fontSize: "0.72rem", fontWeight: 700, color: "var(--text-muted)", marginRight: "var(--space-1)" }}>AI:</span>
+                                    {cr.rationale}
+                                  </div>
+                                  {/* Show evidence for this criterion inline */}
+                                  {cr.evidence_spans.length > 0 && (
+                                    <div style={{ marginTop: "var(--space-2)" }}>
+                                      {cr.evidence_spans.map((es, ei) => (
+                                        <div key={ei} style={{ background: "var(--warning-bg)", borderRadius: "var(--radius-sm)", padding: "var(--space-2) var(--space-3)", fontSize: "0.78rem", marginBottom: 2, display: "flex", gap: "var(--space-2)", lineHeight: 1.4 }}>
+                                          <span style={{ color: "var(--warning-text)", fontFamily: "monospace" }}>&ldquo;{es.quote}&rdquo;</span>
+                                          <span style={{ ...S.textMuted }}>→ {es.reason}</span>
+                                        </div>
+                                      ))}
+                                    </div>
+                                  )}
+                                </div>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    )}
                   </div>
-                )}
-              </div>
+
+                  {/* Override (only after reveal) */}
+                  <div className="panel">
+                    <h4 style={{ margin: "0 0 var(--space-3)", fontSize: "1rem", fontWeight: 700, display: "flex", alignItems: "center", gap: "var(--space-2)" }}>
+                      <span style={{ width: 22, height: 22, borderRadius: "var(--radius-sm)", background: "var(--warning-bg)", display: "inline-flex", alignItems: "center", justifyContent: "center", fontSize: "0.7rem" }}>✏️</span>
+                      Manual Override
+                    </h4>
+                    <div style={{ display: "flex", gap: "var(--space-3)", alignItems: "flex-end" }}>
+                      <div>
+                        <label style={{ display: "block", fontSize: "0.8rem", ...S.textMuted, marginBottom: "var(--space-1)", fontWeight: 700 }}>
+                          Score (0–{selectedResult.max_points})
+                        </label>
+                        <input type="number" min={0} max={selectedResult.max_points} step={0.5}
+                          value={overrideScore} onChange={(e) => setOverrideScore(e.target.value)}
+                          style={{ ...S.input, width: 90 }} />
+                      </div>
+                      <div style={{ flex: 1 }}>
+                        <label style={{ display: "block", fontSize: "0.8rem", ...S.textMuted, marginBottom: "var(--space-1)", fontWeight: 700 }}>Comment</label>
+                        <input type="text" value={overrideComment} onChange={(e) => setOverrideComment(e.target.value)}
+                          style={S.input} placeholder="Optional justification…" />
+                      </div>
+                      <button onClick={handleSubmitOverride} disabled={overrideScore === ""}
+                        style={{ ...S.btn, background: "var(--brand-secondary)", opacity: overrideScore === "" ? 0.4 : 1 }}>
+                        Override
+                      </button>
+                    </div>
+
+                    {run.reviews.filter((r) => r.question_id === selectedQ).length > 0 && (
+                      <div style={{ marginTop: "var(--space-4)", borderTop: "1px solid var(--border-subtle)", paddingTop: "var(--space-3)" }}>
+                        <h5 style={{ margin: "0 0 var(--space-2)", fontSize: "0.78rem", fontWeight: 700, textTransform: "uppercase", ...S.textMuted }}>History</h5>
+                        {run.reviews.filter((r) => r.question_id === selectedQ).map((r, i) => (
+                          <div key={i} style={{ fontSize: "0.8rem", background: "var(--surface-muted)", borderRadius: "var(--radius-sm)", padding: "var(--space-2) var(--space-3)", marginBottom: 2, border: "1px solid var(--border-subtle)" }}>
+                            <strong>{r.original_score} → {r.override_score ?? "accepted"}</strong>
+                            {r.comment && <span style={S.textMuted}> — {r.comment}</span>}
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </>
+              )}
             </>
           ) : selectedExamQ && !selectedResult ? (
             <div className="panel" style={{ textAlign: "center", padding: "var(--space-8)" }}>
@@ -1107,7 +1344,7 @@ function groupQuestions(questions: ExamQuestion[]): [string, ExamQuestion[], str
     groups.get(key)!.push(q);
   }
   return Array.from(groups.entries()).map(([num, qs]) => {
-    const meta = PROBLEM_META[num] ?? { title: "Other", icon: "📝" };
+    const meta = PROBLEM_META[num] ?? { title: "Other" };
     return [`Problem ${num} — ${meta.title}`, qs, num];
   });
 }

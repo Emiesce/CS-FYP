@@ -5,36 +5,73 @@
 /*  Student roster + detail view with timeline, clips, breakdown      */
 /* ------------------------------------------------------------------ */
 
-import { use, useState } from "react";
-import { AuthenticatedShell } from "@/components/AuthenticatedShell";
+import { use, useMemo, useState, useSyncExternalStore } from "react";
 import { StudentRoster, StudentDetail } from "@/components/proctoring";
-import { PAST_EXAM_RISK_SUMMARIES, ALL_EXAMS } from "@/lib/fixtures";
+import { PAST_EXAM_RISK_SUMMARIES, ALL_EXAMS, MGMT2110_EXAM_ID } from "@/lib/fixtures";
+import {
+  readCompletedSessions,
+  subscribeToPersistedProctoringSessions,
+} from "@/features/proctoring/live-session-store";
+import type { PersistedProctoringSession } from "@/features/proctoring/live-session-store";
+import { computeRiskScore, countHighSeverityEvents } from "@/lib/utils/risk-score";
 import { EmptyState } from "@/components/ui";
-import Link from "next/link";
+import type { StudentRiskSummary } from "@/types";
+
+const SERVER_COMPLETED: PersistedProctoringSession[] = [];
 
 function ProctoringReviewContent({ examId }: { examId: string }) {
   const exam = ALL_EXAMS.find((e) => e.id === examId);
   const [selectedStudentId, setSelectedStudentId] = useState<string | null>(null);
 
+  // Read completed proctoring sessions from localStorage
+  const allCompletedSessions = useSyncExternalStore(
+    subscribeToPersistedProctoringSessions,
+    readCompletedSessions,
+    () => SERVER_COMPLETED,
+  );
+  const completedSessions = useMemo(
+    () => allCompletedSessions.filter((s) => s.examId === examId),
+    [allCompletedSessions, examId],
+  );
+
+  // Merge fixture data with live completed sessions
+  const riskSummaries = useMemo<StudentRiskSummary[]>(() => {
+    const fixtureData = PAST_EXAM_RISK_SUMMARIES.filter(
+      // Only include fixture data for non-COMP1023 past exams
+      () => !completedSessions.length,
+    );
+    const liveData: StudentRiskSummary[] = completedSessions.map((session) => ({
+      studentId: session.studentId,
+      studentName: session.studentName,
+      studentNumber: session.studentNumber,
+      avatarUrl: session.avatarUrl,
+      currentRiskScore: computeRiskScore(session.events),
+      lastUpdatedAt: session.updatedAt,
+      highSeverityEventCount: countHighSeverityEvents(session.events),
+      events: session.events,
+      buckets: [],
+    }));
+    return liveData.length > 0 ? liveData : fixtureData;
+  }, [completedSessions]);
+
   const selectedSummary = selectedStudentId
-    ? PAST_EXAM_RISK_SUMMARIES.find((s) => s.studentId === selectedStudentId)
+    ? riskSummaries.find((s) => s.studentId === selectedStudentId)
     : null;
 
   if (!exam) {
     return <EmptyState message="Exam not found." />;
   }
 
+  if (examId === MGMT2110_EXAM_ID) {
+    return (
+      <EmptyState message="This test module is focused on essay grading. Open the Grading tab to review and batch-grade the seeded student answers." />
+    );
+  }
+
   return (
     <div style={{ display: "grid", gap: "var(--space-6)" }}>
       {/* Header */}
       <div>
-        <Link
-          href="/staff"
-          className="button-ghost"
-          style={{ marginBottom: "var(--space-4)", display: "inline-flex" }}
-        >
-          Back to Dashboard
-        </Link>
         <h1 className="page-title">
           Proctoring Review: {exam.courseCode} – {exam.title}
         </h1>
@@ -53,7 +90,7 @@ function ProctoringReviewContent({ examId }: { examId: string }) {
         }}
       >
         <StudentRoster
-          students={PAST_EXAM_RISK_SUMMARIES}
+          students={riskSummaries}
           onSelect={setSelectedStudentId}
           selectedStudentId={selectedStudentId ?? undefined}
         />
@@ -80,9 +117,5 @@ export default function StaffPastProctoringPage({
   params: Promise<{ examId: string }>;
 }) {
   const { examId } = use(params);
-  return (
-    <AuthenticatedShell requiredRole="staff">
-      <ProctoringReviewContent examId={examId} />
-    </AuthenticatedShell>
-  );
+  return <ProctoringReviewContent examId={examId} />;
 }

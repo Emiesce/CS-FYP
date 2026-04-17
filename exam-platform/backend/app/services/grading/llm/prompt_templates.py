@@ -100,7 +100,6 @@ GRADING_OUTPUT_SCHEMA: dict = {
     "properties": {
         "raw_score": {"type": "number"},
         "normalized_score": {"type": "number"},
-        "confidence": {"type": "number"},
         "rationale": {"type": "string"},
         "criterion_results": {
             "type": "array",
@@ -131,7 +130,7 @@ GRADING_OUTPUT_SCHEMA: dict = {
             },
         },
     },
-    "required": ["raw_score", "normalized_score", "confidence", "rationale", "criterion_results"],
+    "required": ["raw_score", "normalized_score", "rationale", "criterion_results"],
 }
 
 RUBRIC_OUTPUT_SCHEMA: dict = {

@@ -29,6 +29,34 @@ def _cache_key(model: str, messages: list, json_schema: Optional[dict]) -> str:
     return hashlib.sha256(raw.encode()).hexdigest()
 
 
+def _looks_like_json_object(text: str) -> bool:
+    """Heuristic check for object-shaped JSON output."""
+    stripped = text.strip()
+    if not stripped:
+        return False
+    if stripped.startswith("{"):
+        return True
+    if stripped.startswith("```"):
+        return "{" in stripped and "}" in stripped
+    return False
+
+
+def _with_json_retry_hint(messages: list[dict[str, str]], json_schema: Optional[dict]) -> list[dict[str, str]]:
+    """Strengthen the prompt for retries when a JSON object is required."""
+    if not messages:
+        return messages
+    schema_hint = json.dumps(json_schema or {}, indent=2)
+    retry_hint = (
+        "\n\nCRITICAL RETRY INSTRUCTION:\n"
+        "Return ONLY one valid JSON object.\n"
+        "Do not return a number, list, markdown, prose, code fences, or commentary.\n"
+        "The top-level response must begin with '{' and end with '}'.\n"
+        f"Required JSON schema:\n```json\n{schema_hint}\n```"
+    )
+    last = messages[-1]
+    return messages[:-1] + [{**last, "content": last["content"] + retry_hint}]
+
+
 # ---- Client ----------------------------------------------------------
 
 class OpenRouterClient:
@@ -97,16 +125,46 @@ class OpenRouterClient:
         for attempt in range(max_retries + 1):
             t0 = time.monotonic()
             try:
+                request_body = body
+                if json_schema is not None and attempt > 0:
+                    request_body = {
+                        **body,
+                        "messages": _with_json_retry_hint(body["messages"], json_schema),
+                    }
+
                 resp = await self._client.post(
                     f"{self._base_url}/chat/completions",
                     headers=headers,
-                    json=body,
+                    json=request_body,
                 )
                 resp.raise_for_status()
                 data = resp.json()
                 latency_ms = int((time.monotonic() - t0) * 1000)
 
-                content = data["choices"][0]["message"]["content"]
+                choices = data.get("choices") or []
+                if not choices:
+                    raise RuntimeError("OpenRouter returned no choices")
+                content = choices[0].get("message", {}).get("content")
+                # content may be None if the model returned nothing — retry
+                if content is None or (isinstance(content, str) and content.strip() == ""):
+                    logger.warning("OpenRouter returned null/empty content for model=%s (attempt %d)", model, attempt + 1)
+                    if attempt < max_retries:
+                        await _backoff(attempt)
+                        last_err = RuntimeError(f"Null content from {model}")
+                        continue
+                    # Last attempt — use empty string
+                    content = ""
+                if json_schema is not None and isinstance(content, str) and not _looks_like_json_object(content):
+                    logger.warning(
+                        "OpenRouter returned non-object content for model=%s (attempt %d): %s",
+                        model,
+                        attempt + 1,
+                        content[:120],
+                    )
+                    if attempt < max_retries:
+                        await _backoff(attempt)
+                        last_err = RuntimeError(f"Non-object JSON content from {model}")
+                        continue
                 usage_raw = data.get("usage", {})
                 usage = TokenUsage(
                     prompt=usage_raw.get("prompt_tokens", 0),
@@ -121,7 +179,7 @@ class OpenRouterClient:
                     "model": model,
                 }
 
-                if use_cache:
+                if use_cache and (json_schema is None or _looks_like_json_object(str(content))):
                     _prompt_cache[ck] = result
 
                 return result

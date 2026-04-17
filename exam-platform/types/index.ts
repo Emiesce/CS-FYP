@@ -403,7 +403,7 @@ export function hasPermission(role: UserRole, permission: Permission): boolean {
 /* ------------------------------------------------------------------ */
 
 /** Grading lane used to grade a question. */
-export type GradingLane = "deterministic" | "cheap_llm" | "quality_llm" | "escalated";
+export type GradingLane = "incomplete" | "deterministic" | "cheap_llm" | "quality_llm" | "escalated";
 
 /** Status of a single question grading job. */
 export type QuestionGradingStatus =
@@ -465,6 +465,15 @@ export interface CriterionGradeResult {
   maxPoints: number;
   rationale: string;
   evidenceSpans: EvidenceSpan[];
+  overrideScore?: number;
+  reviewerRationale?: string;
+}
+
+export interface CriterionReviewOverride {
+  criterionId: string;
+  originalScore: number;
+  overrideScore?: number;
+  reasoning?: string;
 }
 
 /** Grading result for one question within an attempt. */
@@ -479,6 +488,7 @@ export interface QuestionGradeResult {
   normalizedScore: number;   // 0-1
   confidence: number;        // 0-1
   rationale: string;
+  studentAnswer?: string;
   criterionResults: CriterionGradeResult[];
   evidenceSpans: EvidenceSpan[];
   escalationNotes?: string;
@@ -493,6 +503,7 @@ export interface GradingReviewDecision {
   originalScore: number;
   overrideScore?: number;
   comment?: string;
+  criteriaOverrides: CriterionReviewOverride[];
   accepted: boolean;
   reviewedAt: string;
 }

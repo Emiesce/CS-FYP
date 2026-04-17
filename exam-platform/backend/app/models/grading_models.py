@@ -16,6 +16,7 @@ from pydantic import BaseModel, Field
 # ---- Enums -----------------------------------------------------------
 
 class GradingLane(str, Enum):
+    INCOMPLETE = "incomplete"
     DETERMINISTIC = "deterministic"
     CHEAP_LLM = "cheap_llm"
     QUALITY_LLM = "quality_llm"
@@ -100,6 +101,8 @@ class CriterionGradeResult(BaseModel):
     max_points: float = Field(ge=0)
     rationale: str = ""
     evidence_spans: list[EvidenceSpan] = Field(default_factory=list)
+    override_score: Optional[float] = None
+    reviewer_rationale: Optional[str] = None
 
 
 class TokenUsage(BaseModel):
@@ -118,6 +121,7 @@ class QuestionGradeResult(BaseModel):
     normalized_score: float = Field(ge=0, le=1, default=0)
     confidence: float = Field(ge=0, le=1, default=1.0)
     rationale: str = ""
+    student_answer: Optional[str] = None
     criterion_results: list[CriterionGradeResult] = Field(default_factory=list)
     evidence_spans: list[EvidenceSpan] = Field(default_factory=list)
     escalation_notes: Optional[str] = None
@@ -127,12 +131,19 @@ class QuestionGradeResult(BaseModel):
 
 # ---- Reviews ---------------------------------------------------------
 
+class CriterionReviewOverride(BaseModel):
+    criterion_id: str = Field(min_length=1)
+    original_score: float = Field(ge=0, default=0)
+    override_score: Optional[float] = None
+    reasoning: Optional[str] = None
+
 class GradingReviewDecision(BaseModel):
     question_id: str
     reviewer_id: str
     original_score: float
     override_score: Optional[float] = None
     comment: Optional[str] = None
+    criteria_overrides: list[CriterionReviewOverride] = Field(default_factory=list)
     accepted: bool = True
     reviewed_at: datetime
 
@@ -141,6 +152,7 @@ class ReviewSubmitRequest(BaseModel):
     question_id: str = Field(min_length=1)
     override_score: Optional[float] = None
     comment: Optional[str] = None
+    criteria_overrides: list[CriterionReviewOverride] = Field(default_factory=list)
     accepted: bool = True
 
 

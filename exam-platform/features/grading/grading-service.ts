@@ -11,6 +11,36 @@ import type { GradingRun, StructuredRubric } from "@/types";
 
 const BASE = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
 
+/* ---- snake_case → camelCase mapper ---- */
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function snakeToCamel(obj: any): any {
+  if (Array.isArray(obj)) return obj.map(snakeToCamel);
+  if (obj !== null && typeof obj === "object") {
+    const out: Record<string, unknown> = {};
+    for (const [k, v] of Object.entries(obj)) {
+      const camel = k.replace(/_([a-z])/g, (_, c) => c.toUpperCase());
+      out[camel] = snakeToCamel(v);
+    }
+    return out;
+  }
+  return obj;
+}
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function camelToSnake(obj: any): any {
+  if (Array.isArray(obj)) return obj.map(camelToSnake);
+  if (obj !== null && typeof obj === "object") {
+    const out: Record<string, unknown> = {};
+    for (const [k, v] of Object.entries(obj)) {
+      const snake = k.replace(/[A-Z]/g, (letter) => `_${letter.toLowerCase()}`);
+      out[snake] = camelToSnake(v);
+    }
+    return out;
+  }
+  return obj;
+}
+
 async function json<T>(res: Response): Promise<T> {
   if (!res.ok) {
     const text = await res.text().catch(() => "");
@@ -27,7 +57,7 @@ export async function generateRubric(
   const res = await fetch(`${BASE}/api/grading/rubric/generate`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(payload),
+    body: JSON.stringify(camelToSnake(payload)),
   });
   return json(res);
 }
@@ -40,31 +70,41 @@ export async function startGradingRun(
 ): Promise<GradingRun> {
   const res = await fetch(
     `${BASE}/api/grading/exams/${examId}/attempts/${payload.attemptId}/run`,
-    { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) },
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(camelToSnake(payload)),
+    },
   );
   return json(res);
 }
 
 export async function getGradingRun(
   examId: string,
-  attemptId: string,
+  runId: string,
 ): Promise<GradingRun> {
   const res = await fetch(
-    `${BASE}/api/grading/exams/${examId}/attempts/${attemptId}`,
+    `${BASE}/api/test-grading/results/${runId}`,
   );
-  return json(res);
+  const raw = await json<unknown>(res);
+  return snakeToCamel(raw) as GradingRun;
 }
 
 /* ---- Reviews ---- */
 
 export async function submitReview(
   examId: string,
-  attemptId: string,
+  runId: string,
   payload: ReviewSubmitPayload,
 ): Promise<GradingRun> {
   const res = await fetch(
-    `${BASE}/api/grading/exams/${examId}/attempts/${attemptId}/review`,
-    { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) },
+    `${BASE}/api/test-grading/review/${runId}`,
+    {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(camelToSnake(payload)),
+    },
   );
-  return json(res);
+  const raw = await json<unknown>(res);
+  return snakeToCamel(raw) as GradingRun;
 }

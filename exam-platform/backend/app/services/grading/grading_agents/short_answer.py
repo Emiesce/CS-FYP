@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import json
 import logging
+from typing import Any
 
 from app.models.grading_models import (
     CriterionGradeResult,
@@ -18,15 +19,16 @@ from app.models.grading_models import (
     StructuredRubric,
     TokenUsage,
 )
+from app.models.exam_models import QuestionType
 from app.services.grading.grading_agents.deterministic import grade_exact_match
-from app.services.grading.llm.model_registry import get_model_for_lane
+from app.services.grading.llm.json_extraction import extract_json_dict
+from app.services.grading.llm.model_registry import get_model_for_lane, get_model_for_question_type
 from app.services.grading.llm.openrouter_client import get_openrouter_client
 from app.services.grading.llm.prompt_templates import (
     GRADING_OUTPUT_SCHEMA,
     GRADING_SYSTEM_PREFIX,
     build_grading_user_prompt,
 )
-from app.services.grading.settings import get_grading_settings
 
 logger = logging.getLogger(__name__)
 
@@ -57,7 +59,7 @@ async def grade_short_answer(
 
     # ---- LLM path ----
     lane = GradingLane.CHEAP_LLM if mode != "quality_first" else GradingLane.QUALITY_LLM
-    model = get_model_for_lane(lane)
+    model = get_model_for_question_type(QuestionType.SHORT_ANSWER)
     assert model is not None
 
     rubric_json = json.dumps(
@@ -75,8 +77,6 @@ async def grade_short_answer(
     )
 
     client = get_openrouter_client()
-    settings = get_grading_settings()
-
     result = await client.chat_completion(
         model=model,
         messages=[
@@ -88,8 +88,29 @@ async def grade_short_answer(
     )
 
     try:
-        data = json.loads(result["content"])
-    except json.JSONDecodeError:
+        data = extract_json_dict(result["content"], context=f"short_answer:{question_id}")
+    except ValueError as parse_err:
+        repaired = await _repair_json_response(
+            client=client,
+            model=model,
+            original_messages=[
+                {"role": "system", "content": GRADING_SYSTEM_PREFIX},
+                {"role": "user", "content": user_prompt},
+            ],
+            bad_content=result["content"],
+            context=f"short_answer_repair:{question_id}",
+        )
+        if repaired is not None:
+            return _build_result(
+                repaired,
+                question_id,
+                model,
+                lane,
+                result,
+                max_points_override=max_points,
+                student_answer=student_answer,
+            )
+        logger.warning("Short-answer parse error for %s: %s", question_id, parse_err)
         # Escalate on malformed output
         return await _escalate(
             question_id=question_id,
@@ -98,24 +119,18 @@ async def grade_short_answer(
             max_points=max_points,
             rubric=rubric,
             lecture_context=lecture_context,
-            reason="Malformed JSON from cheap model",
+            reason=f"Malformed JSON from model: {parse_err}",
         )
 
-    confidence = data.get("confidence", 0.5)
-
-    # Escalate if low confidence
-    if confidence < settings.confidence_threshold and lane == GradingLane.CHEAP_LLM:
-        return await _escalate(
-            question_id=question_id,
-            question_prompt=question_prompt,
-            student_answer=student_answer,
-            max_points=max_points,
-            rubric=rubric,
-            lecture_context=lecture_context,
-            reason=f"Low confidence ({confidence:.2f})",
-        )
-
-    return _build_result(data, question_id, model, lane, result, max_points_override=max_points)
+    return _build_result(
+        data,
+        question_id,
+        model,
+        lane,
+        result,
+        max_points_override=max_points,
+        student_answer=student_answer,
+    )
 
 
 async def _escalate(
@@ -161,8 +176,30 @@ async def _escalate(
     )
 
     try:
-        data = json.loads(result["content"])
-    except json.JSONDecodeError:
+        data = extract_json_dict(result["content"], context=f"short_answer_escalated:{question_id}")
+    except (json.JSONDecodeError, ValueError):
+        repaired = await _repair_json_response(
+            client=client,
+            model=model,
+            original_messages=[
+                {"role": "system", "content": GRADING_SYSTEM_PREFIX},
+                {"role": "user", "content": user_prompt},
+            ],
+            bad_content=result["content"],
+            context=f"short_answer_escalated_repair:{question_id}",
+        )
+        if repaired is not None:
+            qr = _build_result(
+                repaired,
+                question_id,
+                model,
+                lane,
+                result,
+                max_points_override=max_points,
+                student_answer=student_answer,
+            )
+            qr.escalation_notes = reason
+            return qr
         return QuestionGradeResult(
             question_id=question_id,
             question_type="short_answer",
@@ -174,12 +211,56 @@ async def _escalate(
             normalized_score=0,
             confidence=0,
             rationale="Failed to parse grading output after escalation.",
+            student_answer=student_answer,
             escalation_notes=reason,
         )
 
-    qr = _build_result(data, question_id, model, lane, result, max_points_override=max_points)
+    qr = _build_result(
+        data,
+        question_id,
+        model,
+        lane,
+        result,
+        max_points_override=max_points,
+        student_answer=student_answer,
+    )
     qr.escalation_notes = reason
     return qr
+
+
+async def _repair_json_response(
+    *,
+    client,
+    model: str,
+    original_messages: list[dict[str, str]],
+    bad_content: str,
+    context: str,
+) -> dict[str, Any] | None:
+    """Ask the model to repair a malformed grading response into valid JSON."""
+    repair_messages = [
+        *original_messages,
+        {"role": "assistant", "content": bad_content or ""},
+        {
+            "role": "user",
+            "content": (
+                "Your previous response was invalid. "
+                "Return ONLY one valid JSON object that matches the required schema exactly. "
+                "Do not output a number, markdown, explanation, or code fence."
+            ),
+        },
+    ]
+    repair_result = await client.chat_completion(
+        model=model,
+        messages=repair_messages,
+        json_schema=GRADING_OUTPUT_SCHEMA,
+        max_tokens=2048,
+        use_cache=False,
+        max_retries=1,
+    )
+    try:
+        return extract_json_dict(repair_result["content"], context=context)
+    except ValueError:
+        return None
 
 
 def _build_result(
@@ -189,6 +270,7 @@ def _build_result(
     lane: GradingLane,
     api_result: dict,
     max_points_override: float = 0,
+    student_answer: str | None = None,
 ) -> QuestionGradeResult:
     """Build a QuestionGradeResult from parsed JSON."""
     criterion_results = []
@@ -233,8 +315,9 @@ def _build_result(
         raw_score=raw,
         max_points=mp,
         normalized_score=min(raw / mp, 1.0) if mp > 0 else 0,
-        confidence=data.get("confidence", 0.5),
+        confidence=1.0,
         rationale=data.get("rationale", ""),
+        student_answer=student_answer,
         criterion_results=criterion_results,
         evidence_spans=evidence_spans,
         latency_ms=api_result.get("latency_ms"),

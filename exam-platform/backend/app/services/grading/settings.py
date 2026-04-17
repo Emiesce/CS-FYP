@@ -8,7 +8,7 @@ Model IDs, routing thresholds, concurrency limits, and cost controls.
 from __future__ import annotations
 
 import os
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 
 
 @dataclass(frozen=True)
@@ -22,17 +22,47 @@ class GradingSettings:
     )
 
     # ---- Model IDs (all configurable via env) -------------------------
+    # Per-agent-type models
+    short_answer_model: str = os.environ.get(
+        "GRADING_SHORT_ANSWER_MODEL", "deepseek/deepseek-v3.2"
+    )
+    math_model: str = os.environ.get(
+        "GRADING_MATH_MODEL", "moonshotai/kimi-k2.5"
+    )
+    coding_model: str = os.environ.get(
+        "GRADING_CODING_MODEL", "deepseek/deepseek-v3.2"
+    )
+    long_answer_model: str = os.environ.get(
+        "GRADING_LONG_ANSWER_MODEL", "deepseek/deepseek-v3.2"
+    )
+    essay_model: str = os.environ.get(
+        "GRADING_ESSAY_MODEL", "deepseek/deepseek-v3.2"
+    )
+    # Routing model (for future LLM-based routing)
+    routing_model: str = os.environ.get(
+        "GRADING_ROUTING_MODEL", "meta-llama/llama-3.3-70b-instruct"
+    )
+    # Evidence highlighting & verification model
+    evidence_model: str = os.environ.get(
+        "GRADING_EVIDENCE_MODEL", "deepseek/deepseek-v3.2"
+    )
+    # Verification agent model
+    verification_model: str = os.environ.get(
+        "GRADING_VERIFICATION_MODEL", "deepseek/deepseek-v3.2"
+    )
+
+    # Legacy fallback models (used by lane-based routing)
     cheap_model: str = os.environ.get(
-        "GRADING_CHEAP_MODEL", "deepseek/deepseek-chat-v3-0324"
+        "GRADING_CHEAP_MODEL", "deepseek/deepseek-v3.2"
     )
     quality_model: str = os.environ.get(
-        "GRADING_QUALITY_MODEL", "deepseek/deepseek-chat-v3-0324"
+        "GRADING_QUALITY_MODEL", "deepseek/deepseek-v3.2"
     )
     rubric_gen_model: str = os.environ.get(
-        "GRADING_RUBRIC_MODEL", "deepseek/deepseek-chat-v3-0324"
+        "GRADING_RUBRIC_MODEL", "deepseek/deepseek-v3.2"
     )
     rubric_gen_fallback_model: str = os.environ.get(
-        "GRADING_RUBRIC_FALLBACK_MODEL", "deepseek/deepseek-chat-v3-0324"
+        "GRADING_RUBRIC_FALLBACK_MODEL", "deepseek/deepseek-v3.2"
     )
 
     # ---- Routing thresholds -------------------------------------------
@@ -54,6 +84,14 @@ class GradingSettings:
 
     # ---- Cost mode (low_cost | balanced | quality_first) ---------------
     default_mode: str = os.environ.get("GRADING_DEFAULT_MODE", "balanced")
+
+    # ---- Optional expensive passes ------------------------------------
+    enable_verification_pass: bool = os.environ.get(
+        "GRADING_ENABLE_VERIFICATION_PASS", "false"
+    ).lower() == "true"
+    enable_evidence_fallback: bool = os.environ.get(
+        "GRADING_ENABLE_EVIDENCE_FALLBACK", "false"
+    ).lower() == "true"
 
     # ---- Token budgets ------------------------------------------------
     max_answer_tokens: int = int(

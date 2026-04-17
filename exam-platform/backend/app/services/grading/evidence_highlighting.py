@@ -74,7 +74,7 @@ async def add_evidence(
     )
 
     result = await client.chat_completion(
-        model=settings.cheap_model,
+        model=settings.evidence_model,
         messages=[
             {"role": "system", "content": EVIDENCE_SYSTEM_PREFIX},
             {"role": "user", "content": user_prompt},

@@ -12,6 +12,7 @@ export type {
   StructuredRubric,
   EvidenceSpan,
   CriterionGradeResult,
+  CriterionReviewOverride,
   QuestionGradeResult,
   GradingReviewDecision,
   GradingRun,
@@ -31,6 +32,11 @@ export interface ReviewSubmitPayload {
   questionId: string;
   overrideScore?: number;
   comment?: string;
+  criteriaOverrides?: Array<{
+    criterionId: string;
+    overrideScore?: number;
+    reasoning?: string;
+  }>;
   accepted: boolean;
 }
 

@@ -2,7 +2,8 @@
 HKUST CSE Exam Platform – Test Grading API
 
 Self-contained sandbox endpoint for testing the AI grading pipeline
-with the COMP1023 midterm exam.
+with seeded test exams such as the COMP1023 midterm and the MGMT2110
+essay-only grading dataset.
 
 POST /api/test-grading/submit   – submit answers → grade → return results
 GET  /api/test-grading/exam     – get the exam definition (questions only, no answers)
@@ -22,10 +23,13 @@ from fastapi.responses import StreamingResponse
 from pydantic import BaseModel, Field
 
 from app.fixtures.comp1023_exam import (
-    CORRECT_ANSWERS,
-    MODEL_ANSWERS,
     build_comp1023_exam,
     build_comp1023_rubrics,
+)
+from app.fixtures.mgmt2110_exam import (
+    EXAM_ID as MGMT2110_EXAM_ID,
+    build_mgmt2110_exam,
+    build_mgmt2110_rubrics,
 )
 from app.models.exam_models import (
     AttemptStatus,
@@ -35,6 +39,7 @@ from app.models.exam_models import (
     QuestionType,
 )
 from app.models.grading_models import (
+    CriterionReviewOverride,
     GradingReviewDecision,
     GradingRunOut,
     GradingRunStatus,
@@ -46,14 +51,22 @@ from app.storage.grading_storage import get_grading_store
 router = APIRouter(prefix="/api/test-grading", tags=["test-grading"])
 
 # Cache the exam definition so it's stable across calls
-_exam: ExamDefinitionOut | None = None
+_exam_cache: dict[str, ExamDefinitionOut] = {}
 
 
-def _get_exam() -> ExamDefinitionOut:
-    global _exam
-    if _exam is None:
-        _exam = build_comp1023_exam()
-    return _exam
+def _get_exam(exam_id: str) -> ExamDefinitionOut:
+    if exam_id not in _exam_cache:
+        if exam_id == MGMT2110_EXAM_ID:
+            _exam_cache[exam_id] = build_mgmt2110_exam()
+        else:
+            _exam_cache[exam_id] = build_comp1023_exam()
+    return _exam_cache[exam_id]
+
+
+def _get_rubrics(exam_id: str):
+    if exam_id == MGMT2110_EXAM_ID:
+        return build_mgmt2110_rubrics()
+    return build_comp1023_rubrics()
 
 
 # ---- Request / response models --------------------------------------
@@ -64,6 +77,8 @@ class AnswerPayload(BaseModel):
 
 
 class SubmitRequest(BaseModel):
+    exam_id: str = Field(default="comp1023-midterm-f25")
+    student_id: str = Field(default="test-student")
     answers: list[AnswerPayload]
 
 
@@ -90,9 +105,9 @@ class ExamOut(BaseModel):
 # ---- Endpoints -------------------------------------------------------
 
 @router.get("/exam", response_model=ExamOut)
-async def get_test_exam() -> ExamOut:
-    """Return the COMP1023 exam without correct answers."""
-    exam = _get_exam()
+async def get_test_exam(exam_id: str = "comp1023-midterm-f25") -> ExamOut:
+    """Return the requested test exam without correct answers."""
+    exam = _get_exam(exam_id)
     questions_out: list[ExamQuestionOut] = []
     for q in exam.questions:
         opts = None
@@ -120,8 +135,8 @@ async def get_test_exam() -> ExamOut:
 @router.post("/submit", response_model=GradingRunOut)
 async def submit_and_grade(body: SubmitRequest) -> GradingRunOut:
     """Accept student answers, build an attempt, grade it, return results."""
-    exam = _get_exam()
-    rubrics = build_comp1023_rubrics()
+    exam = _get_exam(body.exam_id)
+    rubrics = _get_rubrics(body.exam_id)
 
     # Map question types
     q_type_map: dict[str, str] = {}
@@ -144,7 +159,7 @@ async def submit_and_grade(body: SubmitRequest) -> GradingRunOut:
     attempt = ExamAttemptOut(
         id=f"test-attempt-{now.strftime('%H%M%S')}",
         exam_id=exam.id,
-        student_id="test-student",
+        student_id=body.student_id,
         status=AttemptStatus.SUBMITTED,
         started_at=now,
         submitted_at=now,
@@ -170,8 +185,8 @@ async def submit_and_grade(body: SubmitRequest) -> GradingRunOut:
 @router.post("/submit-stream")
 async def submit_and_grade_stream(body: SubmitRequest):
     """SSE endpoint: streams each question result as it completes."""
-    exam = _get_exam()
-    rubrics = build_comp1023_rubrics()
+    exam = _get_exam(body.exam_id)
+    rubrics = _get_rubrics(body.exam_id)
 
     q_type_map: dict[str, str] = {}
     for q in exam.questions:
@@ -191,7 +206,7 @@ async def submit_and_grade_stream(body: SubmitRequest):
     attempt = ExamAttemptOut(
         id=f"test-attempt-{now.strftime('%H%M%S')}",
         exam_id=exam.id,
-        student_id="test-student",
+        student_id=body.student_id,
         status=AttemptStatus.SUBMITTED,
         started_at=now,
         submitted_at=now,
@@ -249,6 +264,13 @@ async def submit_and_grade_stream(body: SubmitRequest):
     )
 
 
+@router.delete("/results", status_code=200)
+async def clear_all_results() -> dict:
+    """Delete all stored grading runs from the in-memory store (for testing)."""
+    count = get_grading_store().clear_all()
+    return {"cleared": count, "message": f"Cleared {count} grading run(s) from server memory."}
+
+
 @router.get("/results/{run_id}", response_model=GradingRunOut)
 async def get_test_results(run_id: str) -> GradingRunOut:
     """Fetch a stored grading run."""
@@ -267,9 +289,26 @@ async def submit_test_review(run_id: str, body: ReviewSubmitRequest) -> GradingR
         raise HTTPException(status_code=404, detail="Run not found.")
 
     original_score = 0.0
+    criteria_overrides: list[CriterionReviewOverride] = []
     for qr in run.question_results:
         if qr.question_id == body.question_id:
             original_score = qr.raw_score
+            override_by_id = {
+                override.criterion_id: override
+                for override in body.criteria_overrides
+            }
+            for cr in qr.criterion_results:
+                override = override_by_id.get(cr.criterion_id)
+                if not override:
+                    continue
+                criteria_overrides.append(
+                    CriterionReviewOverride(
+                        criterion_id=cr.criterion_id,
+                        original_score=cr.score,
+                        override_score=override.override_score,
+                        reasoning=override.reasoning,
+                    )
+                )
             break
 
     review = GradingReviewDecision(
@@ -278,6 +317,7 @@ async def submit_test_review(run_id: str, body: ReviewSubmitRequest) -> GradingR
         original_score=original_score,
         override_score=body.override_score,
         comment=body.comment,
+        criteria_overrides=criteria_overrides,
         accepted=body.accepted,
         reviewed_at=datetime.utcnow(),
     )

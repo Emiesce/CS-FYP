@@ -10,6 +10,7 @@ from datetime import datetime
 from typing import Optional
 
 from app.models.grading_models import (
+    CriterionReviewOverride,
     GradingReviewDecision,
     GradingRunOut,
     GradingRunStatus,
@@ -44,6 +45,13 @@ class GradingStore:
     def list_runs_for_exam(self, exam_id: str) -> list[GradingRunOut]:
         return [r for r in self._runs.values() if r.exam_id == exam_id]
 
+    def clear_all(self) -> int:
+        """Delete all stored runs. Returns the number of runs cleared."""
+        count = len(self._runs)
+        self._runs.clear()
+        self._attempt_runs.clear()
+        return count
+
     def apply_review(
         self,
         attempt_id: str,
@@ -56,10 +64,52 @@ class GradingStore:
         # Update the question result if override
         for qr in run.question_results:
             if qr.question_id == review.question_id:
+                if review.criteria_overrides:
+                    overrides_by_id = {
+                        override.criterion_id: override
+                        for override in review.criteria_overrides
+                    }
+                    effective_total = 0.0
+                    updated_overrides: list[CriterionReviewOverride] = []
+
+                    for cr in qr.criterion_results:
+                        override = overrides_by_id.get(cr.criterion_id)
+                        if override:
+                            updated_overrides.append(
+                                CriterionReviewOverride(
+                                    criterion_id=override.criterion_id,
+                                    original_score=cr.score,
+                                    override_score=override.override_score,
+                                    reasoning=override.reasoning,
+                                )
+                            )
+                            if override.override_score is not None:
+                                cr.override_score = max(
+                                    0.0,
+                                    min(override.override_score, cr.max_points),
+                                )
+                            if override.reasoning is not None:
+                                cr.reviewer_rationale = override.reasoning.strip() or None
+
+                        effective_total += (
+                            cr.override_score
+                            if cr.override_score is not None
+                            else cr.score
+                        )
+
+                    review.criteria_overrides = updated_overrides
+                    if review.override_score is None and qr.criterion_results:
+                        qr.raw_score = max(0.0, min(effective_total, qr.max_points))
+                        qr.normalized_score = (
+                            qr.raw_score / qr.max_points
+                            if qr.max_points > 0
+                            else 0
+                        )
+
                 if review.override_score is not None:
-                    qr.raw_score = review.override_score
+                    qr.raw_score = max(0.0, min(review.override_score, qr.max_points))
                     qr.normalized_score = (
-                        review.override_score / qr.max_points
+                        qr.raw_score / qr.max_points
                         if qr.max_points > 0
                         else 0
                     )

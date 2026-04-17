@@ -4,6 +4,8 @@
 
 import type { Exam, ExamModule, ExamDefinition } from "@/types";
 import { DEMO_EXAM_DURATION_SECONDS } from "@/lib/constants";
+import { COMP1023_EXAM } from "./comp1023";
+import { MGMT2110_EXAM } from "./mgmt2110";
 
 /** The seeded 1-minute demo current exam. */
 export const DEMO_CURRENT_EXAM: Exam = {
@@ -94,6 +96,8 @@ export const PAST_EXAMS: Exam[] = [
 /** All exams as a flat list. */
 export const ALL_EXAMS: Exam[] = [
   DEMO_CURRENT_EXAM,
+  COMP1023_EXAM,
+  MGMT2110_EXAM,
   ...UPCOMING_EXAMS,
   ...PAST_EXAMS,
 ];
@@ -109,8 +113,8 @@ export const EXAM_MODULES: ExamModule[] = [
   {
     key: "grading",
     label: "Grading",
-    enabled: false,
-    description: "Automated and manual grading workflows",
+    enabled: true,
+    description: "AI-powered multi-agent grading workflows",
   },
   {
     key: "analytics",
