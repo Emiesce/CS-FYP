@@ -155,20 +155,20 @@ function CriterionCard({
   isGenerating: boolean;
 }) {
   const updateBand = (bIdx: number, updated: RubricScoreBand) => {
-    const bands = [...criterion.scoreBands];
+    const bands = [...(criterion.scoreBands ?? [])];
     bands[bIdx] = updated;
     onUpdate({ ...criterion, scoreBands: bands });
   };
 
   const removeBand = (bIdx: number) => {
-    onUpdate({ ...criterion, scoreBands: criterion.scoreBands.filter((_, i) => i !== bIdx) });
+    onUpdate({ ...criterion, scoreBands: (criterion.scoreBands ?? []).filter((_, i) => i !== bIdx) });
   };
 
   const addBand = () => {
     onUpdate({
       ...criterion,
       scoreBands: [
-        ...criterion.scoreBands,
+        ...(criterion.scoreBands ?? []),
         { label: "", minPoints: 0, maxPoints: 0, description: "" },
       ],
     });
@@ -279,7 +279,7 @@ function CriterionCard({
             className="helper-text"
             style={{ margin: 0, fontWeight: 600, fontSize: "0.85rem" }}
           >
-            Score Ranges ({criterion.scoreBands.length})
+            Score Ranges ({criterion.scoreBands?.length ?? 0})
           </p>
           <div style={{ display: "flex", gap: "var(--space-2)" }}>
             <button
@@ -321,14 +321,14 @@ function CriterionCard({
           <span />
         </div>
 
-        {criterion.scoreBands.map((band, bIdx) => (
+        {(criterion.scoreBands ?? []).map((band, bIdx) => (
           <ScoreBandRow
             key={bIdx}
             band={band}
             bandIndex={bIdx}
             onChange={(b) => updateBand(bIdx, b)}
             onRemove={() => removeBand(bIdx)}
-            canRemove={criterion.scoreBands.length > 1}
+            canRemove={(criterion.scoreBands?.length ?? 0) > 1}
           />
         ))}
       </div>
@@ -380,6 +380,8 @@ export function RubricSchemeEditor({
       const crit = criteria[idx];
       if (!crit.modelAnswer?.trim()) return;
 
+      const existingBands = crit.scoreBands ?? [];
+
       setGeneratingIdx(idx);
       setGenError(null);
 
@@ -391,25 +393,28 @@ export function RubricSchemeEditor({
           questionType,
           points: crit.maxPoints,
           modelAnswer: crit.modelAnswer,
-          instructorNotes: `Criterion: ${crit.label}. ${crit.description}. Generate exactly ${crit.scoreBands.length} score bands with the following labels (preserving their min/max point ranges): ${crit.scoreBands.map((b) => `"${b.label}" (${b.minPoints}-${b.maxPoints})`).join(", ")}.`,
+          instructorNotes: existingBands.length > 0
+            ? `Criterion: ${crit.label}. ${crit.description}. Generate exactly ${existingBands.length} score bands with the following labels (preserving their min/max point ranges): ${existingBands.map((b) => `"${b.label}" (${b.minPoints}-${b.maxPoints})`).join(", ")}.`
+            : `Criterion: ${crit.label}. ${crit.description}.`,
         });
 
         // Merge the generated descriptions back into the criterion's bands
         const generatedCrit = generated.criteria[0];
         if (generatedCrit) {
-          const updatedBands = crit.scoreBands.map((band, bIdx) => {
-            const genBand = generatedCrit.scoreBands[bIdx];
+          const generatedBands = generatedCrit.scoreBands ?? [];
+          const updatedBands = existingBands.map((band, bIdx) => {
+            const genBand = generatedBands[bIdx];
             return genBand
               ? { ...band, description: genBand.description || band.description }
               : band;
           });
           // If the AI returned more bands than we asked, append them
-          if (generatedCrit.scoreBands.length > crit.scoreBands.length) {
-            for (let i = crit.scoreBands.length; i < generatedCrit.scoreBands.length; i++) {
-              updatedBands.push(generatedCrit.scoreBands[i]);
+          if (generatedBands.length > existingBands.length) {
+            for (let i = existingBands.length; i < generatedBands.length; i++) {
+              updatedBands.push(generatedBands[i]);
             }
           }
-          updateCriterion(idx, { ...crit, scoreBands: updatedBands });
+          updateCriterion(idx, { ...crit, scoreBands: updatedBands.length > 0 ? updatedBands : generatedBands });
         }
       } catch (err) {
         setGenError(err instanceof Error ? err.message : "Failed to generate descriptions");
