@@ -8,7 +8,7 @@ from __future__ import annotations
 
 from datetime import datetime
 from enum import Enum
-from typing import Optional, Union
+from typing import Literal, Optional, Union
 
 from pydantic import BaseModel, Field
 
@@ -42,36 +42,36 @@ class McqOption(BaseModel):
 # ---- Per-type question models ----------------------------------------
 
 class McqQuestionData(BaseModel):
-    type: str = Field("mcq", pattern="^mcq$")
+    type: Literal["mcq"] = "mcq"
     options: list[McqOption] = Field(default_factory=list, min_length=2)
     allow_multiple: bool = False
 
 
 class ShortAnswerQuestionData(BaseModel):
-    type: str = Field("short_answer", pattern="^short_answer$")
+    type: Literal["short_answer"] = "short_answer"
     max_length: Optional[int] = None
     placeholder: Optional[str] = None
 
 
 class LongAnswerQuestionData(BaseModel):
-    type: str = Field("long_answer", pattern="^long_answer$")
+    type: Literal["long_answer"] = "long_answer"
     expected_length_hint: Optional[str] = None
 
 
 class EssayQuestionData(BaseModel):
-    type: str = Field("essay", pattern="^essay$")
+    type: Literal["essay"] = "essay"
     expected_length_hint: Optional[str] = None
 
 
 class CodingQuestionData(BaseModel):
-    type: str = Field("coding", pattern="^coding$")
+    type: Literal["coding"] = "coding"
     language: str = Field(min_length=1)
     starter_code: str = ""
     constraints: Optional[str] = None
 
 
 class MathQuestionData(BaseModel):
-    type: str = Field("mathematics", pattern="^mathematics$")
+    type: Literal["mathematics"] = "mathematics"
     answer_format_hint: Optional[str] = None
 
 

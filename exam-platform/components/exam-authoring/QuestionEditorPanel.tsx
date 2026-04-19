@@ -13,12 +13,15 @@ import type {
   CodingQuestion,
   MathQuestion,
   McqOption,
+  StructuredRubric,
 } from "@/types";
 import { QUESTION_TYPE_LABELS } from "@/types";
 import { uid } from "@/lib/utils/format";
+import { RubricSchemeEditor } from "./RubricSchemeEditor";
 
 interface QuestionEditorPanelProps {
   question: ExamQuestion;
+  examId?: string;
   onChange: (updated: ExamQuestion) => void;
   onDelete: () => void;
 }
@@ -247,7 +250,7 @@ function MathFields({
 /*  Main panel component                                              */
 /* ------------------------------------------------------------------ */
 
-export function QuestionEditorPanel({ question, onChange, onDelete }: QuestionEditorPanelProps) {
+export function QuestionEditorPanel({ question, examId, onChange, onDelete }: QuestionEditorPanelProps) {
   const updateBase = (patch: Partial<ExamQuestion>) => onChange({ ...question, ...patch } as ExamQuestion);
 
   return (
@@ -305,23 +308,23 @@ export function QuestionEditorPanel({ question, onChange, onDelete }: QuestionEd
         </div>
       </div>
 
-      {/* Rubric (common) */}
-      <label className="form-label">
-        Rubric / Marking Scheme
-        <textarea
-          className="textarea"
-          rows={3}
-          value={question.rubric?.text ?? ""}
-          placeholder="Enter grading criteria…"
-          onChange={(e) =>
-            updateBase({
-              rubric: e.target.value
-                ? { text: e.target.value, attachment: question.rubric?.attachment }
-                : undefined,
-            })
-          }
-        />
-      </label>
+      {/* Rubric / Marking Scheme Editor */}
+      <RubricSchemeEditor
+        questionId={question.id}
+        questionPrompt={question.prompt}
+        questionType={question.type}
+        examId={examId ?? "draft"}
+        totalPoints={question.points}
+        onChange={(rubric: StructuredRubric) => {
+          updateBase({
+            rubric: {
+              text: rubric.criteria.map((c) => `${c.label}: ${c.description}`).join("\n"),
+              structuredRubric: rubric,
+              attachment: question.rubric?.attachment,
+            },
+          });
+        }}
+      />
 
       {/* Type-specific fields */}
       <hr style={{ border: "none", borderTop: "1px solid var(--border-subtle)", margin: 0 }} />

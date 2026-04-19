@@ -1,0 +1,173 @@
+"""
+HKUST CSE Exam Platform – Grading API
+
+Endpoints:
+  POST   /api/grading/rubric/generate                              – generate rubric
+  POST   /api/grading/exams/{exam_id}/attempts/{attempt_id}/run    – start grading run
+  GET    /api/grading/exams/{exam_id}/attempts/{attempt_id}        – get grading results
+  PUT    /api/grading/exams/{exam_id}/attempts/{attempt_id}/review – submit review
+  GET    /api/grading/exams/{exam_id}/runs                         – list runs for exam
+"""
+
+from __future__ import annotations
+
+from datetime import datetime
+
+from fastapi import APIRouter, HTTPException
+
+from app.models.grading_models import (
+    GradingReviewDecision,
+    GradingRunOut,
+    GradingRunRequest,
+    ReviewSubmitRequest,
+    RubricGenerateRequest,
+    RubricGenerateResponse,
+    StructuredRubric,
+)
+from app.services.grading.orchestrator import run_grading
+from app.services.grading.rubric_generation import generate_rubric
+from app.storage.exam_storage import get_exam_store
+from app.storage.grading_storage import get_grading_store
+
+router = APIRouter(prefix="/api/grading", tags=["grading"])
+
+
+# ---- Rubric generation -----------------------------------------------
+
+@router.post("/rubric/generate", response_model=RubricGenerateResponse)
+async def api_generate_rubric(body: RubricGenerateRequest) -> RubricGenerateResponse:
+    """Generate a structured rubric for a question using AI."""
+    try:
+        rubric, model_used, latency_ms = await generate_rubric(
+            question_id=body.question_id,
+            question_prompt=body.question_prompt,
+            question_type=body.question_type,
+            points=body.points,
+            instructor_notes=body.instructor_notes,
+            support_text=body.support_file_text,
+            model_answer=body.model_answer,
+        )
+    except ValueError as e:
+        raise HTTPException(status_code=422, detail=str(e))
+
+    # Persist the rubric
+    get_grading_store().save_rubric(rubric)
+
+    return RubricGenerateResponse(
+        rubric=rubric,
+        generated_by=model_used,
+        latency_ms=latency_ms,
+    )
+
+
+# ---- Grading runs ----------------------------------------------------
+
+@router.post(
+    "/exams/{exam_id}/attempts/{attempt_id}/run",
+    response_model=GradingRunOut,
+)
+async def api_start_grading_run(
+    exam_id: str,
+    attempt_id: str,
+    body: GradingRunRequest,
+) -> GradingRunOut:
+    """Start a grading run for a submitted attempt."""
+    exam_store = get_exam_store()
+    grading_store = get_grading_store()
+
+    # Load exam definition
+    exam = exam_store.get_definition(exam_id)
+    if not exam:
+        raise HTTPException(status_code=404, detail="Exam not found.")
+
+    # Load attempt
+    attempt = exam_store.get_attempt(exam_id, body.student_id)
+    if not attempt or attempt.id != attempt_id:
+        raise HTTPException(status_code=404, detail="Attempt not found.")
+
+    if attempt.status.value not in ("submitted", "timed_out"):
+        raise HTTPException(
+            status_code=400,
+            detail="Can only grade submitted or timed-out attempts.",
+        )
+
+    # Gather rubrics: prefer request-provided, fall back to stored
+    rubrics = body.rubrics or {}
+    question_ids = [q.id for q in exam.questions]
+    stored_rubrics = grading_store.list_rubrics_for_questions(question_ids)
+    for qid, rub in stored_rubrics.items():
+        if qid not in rubrics:
+            rubrics[qid] = rub
+
+    # Run grading
+    result = await run_grading(
+        exam=exam,
+        attempt=attempt,
+        rubrics=rubrics,
+        mode=body.mode,
+    )
+
+    # Persist
+    grading_store.save_run(result)
+    return result
+
+
+@router.get(
+    "/exams/{exam_id}/attempts/{attempt_id}",
+    response_model=GradingRunOut,
+)
+async def api_get_grading_result(
+    exam_id: str,
+    attempt_id: str,
+) -> GradingRunOut:
+    """Get grading results for an attempt."""
+    run = get_grading_store().get_run_by_attempt(attempt_id)
+    if not run or run.exam_id != exam_id:
+        raise HTTPException(status_code=404, detail="Grading run not found.")
+    return run
+
+
+@router.put(
+    "/exams/{exam_id}/attempts/{attempt_id}/review",
+    response_model=GradingRunOut,
+)
+async def api_submit_review(
+    exam_id: str,
+    attempt_id: str,
+    body: ReviewSubmitRequest,
+) -> GradingRunOut:
+    """Submit a staff review / override for a graded question."""
+    store = get_grading_store()
+    run = store.get_run_by_attempt(attempt_id)
+    if not run or run.exam_id != exam_id:
+        raise HTTPException(status_code=404, detail="Grading run not found.")
+
+    review = GradingReviewDecision(
+        question_id=body.question_id,
+        reviewer_id="staff-001",  # TODO: from auth
+        original_score=0,
+        override_score=body.override_score,
+        comment=body.comment,
+        accepted=body.accepted,
+        reviewed_at=datetime.utcnow(),
+    )
+
+    # Find original score
+    for qr in run.question_results:
+        if qr.question_id == body.question_id:
+            review.original_score = qr.raw_score
+            break
+
+    updated = store.apply_review(attempt_id, review)
+    if not updated:
+        raise HTTPException(status_code=404, detail="Failed to apply review.")
+    return updated
+
+
+@router.get(
+    "/exams/{exam_id}/runs",
+    response_model=list[GradingRunOut],
+)
+async def api_list_runs(exam_id: str) -> list[GradingRunOut]:
+    """List all grading runs for an exam."""
+    return get_grading_store().list_runs_for_exam(exam_id)

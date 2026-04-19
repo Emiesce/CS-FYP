@@ -1,0 +1,62 @@
+[
+    {
+        "studentId": "21841234",
+        "studentName": "Chris Wong",
+        "answers": [
+            {
+                "questionId": "q1",
+                "answerText": "The planning fallacy is primarily driven by the Inside-Outside Model, where individuals rely on 'singular information' (the unique features of the current task) rather than 'distributional information' (past experiences). This 'inside view' leads to a narrow focus on successful future scenarios while neglecting potential impediments. This neglect is furthered by attributional processes, where past failures are discounted as being caused by external, unstable, or specific factors (e.g., 'that delay was just a one-time accident') rather than reflecting a persistent planning issue. Furthermore, motivated reasoning biases the process; the desire to finish quickly enhances the accessibility of information consistent with a successful outcome. Finally, the conjunctive-events bias leads planners to overestimate the likelihood that a series of necessary steps will all go right, failing to account for the high cumulative probability that at least one setback will occur. An example of this is the 1976 curriculum project where experts predicted 18–30 months, ignoring distributional data showing similar projects took 7–10 years."
+            }
+        ]
+    },
+    {
+        "studentId": "20841235",
+        "studentName": "Peter Wong",
+        "answers": [
+            {
+                "questionId": "q1",
+                "answerText": "Among the three Ds of abnormality—deviance, dysfunction, and distress—I think distress is the most important dimension because it captures the human experience of mental disorder most directly. A behavior should not be considered abnormal only because it is unusual or disruptive; it becomes especially concerning when it causes significant suffering to the person involved.Distress is a strong criterion because mental disorders are not just about appearing different from others. They involve pain, fear, sadness, shame, or unbearable tension that affects how a person experiences daily life. A person may behave in a way that looks strange to others, but if there is no suffering and no negative impact, the behavior may simply reflect individuality. Distress therefore helps distinguish ordinary differences from genuine psychological problems. It is also easier to connect with clinically, because the presence of suffering often motivates people to seek help.A clear example is major depressive disorder. People with depression often experience persistent sadness, hopelessness, guilt, loss of interest, and emotional pain. These symptoms are not just unpleasant; they can feel overwhelming and exhausting. A student with depression may still attend classes, but feel emotionally empty and unable to enjoy anything. A worker may continue doing their job, yet struggle with constant inner suffering. In this case, the most obvious sign of abnormality is not deviance, because sadness is not socially unusual, and not always dysfunction, because some people continue functioning outwardly. What makes depression especially significant is the intense distress it causes. This is why distress is a useful dimension for identifying abnormal behavior.Distress is also more compassionate than deviance. If we focus too much on deviance, we may label people as abnormal simply because they do not fit social expectations. But abnormal psychology should not be about judging people who are merely different. It should focus on whether a person is suffering and needs support. Distress keeps the focus on well-being rather than social conformity, which is especially important in mental health.At the same time, distress is not perfect on its own. Some conditions may involve limited awareness of suffering, and some people may feel distress for reasons that are not mental disorders. Even so, distress is still the most meaningful starting point because it reflects the core purpose of psychology and counseling: to understand and reduce human suffering. In that sense, distress is not only a symptom but also a signal that help may be needed.In conclusion, although all three Ds have value, distress is the best dimension for defining abnormality because it captures the subjective pain that makes mental disorders clinically important. Using major depressive disorder as an example, we can see that suffering is often the clearest sign that something is wrong. Compared with deviance and dysfunction, distress places human experience at the center of diagnosis, which makes it the most appropriate and humane criterion"
+            }
+        ]
+    },
+    {
+        "studentId": "20841224",
+        "studentName": "Kathy Wong",
+        "answers": [
+            {
+                "questionId": "q1",
+                "answerText": "The planning fallacy happens because people are too optimistic about the future and ignore their pessimistic past experiences. One main reason is the Inside-Outside Model, where we focus on the specific plans for the current task (the inside view) instead of looking at how long similar tasks took in the past (the outside view). People often think about their future plans much more than potential problems. Additionally, motivated reasoning means that if we really want to finish a task fast, we only look for information that says we can, and we ignore potential obstacles. For example, students often finish assignments much later than they planned because they focus on their schedule for the week rather than how long it usually takes them to write a paper"
+            }
+        ]
+    },
+    {
+        "studentId": "29841224",
+        "studentName": "Paul Wong",
+        "answers": [
+            {
+                "questionId": "q1",
+                "answerText": "One psychological factor of the planning fallacy is that the act of prediction is naturally forward-looking, which prevents people from looking backward at their past mistakes. According to the Inside-Outside Model, planners focus on a 'scenario of success'—a series of steps that lead to a conclusion—rather than thinking about what could go wrong. There is also a conjunctive-events bias, where we think the chance of finishing is high even though many things must go right for that to happen. For instance, a building project might be delayed by weather, strikes, or funding issues; even if each one is unlikely, it is likely that at least one will occur. People also tend to blame past delays on external factors so they don't have to admit they are bad at planning."
+            }
+        ]
+    },
+    {
+        "studentId": "25841024",
+        "studentName": "Paula Poon",
+        "answers": [
+            {
+                "questionId": "q1",
+                "answerText": "Planning fallacy is when you think you can finish a project faster than you actually can. This happens because people are naturally optimistic and don't like to think about failing. We usually just look at the task we are doing right now and don't think about the past. If we had a problem in the past, we just say it was bad luck and won't happen again. Also, if we are in a hurry, we might make even worse predictions because we want to be done. Examples of this include IT projects in the U.S. that are often way over budget and take much longer than planned."
+            }
+        ]
+    },
+    {
+        "studentId": "21234569",
+        "studentName": "Alex Chan",
+        "answers": [
+            {
+                "questionId": "q1",
+                "answerText": "Psychological factors like the conjunctive-events bias contribute significantly to the planning fallacy by causing people to overestimate the probability that every individual step in a project will succeed. Because a project only finishes on time if all steps are completed without issue (Step A AND B AND C), people anchor their predictions too high and ignore that the probability of at least one failure is statistically likely. This is compounded by the Inside-Outside Model, which favors an 'inside view' of the specific task at hand over 'distributional' data from past performance. Research shows that even when people remember past failures, they use attributional mechanisms to treat those failures as external or specific 'accidents' that won't happen again. Motivated reasoning also plays a role, as speed incentives lead planners to generate more thoughts that deny the relevance of the past and focus only on future progress."
+            }
+        ]
+    }
+]

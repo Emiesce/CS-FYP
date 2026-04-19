@@ -19,6 +19,8 @@ import {
 
 interface ExamWorkspaceShellProps {
   definition: ExamDefinition;
+  /** Pre-loaded draft answers so state survives tab switches. */
+  initialResponses?: QuestionResponse[];
   /** Called whenever the response list changes (for draft persistence). */
   onResponsesChange?: (responses: QuestionResponse[]) => void;
   /** Called when the student clicks the submit button. */
@@ -27,10 +29,11 @@ interface ExamWorkspaceShellProps {
 
 export function ExamWorkspaceShell({
   definition,
+  initialResponses,
   onResponsesChange,
   onSubmit,
 }: ExamWorkspaceShellProps) {
-  const [responses, setResponses] = useState<QuestionResponse[]>([]);
+  const [responses, setResponses] = useState<QuestionResponse[]>(initialResponses ?? []);
   const [flaggedIds, setFlaggedIds] = useState<string[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
 

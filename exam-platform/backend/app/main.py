@@ -5,11 +5,21 @@ HKUST CSE Exam Platform – FastAPI Application Entry Point
 from __future__ import annotations
 
 import logging
+import os
+from pathlib import Path
+
+from dotenv import load_dotenv
+
+# Load .env from backend directory before anything else reads env vars
+_env_path = Path(__file__).resolve().parent.parent / ".env"
+load_dotenv(_env_path)
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.api.exam_api import router as exam_router
+from app.api.grading_api import router as grading_router
+from app.api.test_grading_api import router as test_grading_router
 
 logging.basicConfig(
     level=logging.INFO,
@@ -36,6 +46,8 @@ app.add_middleware(
 
 # Register API routes
 app.include_router(exam_router)
+app.include_router(grading_router)
+app.include_router(test_grading_router)
 
 
 @app.get("/health")
