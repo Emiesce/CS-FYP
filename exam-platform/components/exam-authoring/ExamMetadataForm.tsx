@@ -40,11 +40,25 @@ export function ExamMetadataForm({ meta, totalPoints, questionCount, onChange }:
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "var(--space-4)" }}>
         <label className="form-label">
           Course Code
-          <input className="input" value={meta.courseCode} onChange={(e) => update({ courseCode: e.target.value })} />
+          <input
+            className="input"
+            value={meta.courseCode}
+            readOnly
+            tabIndex={-1}
+            style={{ background: "var(--surface-subtle, #f5f5f5)", color: "var(--text-muted)", cursor: "default" }}
+            title="Course code cannot be changed here"
+          />
         </label>
         <label className="form-label">
           Course Name
-          <input className="input" value={meta.courseName} onChange={(e) => update({ courseName: e.target.value })} />
+          <input
+            className="input"
+            value={meta.courseName}
+            readOnly
+            tabIndex={-1}
+            style={{ background: "var(--surface-subtle, #f5f5f5)", color: "var(--text-muted)", cursor: "default" }}
+            title="Course name cannot be changed here"
+          />
         </label>
       </div>
 
