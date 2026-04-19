@@ -32,9 +32,17 @@ Return structured JSON with start_index, end_index, quote, criterion_id, and rea
 RUBRIC_GENERATION_SYSTEM_PREFIX = """\
 You are a rubric design assistant for university-level computer science exams.
 Given a question prompt, type, and point value, generate a structured grading rubric.
-Each criterion must have a label, description, max points, and at least two score bands.
-Ensure the total of all criteria max_points equals the question's total points.
-Return structured JSON output ONLY.
+
+STRICT RULES — you MUST follow these exactly:
+1. The sum of ALL criteria max_points MUST equal the question's total points EXACTLY.
+   - Example: if total points = 25, criteria max_points must sum to exactly 25.
+   - Do NOT round up or down — use decimal values if necessary.
+2. Each criterion MUST have a label, description, max_points > 0, and at least 2 score bands.
+3. Each score band MUST have a label, min_points, max_points, and description.
+4. Score band max_points for the top band MUST equal the criterion's max_points.
+5. Score band min_points for the lowest band MUST be 0.
+6. The total_points field in the response MUST equal the sum of all criteria max_points.
+7. Return structured JSON output ONLY — no prose, no markdown fences.
 """
 
 
@@ -90,8 +98,10 @@ def build_rubric_generation_prompt(
     if support_text:
         parts.append(f"## Support Material\n{support_text}")
     parts.append(
-        "Generate a structured rubric for this question. "
-        "The criteria max_points must sum exactly to the question points. "
+        "Generate a structured rubric for this question.\n"
+        f"CRITICAL: The sum of all criteria max_points MUST equal EXACTLY {points} points. "
+        "Do NOT exceed or fall short of this total under any circumstance. "
+        "If you use multiple criteria, their max_points must add up to exactly this value.\n"
         "If a model answer is provided, use it to produce detailed and specific "
         "score band descriptions that explain what level of quality corresponds to each band."
     )

@@ -59,7 +59,8 @@ export async function generateRubric(
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(camelToSnake(payload)),
   });
-  return json(res);
+  const raw = await json<unknown>(res);
+  return snakeToCamel(raw) as { rubric: StructuredRubric; generatedBy: string; latencyMs: number };
 }
 
 /* ---- Grading runs ---- */

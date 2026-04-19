@@ -51,9 +51,21 @@ def _validate_rubric(data: dict[str, Any], expected_points: float) -> list[str]:
             issues.append(f"Criterion '{c.get('label', i)}' needs at least 2 score bands.")
 
     if abs(total - expected_points) > 0.01:
-        issues.append(
-            f"Criteria total ({total}) does not match question points ({expected_points})."
-        )
+        # Auto-correct: scale all criteria max_points proportionally
+        if total > 0:
+            scale = expected_points / total
+            for c in criteria:
+                c["max_points"] = round(c.get("max_points", 0) * scale, 2)
+                for b in c.get("score_bands", []):
+                    b["min_points"] = round(b.get("min_points", 0) * scale, 2)
+                    b["max_points"] = round(b.get("max_points", 0) * scale, 2)
+            data["total_points"] = expected_points
+            logger.info(
+                "Auto-corrected rubric point total from %.2f to %.2f (scale=%.4f).",
+                total,
+                expected_points,
+                scale,
+            )
 
     return issues
 
