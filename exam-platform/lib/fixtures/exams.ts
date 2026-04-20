@@ -119,7 +119,7 @@ export const EXAM_MODULES: ExamModule[] = [
   {
     key: "analytics",
     label: "Analytics",
-    enabled: false,
+    enabled: true,
     description: "Performance analytics and insights",
   },
 ];

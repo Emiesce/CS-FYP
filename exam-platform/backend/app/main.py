@@ -20,6 +20,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.api.exam_api import router as exam_router
 from app.api.grading_api import router as grading_router
 from app.api.test_grading_api import router as test_grading_router
+from app.api.analytics_api import router as analytics_router
 
 logging.basicConfig(
     level=logging.INFO,
@@ -48,6 +49,7 @@ app.add_middleware(
 app.include_router(exam_router)
 app.include_router(grading_router)
 app.include_router(test_grading_router)
+app.include_router(analytics_router)
 
 
 @app.get("/health")

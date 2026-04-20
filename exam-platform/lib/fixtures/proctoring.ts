@@ -94,6 +94,12 @@ function buildBuckets(examId: string, studentId: string, events: ProctoringEvent
       camera_unavailable: 0,
       tab_switch: 0,
       window_exit: 0,
+      clipboard_paste: 0,
+      clipboard_copy: 0,
+      clipboard_cut: 0,
+      select_all: 0,
+      browser_shortcut: 0,
+      devtools_open: 0,
     };
     for (const ev of windowEvents) {
       counts[ev.type]++;

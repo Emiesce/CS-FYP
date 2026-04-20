@@ -70,6 +70,7 @@ export function StaffDashboardContent({ initialSemesterId }: Props) {
   const upcomingExams = filtered.filter((e) => e.status === "upcoming");
   const pastExams     = filtered.filter((e) => e.status === "past");
 
+  const canCreate        = user ? hasPermission(user.role, "exam:create")         : false;
   const canEdit          = user ? hasPermission(user.role, "exam:edit")           : false;
   const canViewQuestions = user ? hasPermission(user.role, "exam:view_questions") : false;
 
@@ -123,12 +124,20 @@ export function StaffDashboardContent({ initialSemesterId }: Props) {
     <>
       <DashboardHeader />
 
-      <div style={{ marginBottom: "var(--space-6)" }}>
+      <div
+        className="flex-between"
+        style={{ marginBottom: "var(--space-6)", gap: "var(--space-3)", flexWrap: "wrap" }}
+      >
         <SemesterSwitcher
           semesters={HKUST_SEMESTERS}
           current={semester}
           onChange={setSemester}
         />
+        {canCreate && (
+          <Link href="/staff/exams/new" className="button" style={{ textDecoration: "none" }}>
+            Create Exam
+          </Link>
+        )}
       </div>
 
       <div className="section-stack">

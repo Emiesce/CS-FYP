@@ -6,31 +6,32 @@
 /* ------------------------------------------------------------------ */
 
 import { useCallback, useMemo, useState } from "react";
-import { useParams } from "next/navigation";
+import { useParams, useSearchParams } from "next/navigation";
 import { AuthenticatedShell } from "@/components/AuthenticatedShell";
 import {
   ExamMetadataForm,
   QuestionListSidebar,
   QuestionEditorPanel,
 } from "@/components/exam-authoring";
-import { DEMO_EXAM_DEFINITION } from "@/lib/fixtures";
+import { DEMO_COURSES, DEMO_EXAM_DEFINITION } from "@/lib/fixtures";
 import { computeTotalPoints } from "@/features/exams/exam-service";
-import type { ExamDefinition, ExamQuestion } from "@/types";
+import type { Course, ExamDefinition, ExamQuestion } from "@/types";
+import { useSession } from "@/features/auth";
 import Link from "next/link";
 
 /* ------------------------------------------------------------------ */
 /*  Helper – resolve fixture or blank definition                      */
 /* ------------------------------------------------------------------ */
 
-function loadDefinition(examId: string): ExamDefinition {
+function loadDefinition(examId: string, selectedCourse?: Course): ExamDefinition {
   if (DEMO_EXAM_DEFINITION.id === examId) {
     return structuredClone(DEMO_EXAM_DEFINITION);
   }
   // Blank scaffold for a brand-new exam
   return {
     id: examId,
-    courseCode: "",
-    courseName: "",
+    courseCode: selectedCourse?.code ?? "",
+    courseName: selectedCourse?.name ?? "",
     title: "New Exam",
     date: new Date().toISOString().slice(0, 10),
     startTime: "09:00",
@@ -50,8 +51,17 @@ function loadDefinition(examId: string): ExamDefinition {
 
 function ExamEditorContent() {
   const params = useParams<{ examId: string }>();
+  const searchParams = useSearchParams();
+  const { user } = useSession();
+  const isCreatingExam = params.examId === "new";
+  const selectedCourseId = searchParams.get("courseId");
+  const selectedCourse = isCreatingExam
+    ? DEMO_COURSES.find(
+        (course) => course.id === selectedCourseId && course.instructorIds.includes(user?.id ?? ""),
+      ) ?? null
+    : null;
   const [definition, setDefinition] = useState<ExamDefinition>(() =>
-    loadDefinition(params.examId),
+    loadDefinition(params.examId, selectedCourse ?? undefined),
   );
   const [activeQuestionId, setActiveQuestionId] = useState<string | null>(
     definition.questions[0]?.id ?? null,
@@ -125,6 +135,20 @@ function ExamEditorContent() {
     // TODO: call saveExamDefinition API
   };
 
+  if (isCreatingExam && !selectedCourse) {
+    return (
+      <div className="panel" style={{ textAlign: "center", padding: "var(--space-8)" }}>
+        <h2 style={{ marginTop: 0 }}>Select an assigned course first</h2>
+        <p className="helper-text" style={{ marginBottom: "var(--space-4)" }}>
+          Exams can only be created for courses where you are assigned as an instructor.
+        </p>
+        <Link href="/staff/exams/new" className="button" style={{ textDecoration: "none" }}>
+          Choose Course
+        </Link>
+      </div>
+    );
+  }
+
   return (
     <>
       {/* Breadcrumb / back */}
@@ -134,7 +158,7 @@ function ExamEditorContent() {
             ← Back
           </Link>
           <h1 className="page-title" style={{ fontSize: "1.5rem" }}>
-            Edit Exam
+            {isCreatingExam ? "Create Exam" : "Edit Exam"}
           </h1>
         </div>
         <div className="flex-row">
@@ -144,7 +168,7 @@ function ExamEditorContent() {
             </span>
           )}
           <button className="button" onClick={handleSave}>
-            Save Exam
+            {isCreatingExam ? "Create Exam" : "Save Exam"}
           </button>
         </div>
       </div>
