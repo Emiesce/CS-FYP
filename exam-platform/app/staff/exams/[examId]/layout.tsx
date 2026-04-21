@@ -9,11 +9,18 @@
 import { use, useState } from "react";
 import { usePathname } from "next/navigation";
 import { AuthenticatedShell } from "@/components/AuthenticatedShell";
-import { ALL_EXAMS, EXAM_MODULES } from "@/lib/fixtures";
+import { useEffect } from "react";
+import { fetchExamDefinition } from "@/features/exams/exam-service";
 import Link from "next/link";
 
 /** Pages that should NOT get the sidebar (they have their own shells). */
 const BYPASS_PATHS = ["/edit", "/view"];
+
+const EXAM_MODULES = [
+  { key: "proctoring", label: "Proctoring", enabled: true },
+  { key: "grading", label: "Grading", enabled: true },
+  { key: "analytics", label: "Analytics", enabled: true },
+] as const;
 
 /* ---- Inline SVG icons -------------------------------------------- */
 const IconShield = () => (
@@ -54,8 +61,20 @@ function moduleIcon(key: string) {
 
 function ExamSidebar({ examId }: { examId: string }) {
   const pathname = usePathname();
-  const exam = ALL_EXAMS.find((e) => e.id === examId);
+  const [examLabel, setExamLabel] = useState<{ courseCode: string; title: string } | null>(null);
   const [collapsed, setCollapsed] = useState(false);
+
+  useEffect(() => {
+    let cancelled = false;
+    void fetchExamDefinition(examId).then((definition) => {
+      if (!cancelled && definition) {
+        setExamLabel({ courseCode: definition.courseCode, title: definition.title });
+      }
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [examId]);
 
   // Determine which module is active from the URL
   const activeModule = EXAM_MODULES.find((mod) =>
@@ -107,7 +126,7 @@ function ExamSidebar({ examId }: { examId: string }) {
         {!collapsed && (
           <>
             <h3 style={{ fontSize: "0.95rem", fontWeight: 600, margin: 0 }}>
-              {exam?.courseCode ?? "Exam"}
+              {examLabel?.courseCode ?? "Exam"}
             </h3>
             <p
               style={{
@@ -116,7 +135,7 @@ function ExamSidebar({ examId }: { examId: string }) {
                 margin: "var(--space-1) 0 0",
               }}
             >
-              {exam?.title ?? examId}
+              {examLabel?.title ?? examId}
             </p>
           </>
         )}

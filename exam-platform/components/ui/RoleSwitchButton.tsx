@@ -5,7 +5,6 @@
 /* ------------------------------------------------------------------ */
 
 import { useSession } from "@/features/auth";
-import { DEMO_CREDENTIALS } from "@/lib/fixtures/users";
 import { clearAllExamData } from "@/features/exams/exam-answer-store";
 import { clearPersistedProctoringSessions } from "@/features/proctoring/live-session-store";
 import type { UserRole } from "@/types";
@@ -17,11 +16,13 @@ const ROLE_LABELS: Record<UserRole, string> = {
   administrator: "Administrator",
 };
 
+const ALL_ROLES = Object.keys(ROLE_LABELS) as UserRole[];
+
 export function RoleSwitchButton() {
   const { user } = useSession();
   if (!user) return null;
 
-  const otherCreds = DEMO_CREDENTIALS.filter((c) => c.user.role !== user.role);
+  const otherRoles = ALL_ROLES.filter((role) => role !== user.role);
 
   const handleReset = () => {
     clearAllExamData();
@@ -32,17 +33,17 @@ export function RoleSwitchButton() {
 
   return (
     <div className="floating-role-switch" style={{ display: "flex", gap: "var(--space-2)", flexWrap: "wrap" }}>
-      {otherCreds.map((cred) => (
+      {otherRoles.map((role) => (
         <button
-          key={cred.user.role}
+          key={role}
           className="button-secondary"
           onClick={() => {
-            window.open(`${window.location.origin}/login?auto=${cred.user.role}`, "_blank");
+            window.open(`${window.location.origin}/login?auto=${role}`, "_blank");
           }}
-          aria-label={`Open as ${ROLE_LABELS[cred.user.role]}`}
+          aria-label={`Open as ${ROLE_LABELS[role]}`}
           type="button"
         >
-          Open as {ROLE_LABELS[cred.user.role]}
+          Open as {ROLE_LABELS[role]}
         </button>
       ))}
       <button

@@ -5,12 +5,20 @@
 /*  60-second placeholder exam with live proctoring UI                */
 /* ------------------------------------------------------------------ */
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { AuthenticatedShell } from "@/components/AuthenticatedShell";
+import { getCurrentExam } from "@/features/catalog/catalog-service";
 import { useSession } from "@/features/auth/session-store";
 import { useCountdown } from "@/features/exams/useCountdown";
-import { loadDraftAnswers, saveDraftAnswers } from "@/features/exams/exam-answer-store";
+import { refreshStudentAttempt } from "@/features/exams/exam-answer-store";
+import {
+  fetchAttempt,
+  fetchExamDefinition,
+  saveDraft,
+  startAttempt,
+  submitAttempt,
+} from "@/features/exams/exam-service";
 import { useProctoringSession } from "@/features/proctoring/useProctoringSession";
 import { useScreenMonitor } from "@/features/proctoring/useScreenMonitor";
 import { useKeyboardMonitor } from "@/features/proctoring/useKeyboardMonitor";
@@ -19,19 +27,25 @@ import {
   saveCompletedSession,
   saveLiveSession,
 } from "@/features/proctoring/live-session-store";
-import { DEMO_CURRENT_EXAM, DEMO_EXAM_DEFINITION } from "@/lib/fixtures";
 import { DEMO_EXAM_DURATION_SECONDS, DETECTION_CADENCE_MS } from "@/lib/constants";
 import { formatCountdown } from "@/lib/utils/format";
 import { computeRiskScore, countHighSeverityEvents } from "@/lib/utils/risk-score";
 import { WebcamPreview, LiveStatusPanel, SuspiciousActivityChart, WarningFeed } from "@/components/proctoring";
-import { ExamWorkspaceShell } from "@/components/exam-workspace";
+import {
+  ExamWorkspaceShell,
+  type ExamWorkspaceState,
+} from "@/components/exam-workspace/ExamWorkspaceShell";
 import { Icon, MetricCard, StatusChip } from "@/components/ui";
+import type { Exam, ExamDefinition } from "@/types";
 
 type StudentExamTab = "exam" | "monitoring";
 
 function CurrentExamContent() {
   const { user } = useSession();
   const router = useRouter();
+  const [currentExam, setCurrentExam] = useState<Exam | null>(null);
+  const [examDefinition, setExamDefinition] = useState<ExamDefinition | null>(null);
+  const [examLoading, setExamLoading] = useState(true);
   const [started, setStarted] = useState(false);
   const [sessionStartedAt, setSessionStartedAt] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<StudentExamTab>("exam");
@@ -40,18 +54,53 @@ function CurrentExamContent() {
   const [cameraError, setCameraError] = useState(false);
   const completedSavedRef = useRef(false);
   const cameraUnavailableLoggedRef = useRef(false);
+  const saveTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const submitTriggeredRef = useRef(false);
+  const latestWorkspaceRef = useRef<ExamWorkspaceState | null>(null);
+  const [attemptLoading, setAttemptLoading] = useState(true);
+  const [attemptError, setAttemptError] = useState<string | null>(null);
+  const [attemptState, setAttemptState] = useState<{
+    responses: import("@/types").QuestionResponse[];
+    currentQuestionIndex: number;
+    flaggedQuestionIds: string[];
+  } | null>(null);
 
-  const { secondsLeft, isRunning, isComplete, start } = useCountdown(DEMO_EXAM_DURATION_SECONDS);
+  const examId = currentExam?.id ?? "";
+  const examDurationSeconds = currentExam?.durationSeconds ?? DEMO_EXAM_DURATION_SECONDS;
+
+  useEffect(() => {
+    let cancelled = false;
+    void getCurrentExam()
+      .then(async (exam) => {
+        if (cancelled) return;
+        setCurrentExam(exam);
+        if (!exam) return;
+        const definition = await fetchExamDefinition(exam.id);
+        if (!cancelled) {
+          setExamDefinition(definition);
+        }
+      })
+      .finally(() => {
+        if (!cancelled) setExamLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const { secondsLeft, isRunning, isComplete, start } = useCountdown(examDurationSeconds);
 
   const {
     events,
+    buckets,
     liveStatus,
+    rollingAverage,
     sendFrame,
     pushClipChunk,
     recordViolation,
     updateLiveStatus,
   } = useProctoringSession(
-    DEMO_CURRENT_EXAM.id,
+    examId,
     user?.studentId ?? user?.id ?? "unknown",
     isRunning,
   );
@@ -62,7 +111,7 @@ function CurrentExamContent() {
     requestScreenAccess,
   } = useScreenMonitor({
     active: isRunning,
-    examId: DEMO_CURRENT_EXAM.id,
+    examId,
     studentId: user?.studentId ?? user?.id ?? "unknown",
     onViolation: recordViolation,
     onStatusChange: updateLiveStatus,
@@ -70,26 +119,107 @@ function CurrentExamContent() {
 
   const studentId = user?.studentId ?? user?.id ?? "unknown";
 
+  useEffect(() => {
+    if (!user) return;
+
+    let cancelled = false;
+
+    void (async () => {
+      if (!examId) {
+        setAttemptLoading(false);
+        return;
+      }
+
+      const attempt = await fetchAttempt(examId, studentId);
+      if (cancelled) return;
+
+      if (attempt?.status === "submitted" || attempt?.status === "timed_out") {
+        await refreshStudentAttempt(examId, studentId);
+        router.replace(`/student/exams/${examId}`);
+        return;
+      }
+
+      if (attempt) {
+        const nextState = {
+          responses: attempt.responses,
+          currentQuestionIndex: attempt.currentQuestionIndex,
+          flaggedQuestionIds: attempt.flaggedQuestionIds,
+        };
+        setAttemptState(nextState);
+        latestWorkspaceRef.current = nextState;
+      }
+
+      setAttemptLoading(false);
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [examId, router, studentId, user]);
+
+  useEffect(() => {
+    return () => {
+      if (saveTimeoutRef.current) {
+        clearTimeout(saveTimeoutRef.current);
+      }
+    };
+  }, []);
+
   // Keyboard shortcut monitoring (paste, copy, devtools, etc.)
   useKeyboardMonitor({
     active: isRunning,
-    examId: DEMO_CURRENT_EXAM.id,
+    examId,
     studentId,
     onViolation: recordViolation,
   });
 
-  // Load persisted draft answers so they survive tab switches
-  const initialResponses = useMemo(
-    () => loadDraftAnswers(DEMO_CURRENT_EXAM.id, studentId),
-    [studentId],
-  );
+  const persistDraft = useCallback(
+    async (state: ExamWorkspaceState) => {
+      const savedAttempt = await saveDraft(examId, studentId, state);
+      if (!savedAttempt) {
+        setAttemptError("We couldn't save your latest draft to the backend.");
+        return null;
+      }
 
-  const handleResponsesChange = useCallback(
-    (responses: import("@/types").QuestionResponse[]) => {
-      saveDraftAnswers(DEMO_CURRENT_EXAM.id, studentId, responses);
+      const nextState = {
+        responses: savedAttempt.responses,
+        currentQuestionIndex: savedAttempt.currentQuestionIndex,
+        flaggedQuestionIds: savedAttempt.flaggedQuestionIds,
+      };
+      setAttemptState(nextState);
+      latestWorkspaceRef.current = nextState;
+      setAttemptError(null);
+      return savedAttempt;
     },
     [studentId],
   );
+
+  const queueDraftSave = useCallback(
+    (state: ExamWorkspaceState) => {
+      latestWorkspaceRef.current = state;
+      if (saveTimeoutRef.current) {
+        clearTimeout(saveTimeoutRef.current);
+      }
+
+      saveTimeoutRef.current = setTimeout(() => {
+        void persistDraft(state);
+      }, 600);
+    },
+    [persistDraft],
+  );
+
+  const flushDraftSave = useCallback(async () => {
+    if (saveTimeoutRef.current) {
+      clearTimeout(saveTimeoutRef.current);
+      saveTimeoutRef.current = null;
+    }
+
+    if (!latestWorkspaceRef.current) {
+      return null;
+    }
+
+    return persistDraft(latestWorkspaceRef.current);
+  }, [persistDraft]);
 
   const requestCameraAccess = useCallback(async () => {
     try {
@@ -118,13 +248,41 @@ function CurrentExamContent() {
       return;
     }
 
+    const attempt =
+      (await startAttempt(examId, studentId)) ??
+      (await fetchAttempt(examId, studentId));
+
+    if (!attempt) {
+      setAttemptError("We couldn't start your exam attempt. Please try again.");
+      return;
+    }
+
+    const nextState = {
+      responses: attempt.responses,
+      currentQuestionIndex: attempt.currentQuestionIndex,
+      flaggedQuestionIds: attempt.flaggedQuestionIds,
+    };
+    setAttemptState(nextState);
+    latestWorkspaceRef.current = nextState;
+    setAttemptError(null);
+
     const startedAt = new Date().toISOString();
     setSessionStartedAt(startedAt);
     setActiveTab("exam");
     completedSavedRef.current = false;
+    submitTriggeredRef.current = false;
     setStarted(true);
     start();
-  }, [cameraReady, requestCameraAccess, requestScreenAccess, screenReady, start, started]);
+  }, [
+    cameraReady,
+    requestCameraAccess,
+    requestScreenAccess,
+    screenReady,
+    start,
+    started,
+    studentId,
+    setActiveTab,
+  ]);
 
   const handleCameraPermissionDenied = useCallback(() => {
     setCameraReady(false);
@@ -137,7 +295,7 @@ function CurrentExamContent() {
 
     cameraUnavailableLoggedRef.current = true;
     recordViolation({
-      examId: DEMO_CURRENT_EXAM.id,
+      examId,
       studentId: user?.studentId ?? user?.id ?? "unknown",
       type: "camera_unavailable",
       severity: 0.65,
@@ -159,7 +317,7 @@ function CurrentExamContent() {
 
     const sessionStatus = isComplete ? "completed" : events.length > 0 ? "warning" : "active";
     const sessionSnapshot: PersistedProctoringSession = {
-      examId: DEMO_CURRENT_EXAM.id,
+      examId,
       studentId: user.studentId ?? user.id,
       studentName: `${user.firstName} ${user.lastName}`,
       studentNumber: user.studentId ?? user.id,
@@ -169,8 +327,9 @@ function CurrentExamContent() {
       endedAt: isComplete ? new Date().toISOString() : undefined,
       sessionStatus,
       liveStatus,
-      rollingAverage: 0,
-      buckets: [],
+      riskScore: computeRiskScore(events),
+      rollingAverage,
+      buckets,
       events,
     };
 
@@ -180,20 +339,53 @@ function CurrentExamContent() {
       saveCompletedSession(sessionSnapshot);
       completedSavedRef.current = true;
     }
-  }, [events, isComplete, liveStatus, sessionStartedAt, started, user]);
+  }, [buckets, events, isComplete, liveStatus, rollingAverage, sessionStartedAt, started, user]);
+
+  const submitAndExit = useCallback(async () => {
+    const savedAttempt = await flushDraftSave();
+    const submittedAttempt =
+      (await submitAttempt(examId, studentId)) ?? savedAttempt;
+
+    if (!submittedAttempt || submittedAttempt.status === "in_progress") {
+      setAttemptError("We couldn't submit your attempt. Please try again.");
+      submitTriggeredRef.current = false;
+      return;
+    }
+
+    await refreshStudentAttempt(examId, studentId);
+    router.push(`/student/exams/${examId}`);
+  }, [examId, flushDraftSave, router, studentId]);
 
   // Redirect on completion
   useEffect(() => {
-    if (isComplete) {
-      const t = setTimeout(() => {
-        router.push(`/student/exams/${DEMO_CURRENT_EXAM.id}`);
-      }, 2200);
-      return () => clearTimeout(t);
+    if (!isComplete || submitTriggeredRef.current) {
+      return;
     }
-  }, [isComplete, router]);
+
+    submitTriggeredRef.current = true;
+    const timeout = setTimeout(() => {
+      void submitAndExit();
+    }, 400);
+
+    return () => clearTimeout(timeout);
+  }, [isComplete, submitAndExit]);
 
   const totalRiskScore = computeRiskScore(events);
   const highSeverityCount = countHighSeverityEvents(events);
+
+  if (examLoading) {
+    return <div className="panel">Loading current exam...</div>;
+  }
+
+  if (!currentExam || !examDefinition) {
+    return (
+      <div className="panel">
+        <p className="helper-text" style={{ margin: 0 }}>
+          No current exam is available for your account.
+        </p>
+      </div>
+    );
+  }
 
   return (
     <div style={{ display: "grid", gap: "var(--space-6)" }}>
@@ -201,9 +393,9 @@ function CurrentExamContent() {
       <div className="page-header" style={{ marginBottom: 0 }}>
         <div>
           <h1 className="page-title">
-            {DEMO_CURRENT_EXAM.courseCode} – {DEMO_CURRENT_EXAM.title}
+            {currentExam.courseCode} – {currentExam.title}
           </h1>
-          <p className="page-subtitle">{DEMO_CURRENT_EXAM.courseName}</p>
+          <p className="page-subtitle">{currentExam.courseName}</p>
         </div>
         <div style={{ textAlign: "right" }}>
           {isComplete ? (
@@ -215,6 +407,12 @@ function CurrentExamContent() {
           )}
         </div>
       </div>
+
+      {attemptError && (
+        <div className="badge-danger" style={{ padding: "var(--space-3) var(--space-4)", borderRadius: "var(--radius-sm)" }}>
+          {attemptError}
+        </div>
+      )}
 
       {!started && (
         <div className="panel" style={{ display: "grid", gap: "var(--space-4)" }}>
@@ -295,10 +493,10 @@ function CurrentExamContent() {
               type="button"
               className="button"
               onClick={handleStartExam}
-              disabled={!cameraReady || !screenReady}
-              style={{ opacity: !cameraReady || !screenReady ? 0.7 : 1 }}
+              disabled={!cameraReady || !screenReady || attemptLoading}
+              style={{ opacity: !cameraReady || !screenReady || attemptLoading ? 0.7 : 1 }}
             >
-              Start Exam
+              {attemptLoading ? "Loading Attempt..." : attemptState ? "Resume Exam" : "Start Exam"}
             </button>
           </div>
         </div>
@@ -332,7 +530,7 @@ function CurrentExamContent() {
                 : "var(--brand-primary)",
           }}
         >
-          {formatCountdown(started ? secondsLeft : DEMO_EXAM_DURATION_SECONDS)}
+          {formatCountdown(started ? secondsLeft : examDurationSeconds)}
         </p>
         {isComplete && (
           <p className="helper-text" style={{ marginTop: "var(--space-2)" }}>
@@ -386,11 +584,14 @@ function CurrentExamContent() {
           {/* Exam tab – always mounted, hidden via CSS to preserve answers */}
           <div style={{ display: activeTab === "exam" ? "block" : "none" }}>
             <ExamWorkspaceShell
-              definition={DEMO_EXAM_DEFINITION}
-              initialResponses={initialResponses}
-              onResponsesChange={handleResponsesChange}
+              definition={examDefinition}
+              initialResponses={attemptState?.responses ?? []}
+              initialCurrentQuestionIndex={attemptState?.currentQuestionIndex ?? 0}
+              initialFlaggedQuestionIds={attemptState?.flaggedQuestionIds ?? []}
+              onStateChange={queueDraftSave}
               onSubmit={() => {
-                router.push(`/student/exams/${DEMO_CURRENT_EXAM.id}`);
+                submitTriggeredRef.current = true;
+                void submitAndExit();
               }}
             />
           </div>
@@ -429,7 +630,7 @@ function CurrentExamContent() {
 
             <SuspiciousActivityChart
               events={events}
-              durationSeconds={DEMO_EXAM_DURATION_SECONDS}
+              durationSeconds={examDurationSeconds}
               startedAt={sessionStartedAt}
               title="Exam Alert Timeline"
             />

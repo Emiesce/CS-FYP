@@ -1,14 +1,32 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { AuthenticatedShell } from "@/components/AuthenticatedShell";
 import { useSession } from "@/features/auth";
-import { DEMO_COURSES } from "@/lib/fixtures";
+import { getVisibleCourses } from "@/features/catalog/catalog-service";
+import type { Course } from "@/types";
 
 function CreateExamCourseSelectionContent() {
   const { user } = useSession();
+  const [assignedCourses, setAssignedCourses] = useState<Course[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  const assignedCourses = DEMO_COURSES.filter((course) => course.instructorIds.includes(user?.id ?? ""));
+  useEffect(() => {
+    let cancelled = false;
+    void getVisibleCourses(undefined, "visible")
+      .then((courses) => {
+        if (!cancelled) setAssignedCourses(courses);
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const instructorCourses = assignedCourses.filter((course) => course.instructorIds.includes(user?.id ?? ""));
 
   return (
     <>
@@ -30,7 +48,11 @@ function CreateExamCourseSelectionContent() {
         </p>
       </div>
 
-      {assignedCourses.length === 0 ? (
+      {loading ? (
+        <div className="panel" style={{ textAlign: "center", padding: "var(--space-8)" }}>
+          <p className="helper-text" style={{ margin: 0 }}>Loading your courses...</p>
+        </div>
+      ) : instructorCourses.length === 0 ? (
         <div className="panel" style={{ textAlign: "center", padding: "var(--space-8)" }}>
           <p className="helper-text" style={{ margin: 0 }}>
             You are not currently assigned to any courses that allow exam creation.
@@ -38,7 +60,7 @@ function CreateExamCourseSelectionContent() {
         </div>
       ) : (
         <div style={{ display: "grid", gap: "var(--space-4)" }}>
-          {assignedCourses.map((course) => (
+          {instructorCourses.map((course) => (
             <div
               key={course.id}
               className="panel"

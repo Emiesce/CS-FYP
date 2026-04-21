@@ -22,6 +22,12 @@ const SERVER_SNAPSHOT: User | null = null;
 
 let cachedSessionRaw: string | null | undefined;
 let cachedSessionUser: User | null = null;
+let cachedAccessToken: string | null = null;
+
+interface StoredSession {
+  user: User;
+  accessToken: string | null;
+}
 
 interface SessionState {
   user: User | null;
@@ -29,7 +35,7 @@ interface SessionState {
 }
 
 interface SessionActions {
-  login: (user: User) => void;
+  login: (user: User, accessToken?: string | null) => void;
   logout: () => void;
 }
 
@@ -46,26 +52,45 @@ function loadSession(): User | null {
     }
 
     cachedSessionRaw = raw;
-    cachedSessionUser = raw ? (JSON.parse(raw) as User) : null;
+    if (!raw) {
+      cachedSessionUser = null;
+      cachedAccessToken = null;
+      return null;
+    }
+
+    const parsed = JSON.parse(raw) as User | StoredSession;
+    if ("user" in parsed) {
+      cachedSessionUser = parsed.user;
+      cachedAccessToken = parsed.accessToken ?? null;
+    } else {
+      cachedSessionUser = parsed;
+      cachedAccessToken = null;
+    }
     return cachedSessionUser;
   } catch {
     cachedSessionRaw = null;
     cachedSessionUser = null;
+    cachedAccessToken = null;
     return null;
   }
 }
 
-function saveSession(user: User | null): void {
+function saveSession(user: User | null, accessToken?: string | null): void {
   if (typeof window === "undefined") return;
   if (user) {
-    const raw = JSON.stringify(user);
+    const raw = JSON.stringify({
+      user,
+      accessToken: accessToken ?? null,
+    } satisfies StoredSession);
     sessionStorage.setItem(SESSION_KEY, raw);
     cachedSessionRaw = raw;
     cachedSessionUser = user;
+    cachedAccessToken = accessToken ?? null;
   } else {
     sessionStorage.removeItem(SESSION_KEY);
     cachedSessionRaw = null;
     cachedSessionUser = null;
+    cachedAccessToken = null;
   }
   window.dispatchEvent(new Event(SESSION_EVENT));
 }
@@ -88,8 +113,8 @@ function subscribeToSession(callback: () => void): () => void {
 export function SessionProvider({ children }: { children: ReactNode }) {
   const user = useSyncExternalStore(subscribeToSession, loadSession, () => SERVER_SNAPSHOT);
 
-  const login = useCallback((u: User) => {
-    saveSession(u);
+  const login = useCallback((u: User, accessToken?: string | null) => {
+    saveSession(u, accessToken);
   }, []);
 
   const logout = useCallback(() => {
@@ -113,6 +138,14 @@ export function useSession(): SessionContextValue {
   const ctx = useContext(SessionContext);
   if (!ctx) throw new Error("useSession must be used within <SessionProvider>");
   return ctx;
+}
+
+export function getSessionToken(): string | null {
+  if (typeof window === "undefined") return null;
+  if (cachedSessionRaw === undefined) {
+    loadSession();
+  }
+  return cachedAccessToken;
 }
 
 /**

@@ -14,6 +14,7 @@ import { getGradingRun, submitReview } from "@/features/grading/grading-service"
 import {
   getAllSubmissions,
   getAllSubmissionsServer,
+  refreshExamSubmissions,
   subscribeToExamAnswers,
 } from "@/features/exams/exam-answer-store";
 import { QUESTION_TYPE_LABELS } from "@/types";
@@ -62,6 +63,10 @@ function AttemptReviewContent({
   const [criterionDraftReasoning, setCriterionDraftReasoning] = useState<Record<string, string>>({});
   const [criterionReviewSavingId, setCriterionReviewSavingId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    void refreshExamSubmissions(examId);
+  }, [examId]);
 
   useEffect(() => {
     let cancelled = false;

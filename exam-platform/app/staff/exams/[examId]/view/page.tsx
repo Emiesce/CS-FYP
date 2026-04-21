@@ -6,23 +6,13 @@
 /*  Accessible to: instructor + teaching_assistant                    */
 /* ------------------------------------------------------------------ */
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useParams } from "next/navigation";
 import { AuthenticatedShell } from "@/components/AuthenticatedShell";
-import { DEMO_EXAM_DEFINITION } from "@/lib/fixtures";
-import { computeTotalPoints } from "@/features/exams/exam-service";
+import { computeTotalPoints, fetchExamDefinition } from "@/features/exams/exam-service";
 import { QUESTION_TYPE_LABELS } from "@/types";
 import type { ExamDefinition, ExamQuestion } from "@/types";
 import Link from "next/link";
-
-/* ------------------------------------------------------------------ */
-/*  Resolve fixture                                                   */
-/* ------------------------------------------------------------------ */
-
-function loadDefinition(examId: string): ExamDefinition | null {
-  if (DEMO_EXAM_DEFINITION.id === examId) return DEMO_EXAM_DEFINITION;
-  return null;
-}
 
 /* ------------------------------------------------------------------ */
 /*  Read-only question card                                           */
@@ -149,13 +139,32 @@ function QuestionCard({ question, index }: { question: ExamQuestion; index: numb
 
 function ExamViewerContent() {
   const params = useParams<{ examId: string }>();
-  const definition = useMemo(() => loadDefinition(params.examId), [params.examId]);
+  const [definition, setDefinition] = useState<ExamDefinition | null>(null);
+  const [loading, setLoading] = useState(true);
   const [activeSection, setActiveSection] = useState<"info" | "questions">("questions");
+
+  useEffect(() => {
+    let cancelled = false;
+    void fetchExamDefinition(params.examId)
+      .then((exam) => {
+        if (!cancelled) setDefinition(exam);
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [params.examId]);
 
   const totalPoints = useMemo(
     () => (definition ? computeTotalPoints(definition.questions) : 0),
     [definition],
   );
+
+  if (loading) {
+    return <div className="panel">Loading exam definition...</div>;
+  }
 
   if (!definition) {
     return (

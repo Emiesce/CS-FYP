@@ -6,8 +6,18 @@ import type {
   ExamAnalyticsSnapshot,
   AnalyticsChatMessage,
 } from "@/types";
+import { getSessionToken } from "@/features/auth";
+import { BACKEND_API_BASE } from "@/lib/constants";
 
-const BASE = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
+const BASE = BACKEND_API_BASE;
+
+function authHeaders(extra?: HeadersInit): HeadersInit {
+  const token = getSessionToken();
+  return {
+    ...(extra ?? {}),
+    ...(token ? { Authorization: `Bearer ${token}` } : {}),
+  };
+}
 
 /* ---- snake_case → camelCase mapper ---- */
 
@@ -38,7 +48,9 @@ async function json<T>(res: Response): Promise<T> {
 export async function getAnalyticsSnapshot(
   examId: string,
 ): Promise<ExamAnalyticsSnapshot> {
-  const res = await fetch(`${BASE}/api/analytics/exams/${examId}/snapshot`);
+  const res = await fetch(`${BASE}/api/analytics/exams/${examId}/snapshot`, {
+    headers: authHeaders(),
+  });
   const raw = await json<unknown>(res);
   return snakeToCamel(raw) as ExamAnalyticsSnapshot;
 }
@@ -52,7 +64,7 @@ export async function sendAnalyticsChat(
 ): Promise<{ reply: string; timestamp: string }> {
   const res = await fetch(`${BASE}/api/analytics/exams/${examId}/chat`, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: authHeaders({ "Content-Type": "application/json" }),
     body: JSON.stringify({
       message,
       history: history.map((h) => ({ role: h.role, content: h.content })),
@@ -75,7 +87,7 @@ export async function syncProctoringForAnalytics(
 ): Promise<void> {
   await fetch(`${BASE}/api/analytics/exams/${examId}/proctoring-sync`, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: authHeaders({ "Content-Type": "application/json" }),
     body: JSON.stringify({
       exam_id: examId,
       student_id: payload.studentId,

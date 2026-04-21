@@ -11,6 +11,8 @@ import statistics
 from datetime import datetime, timezone
 from typing import Optional
 
+from sqlalchemy.orm import Session
+
 from app.models.analytics_models import (
     AnalyticsOverviewOut,
     ExamAnalyticsSnapshotOut,
@@ -22,29 +24,25 @@ from app.models.analytics_models import (
 from app.models.grading_models import GradingRunOut
 
 
-# ---- Proctoring store (simple in-memory) ----------------------------
-
-_proctoring_store: dict[str, dict[str, dict]] = {}  # examId -> studentId -> summary
-
-
-def save_proctoring_sync(
+def get_proctoring_for_exam(
     exam_id: str,
-    student_id: str,
-    student_name: str,
-    risk_score: float,
-    high_severity_event_count: int,
-    event_count: int,
-) -> None:
-    _proctoring_store.setdefault(exam_id, {})[student_id] = {
-        "student_name": student_name,
-        "risk_score": risk_score,
-        "high_severity_event_count": high_severity_event_count,
-        "event_count": event_count,
+    db: Session,
+) -> dict[str, dict]:
+    from app.db.repositories.proctoring_repository import ProctoringRepository
+
+    sessions = ProctoringRepository(db).list_sessions_for_exam(exam_id)
+    if not sessions:
+        return {}
+
+    return {
+        session.student_id: {
+            "student_name": session.student_name,
+            "risk_score": session.risk_score,
+            "high_severity_event_count": session.high_severity_event_count,
+            "event_count": session.event_count,
+        }
+        for session in sessions
     }
-
-
-def get_proctoring_for_exam(exam_id: str) -> dict[str, dict]:
-    return _proctoring_store.get(exam_id, {})
 
 
 # ---- Helpers --------------------------------------------------------
@@ -86,10 +84,11 @@ def build_analytics_snapshot(
     max_total_points: float,
     grading_runs: list[GradingRunOut],
     question_meta: list[dict],  # [{id, title, type, points, topic_ids}]
+    db: Optional[Session] = None,
 ) -> ExamAnalyticsSnapshotOut:
     """Build a full analytics snapshot from grading runs + proctoring."""
 
-    proctoring = get_proctoring_for_exam(exam_id)
+    proctoring = get_proctoring_for_exam(exam_id, db=db)
 
     # ---- student records ----
     students: list[StudentAnalyticsRecord] = []

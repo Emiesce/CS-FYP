@@ -6,10 +6,12 @@
 /* ------------------------------------------------------------------ */
 
 import { use, useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
-import { getExamDefinitionById } from "@/lib/fixtures/exam-definitions";
+import { fetchExamDefinition } from "@/features/exams/exam-service";
+import type { ExamDefinition } from "@/types";
 import {
   getAllSubmissions,
   getAllSubmissionsServer,
+  refreshExamSubmissions,
   subscribeToExamAnswers,
 } from "@/features/exams/exam-answer-store";
 import type { ExamSubmissionStatus } from "@/features/exams/exam-answer-store";
@@ -75,12 +77,19 @@ function GradingDashboardContent({ examId }: { examId: string }) {
     getAllSubmissionsServer,
   );
 
+  useEffect(() => {
+    void refreshExamSubmissions(examId);
+  }, [examId]);
+
   const examSubmissions = useMemo(
     () => submissions.filter((s) => s.examId === examId),
     [submissions, examId],
   );
 
-  const definition = useMemo(() => getExamDefinitionById(examId), [examId]);
+  const [definition, setDefinition] = useState<ExamDefinition | null>(null);
+  useEffect(() => {
+    fetchExamDefinition(examId).then(setDefinition).catch(() => {});
+  }, [examId]);
 
   const [gradingRuns, setGradingRuns] = useState<Record<string, GradingRunData>>(() =>
     readSessionCache(`grading_runs_${examId}`, {}),

@@ -5,7 +5,7 @@
 /*  /staff/exams/[examId]/edit                                        */
 /* ------------------------------------------------------------------ */
 
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useParams, useSearchParams } from "next/navigation";
 import { AuthenticatedShell } from "@/components/AuthenticatedShell";
 import {
@@ -13,8 +13,8 @@ import {
   QuestionListSidebar,
   QuestionEditorPanel,
 } from "@/components/exam-authoring";
-import { DEMO_COURSES, DEMO_EXAM_DEFINITION } from "@/lib/fixtures";
-import { computeTotalPoints } from "@/features/exams/exam-service";
+import { getVisibleCourses } from "@/features/catalog/catalog-service";
+import { computeTotalPoints, fetchExamDefinition, saveExamDefinition } from "@/features/exams/exam-service";
 import type { Course, ExamDefinition, ExamQuestion } from "@/types";
 import { useSession } from "@/features/auth";
 import Link from "next/link";
@@ -24,9 +24,6 @@ import Link from "next/link";
 /* ------------------------------------------------------------------ */
 
 function loadDefinition(examId: string, selectedCourse?: Course): ExamDefinition {
-  if (DEMO_EXAM_DEFINITION.id === examId) {
-    return structuredClone(DEMO_EXAM_DEFINITION);
-  }
   // Blank scaffold for a brand-new exam
   return {
     id: examId,
@@ -55,18 +52,53 @@ function ExamEditorContent() {
   const { user } = useSession();
   const isCreatingExam = params.examId === "new";
   const selectedCourseId = searchParams.get("courseId");
-  const selectedCourse = isCreatingExam
-    ? DEMO_COURSES.find(
-        (course) => course.id === selectedCourseId && course.instructorIds.includes(user?.id ?? ""),
-      ) ?? null
-    : null;
-  const [definition, setDefinition] = useState<ExamDefinition>(() =>
-    loadDefinition(params.examId, selectedCourse ?? undefined),
-  );
+  const [availableCourses, setAvailableCourses] = useState<Course[]>([]);
+  const [definition, setDefinition] = useState<ExamDefinition>(() => loadDefinition(params.examId));
   const [activeQuestionId, setActiveQuestionId] = useState<string | null>(
     definition.questions[0]?.id ?? null,
   );
   const [saved, setSaved] = useState(false);
+  const [loading, setLoading] = useState(!isCreatingExam);
+  const [saveError, setSaveError] = useState<string | null>(null);
+
+  const selectedCourse = isCreatingExam
+    ? availableCourses.find(
+        (course) => course.id === selectedCourseId && course.instructorIds.includes(user?.id ?? ""),
+      ) ?? null
+    : null;
+
+  useEffect(() => {
+    let cancelled = false;
+    void getVisibleCourses().then((courses) => {
+      if (cancelled) return;
+      setAvailableCourses(courses);
+      if (isCreatingExam) {
+        const initialCourse = courses.find((course) => course.id === selectedCourseId) ?? null;
+        setDefinition(loadDefinition(params.examId, initialCourse ?? undefined));
+      }
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [isCreatingExam, params.examId, selectedCourseId]);
+
+  useEffect(() => {
+    if (isCreatingExam) return;
+    let cancelled = false;
+    void fetchExamDefinition(params.examId)
+      .then((exam) => {
+        if (!cancelled && exam) {
+          setDefinition(exam);
+          setActiveQuestionId(exam.questions[0]?.id ?? null);
+        }
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [isCreatingExam, params.examId]);
 
   /* ---- derived --------------------------------------------------- */
   const totalPoints = useMemo(
@@ -129,11 +161,33 @@ function ExamEditorContent() {
   }, []);
 
   /* ---- save (local state + future API) --------------------------- */
-  const handleSave = () => {
-    setDefinition((prev) => ({ ...prev, totalPoints }));
+  const handleSave = async () => {
+    const savedDefinition = await saveExamDefinition(
+      isCreatingExam ? null : params.examId,
+      {
+        courseCode: definition.courseCode,
+        courseName: definition.courseName,
+        title: definition.title,
+        date: definition.date,
+        startTime: definition.startTime,
+        durationSeconds: definition.durationSeconds,
+        location: definition.location,
+        instructions: definition.instructions,
+        questions: definition.questions,
+      },
+    );
+    if (!savedDefinition) {
+      setSaveError("Unable to save the exam definition.");
+      return;
+    }
+    setDefinition(savedDefinition);
     setSaved(true);
-    // TODO: call saveExamDefinition API
+    setSaveError(null);
   };
+
+  if (loading) {
+    return <div className="panel">Loading exam editor...</div>;
+  }
 
   if (isCreatingExam && !selectedCourse) {
     return (
@@ -172,6 +226,12 @@ function ExamEditorContent() {
           </button>
         </div>
       </div>
+
+      {saveError && (
+        <div className="badge-danger" style={{ padding: "var(--space-3) var(--space-4)", borderRadius: "var(--radius-sm)", marginBottom: "var(--space-4)" }}>
+          {saveError}
+        </div>
+      )}
 
       {/* Metadata */}
       <ExamMetadataForm
