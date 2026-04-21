@@ -12,6 +12,8 @@ This project runs as three pieces:
 
 From `exam-platform/`:
 
+Be sure to first install Docker Desktop for your respective device to run this command:
+
 ```bash
 docker compose up -d
 ```
@@ -44,7 +46,8 @@ python3 -m uvicorn app.main:app --host 127.0.0.1 --port 8000 --reload
 
 Notes:
 
-- `PYTHONPATH=. python3 scripts/seed.py` resets the application tables and repopulates the initial demo dataset.
+- `python3 -m venv .venv` and `pip install -r requirements.txt` are only required when you first start the platform
+- `PYTHONPATH=. python3 scripts/seed.py` resets the application tables and repopulates the initial demo dataset. So if you want to retain your generated data, skip this step
 - The seed now also loads the `MGMT2110` essay dataset from `exam-platform/mgmtAns.json` as submitted attempts in PostgreSQL.
 
 ### 3. Start the frontend
@@ -56,7 +59,7 @@ npm install
 npm run dev
 ```
 
-Open `http://127.0.0.1:3000`.
+Open `http://127.0.0.1:3000` or `http://localhost:3000`.
 
 ## Demo accounts
 
