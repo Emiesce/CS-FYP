@@ -8,8 +8,18 @@ import type {
   RubricGeneratePayload,
 } from "./grading-types";
 import type { GradingRun, StructuredRubric } from "@/types";
+import { getSessionToken } from "@/features/auth";
+import { BACKEND_API_BASE } from "@/lib/constants";
 
-const BASE = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
+const BASE = BACKEND_API_BASE;
+
+function authHeaders(extra?: HeadersInit): HeadersInit {
+  const token = getSessionToken();
+  return {
+    ...(extra ?? {}),
+    ...(token ? { Authorization: `Bearer ${token}` } : {}),
+  };
+}
 
 /* ---- snake_case → camelCase mapper ---- */
 
@@ -56,7 +66,7 @@ export async function generateRubric(
 ): Promise<{ rubric: StructuredRubric; generatedBy: string; latencyMs: number }> {
   const res = await fetch(`${BASE}/api/grading/rubric/generate`, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: authHeaders({ "Content-Type": "application/json" }),
     body: JSON.stringify(camelToSnake(payload)),
   });
   const raw = await json<unknown>(res);
@@ -73,7 +83,7 @@ export async function startGradingRun(
     `${BASE}/api/grading/exams/${examId}/attempts/${payload.attemptId}/run`,
     {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: authHeaders({ "Content-Type": "application/json" }),
       body: JSON.stringify(camelToSnake(payload)),
     },
   );
@@ -86,6 +96,9 @@ export async function getGradingRun(
 ): Promise<GradingRun> {
   const res = await fetch(
     `${BASE}/api/test-grading/results/${runId}`,
+    {
+      headers: authHeaders(),
+    },
   );
   const raw = await json<unknown>(res);
   return snakeToCamel(raw) as GradingRun;
@@ -102,7 +115,7 @@ export async function submitReview(
     `${BASE}/api/test-grading/review/${runId}`,
     {
       method: "PUT",
-      headers: { "Content-Type": "application/json" },
+      headers: authHeaders({ "Content-Type": "application/json" }),
       body: JSON.stringify(camelToSnake(payload)),
     },
   );

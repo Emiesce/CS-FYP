@@ -4,19 +4,22 @@
 /*  COMP1023 Exam-taking Page – student takes the exam with proctoring */
 /* ------------------------------------------------------------------ */
 
-import { use, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { use, useCallback, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { AuthenticatedShell } from "@/components/AuthenticatedShell";
-import { ExamWorkspaceShell } from "@/components/exam-workspace";
-import { useSession } from "@/features/auth/session-store";
-import { COMP1023_EXAM, COMP1023_EXAM_DEFINITION, COMP1023_EXAM_ID } from "@/lib/fixtures/comp1023";
-import { ALL_EXAMS } from "@/lib/fixtures";
 import {
-  saveDraftAnswers,
-  loadDraftAnswers,
-  submitExamAnswers,
-  isExamSubmitted,
-} from "@/features/exams/exam-answer-store";
+  ExamWorkspaceShell,
+  type ExamWorkspaceState,
+} from "@/components/exam-workspace/ExamWorkspaceShell";
+import { useSession } from "@/features/auth/session-store";
+import { refreshStudentAttempt } from "@/features/exams/exam-answer-store";
+import {
+  fetchAttempt,
+  fetchExamDefinition,
+  saveDraft,
+  startAttempt,
+  submitAttempt,
+} from "@/features/exams/exam-service";
 import {
   saveCompletedSession,
   saveLiveSession,
@@ -29,24 +32,59 @@ import { useCountdown } from "@/features/exams/useCountdown";
 import { DETECTION_CADENCE_MS } from "@/lib/constants";
 import { computeRiskScore, countHighSeverityEvents } from "@/lib/utils/risk-score";
 import { formatCountdown } from "@/lib/utils/format";
-import { WebcamPreview, LiveStatusPanel, SuspiciousActivityChart, WarningFeed } from "@/components/proctoring";
+import {
+  WebcamPreview,
+  LiveStatusPanel,
+  SuspiciousActivityChart,
+  WarningFeed,
+} from "@/components/proctoring";
 import { Icon, MetricCard, StatusChip } from "@/components/ui";
-import type { QuestionResponse } from "@/types";
+import type { ExamDefinition } from "@/types";
+
+const EMPTY_DEFINITION: ExamDefinition = {
+  id: "",
+  courseCode: "",
+  courseName: "",
+  title: "",
+  date: "",
+  startTime: "",
+  durationSeconds: 60,
+  location: "",
+  instructions: "",
+  questions: [],
+  totalPoints: 0,
+  createdAt: "",
+  updatedAt: "",
+};
 
 function Comp1023ExamContent({ examId }: { examId: string }) {
   const router = useRouter();
   const { user } = useSession();
   const studentId = user?.studentId ?? user?.id ?? "unknown";
+  const [definition, setDefinition] = useState<ExamDefinition | null>(null);
+  const [definitionLoading, setDefinitionLoading] = useState(true);
 
-  const exam = ALL_EXAMS.find((e) => e.id === examId) ?? COMP1023_EXAM;
-  const definition = COMP1023_EXAM_DEFINITION;
-
-  // If already submitted, redirect to the past exam view
   useEffect(() => {
-    if (user && isExamSubmitted(examId, studentId)) {
-      router.replace(`/student/exams/${examId}`);
-    }
-  }, [examId, studentId, user, router]);
+    let cancelled = false;
+    void fetchExamDefinition(examId).then((exam) => {
+      if (!cancelled) {
+        setDefinition(exam);
+        setDefinitionLoading(false);
+      }
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [examId]);
+  const activeDefinition = definition ?? EMPTY_DEFINITION;
+
+  const exam = {
+    id: activeDefinition.id,
+    courseCode: activeDefinition.courseCode,
+    courseName: activeDefinition.courseName,
+    title: activeDefinition.title,
+    durationSeconds: activeDefinition.durationSeconds,
+  };
 
   const [started, setStarted] = useState(false);
   const [activeTab, setActiveTab] = useState<"exam" | "monitoring">("exam");
@@ -54,23 +92,28 @@ function Comp1023ExamContent({ examId }: { examId: string }) {
   const [cameraReady, setCameraReady] = useState(false);
   const [cameraError, setCameraError] = useState(false);
   const [cameraPrecheckError, setCameraPrecheckError] = useState<string | null>(null);
+  const [attemptLoading, setAttemptLoading] = useState(true);
+  const [attemptError, setAttemptError] = useState<string | null>(null);
+  const [attemptState, setAttemptState] = useState<ExamWorkspaceState | null>(null);
   const cameraUnavailableLoggedRef = useRef(false);
-
-  // Countdown
-  const { secondsLeft, isRunning, isComplete, start } = useCountdown(exam.durationSeconds);
   const completedSavedRef = useRef(false);
+  const saveTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const submitTriggeredRef = useRef(false);
+  const latestWorkspaceRef = useRef<ExamWorkspaceState | null>(null);
 
-  // Proctoring
+  const { secondsLeft, isRunning, isComplete, start } = useCountdown(exam.durationSeconds);
+
   const {
     events,
+    buckets,
     liveStatus,
+    rollingAverage,
     updateLiveStatus,
     sendFrame,
     recordViolation,
     pushClipChunk,
   } = useProctoringSession(examId, studentId, started);
 
-  // Screen monitoring
   const {
     screenReady,
     screenError,
@@ -83,7 +126,6 @@ function Comp1023ExamContent({ examId }: { examId: string }) {
     onStatusChange: updateLiveStatus,
   });
 
-  // Keyboard shortcut monitoring (paste, copy, devtools, etc.)
   useKeyboardMonitor({
     active: started,
     examId,
@@ -91,17 +133,100 @@ function Comp1023ExamContent({ examId }: { examId: string }) {
     onViolation: recordViolation,
   });
 
-  // Load persisted draft answers so they survive tab switches
-  const initialResponses = useMemo(
-    () => loadDraftAnswers(examId, studentId),
+  useEffect(() => {
+    if (!user) return;
+
+    let cancelled = false;
+
+    void (async () => {
+      const attempt = await fetchAttempt(examId, studentId);
+      if (cancelled) return;
+
+      if (attempt?.status === "submitted" || attempt?.status === "timed_out") {
+        await refreshStudentAttempt(examId, studentId);
+        router.replace(`/student/exams/${examId}`);
+        return;
+      }
+
+      if (attempt) {
+        const nextState = {
+          responses: attempt.responses,
+          currentQuestionIndex: attempt.currentQuestionIndex,
+          flaggedQuestionIds: attempt.flaggedQuestionIds,
+        };
+        setAttemptState(nextState);
+        latestWorkspaceRef.current = nextState;
+      }
+
+      setAttemptLoading(false);
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [examId, router, studentId, user]);
+
+  useEffect(() => {
+    return () => {
+      if (saveTimeoutRef.current) {
+        clearTimeout(saveTimeoutRef.current);
+      }
+    };
+  }, []);
+
+  const persistDraft = useCallback(
+    async (state: ExamWorkspaceState) => {
+      const savedAttempt = await saveDraft(examId, studentId, state);
+      if (!savedAttempt) {
+        setAttemptError("We couldn't save your latest draft to the backend.");
+        return null;
+      }
+
+      const nextState = {
+        responses: savedAttempt.responses,
+        currentQuestionIndex: savedAttempt.currentQuestionIndex,
+        flaggedQuestionIds: savedAttempt.flaggedQuestionIds,
+      };
+      setAttemptState(nextState);
+      latestWorkspaceRef.current = nextState;
+      setAttemptError(null);
+      return savedAttempt;
+    },
     [examId, studentId],
   );
+
+  const queueDraftSave = useCallback(
+    (state: ExamWorkspaceState) => {
+      latestWorkspaceRef.current = state;
+      if (saveTimeoutRef.current) {
+        clearTimeout(saveTimeoutRef.current);
+      }
+
+      saveTimeoutRef.current = setTimeout(() => {
+        void persistDraft(state);
+      }, 600);
+    },
+    [persistDraft],
+  );
+
+  const flushDraftSave = useCallback(async () => {
+    if (saveTimeoutRef.current) {
+      clearTimeout(saveTimeoutRef.current);
+      saveTimeoutRef.current = null;
+    }
+
+    if (!latestWorkspaceRef.current) {
+      return null;
+    }
+
+    return persistDraft(latestWorkspaceRef.current);
+  }, [persistDraft]);
 
   const requestCameraAccess = useCallback(async () => {
     setCameraPrecheckError(null);
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ video: true });
-      stream.getTracks().forEach((t) => t.stop());
+      stream.getTracks().forEach((track) => track.stop());
       setCameraReady(true);
       setCameraError(false);
       updateLiveStatus({ cameraStatus: "clear" });
@@ -119,12 +244,39 @@ function Comp1023ExamContent({ examId }: { examId: string }) {
     const hasScreen = screenReady || (await requestScreenAccess());
     if (!hasCamera || !hasScreen || started) return;
 
+    const attempt =
+      (await startAttempt(examId, studentId)) ?? (await fetchAttempt(examId, studentId));
+
+    if (!attempt) {
+      setAttemptError("We couldn't start your exam attempt. Please try again.");
+      return;
+    }
+
+    const nextState = {
+      responses: attempt.responses,
+      currentQuestionIndex: attempt.currentQuestionIndex,
+      flaggedQuestionIds: attempt.flaggedQuestionIds,
+    };
+    setAttemptState(nextState);
+    latestWorkspaceRef.current = nextState;
+    setAttemptError(null);
     setSessionStartedAt(new Date().toISOString());
     setActiveTab("exam");
     completedSavedRef.current = false;
+    submitTriggeredRef.current = false;
     setStarted(true);
     start();
-  }, [cameraReady, requestCameraAccess, requestScreenAccess, screenReady, start, started]);
+  }, [
+    cameraReady,
+    examId,
+    requestCameraAccess,
+    requestScreenAccess,
+    screenReady,
+    start,
+    started,
+    studentId,
+    setActiveTab,
+  ]);
 
   const handleCameraPermissionDenied = useCallback(() => {
     setCameraReady(false);
@@ -133,10 +285,13 @@ function Comp1023ExamContent({ examId }: { examId: string }) {
     if (cameraUnavailableLoggedRef.current) return;
     cameraUnavailableLoggedRef.current = true;
     recordViolation({
-      examId, studentId, type: "camera_unavailable", severity: 0.65,
+      examId,
+      studentId,
+      type: "camera_unavailable",
+      severity: 0.65,
       message: "Webcam access was denied or revoked during the exam.",
     });
-  }, [examId, studentId, recordViolation, updateLiveStatus]);
+  }, [examId, recordViolation, studentId, updateLiveStatus]);
 
   const handleCameraPermissionGranted = useCallback(() => {
     setCameraReady(true);
@@ -145,13 +300,13 @@ function Comp1023ExamContent({ examId }: { examId: string }) {
     updateLiveStatus({ cameraStatus: "clear" });
   }, [updateLiveStatus]);
 
-  // Persist proctoring session
   useEffect(() => {
     if (!started || !user) return;
     const startedAt = sessionStartedAt ?? new Date().toISOString();
     const sessionStatus = isComplete ? "completed" : events.length > 0 ? "warning" : "active";
     const sessionSnapshot: PersistedProctoringSession = {
-      examId, studentId,
+      examId,
+      studentId,
       studentName: `${user.firstName} ${user.lastName}`,
       studentNumber: user.studentId ?? user.id,
       avatarUrl: user.avatarUrl,
@@ -160,8 +315,9 @@ function Comp1023ExamContent({ examId }: { examId: string }) {
       endedAt: isComplete ? new Date().toISOString() : undefined,
       sessionStatus,
       liveStatus,
-      rollingAverage: 0,
-      buckets: [],
+      riskScore: computeRiskScore(events),
+      rollingAverage,
+      buckets,
       events,
     };
     saveLiveSession(sessionSnapshot);
@@ -169,40 +325,60 @@ function Comp1023ExamContent({ examId }: { examId: string }) {
       saveCompletedSession(sessionSnapshot);
       completedSavedRef.current = true;
     }
-  }, [events, isComplete, liveStatus, sessionStartedAt, started, user, examId, studentId]);
+  }, [
+    buckets,
+    events,
+    examId,
+    isComplete,
+    liveStatus,
+    rollingAverage,
+    sessionStartedAt,
+    started,
+    studentId,
+    user,
+  ]);
 
-  // On exam complete (timer runs out), auto-submit
-  const latestResponsesRef = useRef<QuestionResponse[]>([]);
-  useEffect(() => {
-    if (isComplete && user) {
-      submitExamAnswers(examId, studentId, latestResponsesRef.current);
-      const t = setTimeout(() => router.push(`/student/exams/${examId}`), 2200);
-      return () => clearTimeout(t);
+  const submitAndExit = useCallback(async () => {
+    const savedAttempt = await flushDraftSave();
+    const submittedAttempt = (await submitAttempt(examId, studentId)) ?? savedAttempt;
+
+    if (!submittedAttempt || submittedAttempt.status === "in_progress") {
+      setAttemptError("We couldn't submit your attempt. Please try again.");
+      submitTriggeredRef.current = false;
+      return;
     }
-  }, [isComplete, examId, studentId, user, router]);
 
-  const handleResponsesChange = useCallback(
-    (responses: QuestionResponse[]) => {
-      latestResponsesRef.current = responses;
-      saveDraftAnswers(examId, studentId, responses);
-    },
-    [examId, studentId],
-  );
+    await refreshStudentAttempt(examId, studentId);
+    router.push(`/student/exams/${examId}`);
+  }, [examId, flushDraftSave, router, studentId]);
 
-  const handleSubmit = useCallback(
-    (responses: QuestionResponse[]) => {
-      submitExamAnswers(examId, studentId, responses);
-      router.push(`/student/exams/${examId}`);
-    },
-    [examId, studentId, router],
-  );
+  useEffect(() => {
+    if (!isComplete || !user || submitTriggeredRef.current) {
+      return;
+    }
+
+    submitTriggeredRef.current = true;
+    const timeout = setTimeout(() => {
+      void submitAndExit();
+    }, 400);
+
+    return () => clearTimeout(timeout);
+  }, [isComplete, submitAndExit, user]);
+
+  const handleSubmit = useCallback(() => {
+    submitTriggeredRef.current = true;
+    void submitAndExit();
+  }, [submitAndExit]);
 
   const totalRiskScore = computeRiskScore(events);
   const highSeverityCount = countHighSeverityEvents(events);
 
+  if (definitionLoading || !definition) {
+    return <div className="panel">Loading exam...</div>;
+  }
+
   return (
     <div style={{ display: "grid", gap: "var(--space-6)" }}>
-      {/* Header */}
       <div className="page-header" style={{ marginBottom: 0 }}>
         <div>
           <h1 className="page-title">
@@ -221,7 +397,15 @@ function Comp1023ExamContent({ examId }: { examId: string }) {
         </div>
       </div>
 
-      {/* Pre-check */}
+      {attemptError && (
+        <div
+          className="badge-danger"
+          style={{ padding: "var(--space-3) var(--space-4)", borderRadius: "var(--radius-sm)" }}
+        >
+          {attemptError}
+        </div>
+      )}
+
       {!started && (
         <div className="panel" style={{ display: "grid", gap: "var(--space-4)" }}>
           <div>
@@ -237,14 +421,23 @@ function Comp1023ExamContent({ examId }: { examId: string }) {
                   <Icon name="camera" />
                   <strong>Webcam Access</strong>
                 </div>
-                <StatusChip variant={cameraReady ? "safe" : "warning"} label={cameraReady ? "Granted" : "Not Granted"} />
+                <StatusChip
+                  variant={cameraReady ? "safe" : "warning"}
+                  label={cameraReady ? "Granted" : "Not Granted"}
+                />
               </div>
-              <p className="helper-text" style={{ margin: 0 }}>Required before proceeding.</p>
+              <p className="helper-text" style={{ margin: 0 }}>
+                Required before proceeding.
+              </p>
               <div className="precheck-card__actions">
-                <button type="button" className="button" onClick={requestCameraAccess}>Allow Webcam</button>
+                <button type="button" className="button" onClick={requestCameraAccess}>
+                  Allow Webcam
+                </button>
               </div>
               {cameraPrecheckError && (
-                <p className="helper-text" style={{ margin: 0, color: "var(--danger-text)" }}>{cameraPrecheckError}</p>
+                <p className="helper-text" style={{ margin: 0, color: "var(--danger-text)" }}>
+                  {cameraPrecheckError}
+                </p>
               )}
             </div>
             <div className="card precheck-card">
@@ -253,46 +446,74 @@ function Comp1023ExamContent({ examId }: { examId: string }) {
                   <Icon name="monitor" />
                   <strong>Screen Monitoring</strong>
                 </div>
-                <StatusChip variant={screenReady ? "safe" : "warning"} label={screenReady ? "Granted" : "Not Granted"} />
+                <StatusChip
+                  variant={screenReady ? "safe" : "warning"}
+                  label={screenReady ? "Granted" : "Not Granted"}
+                />
               </div>
-              <p className="helper-text" style={{ margin: 0 }}>Used to detect tab switches.</p>
+              <p className="helper-text" style={{ margin: 0 }}>
+                Used to detect tab switches.
+              </p>
               <div className="precheck-card__actions">
-                <button type="button" className="button-secondary" onClick={requestScreenAccess}>Allow Screen Access</button>
+                <button
+                  type="button"
+                  className="button-secondary"
+                  onClick={requestScreenAccess}
+                >
+                  Allow Screen Access
+                </button>
               </div>
               {screenError && (
-                <p className="helper-text" style={{ margin: 0, color: "var(--danger-text)" }}>{screenError}</p>
+                <p className="helper-text" style={{ margin: 0, color: "var(--danger-text)" }}>
+                  {screenError}
+                </p>
               )}
             </div>
           </div>
           <div className="precheck-footer">
             <p className="helper-text" style={{ margin: 0 }}>
-              The {Math.round(exam.durationSeconds / 60)}-minute exam starts after the required checks pass.
+              The {Math.round(exam.durationSeconds / 60)}-minute exam starts after the required
+              checks pass.
             </p>
             <button
-              type="button" className="button"
+              type="button"
+              className="button"
               onClick={handleStartExam}
-              disabled={!cameraReady || !screenReady}
-              style={{ opacity: !cameraReady || !screenReady ? 0.7 : 1 }}
+              disabled={!cameraReady || !screenReady || attemptLoading}
+              style={{ opacity: !cameraReady || !screenReady || attemptLoading ? 0.7 : 1 }}
             >
-              Start Exam
+              {attemptLoading ? "Loading Attempt..." : attemptState ? "Resume Exam" : "Start Exam"}
             </button>
           </div>
         </div>
       )}
 
-      {/* Timer */}
       <div
         className={`exam-timer ${
-          isComplete ? "exam-timer--complete" : started ? (secondsLeft <= 10 ? "exam-timer--running exam-timer--danger" : "exam-timer--running") : "exam-timer--idle"
+          isComplete
+            ? "exam-timer--complete"
+            : started
+              ? secondsLeft <= 10
+                ? "exam-timer--running exam-timer--danger"
+                : "exam-timer--running"
+              : "exam-timer--idle"
         }`}
-        role="timer" aria-live="polite"
+        role="timer"
+        aria-live="polite"
       >
         <p className="helper-text exam-timer__label">
           {isComplete ? "Time\u2019s Up!" : started ? "Time Remaining" : "Exam Timer"}
         </p>
-        <p className="exam-timer__value" style={{
-          color: isComplete ? "var(--success-text)" : secondsLeft <= 10 ? "var(--danger-text)" : "var(--brand-primary)",
-        }}>
+        <p
+          className="exam-timer__value"
+          style={{
+            color: isComplete
+              ? "var(--success-text)"
+              : secondsLeft <= 10
+                ? "var(--danger-text)"
+                : "var(--brand-primary)",
+          }}
+        >
           {formatCountdown(started ? secondsLeft : exam.durationSeconds)}
         </p>
         {isComplete && (
@@ -302,11 +523,13 @@ function Comp1023ExamContent({ examId }: { examId: string }) {
         )}
       </div>
 
-      {/* Session metrics */}
       <div className="grid grid-3">
         <MetricCard label="Total Warnings" value={events.length} />
         <MetricCard label="Risk Score" value={totalRiskScore} />
-        <MetricCard label="Session" value={isComplete ? "Completed" : started ? "Active" : "Ready Check"} />
+        <MetricCard
+          label="Session"
+          value={isComplete ? "Completed" : started ? "Active" : "Ready Check"}
+        />
       </div>
 
       {started && (
@@ -316,39 +539,50 @@ function Comp1023ExamContent({ examId }: { examId: string }) {
         </div>
       )}
 
-      {/* Exam workspace / monitoring tabs */}
       {started && !isComplete && (
         <>
-          {/* Webcam always active in background during exam */}
-          <div style={{ display: activeTab === "monitoring" ? "block" : "none" }}>
-            {/* Only visually hidden; WebcamPreview stays mounted below */}
-          </div>
+          <div style={{ display: activeTab === "monitoring" ? "block" : "none" }} />
 
           <div className="tab-list" role="tablist" aria-label="Exam workspace tabs">
-            <button type="button" role="tab" aria-selected={activeTab === "exam"}
+            <button
+              type="button"
+              role="tab"
+              aria-selected={activeTab === "exam"}
               className={`tab-button ${activeTab === "exam" ? "is-active" : ""}`}
-              onClick={() => setActiveTab("exam")}>
-              <Icon name="document" /><span>Exam</span>
+              onClick={() => setActiveTab("exam")}
+            >
+              <Icon name="document" />
+              <span>Exam</span>
             </button>
-            <button type="button" role="tab" aria-selected={activeTab === "monitoring"}
+            <button
+              type="button"
+              role="tab"
+              aria-selected={activeTab === "monitoring"}
               className={`tab-button ${activeTab === "monitoring" ? "is-active" : ""}`}
-              onClick={() => setActiveTab("monitoring")}>
-              <Icon name="timeline" /><span>Monitoring</span>
+              onClick={() => setActiveTab("monitoring")}
+            >
+              <Icon name="timeline" />
+              <span>Monitoring</span>
             </button>
           </div>
 
-          {/* Exam tab – always mounted, hidden via CSS to preserve answers */}
           <div style={{ display: activeTab === "exam" ? "block" : "none" }}>
             <ExamWorkspaceShell
-              definition={definition}
-              initialResponses={initialResponses}
-              onResponsesChange={handleResponsesChange}
+              definition={activeDefinition}
+              initialResponses={attemptState?.responses ?? []}
+              initialCurrentQuestionIndex={attemptState?.currentQuestionIndex ?? 0}
+              initialFlaggedQuestionIds={attemptState?.flaggedQuestionIds ?? []}
+              onStateChange={queueDraftSave}
               onSubmit={handleSubmit}
             />
           </div>
 
-          {/* Monitoring tab */}
-          <div style={{ display: activeTab === "monitoring" ? "grid" : "none", gap: "var(--space-6)" }}>
+          <div
+            style={{
+              display: activeTab === "monitoring" ? "grid" : "none",
+              gap: "var(--space-6)",
+            }}
+          >
             <div className="grid grid-2">
               <WebcamPreview
                 active={isRunning}
@@ -367,18 +601,35 @@ function Comp1023ExamContent({ examId }: { examId: string }) {
                   <LiveStatusPanel status={liveStatus} />
                 </div>
                 {cameraError && (
-                  <div className="badge-danger" style={{ padding: "var(--space-3) var(--space-4)", borderRadius: "var(--radius-sm)" }}>
+                  <div
+                    className="badge-danger"
+                    style={{
+                      padding: "var(--space-3) var(--space-4)",
+                      borderRadius: "var(--radius-sm)",
+                    }}
+                  >
                     Camera permission was denied. Proctoring data will be limited.
                   </div>
                 )}
                 {screenError && (
-                  <div className="badge-warning" style={{ padding: "var(--space-3) var(--space-4)", borderRadius: "var(--radius-sm)" }}>
+                  <div
+                    className="badge-warning"
+                    style={{
+                      padding: "var(--space-3) var(--space-4)",
+                      borderRadius: "var(--radius-sm)",
+                    }}
+                  >
                     {screenError}
                   </div>
                 )}
               </div>
             </div>
-            <SuspiciousActivityChart events={events} durationSeconds={exam.durationSeconds} startedAt={sessionStartedAt} title="Exam Alert Timeline" />
+            <SuspiciousActivityChart
+              events={events}
+              durationSeconds={exam.durationSeconds}
+              startedAt={sessionStartedAt}
+              title="Exam Alert Timeline"
+            />
             <WarningFeed events={events} />
           </div>
         </>

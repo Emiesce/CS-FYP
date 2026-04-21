@@ -1,6 +1,8 @@
 "use client";
 
 import React, { useState, useEffect, useCallback, useRef, useMemo } from "react";
+import { getSessionToken } from "@/features/auth";
+import { BACKEND_API_BASE } from "@/lib/constants";
 
 /* ------------------------------------------------------------------ */
 /*  Types                                                              */
@@ -49,7 +51,15 @@ interface GradingRun {
   reviews: ReviewDecision[]; started_at: string; completed_at: string | null;
 }
 
-const API = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
+const API = BACKEND_API_BASE;
+
+function authHeaders(extra?: HeadersInit): HeadersInit {
+  const token = getSessionToken();
+  return {
+    ...(extra ?? {}),
+    ...(token ? { Authorization: `Bearer ${token}` } : {}),
+  };
+}
 
 /* ------------------------------------------------------------------ */
 /*  Problem metadata                                                   */
@@ -118,7 +128,7 @@ export default function TestGradingPage() {
   }, []);
 
   useEffect(() => {
-    fetch(`${API}/api/test-grading/exam`)
+    fetch(`${API}/api/test-grading/exam`, { headers: authHeaders() })
       .then((r) => { if (!r.ok) throw new Error(`HTTP ${r.status}`); return r.json(); })
       .then((data: ExamData) => {
         setExam(data);
@@ -162,7 +172,7 @@ export default function TestGradingPage() {
     try {
       const res = await fetch(`${API}/api/test-grading/submit-stream`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: authHeaders({ "Content-Type": "application/json" }),
         body: JSON.stringify({ answers: payload }),
       });
       if (!res.ok) throw new Error(`Grading failed: ${await res.text()}`);
@@ -604,6 +614,24 @@ function HighlightedAnswer({
     return sorted;
   }, [evidenceSpans]);
 
+  const criterionColors = useMemo(() => {
+    const palette = [
+      { bg: "rgba(234,179,8,0.18)", border: "#eab308" },
+      { bg: "rgba(59,130,246,0.15)", border: "#3b82f6" },
+      { bg: "rgba(168,85,247,0.15)", border: "#a855f7" },
+      { bg: "rgba(34,197,94,0.15)", border: "#22c55e" },
+      { bg: "rgba(239,68,68,0.12)", border: "#ef4444" },
+      { bg: "rgba(236,72,153,0.12)", border: "#ec4899" },
+    ];
+    const map: Record<string, typeof palette[0]> = {};
+    let idx = 0;
+    for (const criterion of criterionResults) {
+      map[criterion.criterion_id] = palette[idx % palette.length];
+      idx++;
+    }
+    return map;
+  }, [criterionResults]);
+
   // Build segments: plain text + highlighted spans
   const segments = useMemo(() => {
     if (!sortedSpans.length) return [{ text: answer, span: null as EvidenceSpan | null }];
@@ -637,25 +665,6 @@ function HighlightedAnswer({
   }
 
   const hoveredCriterion = hoveredSpan ? criterionMap[hoveredSpan.criterion_id] : null;
-
-  // Generate consistent color per criterion
-  const criterionColors = useMemo(() => {
-    const palette = [
-      { bg: "rgba(234,179,8,0.18)", border: "#eab308" },
-      { bg: "rgba(59,130,246,0.15)", border: "#3b82f6" },
-      { bg: "rgba(168,85,247,0.15)", border: "#a855f7" },
-      { bg: "rgba(34,197,94,0.15)", border: "#22c55e" },
-      { bg: "rgba(239,68,68,0.12)", border: "#ef4444" },
-      { bg: "rgba(236,72,153,0.12)", border: "#ec4899" },
-    ];
-    const m: Record<string, typeof palette[0]> = {};
-    let idx = 0;
-    for (const cr of criterionResults) {
-      m[cr.criterion_id] = palette[idx % palette.length];
-      idx++;
-    }
-    return m;
-  }, [criterionResults]);
 
   return (
     <div style={{ position: "relative" }} ref={containerRef}>

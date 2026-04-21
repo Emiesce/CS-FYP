@@ -46,7 +46,12 @@ from app.models.grading_models import (
     ReviewSubmitRequest,
 )
 from app.services.grading.orchestrator import run_grading, run_grading_streaming
-from app.storage.grading_storage import get_grading_store
+from app.db.repositories.grading_repository import GradingRepository
+from app.db.session import get_db
+from app.db.models.core import User
+from app.dependencies.auth import require_roles
+from fastapi import Depends
+from sqlalchemy.orm import Session
 
 router = APIRouter(prefix="/api/test-grading", tags=["test-grading"])
 
@@ -105,7 +110,10 @@ class ExamOut(BaseModel):
 # ---- Endpoints -------------------------------------------------------
 
 @router.get("/exam", response_model=ExamOut)
-async def get_test_exam(exam_id: str = "comp1023-midterm-f25") -> ExamOut:
+async def get_test_exam(
+    exam_id: str = "comp1023-midterm-f25",
+    current_user: User = Depends(require_roles("instructor", "teaching_assistant", "administrator")),
+) -> ExamOut:
     """Return the requested test exam without correct answers."""
     exam = _get_exam(exam_id)
     questions_out: list[ExamQuestionOut] = []
@@ -133,7 +141,11 @@ async def get_test_exam(exam_id: str = "comp1023-midterm-f25") -> ExamOut:
 
 
 @router.post("/submit", response_model=GradingRunOut)
-async def submit_and_grade(body: SubmitRequest) -> GradingRunOut:
+async def submit_and_grade(
+    body: SubmitRequest,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_roles("instructor", "teaching_assistant", "administrator")),
+) -> GradingRunOut:
     """Accept student answers, build an attempt, grade it, return results."""
     exam = _get_exam(body.exam_id)
     rubrics = _get_rubrics(body.exam_id)
@@ -177,13 +189,17 @@ async def submit_and_grade(body: SubmitRequest) -> GradingRunOut:
     )
 
     # Persist so we can fetch / review later
-    get_grading_store().save_run(result)
+    GradingRepository(db).save_run(result)
 
     return result
 
 
 @router.post("/submit-stream")
-async def submit_and_grade_stream(body: SubmitRequest):
+async def submit_and_grade_stream(
+    body: SubmitRequest,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_roles("instructor", "teaching_assistant", "administrator")),
+):
     """SSE endpoint: streams each question result as it completes."""
     exam = _get_exam(body.exam_id)
     rubrics = _get_rubrics(body.exam_id)
@@ -229,7 +245,7 @@ async def submit_and_grade_stream(body: SubmitRequest):
                 mode="quality_first",
                 on_result=on_result,
             )
-            get_grading_store().save_run(final_run)
+            GradingRepository(db).save_run(final_run)
             await queue.put(("done", final_run))
         except Exception as e:
             await queue.put(("error", str(e)))
@@ -265,25 +281,39 @@ async def submit_and_grade_stream(body: SubmitRequest):
 
 
 @router.delete("/results", status_code=200)
-async def clear_all_results() -> dict:
+async def clear_all_results(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_roles("instructor", "teaching_assistant", "administrator")),
+) -> dict:
     """Delete all stored grading runs from the in-memory store (for testing)."""
-    count = get_grading_store().clear_all()
+    from app.db.models.grading import GradingRun
+    count = db.query(GradingRun).delete()
+    db.commit()
     return {"cleared": count, "message": f"Cleared {count} grading run(s) from server memory."}
 
 
 @router.get("/results/{run_id}", response_model=GradingRunOut)
-async def get_test_results(run_id: str) -> GradingRunOut:
+async def get_test_results(
+    run_id: str,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_roles("instructor", "teaching_assistant", "administrator")),
+) -> GradingRunOut:
     """Fetch a stored grading run."""
-    run = get_grading_store().get_run(run_id)
+    run = GradingRepository(db).get_run(run_id)
     if not run:
         raise HTTPException(status_code=404, detail="Run not found.")
     return run
 
 
 @router.put("/review/{run_id}", response_model=GradingRunOut)
-async def submit_test_review(run_id: str, body: ReviewSubmitRequest) -> GradingRunOut:
+async def submit_test_review(
+    run_id: str,
+    body: ReviewSubmitRequest,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_roles("instructor", "teaching_assistant", "administrator")),
+) -> GradingRunOut:
     """Submit a review override for a question in the run."""
-    store = get_grading_store()
+    store = GradingRepository(db)
     run = store.get_run(run_id)
     if not run:
         raise HTTPException(status_code=404, detail="Run not found.")
@@ -322,7 +352,20 @@ async def submit_test_review(run_id: str, body: ReviewSubmitRequest) -> GradingR
         reviewed_at=datetime.utcnow(),
     )
 
-    updated = store.apply_review(run.attempt_id, review)
+    
+    if review.override_score is not None:
+        for qr in run.question_results:
+            if qr.question_id == review.question_id:
+                qr.raw_score = review.override_score
+                qr.status = "reviewed"
+                if qr.max_points > 0:
+                    qr.normalized_score = qr.raw_score / qr.max_points
+                break
+    run.reviews.append(review)
+    run.total_score = sum(qr.raw_score for qr in run.question_results)
+    run.status = "reviewed"
+    updated = store.save_run(run)
+
     if not updated:
         raise HTTPException(status_code=500, detail="Failed to apply review.")
     return updated

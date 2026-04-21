@@ -3,6 +3,7 @@
 /* ------------------------------------------------------------------ */
 
 import { BACKEND_API_BASE } from "@/lib/constants";
+import { getSessionToken } from "@/features/auth";
 
 export interface StreamingAnswerPayload {
   question_id: string;
@@ -54,6 +55,14 @@ interface StreamGradingRunOptions {
   onDone?: (run: StreamingGradingRun) => void;
 }
 
+function authHeaders(extra?: HeadersInit): HeadersInit {
+  const token = getSessionToken();
+  return {
+    ...(extra ?? {}),
+    ...(token ? { Authorization: `Bearer ${token}` } : {}),
+  };
+}
+
 export async function streamGradingRun({
   examId,
   studentId,
@@ -64,7 +73,7 @@ export async function streamGradingRun({
 }: StreamGradingRunOptions): Promise<void> {
   const res = await fetch(`${BACKEND_API_BASE}/api/test-grading/submit-stream`, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: authHeaders({ "Content-Type": "application/json" }),
     body: JSON.stringify({
       exam_id: examId,
       student_id: studentId,
@@ -128,7 +137,10 @@ export async function streamGradingRun({
 /* ------------------------------------------------------------------ */
 
 export async function clearAllGradingResults(): Promise<{ cleared: number; message: string }> {
-  const res = await fetch(`${BACKEND_API_BASE}/api/test-grading/results`, { method: "DELETE" });
+  const res = await fetch(`${BACKEND_API_BASE}/api/test-grading/results`, {
+    method: "DELETE",
+    headers: authHeaders(),
+  });
   if (!res.ok) throw new Error("Failed to clear results from server");
   return res.json();
 }

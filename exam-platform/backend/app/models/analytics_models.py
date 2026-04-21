@@ -104,7 +104,48 @@ class ProctoringSessionSync(BaseModel):
     exam_id: Optional[str] = None
     student_id: str
     student_name: str
+    student_number: str = ""
+    avatar_url: Optional[str] = None
+    session_status: str = "live"   # live | completed | aborted
+    started_at: Optional[str] = None
+    ended_at: Optional[str] = None
     risk_score: float = 0
+    rolling_average: float = 0
     high_severity_event_count: int = 0
     event_count: int = 0
+    live_status: Optional[dict] = None
     events: list[dict] = Field(default_factory=list)
+    buckets: list[dict] = Field(default_factory=list)
+
+
+class ProctoringEventOut(BaseModel):
+    id: str
+    exam_id: str
+    student_id: str
+    event_type: str
+    severity: float
+    timestamp: str
+    started_at: Optional[str] = None
+    duration_seconds: Optional[float] = None
+    message: str
+    has_evidence_clip: Optional[str] = None
+
+
+class ProctoringSessionOut(BaseModel):
+    id: str
+    exam_id: str
+    student_id: str
+    student_name: str
+    student_number: str
+    avatar_url: Optional[str] = None
+    session_status: str
+    started_at: str
+    updated_at: str
+    ended_at: Optional[str] = None
+    risk_score: float
+    rolling_average: float
+    event_count: int
+    high_severity_event_count: int
+    live_status: Optional[dict] = None
+    events: list[ProctoringEventOut] = Field(default_factory=list)
+    buckets: list[dict] = Field(default_factory=list)

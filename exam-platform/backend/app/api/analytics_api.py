@@ -12,8 +12,11 @@ from __future__ import annotations
 from datetime import datetime, timezone
 from typing import Optional
 
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
+from sqlalchemy.orm import Session
 
+from app.db.models.core import User
+from app.dependencies.auth import require_roles
 from app.models.analytics_models import (
     AnalyticsChatRequest,
     AnalyticsChatResponse,
@@ -24,33 +27,13 @@ from app.models.analytics_models import (
 from app.services.analytics import (
     build_analytics_snapshot,
     get_proctoring_for_exam,
-    save_proctoring_sync,
 )
 from app.services.analytics.ai_service import analytics_chat, generate_ai_summary
-from app.storage.grading_storage import get_grading_store
-from app.storage.exam_storage import get_exam_store
+from app.db.repositories.grading_repository import GradingRepository
+from app.db.session import get_db
+from app.db.repositories.exam_repository import ExamRepository
 
 router = APIRouter(prefix="/api/analytics", tags=["analytics"])
-
-# ---- Fixture exam registry -----------------------------------------
-# Lazy-loaded so we don't import fixture builders at module load time.
-
-def _try_fixture_exam(exam_id: str):
-    """Return a fixture ExamDefinitionOut for known exam IDs, or None."""
-    try:
-        from app.fixtures.mgmt2110_exam import EXAM_ID as MGMT_ID, build_mgmt2110_exam
-        if exam_id == MGMT_ID:
-            return build_mgmt2110_exam()
-    except Exception:
-        pass
-    try:
-        from app.fixtures.comp1023_exam import build_comp1023_exam
-        # COMP1023 uses "comp1023-midterm-f25" in the backend fixture
-        if exam_id in ("comp1023-midterm-f25", "comp1023-midterm-s26"):
-            return build_comp1023_exam()
-    except Exception:
-        pass
-    return None
 
 
 def _build_question_meta(exam) -> list[dict]:
@@ -68,10 +51,10 @@ def _build_question_meta(exam) -> list[dict]:
     return meta
 
 
-def _empty_snapshot(exam_id: str) -> ExamAnalyticsSnapshotOut:
+def _empty_snapshot(exam_id: str, db: Optional[Session] = None) -> ExamAnalyticsSnapshotOut:
     """Return an empty snapshot when no grading data is available yet.
     Proctoring-only data (risk summaries) is still included via students."""
-    proc = get_proctoring_for_exam(exam_id)
+    proc = get_proctoring_for_exam(exam_id, db=db)
     now = datetime.now(timezone.utc).isoformat()
 
     from app.models.analytics_models import StudentAnalyticsRecord
@@ -120,34 +103,29 @@ def _empty_snapshot(exam_id: str) -> ExamAnalyticsSnapshotOut:
     )
 
 
-def _get_snapshot(exam_id: str) -> ExamAnalyticsSnapshotOut:
+def _get_snapshot(exam_id: str, db=None) -> ExamAnalyticsSnapshotOut:
     """Build analytics snapshot for an exam.
 
     Resolution order:
-      1. Exam definition from live exam_store (created via API)
-      2. Known backend fixture builders (MGMT2110, COMP1023)
-      3. Empty snapshot (proctoring-only) — never 404
+      1. Exam definition from DB (via exam repository)
+      2. Empty snapshot (proctoring-only) — never 404
     """
-    grading_store = get_grading_store()
+    grading_store = GradingRepository(db) if db else None
 
-    # 1. Live exam store
-    exam = get_exam_store().get_definition(exam_id)
+    # 1. DB-backed exam
+    exam = ExamRepository(db).get(exam_id) if db else None
 
-    # 2. Fixture fallback
-    if exam is None:
-        exam = _try_fixture_exam(exam_id)
-
-    # 3. No grading runs → empty/proctoring-only snapshot
-    runs = grading_store.list_runs_for_exam(exam_id)
+    # 2. No grading runs → empty/proctoring-only snapshot
+    runs = grading_store.list_runs_for_exam(exam_id) if grading_store else []
     if not runs:
         if exam is not None:
             # We have exam metadata but no grades yet
-            snap = _empty_snapshot(exam_id)
+            snap = _empty_snapshot(exam_id, db=db)
             snap.course_code = exam.course_code
             snap.course_name = exam.course_name
             snap.exam_title = exam.title
             return snap
-        return _empty_snapshot(exam_id)
+        return _empty_snapshot(exam_id, db=db)
 
     # 4. Full snapshot
     question_meta = _build_question_meta(exam) if exam else []
@@ -159,6 +137,7 @@ def _get_snapshot(exam_id: str) -> ExamAnalyticsSnapshotOut:
         max_total_points=exam.total_points if exam else sum(r.max_total_points for r in runs[:1]),
         grading_runs=runs,
         question_meta=question_meta,
+        db=db,
     )
 
 
@@ -166,9 +145,13 @@ def _get_snapshot(exam_id: str) -> ExamAnalyticsSnapshotOut:
     "/exams/{exam_id}/snapshot",
     response_model=ExamAnalyticsSnapshotOut,
 )
-async def api_get_analytics_snapshot(exam_id: str) -> ExamAnalyticsSnapshotOut:
+async def api_get_analytics_snapshot(
+    exam_id: str,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_roles("instructor", "teaching_assistant", "administrator")),
+) -> ExamAnalyticsSnapshotOut:
     """Get the full analytics snapshot for an exam."""
-    snapshot = _get_snapshot(exam_id)
+    snapshot = _get_snapshot(exam_id, db=db)
 
     # Attempt AI summary (non-blocking, optional)
     try:
@@ -188,9 +171,11 @@ async def api_get_analytics_snapshot(exam_id: str) -> ExamAnalyticsSnapshotOut:
 async def api_analytics_chat(
     exam_id: str,
     body: AnalyticsChatRequest,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_roles("instructor", "teaching_assistant", "administrator")),
 ) -> AnalyticsChatResponse:
     """Chat with AI about exam analytics."""
-    snapshot = _get_snapshot(exam_id)
+    snapshot = _get_snapshot(exam_id, db=db)
     reply = await analytics_chat(snapshot, body.message, body.history)
     return AnalyticsChatResponse(
         reply=reply,
@@ -202,14 +187,49 @@ async def api_analytics_chat(
 async def api_sync_proctoring(
     exam_id: str,
     body: ProctoringSessionSync,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_roles("instructor", "teaching_assistant", "administrator")),
 ) -> dict:
-    """Sync proctoring session data for analytics consumption."""
-    save_proctoring_sync(
-        exam_id=body.exam_id or exam_id,
+    """Sync proctoring session data to the database."""
+    resolved_exam_id = body.exam_id or exam_id
+
+    # 1. Persist to DB via proctoring repository
+    from app.db.repositories.proctoring_repository import ProctoringRepository
+    from datetime import datetime as _dt
+
+    repo = ProctoringRepository(db)
+
+    started_at = None
+    ended_at = None
+    if body.started_at:
+        try:
+            started_at = _dt.fromisoformat(body.started_at.replace("Z", "+00:00"))
+        except ValueError:
+            pass
+    if body.ended_at:
+        try:
+            ended_at = _dt.fromisoformat(body.ended_at.replace("Z", "+00:00"))
+        except ValueError:
+            pass
+
+    session_row = repo.upsert_session(
+        exam_id=resolved_exam_id,
         student_id=body.student_id,
         student_name=body.student_name,
+        student_number=getattr(body, "student_number", ""),
+        avatar_url=getattr(body, "avatar_url", None),
+        session_status=getattr(body, "session_status", "live"),
+        started_at=started_at,
+        ended_at=ended_at,
         risk_score=body.risk_score,
-        high_severity_event_count=body.high_severity_event_count,
+        rolling_average=getattr(body, "rolling_average", body.risk_score),
         event_count=body.event_count,
+        high_severity_event_count=body.high_severity_event_count,
+        live_status_json=getattr(body, "live_status", None),
     )
-    return {"status": "synced", "student_id": body.student_id}
+    repo.upsert_events(session_row, body.events)
+    repo.sync_buckets(session_row, getattr(body, "buckets", []))
+    db.commit()
+
+
+    return {"status": "synced", "session_id": session_row.id, "student_id": body.student_id}

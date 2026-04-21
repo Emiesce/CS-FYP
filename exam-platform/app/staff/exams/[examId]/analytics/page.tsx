@@ -7,8 +7,6 @@
 
 import { use, useCallback, useEffect, useMemo, useState } from "react";
 import { getAnalyticsSnapshot, sendAnalyticsChat } from "@/features/analytics/analytics-service";
-import { syncProctoringForAnalytics } from "@/features/analytics/analytics-service";
-import { PAST_EXAM_RISK_SUMMARIES } from "@/lib/fixtures";
 import type {
   ExamAnalyticsSnapshot,
   AnalyticsOverview,
@@ -388,21 +386,6 @@ function AnalyticsDashboardContent({ examId }: { examId: string }) {
       setLoading(true);
       setError(null);
       try {
-        // Sync proctoring data first
-        const riskSummaries = PAST_EXAM_RISK_SUMMARIES.filter(
-          (r) => r.events.length > 0 && r.events[0]?.examId === examId
-        );
-        await Promise.all(
-          riskSummaries.map((r) =>
-            syncProctoringForAnalytics(examId, {
-              studentId: r.studentId,
-              studentName: r.studentName,
-              riskScore: r.currentRiskScore,
-              highSeverityEventCount: r.highSeverityEventCount,
-              eventCount: r.events.length,
-            }).catch(() => {})
-          )
-        );
 
         const data = await getAnalyticsSnapshot(examId);
         if (!cancelled) setSnapshot(data);

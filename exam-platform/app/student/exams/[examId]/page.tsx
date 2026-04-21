@@ -4,14 +4,13 @@
 /*  Student Exam Detail Page (non-current exams)                      */
 /* ------------------------------------------------------------------ */
 
-import { use, useMemo, useSyncExternalStore } from "react";
+import { use, useEffect, useMemo, useState } from "react";
 import { AuthenticatedShell } from "@/components/AuthenticatedShell";
 import { useSession } from "@/features/auth/session-store";
 import {
-  readCompletedSession,
-  subscribeToPersistedProctoringSessions,
+  fetchStudentProctoringSession,
 } from "@/features/proctoring/live-session-store";
-import { ALL_EXAMS, PAST_EXAM_RISK_SUMMARIES, COMP1023_EXAM } from "@/lib/fixtures";
+import { fetchExamDefinition } from "@/features/exams/exam-service";
 import { EmptyState, MetricCard } from "@/components/ui";
 import { formatDate } from "@/lib/utils/format";
 import { computeRiskScore, countHighSeverityEvents } from "@/lib/utils/risk-score";
@@ -20,31 +19,33 @@ import Link from "next/link";
 
 function ExamDetailContent({ examId }: { examId: string }) {
   const { user } = useSession();
-  const exam = ALL_EXAMS.find((e) => e.id === examId);
+  const [exam, setExam] = useState<Awaited<ReturnType<typeof fetchExamDefinition>> | null>(null);
+  const [completedSession, setCompletedSession] =
+    useState<Awaited<ReturnType<typeof fetchStudentProctoringSession>> | null>(null);
 
-  const fixtureSummary = useMemo(
-    () => {
-      if (!user || examId !== "exam-past-001") {
-        return null;
-      }
+  useEffect(() => {
+    let cancelled = false;
+    void fetchExamDefinition(examId).then((definition) => {
+      if (!cancelled) setExam(definition);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [examId]);
 
-      return PAST_EXAM_RISK_SUMMARIES.find((summary) => summary.studentId === user.id) ?? null;
-    },
-    [examId, user],
-  );
-
-  const completedSession = useSyncExternalStore(
-    subscribeToPersistedProctoringSessions,
-    () => (user ? readCompletedSession(examId, user.studentId ?? user.id) : null),
-    () => null,
-  );
+  useEffect(() => {
+    if (!user) return;
+    let cancelled = false;
+    void fetchStudentProctoringSession(examId, user.studentId ?? user.id).then((session) => {
+      if (!cancelled) setCompletedSession(session);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [examId, user]);
 
   const completedSessionEvents = completedSession?.events ?? [];
-
-  const personalEvents =
-    completedSessionEvents.length > 0
-      ? completedSessionEvents
-      : fixtureSummary?.events ?? [];
+  const personalEvents = completedSessionEvents;
   const riskScore = computeRiskScore(personalEvents);
   const highSeverityCount = countHighSeverityEvents(personalEvents);
 
@@ -52,7 +53,7 @@ function ExamDetailContent({ examId }: { examId: string }) {
     return <EmptyState message="Exam not found." />;
   }
 
-  const showPersonalSummary = exam.status === "past" || completedSessionEvents.length > 0;
+  const showPersonalSummary = completedSessionEvents.length > 0;
 
   return (
     <div style={{ display: "grid", gap: "var(--space-6)" }}>
@@ -96,11 +97,7 @@ function ExamDetailContent({ examId }: { examId: string }) {
           <SuspiciousActivityChart
             events={personalEvents}
             durationSeconds={exam.durationSeconds}
-            startedAt={
-              completedSession?.startedAt ??
-              fixtureSummary?.buckets[0]?.windowStartedAt ??
-              null
-            }
+              startedAt={completedSession?.startedAt ?? null}
             title="Violation Timeline"
           />
 

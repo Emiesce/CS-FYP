@@ -6,10 +6,17 @@
 
 import { Suspense, useCallback, useEffect, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { authenticate } from "@/features/auth/auth-service";
+import { authenticate, fetchDemoAccounts } from "@/features/auth/auth-service";
 import { useSession, dashboardPath } from "@/features/auth/session-store";
 import { LoginPayloadSchema } from "@/lib/validation";
-import { DEMO_CREDENTIALS } from "@/lib/fixtures/users";
+import type { UserRole } from "@/types";
+
+interface DemoAccount {
+  role: UserRole;
+  label: string;
+  email: string;
+  password: string;
+}
 
 function LoginPageContent() {
   const router = useRouter();
@@ -19,6 +26,7 @@ function LoginPageContent() {
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [demoAccounts, setDemoAccounts] = useState<DemoAccount[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
 
@@ -29,22 +37,38 @@ function LoginPageContent() {
     }
   }, [isAuthenticated, user, router]);
 
+  useEffect(() => {
+    let cancelled = false;
+    void fetchDemoAccounts().then((accounts) => {
+      if (!cancelled) setDemoAccounts(accounts);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
   // Auto-login for role-switch: ?auto=student or ?auto=teaching_staff
   useEffect(() => {
     const autoRole = searchParams.get("auto");
     if (!autoRole) return;
     if (handledAutoLoginRef.current) return;
 
-    const creds = DEMO_CREDENTIALS.find((c) => c.user.role === autoRole);
-    if (creds) {
-      handledAutoLoginRef.current = true;
-      login(creds.user);
-      router.replace(dashboardPath(creds.user.role));
-    }
-  }, [searchParams, login, router]);
+    const account = demoAccounts.find((candidate) => candidate.role === autoRole);
+    if (!account) return;
+
+    handledAutoLoginRef.current = true;
+    void authenticate(account.email, account.password).then((result) => {
+      if (!result.success || !result.user) {
+        setError(result.error ?? "Login failed.");
+        return;
+      }
+      login(result.user, result.accessToken);
+      router.replace(dashboardPath(result.user.role));
+    });
+  }, [demoAccounts, login, router, searchParams]);
 
   const handleSubmit = useCallback(
-    (e: React.FormEvent) => {
+    async (e: React.FormEvent) => {
       e.preventDefault();
       setError(null);
       setSubmitting(true);
@@ -57,14 +81,14 @@ function LoginPageContent() {
         return;
       }
 
-      const result = authenticate(parsed.data.email, parsed.data.password);
+      const result = await authenticate(parsed.data.email, parsed.data.password);
       if (!result.success || !result.user) {
         setError(result.error ?? "Login failed.");
         setSubmitting(false);
         return;
       }
 
-      login(result.user);
+      login(result.user, result.accessToken);
       router.push(dashboardPath(result.user.role));
     },
     [email, password, login, router],
@@ -146,18 +170,11 @@ function LoginPageContent() {
         >
           <strong>Demo Credentials</strong>
           <ul style={{ margin: "var(--space-2) 0 0", paddingLeft: "1.2rem", lineHeight: 1.8 }}>
-            <li>
-              Administrator: <code>admin@ust.hk</code> / <code>admin123</code>
-            </li>
-            <li>
-              Instructor: <code>instructor@ust.hk</code> / <code>instructor123</code>
-            </li>
-            <li>
-              Teaching Assistant: <code>ta@ust.hk</code> / <code>ta123</code>
-            </li>
-            <li>
-              Student: <code>student@ust.hk</code> / <code>student123</code>
-            </li>
+            {demoAccounts.map((account) => (
+              <li key={account.role}>
+                {account.label}: <code>{account.email}</code> / <code>{account.password}</code>
+              </li>
+            ))}
           </ul>
         </div>
       </div>
