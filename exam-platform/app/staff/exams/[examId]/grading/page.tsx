@@ -21,6 +21,7 @@ import {
   type StreamingAnswerPayload,
   type StreamingGradingRun,
 } from "@/features/grading/stream-grading";
+import { listGradingRuns } from "@/features/grading/grading-service";
 import Link from "next/link";
 
 type GradingRunData = StreamingGradingRun;
@@ -52,7 +53,7 @@ function writeSessionCache<T>(key: string, value: T): void {
 }
 
 function getRunMaxPoints(run: GradingRunData): number {
-  return run.max_total_points ?? run.max_possible ?? 0;
+  return run.max_total_points ?? run.max_possible ?? run.question_results.reduce((sum, question) => sum + question.max_points, 0);
 }
 
 function getProgressPercent(progress: StudentGradingProgress | undefined): number {
@@ -116,6 +117,54 @@ function GradingDashboardContent({ examId }: { examId: string }) {
   useEffect(() => {
     writeSessionCache(`grading_run_signatures_${examId}`, gradingSignatures);
   }, [examId, gradingSignatures]);
+
+  useEffect(() => {
+    let cancelled = false;
+    void listGradingRuns(examId)
+      .then((runs) => {
+        if (cancelled) return;
+        setGradingRuns((prev) => {
+          const next = { ...prev };
+          for (const run of runs) {
+            next[run.studentId] = {
+              id: run.id,
+              status: run.status,
+              total_score: run.totalScore,
+              max_total_points: run.maxTotalPoints,
+              question_results: run.questionResults.map((question) => ({
+                question_id: question.questionId,
+                question_type: question.questionType,
+                raw_score: question.rawScore,
+                max_points: question.maxPoints,
+                normalized_score: question.normalizedScore,
+                rationale: question.rationale,
+                lane: question.lane,
+                model: question.model ?? null,
+                status: question.status,
+                evidence_spans: question.evidenceSpans,
+                criterion_results: question.criterionResults.map((criterion) => ({
+                  criterion_id: criterion.criterionId,
+                  criterion_label: criterion.criterionLabel,
+                  score: criterion.score,
+                  max_points: criterion.maxPoints,
+                  rationale: criterion.rationale,
+                  evidence_spans: criterion.evidenceSpans,
+                  override_score: criterion.overrideScore ?? null,
+                  reviewer_rationale: criterion.reviewerRationale ?? null,
+                })),
+              })),
+              started_at: run.startedAt,
+              completed_at: run.completedAt ?? null,
+            };
+          }
+          return next;
+        });
+      })
+      .catch(() => {});
+    return () => {
+      cancelled = true;
+    };
+  }, [examId]);
 
   useEffect(() => {
     return () => {

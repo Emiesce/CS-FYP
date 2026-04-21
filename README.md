@@ -4,7 +4,7 @@ This project runs as three pieces:
 
 - PostgreSQL in Docker
 - FastAPI backend on `http://127.0.0.1:8000`
-- Next.js frontend on `http://127.0.0.1:3000`
+- Next.js frontend on `http://127.0.0.1:3000` or `http://localhost:3000`
 
 ## Startup
 

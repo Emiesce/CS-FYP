@@ -343,7 +343,7 @@ async def submit_test_review(
 
     review = GradingReviewDecision(
         question_id=body.question_id,
-        reviewer_id="test-instructor",
+        reviewer_id=current_user.id,
         original_score=original_score,
         override_score=body.override_score,
         comment=body.comment,

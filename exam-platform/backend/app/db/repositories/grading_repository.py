@@ -4,11 +4,53 @@ from sqlalchemy.orm import Session
 from datetime import datetime
 
 from app.db.models.grading import GradingRun, Rubric
-from app.models.grading_models import GradingRunOut, StructuredRubric
+from app.models.grading_models import GradingRunOut, ModelUsageRecord, StructuredRubric
 
 class GradingRepository:
     def __init__(self, db: Session):
         self.db = db
+
+    def _derive_max_total_points(self, run: GradingRun) -> float:
+        question_results = run.question_results or []
+        return float(sum(float(question.get("max_points", 0) or 0) for question in question_results))
+
+    def _derive_model_usage(self, run: GradingRun) -> list[dict]:
+        question_results = run.question_results or []
+        usage_records: list[dict] = []
+        for question in question_results:
+            model = question.get("model")
+            token_usage = question.get("token_usage") or {}
+            if not model:
+                continue
+            usage_records.append(
+                ModelUsageRecord(
+                    model=model,
+                    question_id=question.get("question_id", ""),
+                    prompt_tokens=int(token_usage.get("prompt", 0) or 0),
+                    completion_tokens=int(token_usage.get("completion", 0) or 0),
+                    latency_ms=int(question.get("latency_ms", 0) or 0),
+                    cached=False,
+                ).model_dump(mode="json")
+            )
+        return usage_records
+
+    def _to_pydantic(self, run: GradingRun) -> GradingRunOut:
+        max_total_points = self._derive_max_total_points(run)
+        model_usage = self._derive_model_usage(run)
+        return GradingRunOut(**{
+            "id": run.id,
+            "exam_id": run.exam_id,
+            "attempt_id": run.attempt_id,
+            "student_id": run.student_id,
+            "total_score": run.total_score,
+            "status": run.status,
+            "started_at": run.started_at,
+            "completed_at": run.completed_at,
+            "question_results": run.question_results or [],
+            "reviews": run.reviews or [],
+            "max_total_points": max_total_points,
+            "model_usage": model_usage,
+        })
 
     def save_run(self, run_out: GradingRunOut) -> GradingRunOut:
         run = self.db.query(GradingRun).filter(GradingRun.id == run_out.id).first()
@@ -28,59 +70,23 @@ class GradingRepository:
 
         self.db.commit()
         self.db.refresh(run)
-        return run_out
+        return self._to_pydantic(run)
 
     def get_run(self, run_id: str) -> Optional[GradingRunOut]:
         run = self.db.query(GradingRun).filter(GradingRun.id == run_id).first()
         if not run:
             return None
-        return GradingRunOut(**{
-            "id": run.id,
-            "exam_id": run.exam_id,
-            "attempt_id": run.attempt_id,
-            "student_id": run.student_id,
-            "total_score": run.total_score,
-            "status": run.status,
-            "started_at": run.started_at,
-            "completed_at": run.completed_at,
-            "question_results": run.question_results,
-            "reviews": run.reviews,
-        })
+        return self._to_pydantic(run)
 
     def get_run_by_attempt(self, attempt_id: str) -> Optional[GradingRunOut]:
         run = self.db.query(GradingRun).filter(GradingRun.attempt_id == attempt_id).first()
         if not run:
             return None
-        return GradingRunOut(**{
-            "id": run.id,
-            "exam_id": run.exam_id,
-            "attempt_id": run.attempt_id,
-            "student_id": run.student_id,
-            "total_score": run.total_score,
-            "status": run.status,
-            "started_at": run.started_at,
-            "completed_at": run.completed_at,
-            "question_results": run.question_results,
-            "reviews": run.reviews,
-        })
+        return self._to_pydantic(run)
 
     def list_runs_for_exam(self, exam_id: str) -> List[GradingRunOut]:
         runs = self.db.query(GradingRun).filter(GradingRun.exam_id == exam_id).all()
-        return [
-            GradingRunOut(**{
-                "id": run.id,
-                "exam_id": run.exam_id,
-                "attempt_id": run.attempt_id,
-                "student_id": run.student_id,
-                "total_score": run.total_score,
-                "status": run.status,
-                "started_at": run.started_at,
-                "completed_at": run.completed_at,
-                "question_results": run.question_results,
-                "reviews": run.reviews,
-            })
-            for run in runs
-        ]
+        return [self._to_pydantic(run) for run in runs]
 
     def save_rubric(self, rubric: StructuredRubric) -> StructuredRubric:
         r = self.db.query(Rubric).filter(Rubric.question_id == rubric.question_id).first()

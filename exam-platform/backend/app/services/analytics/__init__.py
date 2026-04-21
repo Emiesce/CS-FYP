@@ -74,6 +74,15 @@ def _score_distribution(scores: list[float], max_pts: float) -> list[ScoreBucket
     return buckets
 
 
+def _run_max_points(run: GradingRunOut, fallback: float = 0.0) -> float:
+    if run.max_total_points > 0:
+        return run.max_total_points
+    derived = sum(question.max_points for question in run.question_results)
+    if derived > 0:
+        return float(derived)
+    return fallback
+
+
 # ---- Snapshot builder -----------------------------------------------
 
 def build_analytics_snapshot(
@@ -127,14 +136,15 @@ def build_analytics_snapshot(
 
         proc = proctoring.get(run.student_id, {})
         total = run.total_score
+        run_max_points = _run_max_points(run, fallback=max_total_points)
         total_scores.append(total)
 
         students.append(StudentAnalyticsRecord(
             student_id=run.student_id,
             student_name=proc.get("student_name", run.student_id),
             total_score=total,
-            max_score=run.max_total_points,
-            percentage=round(total / run.max_total_points * 100, 1) if run.max_total_points > 0 else 0,
+            max_score=run_max_points,
+            percentage=round(total / run_max_points * 100, 1) if run_max_points > 0 else 0,
             question_scores=qs,
             topic_scores=topic_agg,
             risk_score=proc.get("risk_score"),

@@ -10,7 +10,7 @@ import { useRouter } from "next/navigation";
 import { CriterionScoreCard } from "@/components/grading/CriterionScoreCard";
 import { EvidenceHighlighter } from "@/components/grading/EvidenceHighlighter";
 import { GradingSummaryCard } from "@/components/grading/GradingSummaryCard";
-import { getGradingRun, submitReview } from "@/features/grading/grading-service";
+import { getGradingRun, listGradingRuns, submitReview } from "@/features/grading/grading-service";
 import {
   getAllSubmissions,
   getAllSubmissionsServer,
@@ -89,6 +89,23 @@ function AttemptReviewContent({
     })();
     return () => { cancelled = true; };
   }, [examId, attemptId]);
+
+  useEffect(() => {
+    let cancelled = false;
+    void listGradingRuns(examId)
+      .then((runs) => {
+        if (cancelled) return;
+        const nextMap: Record<string, CachedRunRef> = {};
+        for (const gradingRun of runs) {
+          nextMap[gradingRun.studentId] = { id: gradingRun.id };
+        }
+        setCachedRunsByStudent((prev) => ({ ...prev, ...nextMap }));
+      })
+      .catch(() => {});
+    return () => {
+      cancelled = true;
+    };
+  }, [examId]);
 
   const currentQ = run?.questionResults.find((qr) => qr.questionId === selectedQ) ?? null;
 

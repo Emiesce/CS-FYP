@@ -87,7 +87,16 @@ export async function startGradingRun(
       body: JSON.stringify(camelToSnake(payload)),
     },
   );
-  return json(res);
+  const raw = await json<unknown>(res);
+  return snakeToCamel(raw) as GradingRun;
+}
+
+export async function listGradingRuns(examId: string): Promise<GradingRun[]> {
+  const res = await fetch(`${BASE}/api/grading/exams/${examId}/runs`, {
+    headers: authHeaders(),
+  });
+  const raw = await json<unknown>(res);
+  return snakeToCamel(raw) as GradingRun[];
 }
 
 export async function getGradingRun(
