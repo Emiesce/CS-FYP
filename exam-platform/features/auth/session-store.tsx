@@ -46,7 +46,7 @@ const SessionContext = createContext<SessionContextValue | undefined>(undefined)
 function loadSession(): User | null {
   if (typeof window === "undefined") return SERVER_SNAPSHOT;
   try {
-    const raw = sessionStorage.getItem(SESSION_KEY);
+    const raw = localStorage.getItem(SESSION_KEY);
     if (raw === cachedSessionRaw) {
       return cachedSessionUser;
     }
@@ -82,12 +82,12 @@ function saveSession(user: User | null, accessToken?: string | null): void {
       user,
       accessToken: accessToken ?? null,
     } satisfies StoredSession);
-    sessionStorage.setItem(SESSION_KEY, raw);
+    localStorage.setItem(SESSION_KEY, raw);
     cachedSessionRaw = raw;
     cachedSessionUser = user;
     cachedAccessToken = accessToken ?? null;
   } else {
-    sessionStorage.removeItem(SESSION_KEY);
+    localStorage.removeItem(SESSION_KEY);
     cachedSessionRaw = null;
     cachedSessionUser = null;
     cachedAccessToken = null;

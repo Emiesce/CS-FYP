@@ -1,7 +1,8 @@
 """
 HKUST CSE Exam Platform – Analytics AI Service
 
-Optional AI summaries and chat over analytics snapshots.
+AI summaries and chat over analytics snapshots via OpenRouter.
+Switch models by changing AI_MODEL in .env or the default below.
 """
 
 from __future__ import annotations
@@ -16,8 +17,35 @@ from app.models.analytics_models import AnalyticsAISummaryOut, ExamAnalyticsSnap
 
 logger = logging.getLogger(__name__)
 
-_HAS_OPENAI = bool(os.getenv("OPENAI_API_KEY"))
+# ── Configuration ────────────────────────────────────────────────────────────
+_API_KEY  = os.getenv("OPENROUTER_API_KEY")
+_BASE_URL = "https://openrouter.ai/api/v1"
+_MODEL    = os.getenv("AI_MODEL", "deepseek/deepseek-v3-2")  # override via .env
+_HAS_AI   = bool(_API_KEY)
 
+
+def _make_client():
+    """Return a configured async OpenAI-compatible client."""
+    import openai
+    return openai.AsyncOpenAI(api_key=_API_KEY, base_url=_BASE_URL)
+
+
+async def _chat_completion(messages: list[dict], temperature: float, max_tokens: int, json_mode: bool = False) -> str:
+    """Low-level helper – call the model and return the text content."""
+    client = _make_client()
+    kwargs = dict(
+        model=_MODEL,
+        temperature=temperature,
+        max_tokens=max_tokens,
+        messages=messages,
+    )
+    if json_mode:
+        kwargs["response_format"] = {"type": "json_object"}
+    response = await client.chat.completions.create(**kwargs)
+    return response.choices[0].message.content or ""
+
+
+# ── Snapshot context builder ─────────────────────────────────────────────────
 
 def _snapshot_context(snapshot: ExamAnalyticsSnapshotOut, max_chars: int = 4000) -> str:
     """Compact text representation of snapshot for LLM context."""
@@ -29,43 +57,33 @@ def _snapshot_context(snapshot: ExamAnalyticsSnapshotOut, max_chars: int = 4000)
         "",
         "Questions (sorted by success rate asc):",
     ]
-    sorted_q = sorted(snapshot.questions, key=lambda q: q.success_rate)
-    for q in sorted_q[:10]:
+    for q in sorted(snapshot.questions, key=lambda q: q.success_rate)[:10]:
         lines.append(
             f"  {q.question_id} ({q.question_type}): mean={q.mean_score}/{q.max_points}, "
             f"success={q.success_rate}%, overrides={q.override_count}"
         )
     if snapshot.topics:
-        lines.append("")
-        lines.append("Topics (sorted by % asc):")
-        sorted_t = sorted(snapshot.topics, key=lambda t: t.percentage)
-        for t in sorted_t:
+        lines += ["", "Topics (sorted by % asc):"]
+        for t in sorted(snapshot.topics, key=lambda t: t.percentage):
             lines.append(
                 f"  {t.topic_label}: mean={t.mean_score}/{t.max_possible} ({t.percentage}%), "
                 f"questions={t.question_count}"
             )
-    ctx = "\n".join(lines)
-    return ctx[:max_chars]
+    return "\n".join(lines)[:max_chars]
 
+
+# ── Public API ───────────────────────────────────────────────────────────────
 
 async def generate_ai_summary(
     snapshot: ExamAnalyticsSnapshotOut,
 ) -> Optional[AnalyticsAISummaryOut]:
-    """Generate AI summary. Returns None if AI unavailable."""
-    if not _HAS_OPENAI:
-        logger.info("OPENAI_API_KEY not set; skipping AI summary")
+    """Generate an AI summary of the exam analytics. Returns None if AI is unavailable."""
+    if not _HAS_AI:
+        logger.info("OPENROUTER_API_KEY not set; skipping AI summary")
         return None
 
     try:
-        import openai
-        client = openai.AsyncOpenAI()
-        ctx = _snapshot_context(snapshot)
-
-        response = await client.chat.completions.create(
-            model="gpt-4o-mini",
-            temperature=0.3,
-            max_tokens=500,
-            response_format={"type": "json_object"},
+        raw = await _chat_completion(
             messages=[
                 {
                     "role": "system",
@@ -77,12 +95,13 @@ async def generate_ai_summary(
                         "If evidence is weak, set confidence to low."
                     ),
                 },
-                {"role": "user", "content": ctx},
+                {"role": "user", "content": _snapshot_context(snapshot)},
             ],
+            temperature=0.3,
+            max_tokens=500,
+            json_mode=True,
         )
-
-        raw = response.choices[0].message.content or "{}"
-        data = json.loads(raw)
+        data = json.loads(raw or "{}")
         return AnalyticsAISummaryOut(
             common_misconceptions=data.get("commonMisconceptions", [])[:3],
             recommendations=data.get("recommendations", [])[:3],
@@ -99,37 +118,24 @@ async def analytics_chat(
     message: str,
     history: list[dict[str, str]],
 ) -> str:
-    """Chat over analytics snapshot. Returns reply string."""
-    if not _HAS_OPENAI:
-        return "AI chat is unavailable (OPENAI_API_KEY not configured). The analytics data is displayed in the dashboard above."
+    """Answer a question about the analytics snapshot. Returns the reply string."""
+    if not _HAS_AI:
+        return "AI chat is unavailable (OPENROUTER_API_KEY not configured). The analytics data is displayed in the dashboard above."
 
     try:
-        import openai
-        client = openai.AsyncOpenAI()
-        ctx = _snapshot_context(snapshot)
+        system_msg = {
+            "role": "system",
+            "content": (
+                "You are an AI analytics assistant for educators.\n"
+                f"Use only the following exam analytics snapshot:\n{_snapshot_context(snapshot)}\n\n"
+                "If the answer cannot be supported by the snapshot, say the data is unavailable.\n"
+                "Keep responses under 180 words. Do not invent statistics."
+            ),
+        }
+        prior = [{"role": h.get("role", "user"), "content": h.get("content", "")} for h in history[-6:]]
+        messages = [system_msg, *prior, {"role": "user", "content": message}]
 
-        messages = [
-            {
-                "role": "system",
-                "content": (
-                    "You are an AI analytics assistant for educators.\n"
-                    f"Use only the following exam analytics snapshot:\n{ctx}\n\n"
-                    "If the answer cannot be supported by the snapshot, say the data is unavailable.\n"
-                    "Keep responses under 180 words. Do not invent statistics."
-                ),
-            },
-        ]
-        for h in history[-6:]:
-            messages.append({"role": h.get("role", "user"), "content": h.get("content", "")})
-        messages.append({"role": "user", "content": message})
-
-        response = await client.chat.completions.create(
-            model="gpt-4o-mini",
-            temperature=0.4,
-            max_tokens=400,
-            messages=messages,
-        )
-        return response.choices[0].message.content or "No response generated."
+        return await _chat_completion(messages=messages, temperature=0.4, max_tokens=400)
     except Exception as e:
         logger.warning("Analytics chat failed: %s", e)
         return f"AI chat encountered an error: {e}"

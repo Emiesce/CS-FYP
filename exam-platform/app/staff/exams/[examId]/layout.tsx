@@ -76,7 +76,6 @@ function ExamSidebar({ examId }: { examId: string }) {
     };
   }, [examId]);
 
-  // Determine which module is active from the URL
   const activeModule = EXAM_MODULES.find((mod) =>
     pathname.includes(`/exams/${examId}/${mod.key}`),
   )?.key ?? "proctoring";
@@ -84,70 +83,133 @@ function ExamSidebar({ examId }: { examId: string }) {
   return (
     <aside
       style={{
-        width: collapsed ? "72px" : "200px",
+        width: collapsed ? "64px" : "220px",
         minHeight: "calc(100vh - 120px)",
-        borderRight: "1px solid var(--border-default)",
-        padding: "var(--space-4) 0",
+        background: "var(--surface-strong)",
+        borderRight: "1px solid var(--border-subtle)",
+        display: "flex",
+        flexDirection: "column",
         flexShrink: 0,
-        transition: "width 0.25s ease",
+        transition: "width 0.22s ease",
+        overflow: "hidden",
       }}
     >
-      {/* Exam header */}
-      <div style={{ padding: collapsed ? "0 var(--space-2)" : "0 var(--space-4)", marginBottom: "var(--space-4)" }}>
-        <button
-          type="button"
-          className="button-ghost"
-          onClick={() => setCollapsed((prev) => !prev)}
-          style={{
-            width: "100%",
-            justifyContent: collapsed ? "center" : "space-between",
-            marginBottom: "var(--space-3)",
-            textDecoration: "none",
-          }}
-          aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
-          title={collapsed ? "Expand sidebar" : "Collapse sidebar"}
-        >
-          {collapsed ? <IconChevronRight /> : <IconChevronLeft />}
-          {!collapsed && <span>Collapse</span>}
-        </button>
+      {/* Top: back + collapse */}
+      <div
+        style={{
+          padding: collapsed ? "var(--space-4) var(--space-3)" : "var(--space-4) var(--space-4)",
+          borderBottom: "1px solid var(--border-subtle)",
+          display: "flex",
+          flexDirection: "column",
+          gap: "var(--space-3)",
+        }}
+      >
+        {/* Back to dashboard */}
         <Link
           href="/staff"
+          title="Back to Dashboard"
           style={{
+            display: "flex",
+            alignItems: "center",
+            gap: "var(--space-2)",
             fontSize: "0.8rem",
             color: "var(--text-muted)",
             textDecoration: "none",
-            display: "block",
-            marginBottom: "var(--space-2)",
-            textAlign: collapsed ? "center" : "left",
+            fontWeight: 500,
+            whiteSpace: "nowrap",
+            overflow: "hidden",
           }}
         >
-          {collapsed ? <IconChevronRight /> : <><IconChevronLeft /> Back to Dashboard</>}
+          <IconChevronLeft />
+          {!collapsed && "Dashboard"}
         </Link>
-        {!collapsed && (
-          <>
-            <h3 style={{ fontSize: "0.95rem", fontWeight: 600, margin: 0 }}>
-              {examLabel?.courseCode ?? "Exam"}
-            </h3>
-            <p
+
+        {/* Exam label */}
+        {!collapsed && examLabel && (
+          <div>
+            <div
               style={{
-                fontSize: "0.8rem",
-                color: "var(--text-muted)",
-                margin: "var(--space-1) 0 0",
+                fontSize: "0.7rem",
+                fontWeight: 700,
+                letterSpacing: "0.08em",
+                textTransform: "uppercase",
+                color: "var(--brand-primary)",
+                marginBottom: "var(--space-1)",
               }}
             >
-              {examLabel?.title ?? examId}
-            </p>
-          </>
+              {examLabel.courseCode}
+            </div>
+            <div
+              style={{
+                fontSize: "0.85rem",
+                fontWeight: 600,
+                color: "var(--text-primary)",
+                lineHeight: 1.3,
+                overflow: "hidden",
+                display: "-webkit-box",
+                WebkitLineClamp: 2,
+                WebkitBoxOrient: "vertical",
+              }}
+            >
+              {examLabel.title}
+            </div>
+          </div>
         )}
+
+        {/* Collapse toggle */}
+        <button
+          type="button"
+          onClick={() => setCollapsed((prev) => !prev)}
+          title={collapsed ? "Expand sidebar" : "Collapse sidebar"}
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: collapsed ? "center" : "space-between",
+            gap: "var(--space-2)",
+            width: "100%",
+            padding: "var(--space-2) var(--space-3)",
+            fontSize: "0.78rem",
+            color: "var(--text-muted)",
+            background: "var(--slate-100)",
+            border: "1px solid var(--border-subtle)",
+            borderRadius: "var(--radius-sm)",
+            cursor: "pointer",
+            fontWeight: 500,
+            whiteSpace: "nowrap",
+            transition: "background var(--transition-base)",
+          }}
+        >
+          {collapsed ? <IconChevronRight /> : <><span>Collapse</span><IconChevronLeft /></>}
+        </button>
       </div>
 
-      {/* Module nav */}
-      <nav>
+      {/* Nav items */}
+      <nav style={{ flex: 1, padding: "var(--space-3) 0" }}>
+        <div
+          style={{
+            padding: collapsed ? 0 : "0 var(--space-4)",
+            marginBottom: "var(--space-2)",
+          }}
+        >
+          {!collapsed && (
+            <span
+              style={{
+                fontSize: "0.68rem",
+                fontWeight: 700,
+                letterSpacing: "0.1em",
+                textTransform: "uppercase",
+                color: "var(--text-muted)",
+              }}
+            >
+              Modules
+            </span>
+          )}
+        </div>
         {EXAM_MODULES.map((mod) => {
           const isActive = activeModule === mod.key;
           const isEnabled = mod.enabled;
           return (
-            <div key={mod.key}>
+            <div key={mod.key} style={{ padding: collapsed ? "var(--space-1) var(--space-2)" : "var(--space-1) var(--space-3)" }}>
               {isEnabled ? (
                 <Link
                   href={`/staff/exams/${examId}/${mod.key}`}
@@ -155,16 +217,19 @@ function ExamSidebar({ examId }: { examId: string }) {
                   style={{
                     display: "flex",
                     alignItems: "center",
-                    gap: "var(--space-2)",
+                    gap: "var(--space-3)",
                     justifyContent: collapsed ? "center" : "flex-start",
-                    padding: collapsed ? "var(--space-3) var(--space-2)" : "var(--space-2) var(--space-4)",
-                    fontSize: "0.9rem",
-                    fontWeight: isActive ? 600 : 400,
-                    color: isActive ? "var(--hkust-gold)" : "var(--text-primary)",
-                    background: isActive ? "var(--surface-hover)" : "transparent",
-                    borderLeft: isActive ? "3px solid var(--hkust-gold)" : "3px solid transparent",
+                    padding: collapsed ? "var(--space-3)" : "var(--space-3) var(--space-3)",
+                    fontSize: "0.88rem",
+                    fontWeight: isActive ? 700 : 500,
+                    color: isActive ? "var(--hkust-blue-800)" : "var(--text-secondary)",
+                    background: isActive ? "var(--hkust-blue-100)" : "transparent",
+                    borderRadius: "var(--radius-sm)",
+                    borderLeft: isActive ? "3px solid var(--hkust-blue-700)" : "3px solid transparent",
                     textDecoration: "none",
                     transition: "all 0.15s ease",
+                    whiteSpace: "nowrap",
+                    overflow: "hidden",
                   }}
                 >
                   {moduleIcon(mod.key)}
@@ -172,18 +237,22 @@ function ExamSidebar({ examId }: { examId: string }) {
                 </Link>
               ) : (
                 <div
-                  title={mod.label}
+                  title={`${mod.label} (coming soon)`}
                   style={{
                     display: "flex",
                     alignItems: "center",
-                    gap: "var(--space-2)",
+                    gap: "var(--space-3)",
                     justifyContent: collapsed ? "center" : "flex-start",
-                    padding: collapsed ? "var(--space-3) var(--space-2)" : "var(--space-2) var(--space-4)",
-                    fontSize: "0.9rem",
+                    padding: collapsed ? "var(--space-3)" : "var(--space-3) var(--space-3)",
+                    fontSize: "0.88rem",
+                    fontWeight: 500,
                     color: "var(--text-muted)",
+                    borderRadius: "var(--radius-sm)",
+                    borderLeft: "3px solid transparent",
                     opacity: 0.5,
                     cursor: "not-allowed",
-                    borderLeft: "3px solid transparent",
+                    whiteSpace: "nowrap",
+                    overflow: "hidden",
                   }}
                 >
                   {moduleIcon(mod.key)}
@@ -192,7 +261,7 @@ function ExamSidebar({ examId }: { examId: string }) {
                       {mod.label}
                       <span
                         className="badge badge-warning"
-                        style={{ fontSize: "0.65rem", marginLeft: "auto" }}
+                        style={{ fontSize: "0.62rem", marginLeft: "auto" }}
                       >
                         Soon
                       </span>
@@ -204,6 +273,34 @@ function ExamSidebar({ examId }: { examId: string }) {
           );
         })}
       </nav>
+
+      {/* Footer: exam ID pill */}
+      {!collapsed && (
+        <div
+          style={{
+            padding: "var(--space-3) var(--space-4)",
+            borderTop: "1px solid var(--border-subtle)",
+          }}
+        >
+          <span
+            style={{
+              fontSize: "0.7rem",
+              color: "var(--text-muted)",
+              fontFamily: "monospace",
+              background: "var(--slate-100)",
+              padding: "var(--space-1) var(--space-2)",
+              borderRadius: "var(--radius-sm)",
+              display: "block",
+              overflow: "hidden",
+              textOverflow: "ellipsis",
+              whiteSpace: "nowrap",
+            }}
+            title={examId}
+          >
+            {examId}
+          </span>
+        </div>
+      )}
     </aside>
   );
 }
@@ -226,9 +323,9 @@ export default function PastExamLayout({
 
   return (
     <AuthenticatedShell requiredRole="staff">
-      <div style={{ display: "flex", gap: 0, margin: "calc(-1 * var(--space-6))", minHeight: "calc(100vh - 120px)" }}>
+      <div style={{ display: "flex", gap: 0, margin: "calc(-1 * var(--space-8)) calc(-1 * var(--space-6))", minHeight: "calc(100vh - 64px)" }}>
         <ExamSidebar examId={examId} />
-        <main style={{ flex: 1, padding: "var(--space-4)", minWidth: 0 }}>
+        <main style={{ flex: 1, padding: "var(--space-6) var(--space-6)", minWidth: 0, overflow: "auto" }}>
           {children}
         </main>
       </div>

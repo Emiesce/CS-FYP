@@ -19,11 +19,28 @@ const statusClass: Record<string, string> = {
 };
 
 export function QuestionNavigator({ items, currentIndex, onNavigate }: QuestionNavigatorProps) {
+  const answeredCount = items.filter((i) => i.status === "answered").length;
+  const flaggedCount = items.filter((i) => i.status === "flagged").length;
+
   return (
-    <div className="panel qnav-panel">
-      <h4 style={{ margin: 0, fontSize: "0.9rem", color: "var(--text-secondary)" }}>
-        Questions
-      </h4>
+    <aside className="qnav-sidebar">
+      {/* Header */}
+      <div className="qnav-header">
+        <span className="qnav-title">Questions</span>
+        <span className="qnav-progress-label">
+          {answeredCount}/{items.length}
+        </span>
+      </div>
+
+      {/* Progress bar */}
+      <div className="qnav-progress-bar">
+        <div
+          className="qnav-progress-fill"
+          style={{ width: `${items.length > 0 ? (answeredCount / items.length) * 100 : 0}%` }}
+        />
+      </div>
+
+      {/* Grid */}
       <div className="qnav-grid">
         {items.map((item, idx) => (
           <button
@@ -36,11 +53,22 @@ export function QuestionNavigator({ items, currentIndex, onNavigate }: QuestionN
           </button>
         ))}
       </div>
-      <div style={{ display: "flex", gap: "var(--space-3)", flexWrap: "wrap", fontSize: "0.8rem" }}>
-        <span className="qnav-legend"><span className="qnav-dot answered" /> Answered</span>
-        <span className="qnav-legend"><span className="qnav-dot flagged" /> Flagged</span>
-        <span className="qnav-legend"><span className="qnav-dot" /> Unanswered</span>
+
+      {/* Legend */}
+      <div className="qnav-legend-group">
+        <span className="qnav-legend">
+          <span className="qnav-dot answered" />
+          <span>Answered <strong>({answeredCount})</strong></span>
+        </span>
+        <span className="qnav-legend">
+          <span className="qnav-dot flagged" />
+          <span>Flagged <strong>({flaggedCount})</strong></span>
+        </span>
+        <span className="qnav-legend">
+          <span className="qnav-dot" />
+          <span>Unanswered <strong>({items.length - answeredCount - flaggedCount})</strong></span>
+        </span>
       </div>
-    </div>
+    </aside>
   );
 }
