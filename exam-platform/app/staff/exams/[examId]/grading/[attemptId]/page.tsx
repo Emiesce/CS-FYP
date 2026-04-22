@@ -419,7 +419,7 @@ function AttemptReviewContent({
               </div>
             </div>
 
-            <div className="panel" style={{ padding: "var(--space-5)", minHeight: "72vh" }}>
+            <div className="panel" style={{ padding: "var(--space-5)" }}>
               <div style={{ fontSize: "0.78rem", fontWeight: 700, letterSpacing: "0.04em", textTransform: "uppercase", color: "var(--text-muted)", marginBottom: "var(--space-2)" }}>
                 Student Answer {currentQAllReviewed ? "With Evidence" : ""}
               </div>
@@ -456,7 +456,6 @@ function AttemptReviewContent({
                   {activeCriterion === cr.criterionId && (
                     <div
                       style={{
-                        marginTop: "var(--space-2)",
                         paddingTop: "var(--space-4)",
                         borderTop: "1px solid var(--border-default)",
                         display: "grid",
@@ -501,39 +500,6 @@ function AttemptReviewContent({
                           style={{ resize: "vertical" }}
                         />
                       </label>
-
-                      {revealAiAssessment && (
-                        <div
-                          style={{
-                            padding: "var(--space-3)",
-                            borderRadius: "var(--radius-md)",
-                            background: "rgba(255, 235, 130, 0.25)",
-                            border: "1px solid rgba(200, 170, 50, 0.3)",
-                            display: "grid",
-                            gap: "var(--space-2)",
-                          }}
-                        >
-                          <div style={{ display: "flex", gap: "var(--space-2)", flexWrap: "wrap" }}>
-                            <span className="badge badge-info">
-                              AI {cr.score}/{cr.maxPoints}
-                            </span>
-                            {cr.overrideScore != null && (
-                              <span className="badge badge-success">
-                                Saved {cr.overrideScore}/{cr.maxPoints}
-                              </span>
-                            )}
-                          </div>
-                          <div>
-                            <div style={{ fontSize: "0.78rem", fontWeight: 700, color: "var(--text-muted)", marginBottom: 4 }}>
-                              AI Criterion Rationale
-                            </div>
-                            <p style={{ margin: 0, fontSize: "0.86rem", lineHeight: 1.6, color: "var(--text-secondary)" }}>
-                              {cr.rationale || "No criterion rationale available."}
-                            </p>
-                          </div>
-                        </div>
-                      )}
-
                       <div style={{ display: "flex", gap: "var(--space-3)", flexWrap: "wrap" }}>
                         <button
                           type="button"

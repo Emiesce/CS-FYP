@@ -76,7 +76,8 @@ class GradingRepository:
         run.exam_id = run_out.exam_id
         run.student_id = run_out.student_id
         run.total_score = run_out.total_score
-        run.status = run_out.status.value
+        # status may be a GradingRunStatus enum or a plain string (e.g. after review)
+        run.status = run_out.status.value if hasattr(run_out.status, "value") else run_out.status
         run.started_at = run_out.started_at
         run.completed_at = run_out.completed_at
         run.question_results = [q.model_dump(mode="json") for q in run_out.question_results]

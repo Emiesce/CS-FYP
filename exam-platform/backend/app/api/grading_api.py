@@ -174,15 +174,30 @@ async def api_submit_review(
             break
 
     
-    # Re-use legacy apply_review logic here, or just inline it:
-    if review.override_score is not None:
+    # Apply override and recompute scores (human review takes precedence)
+    criteria_overrides = getattr(body, "criteria_overrides", []) or []
+    if criteria_overrides or review.override_score is not None:
         for qr in run.question_results:
             if qr.question_id == review.question_id:
-                qr.raw_score = review.override_score
+                if criteria_overrides:
+                    override_by_id  = {o.criterion_id: o.override_score for o in criteria_overrides}
+                    reasoning_by_id = {o.criterion_id: o.reasoning       for o in criteria_overrides}
+                    for cr in qr.criterion_results:
+                        if cr.criterion_id in override_by_id:
+                            cr.override_score     = override_by_id[cr.criterion_id]
+                            cr.reviewer_rationale = reasoning_by_id.get(cr.criterion_id) or cr.reviewer_rationale
+                    if qr.criterion_results:
+                        qr.raw_score = sum(
+                            (cr.override_score if cr.override_score is not None else cr.score)
+                            for cr in qr.criterion_results
+                        )
+                if review.override_score is not None:
+                    qr.raw_score = review.override_score
                 qr.status = "reviewed"
                 if qr.max_points > 0:
                     qr.normalized_score = qr.raw_score / qr.max_points
                 break
+
     run.reviews.append(review)
     run.total_score = sum(qr.raw_score for qr in run.question_results)
     run.status = "reviewed"
