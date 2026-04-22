@@ -53,13 +53,27 @@ class GradingRepository:
         })
 
     def save_run(self, run_out: GradingRunOut) -> GradingRunOut:
-        run = self.db.query(GradingRun).filter(GradingRun.id == run_out.id).first()
-        if not run:
+        # Use (exam_id, student_id) as the stable key to detect re-grades,
+        # since attempt_id is regenerated on every grading run.
+        run = (
+            self.db.query(GradingRun)
+            .filter(
+                GradingRun.exam_id == run_out.exam_id,
+                GradingRun.student_id == run_out.student_id,
+            )
+            .first()
+        )
+        if run:
+            # Re-grade: overwrite all fields on the existing row
+            run.id = run_out.id
+            run.attempt_id = run_out.attempt_id
+        else:
+            # First-time grade: insert a new row
             run = GradingRun(id=run_out.id)
+            run.attempt_id = run_out.attempt_id
             self.db.add(run)
 
         run.exam_id = run_out.exam_id
-        run.attempt_id = run_out.attempt_id
         run.student_id = run_out.student_id
         run.total_score = run_out.total_score
         run.status = run_out.status.value
