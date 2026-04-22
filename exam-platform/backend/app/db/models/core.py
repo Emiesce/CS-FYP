@@ -112,6 +112,7 @@ class ExamQuestion(Base):
     rubric_json = Column(JSONB, nullable=True)
     type = Column(String, nullable=False)
     type_data_json = Column(JSONB, nullable=False)
+    topic_ids_json = Column(JSONB, nullable=True, default=list)
 
     exam = relationship("Exam", back_populates="questions")
 

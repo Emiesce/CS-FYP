@@ -38,6 +38,7 @@ export function createDefaultQuestion(
     prompt: "",
     points: 10,
     required: true,
+    topicIds: [],
     rubric: undefined,
   };
 
@@ -165,6 +166,7 @@ interface BackendExamDefinitionResponse {
     prompt: string;
     points: number;
     required: boolean;
+    topic_ids?: string[];
     rubric?: {
       text: string;
       attachment?: {
@@ -252,6 +254,7 @@ function normalizeExamQuestion(
     prompt: question.prompt,
     points: question.points,
     required: question.required,
+    topicIds: question.topic_ids ?? [],
     rubric: question.rubric
       ? {
           text: question.rubric.text,
@@ -340,6 +343,7 @@ function serializeExamQuestion(question: ExamQuestion): Record<string, unknown> 
     prompt: question.prompt,
     points: question.points,
     required: question.required,
+    topic_ids: question.topicIds ?? [],
     rubric: question.rubric
       ? {
           text: question.rubric.text,

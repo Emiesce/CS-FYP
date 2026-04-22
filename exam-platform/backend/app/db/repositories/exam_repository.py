@@ -25,7 +25,8 @@ class ExamRepository:
                 points=q.points,
                 required=q.required,
                 rubric=rubric,
-                type_data=q_data
+                type_data=q_data,
+                topic_ids=q.topic_ids_json or [],
             ))
             
         return ExamDefinitionOut(
@@ -87,9 +88,10 @@ class ExamRepository:
                 prompt=q.prompt,
                 points=q.points,
                 required=q.required,
-                rubric_json=q.rubric.model_dump() if q.rubric else None,
+                rubric_json=q.rubric.model_dump(exclude={"structured_rubric"}, exclude_none=True) if q.rubric else None,
                 type=q.type_data.type,
-                type_data_json=q.type_data.model_dump()
+                type_data_json=q.type_data.model_dump(),
+                topic_ids_json=q.topic_ids or [],
             )
             self.db.add(eq)
             
@@ -141,9 +143,10 @@ class ExamRepository:
                 prompt=q.prompt,
                 points=q.points,
                 required=q.required,
-                rubric_json=q.rubric.model_dump() if q.rubric else None,
+                rubric_json=q.rubric.model_dump(exclude={"structured_rubric"}, exclude_none=True) if q.rubric else None,
                 type=q.type_data.type,
-                type_data_json=q.type_data.model_dump()
+                type_data_json=q.type_data.model_dump(),
+                topic_ids_json=q.topic_ids or [],
             )
             self.db.add(eq)
             
