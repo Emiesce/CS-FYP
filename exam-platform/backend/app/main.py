@@ -24,6 +24,7 @@ from app.api.grading_api import router as grading_router
 from app.api.test_grading_api import router as test_grading_router
 from app.api.analytics_api import router as analytics_router
 from app.api.proctoring_api import router as proctoring_router
+from app.api.materials_api import router as materials_router
 
 logging.basicConfig(
     level=logging.INFO,
@@ -56,6 +57,7 @@ app.include_router(grading_router)
 app.include_router(test_grading_router)
 app.include_router(analytics_router)
 app.include_router(proctoring_router)
+app.include_router(materials_router)
 
 
 @app.get("/health")

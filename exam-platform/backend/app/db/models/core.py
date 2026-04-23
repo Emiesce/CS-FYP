@@ -97,6 +97,7 @@ class Exam(Base):
         cascade="all, delete-orphan",
     )
     attempts = relationship("ExamAttempt", back_populates="exam")
+    materials = relationship("CourseMaterial", back_populates="exam", cascade="all, delete-orphan")
 
 
 class ExamQuestion(Base):
@@ -131,6 +132,20 @@ class ExamAttempt(Base):
 
     exam = relationship("Exam", back_populates="attempts")
     responses = relationship("QuestionResponse", back_populates="attempt", cascade="all, delete-orphan")
+
+
+class CourseMaterial(Base):
+    __tablename__ = "course_materials"
+
+    id = Column(String, primary_key=True, default=generate_uuid)
+    exam_id = Column(String, ForeignKey("exams.id"), nullable=False)
+    file_name = Column(String, nullable=False)
+    file_size = Column(Integer, nullable=False)
+    mime_type = Column(String, nullable=False)
+    storage_path = Column(String, nullable=False)  # relative path on disk
+    uploaded_at = Column(DateTime, default=datetime.utcnow)
+
+    exam = relationship("Exam", back_populates="materials")
 
 
 class QuestionResponse(Base):

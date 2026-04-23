@@ -632,6 +632,19 @@ export interface AnalyticsAISummary {
   generatedAt: string;
 }
 
+/* ------------------------------------------------------------------ */
+/*  Course Materials                                                  */
+/* ------------------------------------------------------------------ */
+
+export interface CourseMaterial {
+  id: string;
+  examId: string;
+  fileName: string;
+  fileSize: number;
+  mimeType: string;
+  uploadedAt: string;
+}
+
 /** Chat message in analytics assistant. */
 export interface AnalyticsChatMessage {
   role: "user" | "assistant";

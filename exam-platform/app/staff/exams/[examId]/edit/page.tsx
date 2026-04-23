@@ -14,8 +14,8 @@ import {
   QuestionEditorPanel,
 } from "@/components/exam-authoring";
 import { getVisibleCourses } from "@/features/catalog/catalog-service";
-import { computeTotalPoints, fetchExamDefinition, saveExamDefinition } from "@/features/exams/exam-service";
-import type { Course, ExamDefinition, ExamQuestion } from "@/types";
+import { computeTotalPoints, fetchExamDefinition, saveExamDefinition, listCourseMaterials, uploadCourseMaterial, deleteCourseMaterial } from "@/features/exams/exam-service";
+import type { Course, ExamDefinition, ExamQuestion, CourseMaterial } from "@/types";
 import { useSession } from "@/features/auth";
 import Link from "next/link";
 
@@ -60,11 +60,14 @@ function ExamEditorContent() {
   const [saved, setSaved] = useState(false);
   const [loading, setLoading] = useState(!isCreatingExam);
   const [saveError, setSaveError] = useState<string | null>(null);
+  const [materials, setMaterials] = useState<CourseMaterial[]>([]);
+  const [materialsLoading, setMaterialsLoading] = useState(false);
+  const [materialsError, setMaterialsError] = useState<string | null>(null);
 
   const selectedCourse = isCreatingExam
     ? availableCourses.find(
-        (course) => course.id === selectedCourseId && course.instructorIds.includes(user?.id ?? ""),
-      ) ?? null
+      (course) => course.id === selectedCourseId && course.instructorIds.includes(user?.id ?? ""),
+    ) ?? null
     : null;
 
   useEffect(() => {
@@ -160,6 +163,37 @@ function ExamEditorContent() {
     setSaved(false);
   }, []);
 
+  useEffect(() => {
+    if (isCreatingExam) return;
+    void listCourseMaterials(params.examId).then(setMaterials);
+  }, [isCreatingExam, params.examId]);
+
+  const handleMaterialUpload = useCallback(
+    async (event: React.ChangeEvent<HTMLInputElement>) => {
+      const file = event.target.files?.[0];
+      if (!file || isCreatingExam) return;
+      setMaterialsLoading(true);
+      setMaterialsError(null);
+      const result = await uploadCourseMaterial(params.examId, file);
+      if (result) {
+        setMaterials((prev) => [...prev, result]);
+      } else {
+        setMaterialsError("Upload failed. Check file type (PDF, DOCX, PPTX, TXT, MD) and size (max 20 MB).");
+      }
+      setMaterialsLoading(false);
+      event.target.value = "";
+    },
+    [isCreatingExam, params.examId],
+  );
+
+  const handleMaterialDelete = useCallback(
+    async (materialId: string) => {
+      const ok = await deleteCourseMaterial(params.examId, materialId);
+      if (ok) setMaterials((prev) => prev.filter((m) => m.id !== materialId));
+    },
+    [params.examId],
+  );
+
   /* ---- save (local state + future API) --------------------------- */
   const handleSave = async () => {
     const savedDefinition = await saveExamDefinition(
@@ -249,6 +283,83 @@ function ExamEditorContent() {
         questionCount={definition.questions.length}
         onChange={handleMetaChange}
       />
+
+      {/* Course Materials */}
+      {!isCreatingExam && (
+        <div className="panel" style={{ marginTop: "var(--space-5)", padding: "var(--space-5)" }}>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "var(--space-3)" }}>
+            <div>
+              <h2 style={{ margin: 0, fontSize: "1rem" }}>Course Materials</h2>
+              <p style={{ margin: "var(--space-1) 0 0", fontSize: "0.82rem", color: "var(--muted)" }}>
+                Upload lecture notes, slides, or reference documents to help the AI grading agents understand the exam context.
+              </p>
+            </div>
+            <label
+              style={{
+                cursor: materialsLoading ? "not-allowed" : "pointer",
+                opacity: materialsLoading ? 0.6 : 1,
+              }}
+            >
+              <span className="button" style={{ pointerEvents: "none" }}>
+                {materialsLoading ? "Uploading…" : "+ Upload File"}
+              </span>
+              <input
+                type="file"
+                accept=".pdf,.doc,.docx,.ppt,.pptx,.txt,.md"
+                style={{ display: "none" }}
+                disabled={materialsLoading}
+                onChange={handleMaterialUpload}
+              />
+            </label>
+          </div>
+
+          {materialsError && (
+            <p style={{ color: "var(--danger-text)", fontSize: "0.82rem", margin: "0 0 var(--space-3)" }}>
+              {materialsError}
+            </p>
+          )}
+
+          {materials.length === 0 ? (
+            <p style={{ color: "var(--muted)", fontSize: "0.85rem", margin: 0 }}>
+              No materials uploaded yet.
+            </p>
+          ) : (
+            <ul style={{ listStyle: "none", margin: 0, padding: 0, display: "grid", gap: "var(--space-2)" }}>
+              {materials.map((m) => (
+                <li
+                  key={m.id}
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "var(--space-3)",
+                    padding: "var(--space-2) var(--space-3)",
+                    border: "1px solid var(--border-default)",
+                    borderRadius: "var(--radius-sm)",
+                    background: "var(--surface-raised)",
+                  }}
+                >
+                  <span style={{ fontSize: "1.1rem" }}>📄</span>
+                  <span style={{ flex: 1, fontSize: "0.85rem", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                    {m.fileName}
+                  </span>
+                  <span style={{ fontSize: "0.75rem", color: "var(--muted)", flexShrink: 0 }}>
+                    {(m.fileSize / 1024).toFixed(0)} KB
+                  </span>
+                  <button
+                    type="button"
+                    className="button-ghost"
+                    style={{ fontSize: "0.78rem", color: "var(--danger-text)", flexShrink: 0 }}
+                    onClick={() => void handleMaterialDelete(m.id)}
+                    aria-label={`Delete ${m.fileName}`}
+                  >
+                    Remove
+                  </button>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+      )}
 
       {/* Question sidebar + editor */}
       <div

@@ -177,38 +177,38 @@ interface BackendExamDefinitionResponse {
       };
     };
     type_data:
-      | {
-          type: "mcq";
-          options: Array<{
-            id: string;
-            label: string;
-            is_correct: boolean;
-          }>;
-          allow_multiple: boolean;
-        }
-      | {
-          type: "short_answer";
-          max_length?: number;
-          placeholder?: string;
-        }
-      | {
-          type: "long_answer";
-          expected_length_hint?: string;
-        }
-      | {
-          type: "essay";
-          expected_length_hint?: string;
-        }
-      | {
-          type: "coding";
-          language: string;
-          starter_code: string;
-          constraints?: string;
-        }
-      | {
-          type: "mathematics";
-          answer_format_hint?: string;
-        };
+    | {
+      type: "mcq";
+      options: Array<{
+        id: string;
+        label: string;
+        is_correct: boolean;
+      }>;
+      allow_multiple: boolean;
+    }
+    | {
+      type: "short_answer";
+      max_length?: number;
+      placeholder?: string;
+    }
+    | {
+      type: "long_answer";
+      expected_length_hint?: string;
+    }
+    | {
+      type: "essay";
+      expected_length_hint?: string;
+    }
+    | {
+      type: "coding";
+      language: string;
+      starter_code: string;
+      constraints?: string;
+    }
+    | {
+      type: "mathematics";
+      answer_format_hint?: string;
+    };
   }>;
 }
 
@@ -258,15 +258,15 @@ function normalizeExamQuestion(
     topicIds: question.topic_ids ?? [],
     rubric: question.rubric
       ? {
-          text: question.rubric.text,
-          attachment: question.rubric.attachment
-            ? {
-                fileName: question.rubric.attachment.file_name,
-                fileSize: question.rubric.attachment.file_size,
-                mimeType: question.rubric.attachment.mime_type,
-              }
-            : undefined,
-        }
+        text: question.rubric.text,
+        attachment: question.rubric.attachment
+          ? {
+            fileName: question.rubric.attachment.file_name,
+            fileSize: question.rubric.attachment.file_size,
+            mimeType: question.rubric.attachment.mime_type,
+          }
+          : undefined,
+      }
       : undefined,
   };
 
@@ -347,15 +347,15 @@ function serializeExamQuestion(question: ExamQuestion): Record<string, unknown> 
     topic_ids: question.topicIds ?? [],
     rubric: question.rubric
       ? {
-          text: question.rubric.text,
-          attachment: question.rubric.attachment
-            ? {
-                file_name: question.rubric.attachment.fileName,
-                file_size: question.rubric.attachment.fileSize,
-                mime_type: question.rubric.attachment.mimeType,
-              }
-            : undefined,
-        }
+        text: question.rubric.text,
+        attachment: question.rubric.attachment
+          ? {
+            file_name: question.rubric.attachment.fileName,
+            file_size: question.rubric.attachment.fileSize,
+            mime_type: question.rubric.attachment.mimeType,
+          }
+          : undefined,
+      }
       : undefined,
   };
 
@@ -581,6 +581,78 @@ export async function resetExam(examId: string): Promise<boolean> {
   try {
     const res = await apiFetch(`${API_BASE}/api/exams/${examId}/reset`, {
       method: "POST",
+      headers: authHeaders(),
+    });
+    return res.ok;
+  } catch {
+    return false;
+  }
+}
+
+// ---- Course materials -----------------------------------------------
+
+import type { CourseMaterial } from "@/types";
+
+interface BackendMaterialResponse {
+  id: string;
+  exam_id: string;
+  file_name: string;
+  file_size: number;
+  mime_type: string;
+  uploaded_at: string;
+}
+
+function normalizeMaterial(raw: BackendMaterialResponse): CourseMaterial {
+  return {
+    id: raw.id,
+    examId: raw.exam_id,
+    fileName: raw.file_name,
+    fileSize: raw.file_size,
+    mimeType: raw.mime_type,
+    uploadedAt: raw.uploaded_at,
+  };
+}
+
+export async function listCourseMaterials(examId: string): Promise<CourseMaterial[]> {
+  try {
+    const res = await apiFetch(`${API_BASE}/api/exams/${examId}/materials`, {
+      headers: authHeaders(),
+    });
+    if (!res.ok) return [];
+    const raw = (await res.json()) as BackendMaterialResponse[];
+    return raw.map(normalizeMaterial);
+  } catch {
+    return [];
+  }
+}
+
+export async function uploadCourseMaterial(
+  examId: string,
+  file: File,
+): Promise<CourseMaterial | null> {
+  try {
+    const form = new FormData();
+    form.append("file", file);
+    const res = await apiFetch(`${API_BASE}/api/exams/${examId}/materials`, {
+      method: "POST",
+      headers: authHeaders(),
+      body: form,
+    });
+    if (!res.ok) return null;
+    const raw = (await res.json()) as BackendMaterialResponse;
+    return normalizeMaterial(raw);
+  } catch {
+    return null;
+  }
+}
+
+export async function deleteCourseMaterial(
+  examId: string,
+  materialId: string,
+): Promise<boolean> {
+  try {
+    const res = await apiFetch(`${API_BASE}/api/exams/${examId}/materials/${materialId}`, {
+      method: "DELETE",
       headers: authHeaders(),
     });
     return res.ok;
