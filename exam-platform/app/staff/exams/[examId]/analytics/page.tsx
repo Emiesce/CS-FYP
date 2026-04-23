@@ -415,9 +415,17 @@ function ChatPanel({ examId }: { examId: string }) {
   }, [input, loading, examId, messages]);
 
   return (
-    <div style={{ ...card, display: "flex", flexDirection: "column", height: 500 }}>
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "var(--space-1)" }}>
-        <h3 style={sectionTitle}><IconMessageCircle /> Analytics Chat</h3>
+    <div style={{ ...card, display: "flex", flexDirection: "column", height: 680, padding: 0, overflow: "hidden" }}>
+      {/* Header */}
+      <div style={{
+        display: "flex", alignItems: "center", justifyContent: "space-between",
+        padding: "var(--space-3) var(--space-4)",
+        borderBottom: "1px solid var(--border-subtle)",
+        flexShrink: 0,
+      }}>
+        <span style={{ fontWeight: 600, fontSize: "0.95rem", display: "flex", alignItems: "center", gap: "var(--space-2)" }}>
+          <IconMessageCircle /> AI Analytics Chat
+        </span>
         {messages.length > 0 && (
           <button
             onClick={clearHistory}
@@ -428,20 +436,29 @@ function ChatPanel({ examId }: { examId: string }) {
           </button>
         )}
       </div>
-      <div style={{ flex: 1, overflowY: "auto", marginBottom: "var(--space-3)", padding: "var(--space-2)", background: "var(--surface-muted)", borderRadius: "var(--radius-sm)" }}>
+
+      {/* Message list */}
+      <div style={{
+        flex: 1, overflowY: "auto", padding: "var(--space-4)",
+        display: "flex", flexDirection: "column", gap: "var(--space-3)",
+        background: "var(--surface-muted)",
+      }}>
         {messages.length === 0 && (
-          <p style={{ color: "var(--text-muted)", fontSize: "0.82rem", textAlign: "center", marginTop: "var(--space-8)" }}>Ask questions about the exam analytics data.</p>
+          <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: "var(--space-2)", color: "var(--text-muted)", paddingTop: "var(--space-12)" }}>
+            <IconMessageCircle />
+            <p style={{ fontSize: "0.85rem", margin: 0, textAlign: "center" }}>Ask questions about the exam analytics data.</p>
+            <p style={{ fontSize: "0.78rem", margin: 0, color: "var(--text-muted)", textAlign: "center" }}>e.g. "Which students are struggling?" or "What are the most common mistakes?"</p>
+          </div>
         )}
         {messages.map((m, i) => (
-          <div key={i} style={{ marginBottom: "var(--space-2)", textAlign: m.role === "user" ? "right" : "left" }}>
+          <div key={i} style={{ display: "flex", justifyContent: m.role === "user" ? "flex-end" : "flex-start" }}>
             <div style={{
-              display: "inline-block",
-              maxWidth: "80%",
+              maxWidth: "82%",
               padding: "var(--space-2) var(--space-3)",
-              borderRadius: "var(--radius-sm)",
+              borderRadius: m.role === "user" ? "12px 12px 2px 12px" : "12px 12px 12px 2px",
               background: m.role === "user" ? "var(--hkust-blue-700)" : "var(--surface-strong)",
-              color: m.role === "user" ? "#fff" : "var(--text-primary)",
-              textAlign: "left",
+              border: m.role === "user" ? "none" : "1px solid var(--border-subtle)",
+              boxShadow: "var(--shadow-sm)",
             }}>
               {m.role === "user"
                 ? <span style={{ fontSize: "0.82rem", color: "#fff", whiteSpace: "pre-wrap" }}>{m.content}</span>
@@ -449,14 +466,34 @@ function ChatPanel({ examId }: { examId: string }) {
             </div>
           </div>
         ))}
-        {loading && <div style={{ fontSize: "0.8rem", color: "var(--text-muted)" }}>Thinking...</div>}
+        {loading && (
+          <div style={{ display: "flex", justifyContent: "flex-start" }}>
+            <div style={{
+              padding: "var(--space-2) var(--space-3)",
+              borderRadius: "12px 12px 12px 2px",
+              background: "var(--surface-strong)",
+              border: "1px solid var(--border-subtle)",
+              fontSize: "0.82rem", color: "var(--text-muted)",
+              display: "flex", alignItems: "center", gap: "var(--space-2)",
+            }}>
+              Thinking…
+            </div>
+          </div>
+        )}
       </div>
-      <div style={{ display: "flex", gap: "var(--space-2)" }}>
+
+      {/* Input row */}
+      <div style={{
+        display: "flex", gap: "var(--space-2)",
+        padding: "var(--space-3) var(--space-4)",
+        borderTop: "1px solid var(--border-subtle)",
+        flexShrink: 0,
+      }}>
         <input
           value={input}
           onChange={e => setInput(e.target.value)}
-          onKeyDown={e => e.key === "Enter" && send()}
-          placeholder="Ask about this exam's analytics..."
+          onKeyDown={e => e.key === "Enter" && !e.shiftKey && send()}
+          placeholder="Ask about this exam's analytics…"
           style={{
             flex: 1,
             padding: "var(--space-2) var(--space-3)",
@@ -464,10 +501,18 @@ function ChatPanel({ examId }: { examId: string }) {
             border: "1px solid var(--border-subtle)",
             fontSize: "0.85rem",
             outline: "none",
+            background: "var(--surface-muted)",
           }}
           disabled={loading}
         />
-        <button className="button-primary" onClick={send} disabled={loading || !input.trim()} style={{ fontSize: "0.82rem" }}>Send</button>
+        <button
+          className="button-primary"
+          onClick={send}
+          disabled={loading || !input.trim()}
+          style={{ fontSize: "0.82rem", padding: "var(--space-2) var(--space-4)", flexShrink: 0 }}
+        >
+          Send
+        </button>
       </div>
     </div>
   );
@@ -556,9 +601,22 @@ function AnalyticsDashboardContent({ examId }: { examId: string }) {
         ]).map(t => (
           <button
             key={t.key}
-            className={tab === t.key ? "button-primary" : "button-ghost"}
-            style={{ fontSize: "0.82rem", display: "flex", alignItems: "center", gap: "var(--space-1)" }}
             onClick={() => setTab(t.key)}
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "var(--space-1)",
+              padding: "6px 14px",
+              fontSize: "0.82rem",
+              fontWeight: tab === t.key ? 600 : 500,
+              borderRadius: "var(--radius-sm)",
+              border: `1px solid ${tab === t.key ? "var(--hkust-blue-700)" : "var(--border-subtle)"}`,
+              background: tab === t.key ? "var(--hkust-blue-700)" : "transparent",
+              color: tab === t.key ? "#fff" : "var(--text-secondary)",
+              cursor: "pointer",
+              transition: "all 0.15s ease",
+              whiteSpace: "nowrap",
+            }}
           >
             {t.icon} {t.label}
           </button>

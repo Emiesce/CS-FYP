@@ -84,14 +84,19 @@ function ExamSidebar({ examId }: { examId: string }) {
     <aside
       style={{
         width: collapsed ? "64px" : "220px",
-        minHeight: "calc(100vh - 120px)",
+        height: "100vh",
+        position: "sticky",
+        top: 0,
+        overflowY: "auto",
+        overflowX: "hidden",
         background: "var(--surface-strong)",
         borderRight: "1px solid var(--border-subtle)",
         display: "flex",
         flexDirection: "column",
         flexShrink: 0,
         transition: "width 0.22s ease",
-        overflow: "hidden",
+        /* hide scrollbar visually but keep it functional */
+        scrollbarWidth: "none",
       }}
     >
       {/* Top: back + collapse */}
@@ -323,7 +328,7 @@ export default function PastExamLayout({
 
   return (
     <AuthenticatedShell requiredRole="staff">
-      <div style={{ display: "flex", gap: 0, margin: "calc(-1 * var(--space-8)) calc(-1 * var(--space-6))", minHeight: "calc(100vh - 64px)" }}>
+      <div style={{ display: "flex", gap: 0, margin: "calc(-1 * var(--space-8)) calc(-1 * var(--space-6))", minHeight: "calc(100vh - 64px)", alignItems: "flex-start" }}>
         <ExamSidebar examId={examId} />
         <main style={{ flex: 1, padding: "var(--space-6) var(--space-6)", minWidth: 0, overflow: "auto" }}>
           {children}
