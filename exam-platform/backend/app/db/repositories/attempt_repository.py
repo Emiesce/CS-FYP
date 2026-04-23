@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import List, Optional
 from sqlalchemy.orm import Session
-from app.db.models.core import ExamAttempt, QuestionResponse
+from app.db.models.core import CourseEnrollment, Exam, ExamAttempt, QuestionResponse
 from app.models.exam_models import ExamAttemptIn, ExamAttemptOut, AttemptStatus, QuestionResponseIn
 import uuid
 from datetime import datetime
@@ -126,6 +126,27 @@ class AttemptRepository:
             
         attempt.status = "submitted"
         attempt.submitted_at = datetime.utcnow()
+        self.db.flush()
+
+        # Mark the exam as "past" once all enrolled students have submitted.
+        exam = self.db.query(Exam).filter(Exam.id == exam_id).first()
+        if exam and exam.status == "current":
+            enrolled_ids = set(
+                row.user_id
+                for row in self.db.query(CourseEnrollment).filter(
+                    CourseEnrollment.course_id == exam.course_id
+                ).all()
+            )
+            submitted_ids = set(
+                row.student_id
+                for row in self.db.query(ExamAttempt).filter(
+                    ExamAttempt.exam_id == exam_id,
+                    ExamAttempt.status.in_(["submitted", "timed_out"]),
+                ).all()
+            )
+            if enrolled_ids and enrolled_ids.issubset(submitted_ids):
+                exam.status = "past"
+
         self.db.commit()
         self.db.refresh(attempt)
         return self._to_pydantic(attempt)

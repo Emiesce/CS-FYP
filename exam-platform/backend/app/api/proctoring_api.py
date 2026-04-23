@@ -12,13 +12,14 @@ from __future__ import annotations
 from datetime import datetime
 from typing import Optional
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Request
+from fastapi.responses import Response
 from sqlalchemy.orm import Session
 
 from app.db.models.core import User
+from app.db.models.proctoring import ProctoringSession as ProctoringSessionModel, ProctoringEvent as ProctoringEventModel
 from app.db.session import get_db
 from app.db.repositories.proctoring_repository import ProctoringRepository
-from app.db.models.proctoring import ProctoringSession as ProctoringSessionModel
 from app.dependencies.auth import get_current_user, require_roles
 from app.models.analytics_models import (
     ProctoringSessionOut,
@@ -185,3 +186,59 @@ async def api_get_student_proctoring_session(
     if row is None:
         raise HTTPException(status_code=404, detail="Session not found")
     return _session_to_out(row, include_events=True)
+
+
+# ---------------------------------------------------------------------------
+# Evidence clip upload / retrieval
+# ---------------------------------------------------------------------------
+
+@router.put("/events/{event_id}/clip")
+async def upload_event_clip(
+    event_id: str,
+    request: Request,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+) -> dict:
+    """Upload raw video bytes for a specific proctoring event.
+
+    The client must set Content-Type to the clip mime type (e.g. video/webm).
+    Only the owning student or staff may upload.
+    """
+    event: ProctoringEventModel | None = (
+        db.query(ProctoringEventModel).filter_by(id=event_id).first()
+    )
+    if event is None:
+        raise HTTPException(status_code=404, detail="Event not found")
+    if current_user.role == "student" and event.student_id != current_user.id:
+        raise HTTPException(status_code=403, detail="Forbidden")
+
+    body = await request.body()
+    if not body:
+        raise HTTPException(status_code=400, detail="Empty clip body")
+
+    content_type = request.headers.get("content-type", "video/webm")
+    event.clip_data = body
+    event.has_evidence_clip = content_type
+    db.commit()
+    return {"status": "ok", "event_id": event_id, "bytes": len(body)}
+
+
+@router.get("/events/{event_id}/clip")
+async def get_event_clip(
+    event_id: str,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+) -> Response:
+    """Stream the stored video clip for a proctoring event."""
+    event: ProctoringEventModel | None = (
+        db.query(ProctoringEventModel).filter_by(id=event_id).first()
+    )
+    if event is None:
+        raise HTTPException(status_code=404, detail="Event not found")
+    if current_user.role == "student" and event.student_id != current_user.id:
+        raise HTTPException(status_code=403, detail="Forbidden")
+    if not event.clip_data:
+        raise HTTPException(status_code=404, detail="No clip stored for this event")
+
+    mime = event.has_evidence_clip or "video/webm"
+    return Response(content=event.clip_data, media_type=mime)

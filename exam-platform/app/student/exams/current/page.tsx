@@ -539,23 +539,6 @@ function CurrentExamContent() {
         )}
       </div>
 
-      {/* Session metrics */}
-      <div className="grid grid-3">
-        <MetricCard label="Total Warnings" value={events.length} />
-        <MetricCard label="Risk Score" value={totalRiskScore} />
-        <MetricCard
-          label="Session"
-          value={isComplete ? "Completed" : started ? "Active" : "Ready Check"}
-        />
-      </div>
-
-      {started && (
-        <div className="grid grid-2">
-          <MetricCard label="High Severity Alerts" value={highSeverityCount} />
-          <MetricCard label="Screen Monitoring" value={screenReady ? "Enabled" : "Stopped"} />
-        </div>
-      )}
-
       {started && !isComplete && (
         <>
           <div className="tab-list" role="tablist" aria-label="Exam workspace tabs">

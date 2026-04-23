@@ -9,6 +9,7 @@ import { AuthenticatedShell } from "@/components/AuthenticatedShell";
 import { useSession } from "@/features/auth/session-store";
 import {
   fetchStudentProctoringSession,
+  readCompletedSession,
 } from "@/features/proctoring/live-session-store";
 import { fetchExamDefinition } from "@/features/exams/exam-service";
 import { fetchMyGradingResult } from "@/features/grading/grading-service";
@@ -16,7 +17,7 @@ import type { GradingRun } from "@/types";
 import { EmptyState, MetricCard } from "@/components/ui";
 import { formatDate } from "@/lib/utils/format";
 import { computeRiskScore, countHighSeverityEvents } from "@/lib/utils/risk-score";
-import { SuspiciousActivityChart, ViolationTimeline, WarningFeed } from "@/components/proctoring";
+import { SuspiciousActivityChart, ViolationTimeline } from "@/components/proctoring";
 import Link from "next/link";
 
 function ExamDetailContent({ examId }: { examId: string }) {
@@ -39,9 +40,33 @@ function ExamDetailContent({ examId }: { examId: string }) {
   useEffect(() => {
     if (!user) return;
     let cancelled = false;
-    void fetchStudentProctoringSession(examId, user.studentId ?? user.id).then((session) => {
-      if (!cancelled) setCompletedSession(session);
-    });
+
+    const studentId = user.studentId ?? user.id;
+
+    // Prefer the local completed session because it carries ephemeral blob
+    // URLs for evidence clips/screenshots captured during the exam session.
+    // These blob URLs are still valid as long as the browser tab hasn't been
+    // closed (Next.js client-side navigation keeps them alive).
+    const local = readCompletedSession(examId, studentId);
+    if (local) {
+      if (!cancelled) setCompletedSession(local);
+      // Still fetch from backend in the background in case local is stale,
+      // but only update if local has no evidence and backend has more events.
+      void fetchStudentProctoringSession(examId, studentId).then((remote) => {
+        if (cancelled || !remote) return;
+        // Merge: keep local blob URLs but fill in any events missing locally
+        const localIds = new Set(local.events.map((e) => e.id));
+        const extraEvents = remote.events.filter((e) => !localIds.has(e.id));
+        if (extraEvents.length > 0) {
+          setCompletedSession({ ...local, events: [...local.events, ...extraEvents] });
+        }
+      });
+    } else {
+      void fetchStudentProctoringSession(examId, studentId).then((session) => {
+        if (!cancelled) setCompletedSession(session);
+      });
+    }
+
     return () => {
       cancelled = true;
     };
@@ -59,6 +84,7 @@ function ExamDetailContent({ examId }: { examId: string }) {
   const personalEvents = completedSessionEvents;
   const riskScore = computeRiskScore(personalEvents);
   const highSeverityCount = countHighSeverityEvents(personalEvents);
+  const [selectedEventId, setSelectedEventId] = useState<string | null>(null);
 
   if (!exam) {
     return <EmptyState message="Exam not found." />;
@@ -130,10 +156,14 @@ function ExamDetailContent({ examId }: { examId: string }) {
             durationSeconds={exam.durationSeconds}
               startedAt={completedSession?.startedAt ?? null}
             title="Violation Timeline"
+            onEventClick={(id) => setSelectedEventId(id)}
           />
 
-          <ViolationTimeline events={personalEvents} />
-          <WarningFeed events={personalEvents} />
+          <ViolationTimeline
+            events={personalEvents}
+            scrollToId={selectedEventId}
+          />
+
         </div>
       )}
     </div>

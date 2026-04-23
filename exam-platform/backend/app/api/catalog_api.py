@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from datetime import datetime
+from datetime import datetime, timedelta
 from typing import Optional
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
@@ -134,9 +134,56 @@ def _visible_exams_for_user(db: Session, user: User) -> list[Exam]:
     )
 
 
+def _compute_exam_status_from_clock(exam: Exam) -> str:
+    """Blend the DB status with wall-clock reality.
+
+    Rules (in priority order):
+    1. If the DB status is explicitly ``"current"``, trust it – but only while
+       the exam window (plus a 30-minute grace period) has not yet expired.
+       After that grace period the clock wins and the exam is marked ``"past"``.
+       This handles manually-reset exams correctly: they stay "current" for
+       their duration, then auto-transition to "past".
+    2. If the DB status is ``"upcoming"`` but the window has already started,
+       promote to ``"current"`` (or ``"past"`` if it ended).
+    3. If the DB status is ``"past"`` keep it as ``"past"``.
+    4. Fall back to the stored status on any parse error.
+    """
+    try:
+        start_dt = datetime.strptime(f"{exam.date} {exam.start_time}", "%Y-%m-%d %H:%M")
+        end_dt = start_dt + timedelta(seconds=int(exam.duration_seconds))
+        now = datetime.utcnow()
+        grace_end = end_dt + timedelta(minutes=30)
+
+        # Rule 1: DB says "current" – respect it only within the grace window.
+        if exam.status == "current":
+            if now <= grace_end:
+                return "current"
+            # Grace period elapsed → treat as past.
+            return "past"
+
+        # Rule 3: once marked past, stay past.
+        if exam.status == "past":
+            return "past"
+
+        # Rule 2: "upcoming" – check whether the window has started/ended.
+        if now < start_dt:
+            return "upcoming"
+        if now <= end_dt:
+            return "current"
+        return "past"
+
+    except Exception:
+        return exam.status
+
+
 def _serialize_exam(db: Session, exam: Exam, user: User) -> DashboardExamOut:
-    status_value = exam.status
-    if user.role == "student" and exam.status == "current":
+    # Start from the wall-clock derived status so staff see the correct bucket
+    # without requiring a manual DB update.
+    status_value = _compute_exam_status_from_clock(exam)
+
+    # For students: if they have already submitted, the exam is effectively past
+    # for them even if it is still running for others.
+    if user.role == "student" and status_value == "current":
         attempt = (
             db.query(ExamAttempt)
             .filter(ExamAttempt.exam_id == exam.id, ExamAttempt.student_id == user.id)

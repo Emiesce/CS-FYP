@@ -6,13 +6,15 @@
 /* ------------------------------------------------------------------ */
 
 import { use, useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
+import { useRouter } from "next/navigation";
 import { StudentRoster, StudentDetail } from "@/components/proctoring";
-import { fetchExamDefinition } from "@/features/exams/exam-service";
+import { fetchExamDefinition, resetExam } from "@/features/exams/exam-service";
 import {
   fetchProctoringSessionsForExam,
   fetchStudentProctoringSession,
   readCompletedSessions,
   subscribeToPersistedProctoringSessions,
+  clearExamProctoringSessions,
 } from "@/features/proctoring/live-session-store";
 import type { PersistedProctoringSession } from "@/features/proctoring/live-session-store";
 import { computeRiskScore, countHighSeverityEvents } from "@/lib/utils/risk-score";
@@ -54,12 +56,15 @@ function toRiskSummary(session: PersistedProctoringSession): StudentRiskSummary 
 }
 
 function ProctoringReviewContent({ examId }: { examId: string }) {
+  const router = useRouter();
   const [exam, setExam] = useState<Awaited<ReturnType<typeof fetchExamDefinition>> | null>(null);
   const [selectedStudentId, setSelectedStudentId] = useState<string | null>(null);
   const [remoteSessions, setRemoteSessions] = useState<PersistedProctoringSession[]>([]);
   const [selectedRemoteSession, setSelectedRemoteSession] =
     useState<PersistedProctoringSession | null>(null);
   const [detailLoadingStudentId, setDetailLoadingStudentId] = useState<string | null>(null);
+  const [resetting, setResetting] = useState(false);
+  const [resetMessage, setResetMessage] = useState<string | null>(null);
   const detailRequestRef = useRef(0);
 
   const allCompletedSessions = useSyncExternalStore(
@@ -170,17 +175,62 @@ function ProctoringReviewContent({ examId }: { examId: string }) {
     return <EmptyState message="Exam not found." />;
   }
 
+  const handleReset = async () => {
+    if (
+      !window.confirm(
+        `This will permanently delete ALL student attempts and proctoring data for "${exam.title}". The exam will be reset to "current" so students can retake it.\n\nContinue?`,
+      )
+    ) {
+      return;
+    }
+    setResetting(true);
+    setResetMessage(null);
+    const ok = await resetExam(examId);
+    setResetting(false);
+    if (ok) {
+      // Wipe the local browser-side proctoring cache for this exam so the
+      // roster clears immediately without waiting for a backend round-trip.
+      clearExamProctoringSessions(examId);
+      // Navigate back to the staff dashboard – the catalog re-fetches on
+      // mount and will show the exam under "Current Exam" again.
+      router.push("/staff");
+    } else {
+      setResetMessage("❌ Reset failed. Check the backend logs.");
+    }
+  };
+
   return (
     <div style={{ display: "grid", gap: "var(--space-6)" }}>
       {/* Header */}
-      <div>
-        <h1 className="page-title">
-          Proctoring Review: {exam.courseCode} – {exam.title}
-        </h1>
-        <p className="page-subtitle">
-          Review AI-detected violations and risk scores for each student.
-        </p>
+      <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", flexWrap: "wrap", gap: "var(--space-4)" }}>
+        <div>
+          <h1 className="page-title">
+            Proctoring Review: {exam.courseCode} – {exam.title}
+          </h1>
+          <p className="page-subtitle">
+            Review AI-detected violations and risk scores for each student.
+          </p>
+        </div>
+        <button
+          type="button"
+          className="button-ghost"
+          onClick={() => void handleReset()}
+          disabled={resetting}
+          style={{ flexShrink: 0, color: "var(--danger-text)", borderColor: "var(--danger-text)" }}
+          title="Reset exam for re-testing: deletes all attempts and proctoring data"
+        >
+          {resetting ? "Resetting…" : "🔄 Reset Exam (Dev)"}
+        </button>
       </div>
+
+      {resetMessage && (
+        <div
+          className={resetMessage.startsWith("✅") ? "badge" : "badge-danger"}
+          style={{ padding: "var(--space-3) var(--space-4)", borderRadius: "var(--radius-sm)" }}
+        >
+          {resetMessage}
+        </div>
+      )}
 
       {/* Two-column layout: roster + detail */}
       <div

@@ -19,7 +19,8 @@ from typing import Optional
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
-from app.db.models.core import User
+from app.db.models.core import Exam, ExamAttempt, QuestionResponse, User
+from app.db.models.proctoring import ProctoringSession, ProctoringEvent, ProctoringBucket
 from app.models.exam_models import (
     ExamAttemptIn,
     ExamAttemptOut,
@@ -158,3 +159,72 @@ async def get_attempt(
     if not result:
         return None
     return result
+
+
+# -----------------------------------------------------------------------
+# Exam reset (instructor / administrator only)
+# -----------------------------------------------------------------------
+
+@router.post("/{exam_id}/reset", response_model=dict)
+async def reset_exam(
+    exam_id: str,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_roles("instructor", "administrator")),
+) -> dict:
+    """
+    Reset an exam back to its pre-attempt state.
+
+    Deletes all student attempts (and their responses), all proctoring
+    sessions, events and buckets for this exam, then sets the exam status
+    back to 'current' so it can be retaken from scratch.
+
+    Intended for demo / testing purposes only.
+    """
+    exam: Optional[Exam] = db.query(Exam).filter(Exam.id == exam_id).first()
+    if not exam:
+        raise HTTPException(status_code=404, detail="Exam not found.")
+
+    # 1. Delete proctoring data -----------------------------------------
+    sessions = (
+        db.query(ProctoringSession)
+        .filter(ProctoringSession.exam_id == exam_id)
+        .all()
+    )
+    for session in sessions:
+        db.query(ProctoringEvent).filter(
+            ProctoringEvent.session_id == session.id
+        ).delete(synchronize_session=False)
+        db.query(ProctoringBucket).filter(
+            ProctoringBucket.session_id == session.id
+        ).delete(synchronize_session=False)
+        db.delete(session)
+
+    # 2. Delete all attempts and their responses ------------------------
+    attempts = (
+        db.query(ExamAttempt)
+        .filter(ExamAttempt.exam_id == exam_id)
+        .all()
+    )
+    for attempt in attempts:
+        db.query(QuestionResponse).filter(
+            QuestionResponse.attempt_id == attempt.id
+        ).delete(synchronize_session=False)
+        db.delete(attempt)
+
+    # 3. Reset exam status to 'current' and extend its window --------------------------------
+    exam.status = "current"
+    # To ensure it shows up as current even if it was scheduled in the past,
+    # shift the start time to 'now' and the date to today.
+    from datetime import datetime, timedelta
+    now_dt = datetime.utcnow()
+    exam.date = now_dt.strftime("%Y-%m-%d")
+    exam.start_time = now_dt.strftime("%H:%M")
+
+    db.commit()
+
+    return {
+        "status": "reset",
+        "exam_id": exam_id,
+        "attempts_deleted": len(attempts),
+        "sessions_deleted": len(sessions),
+    }
