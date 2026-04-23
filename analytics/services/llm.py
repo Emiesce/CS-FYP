@@ -1,4 +1,4 @@
-from openai import AzureOpenAI
+from openai import AzureOpenAI, RateLimitError
 import time
 
 class AzureLLM:

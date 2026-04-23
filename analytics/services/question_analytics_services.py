@@ -4,7 +4,7 @@ from sentence_transformers import SentenceTransformer
 from sklearn.cluster import KMeans
 from .db import get_aggregated_topic_scores_by_exam
 
-model = SentenceTransformer('all-MiniLM-L6-v2', token=False)
+model = SentenceTransformer('all-MiniLM-L6-v2')
 
 # prepare input for AI models that consists of feedbacks from students who got the question wrong
 def prepare_feedbacks(grades):
