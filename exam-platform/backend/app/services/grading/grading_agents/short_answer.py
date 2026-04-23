@@ -279,8 +279,8 @@ def _build_result(
     for cr in data.get("criterion_results", []):
         spans = [
             EvidenceSpan(
-                start_index=s.get("start_index", 0),
-                end_index=s.get("end_index", 0),
+                start_index=max(0, s.get("start_index", 0)),
+                end_index=max(0, s.get("end_index", 0)),
                 quote=s.get("quote", ""),
                 criterion_id=s.get("criterion_id", cr.get("criterion_id", "")),
                 reason=s.get("reason", ""),
