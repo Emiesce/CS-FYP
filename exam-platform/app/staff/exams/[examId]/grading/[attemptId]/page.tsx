@@ -101,7 +101,7 @@ function AttemptReviewContent({
         }
         setCachedRunsByStudent((prev) => ({ ...prev, ...nextMap }));
       })
-      .catch(() => {});
+      .catch(() => { });
     return () => {
       cancelled = true;
     };
@@ -236,61 +236,23 @@ function AttemptReviewContent({
 
   return (
     <>
-      <div style={{ marginBottom: "var(--space-5)" }}>
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "flex-start",
-            gap: "var(--space-4)",
-            flexWrap: "wrap",
-          }}
-        >
-          <div>
-            <Link href={`/staff/exams/${examId}/grading`} className="button-ghost" style={{ marginBottom: "var(--space-3)", display: "inline-flex", textDecoration: "none" }}>
-              ← Back to Grading
-            </Link>
-            <h1 style={{ fontSize: "1.4rem", marginBottom: "var(--space-1)" }}>
-              Grading Review
-            </h1>
-            <p style={{ color: "var(--muted)", fontSize: "0.85rem" }}>
-              Run {run.id} · Attempt {attemptId}
-            </p>
-          </div>
+      {/* Compact top bar: back link + title + student switcher */}
+      <div style={{ display: "flex", alignItems: "center", gap: "var(--space-4)", marginBottom: "var(--space-3)", flexWrap: "wrap" }}>
+        <Link href={`/staff/exams/${examId}/grading`} className="button-ghost" style={{ textDecoration: "none", flexShrink: 0 }}>
+          ← Back
+        </Link>
+        <span style={{ fontWeight: 600, fontSize: "1rem" }}>Grading Review</span>
+        <span style={{ color: "var(--muted)", fontSize: "0.8rem" }}>{run.id}</span>
 
-          <div className="panel" style={{ minWidth: 320, padding: "var(--space-3) var(--space-4)" }}>
-            <label className="form-label" style={{ marginBottom: 6, display: "block" }}>
-              Switch Student
-            </label>
-            <div style={{ display: "flex", alignItems: "center", gap: "var(--space-2)" }}>
-              <button
-                type="button"
-                className="button-ghost"
-                onClick={() => navigateToStudent(currentStudentIndex - 1)}
-                disabled={currentStudentIndex <= 0}
-                aria-label="Previous student"
-              >
-                ←
-              </button>
-              <div style={{ flex: 1, minWidth: 0, textAlign: "center" }}>
-                <div style={{ fontWeight: 600 }}>
-                  {availableStudents[currentStudentIndex]?.studentName ?? run.studentId}
-                </div>
-                <div style={{ fontSize: "0.8rem", color: "var(--muted)" }}>
-                  Student {currentStudentIndex + 1} of {availableStudents.length}
-                </div>
-              </div>
-              <button
-                type="button"
-                className="button-ghost"
-                onClick={() => navigateToStudent(currentStudentIndex + 1)}
-                disabled={currentStudentIndex < 0 || currentStudentIndex >= availableStudents.length - 1}
-                aria-label="Next student"
-              >
-                →
-              </button>
-            </div>
-          </div>
+        <div style={{ marginLeft: "auto", display: "flex", alignItems: "center", gap: "var(--space-2)" }}>
+          <button type="button" className="button-ghost" onClick={() => navigateToStudent(currentStudentIndex - 1)} disabled={currentStudentIndex <= 0} aria-label="Previous student">←</button>
+          <span style={{ fontSize: "0.85rem", fontWeight: 600 }}>
+            {availableStudents[currentStudentIndex]?.studentName ?? run.studentId}
+          </span>
+          <span style={{ fontSize: "0.75rem", color: "var(--muted)" }}>
+            {currentStudentIndex + 1}/{availableStudents.length}
+          </span>
+          <button type="button" className="button-ghost" onClick={() => navigateToStudent(currentStudentIndex + 1)} disabled={currentStudentIndex < 0 || currentStudentIndex >= availableStudents.length - 1} aria-label="Next student">→</button>
         </div>
       </div>
 
@@ -314,114 +276,59 @@ function AttemptReviewContent({
         for (const qr of run.questionResults) {
           revealMap[qr.questionId] =
             qr.criterionResults.length === 0
-              ? true  // no criteria to review — score is directly visible
+              ? true
               : qr.criterionResults.every((cr) =>
-                  cr.overrideScore != null ||
-                  (criterionDraftScores[getDraftKey(qr.questionId, cr.criterionId)] ?? "").trim() !== ""
-                );
+                cr.overrideScore != null ||
+                (criterionDraftScores[getDraftKey(qr.questionId, cr.criterionId)] ?? "").trim() !== ""
+              );
         }
-        return <GradingSummaryCard run={run} revealedQuestions={revealMap} />;
+        return (
+          <div style={{ display: "flex", alignItems: "center", gap: "var(--space-2)", marginBottom: "var(--space-2)", flexWrap: "wrap" }}>
+            <GradingSummaryCard run={run} revealedQuestions={revealMap} />
+            {run.questionResults.length > 1 && (
+              <div role="tablist" style={{ display: "flex", gap: "var(--space-1)", flexWrap: "wrap" }}>
+                {run.questionResults.map((qr, i) => (
+                  <button
+                    key={qr.questionId}
+                    type="button"
+                    role="tab"
+                    aria-selected={selectedQ === qr.questionId}
+                    className="button-ghost"
+                    onClick={() => { setSelectedQ(qr.questionId); setActiveCriterion(qr.criterionResults[0]?.criterionId ?? null); }}
+                    style={{
+                      padding: "2px var(--space-2)",
+                      fontSize: "0.78rem",
+                      border: selectedQ === qr.questionId ? "2px solid var(--primary)" : "1px solid var(--border-default)",
+                      background: selectedQ === qr.questionId ? "color-mix(in srgb, var(--primary) 8%, var(--surface-raised))" : "var(--surface-raised)",
+                      borderRadius: "var(--radius-sm)",
+                    }}
+                  >
+                    Q{i + 1}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+        );
       })()}
-
-      {/* Question selector */}
-      <div
-        role="tablist"
-        style={{
-          display: "grid",
-          gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))",
-          gap: "var(--space-2)",
-          marginBottom: "var(--space-5)",
-        }}
-      >
-        {run.questionResults.map((qr, i) => {
-          const allCriteriaReviewed = qr.criterionResults.length === 0 ||
-            qr.criterionResults.every((cr) => cr.overrideScore != null ||
-              (criterionDraftScores[getDraftKey(qr.questionId, cr.criterionId)] ?? "").trim() !== "");
-          return (
-          <button
-            key={qr.questionId}
-            type="button"
-            role="tab"
-            aria-selected={selectedQ === qr.questionId}
-            className="panel"
-            onClick={() => {
-              setSelectedQ(qr.questionId);
-              setActiveCriterion(qr.criterionResults[0]?.criterionId ?? null);
-            }}
-            style={{
-              textAlign: "left",
-              padding: "var(--space-3)",
-              border: selectedQ === qr.questionId ? "2px solid var(--primary)" : "1px solid var(--border-default)",
-              background: selectedQ === qr.questionId ? "color-mix(in srgb, var(--primary) 6%, var(--surface-raised))" : "var(--surface-raised)",
-            }}
-          >
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: "var(--space-2)", marginBottom: 6 }}>
-              <strong>Q{i + 1}</strong>
-              {allCriteriaReviewed ? (
-                <span className={`badge ${qr.status === "reviewed" ? "badge-info" : "badge-success"}`}>
-                  {qr.rawScore}/{qr.maxPoints}
-                </span>
-              ) : (
-                <span className="badge" style={{ fontSize: "0.75rem", color: "var(--muted)" }}>??/{qr.maxPoints}</span>
-              )}
-            </div>
-            <div style={{ fontSize: "0.8rem", color: "var(--muted)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
-              {QUESTION_TYPE_LABELS[qr.questionType] ?? qr.questionType}
-            </div>
-          </button>
-          );
-        })}
-      </div>
 
       {/* Selected question detail */}
       {currentQ && (
-        <div style={{ display: "grid", gridTemplateColumns: "minmax(0, 1.45fr) minmax(460px, 1.15fr)", gap: "var(--space-5)", alignItems: "start" }}>
-          <div style={{ display: "grid", gap: "var(--space-4)" }}>
-            <div className="panel" style={{ padding: "var(--space-5)" }}>
-              <div style={{ display: "flex", justifyContent: "space-between", gap: "var(--space-4)", flexWrap: "wrap" }}>
-                <div>
-                  <h3 style={{ fontSize: "1rem", margin: "0 0 var(--space-2)" }}>
-                    {QUESTION_TYPE_LABELS[currentQ.questionType] ?? currentQ.questionType}
-                  </h3>
-                  <div style={{ display: "flex", gap: "var(--space-2)", flexWrap: "wrap" }}>
-                    <span className="badge badge-info">{currentQ.lane}</span>
-                    {currentQAllReviewed ? (
-                      <span className={`badge ${questionAveragePct >= 70 ? "badge-success" : questionAveragePct >= 40 ? "badge-warning" : "badge-danger"}`}>
-                        {currentQ.rawScore}/{currentQ.maxPoints}
-                      </span>
-                    ) : (
-                      <span className="badge" style={{ color: "var(--muted)" }}>??/{currentQ.maxPoints}</span>
-                    )}
-                    {currentQ.model && (
-                      <span className="badge">{currentQ.model}</span>
-                    )}
-                  </div>
-                </div>
+        <div style={{ display: "grid", gridTemplateColumns: "minmax(0, 1.45fr) minmax(460px, 1.15fr)", gap: "var(--space-5)", alignItems: "start", height: "calc(100vh - 160px)", minHeight: 480 }}>
+          <div style={{ display: "grid", gap: "var(--space-4)", height: "100%", gridTemplateRows: "1fr", overflow: "hidden" }}>
+            <div className="panel" style={{ padding: "var(--space-5)", overflow: "auto", minHeight: 0 }}>
+              <div style={{ display: "flex", alignItems: "center", gap: "var(--space-2)", marginBottom: "var(--space-3)", flexWrap: "wrap" }}>
+                <span style={{ fontSize: "0.78rem", fontWeight: 700, letterSpacing: "0.04em", textTransform: "uppercase", color: "var(--text-muted)" }}>
+                  Student Answer {currentQAllReviewed ? "· Evidence Highlighted" : ""}
+                </span>
+                <span className="badge badge-info" style={{ fontSize: "0.75rem" }}>{currentQ.lane}</span>
                 {currentQAllReviewed ? (
-                  <div style={{ textAlign: "right" }}>
-                    <div style={{ fontSize: "1.6rem", fontWeight: 700 }}>
-                      {questionAveragePct}%
-                    </div>
-                    <div style={{ fontSize: "0.8rem", color: "var(--muted)" }}>
-                      Current question score
-                    </div>
-                  </div>
+                  <span className={`badge ${questionAveragePct >= 70 ? "badge-success" : questionAveragePct >= 40 ? "badge-warning" : "badge-danger"}`} style={{ fontSize: "0.75rem" }}>
+                    {currentQ.rawScore}/{currentQ.maxPoints} ({questionAveragePct}%)
+                  </span>
                 ) : (
-                  <div style={{ textAlign: "right" }}>
-                    <div style={{ fontSize: "1.6rem", fontWeight: 700, color: "var(--muted)" }}>
-                      ??
-                    </div>
-                    <div style={{ fontSize: "0.8rem", color: "var(--muted)" }}>
-                      Review all criteria first
-                    </div>
-                  </div>
+                  <span className="badge" style={{ fontSize: "0.75rem", color: "var(--muted)" }}>??/{currentQ.maxPoints}</span>
                 )}
-              </div>
-            </div>
-
-            <div className="panel" style={{ padding: "var(--space-5)" }}>
-              <div style={{ fontSize: "0.78rem", fontWeight: 700, letterSpacing: "0.04em", textTransform: "uppercase", color: "var(--text-muted)", marginBottom: "var(--space-2)" }}>
-                Student Answer {currentQAllReviewed ? "With Evidence" : ""}
               </div>
               <EvidenceHighlighter
                 answerText={currentQ.studentAnswer || "No student answer available for this result."}
@@ -431,8 +338,8 @@ function AttemptReviewContent({
             </div>
           </div>
 
-          <div className="panel" style={{ padding: "var(--space-5)" }}>
-            <h3 style={{ fontSize: "1rem", margin: "0 0 var(--space-3)" }}>
+          <div className="panel" style={{ padding: "var(--space-5)", height: "100%", overflow: "auto", display: "flex", flexDirection: "column" }}>
+            <h3 style={{ fontSize: "1rem", margin: "0 0 var(--space-3)", flexShrink: 0 }}>
               Criteria Breakdown ({currentQ.criterionResults.length})
             </h3>
             {currentQ.criterionResults.map((cr) => {
@@ -466,7 +373,7 @@ function AttemptReviewContent({
                         Review this criterion first with your own score and reasoning. The AI criterion score and rationale stay hidden until you enter a score.
                       </p>
 
-                      <label className="form-label">
+                      <label className="form-label" style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: "var(--space-2)" }}>
                         Your Score (max {cr.maxPoints})
                         <input
                           className="input"
@@ -481,11 +388,12 @@ function AttemptReviewContent({
                               [getDraftKey(currentQ.questionId, cr.criterionId)]: event.target.value,
                             }))
                           }
+                          style={{ width: "5rem" }}
                         />
                       </label>
 
                       <label className="form-label">
-                        Your Reasoning
+                        Your Reasoning/ Comments
                         <textarea
                           className="input"
                           rows={4}
@@ -541,8 +449,9 @@ function AttemptReviewContent({
               </p>
             )}
           </div>
-        </div>
-      )}
+        </div >
+      )
+      }
     </>
   );
 }

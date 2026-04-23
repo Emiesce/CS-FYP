@@ -7,12 +7,12 @@
 import type { GradingRun, QuestionGradingStatus } from "@/types";
 
 const STATUS_BADGES: Record<QuestionGradingStatus, { cls: string; label: string }> = {
-  pending:    { cls: "badge",             label: "Pending" },
-  grading:    { cls: "badge badge-info",  label: "Grading" },
-  graded:     { cls: "badge badge-success", label: "Graded" },
-  escalated:  { cls: "badge badge-warning", label: "Escalated" },
-  reviewed:   { cls: "badge badge-info",    label: "Reviewed" },
-  finalized:  { cls: "badge badge-success", label: "Finalized" },
+  pending: { cls: "badge", label: "Pending" },
+  grading: { cls: "badge badge-info", label: "Grading" },
+  graded: { cls: "badge badge-success", label: "Graded" },
+  escalated: { cls: "badge badge-warning", label: "Escalated" },
+  reviewed: { cls: "badge badge-info", label: "Reviewed" },
+  finalized: { cls: "badge badge-success", label: "Finalized" },
 };
 
 interface GradingSummaryCardProps {
@@ -26,63 +26,59 @@ export function GradingSummaryCard({ run, revealedQuestions }: GradingSummaryCar
   const hideAny = revealedQuestions !== undefined;
   const allRevealed = !hideAny || run.questionResults.every((qr) => revealedQuestions[qr.questionId]);
 
-  const visibleTotal = allRevealed
-    ? run.totalScore
-    : run.questionResults.reduce((s, qr) => s + (revealedQuestions?.[qr.questionId] ? qr.rawScore : 0), 0);
-
   const pct = allRevealed && run.maxTotalPoints > 0
     ? Math.round((run.totalScore / run.maxTotalPoints) * 100)
     : null;
 
   return (
-    <div className="panel" style={{ marginBottom: "var(--space-5)" }}>
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "var(--space-4)" }}>
-        <div>
-          <h3 style={{ margin: 0, fontSize: "1.1rem" }}>
-            {allRevealed
-              ? `Total: ${run.totalScore} / ${run.maxTotalPoints} (${pct}%)`
-              : `Total: ?? / ${run.maxTotalPoints}`}
-          </h3>
-          <p style={{ margin: "var(--space-1) 0 0", fontSize: "0.85rem", color: "var(--muted)" }}>
-            Run ID: {run.id} · Status: {run.status} · {run.questionResults.length} questions
-            {!allRevealed && " · Review all criteria to reveal total score"}
-          </p>
-        </div>
-        <span className={`badge ${!allRevealed ? "" : pct !== null && pct >= 70 ? "badge-success" : pct !== null && pct >= 40 ? "badge-warning" : "badge-danger"}`} style={{ fontSize: "1.1rem", padding: "var(--space-2) var(--space-3)", color: !allRevealed ? "var(--muted)" : undefined }}>
-          {allRevealed ? `${pct}%` : "??"}
-        </span>
-      </div>
+    <div
+      className="panel"
+      style={{
+        marginBottom: "var(--space-3)",
+        padding: "var(--space-2) var(--space-4)",
+        display: "flex",
+        alignItems: "center",
+        gap: "var(--space-3)",
+        flexWrap: "wrap",
+        fontSize: "0.82rem",
+      }}
+    >
+      {/* Total */}
+      <span style={{ fontWeight: 600, color: "var(--muted)", whiteSpace: "nowrap" }}>Total:</span>
+      <span
+        className={`badge ${!allRevealed ? "" : pct !== null && pct >= 70 ? "badge-success" : pct !== null && pct >= 40 ? "badge-warning" : "badge-danger"}`}
+        style={{ fontWeight: 700, color: !allRevealed ? "var(--muted)" : undefined }}
+      >
+        {allRevealed ? `${run.totalScore} / ${run.maxTotalPoints} (${pct}%)` : `?? / ${run.maxTotalPoints}`}
+      </span>
 
-      <table className="table" style={{ fontSize: "0.85rem" }}>
-        <thead>
-          <tr>
-            <th>Q#</th>
-            <th>Type</th>
-            <th>Lane</th>
-            <th>Model</th>
-            <th>Score</th>
-            <th>Status</th>
-          </tr>
-        </thead>
-        <tbody>
-          {run.questionResults.map((qr, i) => {
-            const badge = STATUS_BADGES[qr.status] ?? STATUS_BADGES.pending;
-            const qRevealed = !hideAny || revealedQuestions?.[qr.questionId];
-            return (
-              <tr key={qr.questionId} style={{ opacity: qRevealed ? 1 : 0.5 }}>
-                <td>{i + 1}</td>
-                <td>{qr.questionType}</td>
-                <td><code>{qr.lane}</code></td>
-                <td style={{ maxWidth: 160, overflow: "hidden", textOverflow: "ellipsis" }}>
-                  {qr.model ?? "—"}
-                </td>
-                <td><strong>{qRevealed ? `${qr.rawScore}/${qr.maxPoints}` : `??/${qr.maxPoints}`}</strong></td>
-                <td><span className={qRevealed ? badge.cls : "badge"}>{qRevealed ? badge.label : "🔒 Review"}</span></td>
-              </tr>
-            );
-          })}
-        </tbody>
-      </table>
+      <div style={{ width: 1, height: 16, background: "var(--border-default)", flexShrink: 0 }} />
+
+      {/* Per-question pills */}
+      {run.questionResults.map((qr, i) => {
+        const qRevealed = !hideAny || revealedQuestions?.[qr.questionId];
+        const badge = STATUS_BADGES[qr.status] ?? STATUS_BADGES.pending;
+        const modelShort = qr.model ? qr.model.split("/").pop() : null;
+        return (
+          <span
+            key={qr.questionId}
+            className={qRevealed ? badge.cls : "badge"}
+            style={{ cursor: "default" }}
+          >
+            Q{i + 1}: {qRevealed ? `${qr.rawScore}/${qr.maxPoints}` : `??/${qr.maxPoints}`}
+            <span style={{ opacity: 0.6, marginLeft: 4, fontWeight: 400 }}>
+              {qr.lane}{modelShort ? ` · ${modelShort}` : ""}
+            </span>
+          </span>
+        );
+      })}
+
+      <div style={{ width: 1, height: 16, background: "var(--border-default)", flexShrink: 0 }} />
+
+      {/* Run meta */}
+      <span style={{ color: "var(--muted)", whiteSpace: "nowrap" }}>
+        {run.id} · {run.status}
+      </span>
     </div>
   );
 }
