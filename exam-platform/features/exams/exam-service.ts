@@ -572,3 +572,19 @@ export async function listAttempts(examId: string): Promise<ExamAttempt[]> {
     return [];
   }
 }
+
+/**
+ * Reset an exam back to its pre-attempt state (instructor / admin only).
+ * Deletes all attempts, proctoring data, and resets the exam status to "current".
+ */
+export async function resetExam(examId: string): Promise<boolean> {
+  try {
+    const res = await apiFetch(`${API_BASE}/api/exams/${examId}/reset`, {
+      method: "POST",
+      headers: authHeaders(),
+    });
+    return res.ok;
+  } catch {
+    return false;
+  }
+}

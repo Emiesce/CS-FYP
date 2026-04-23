@@ -4,6 +4,7 @@
 /*  SuspiciousActivityChart – alert timeline across the exam          */
 /* ------------------------------------------------------------------ */
 
+import { useState, type CSSProperties } from "react";
 import type { ProctoringEvent } from "@/types";
 import { eventTypeLabel, formatCountdown, formatTime } from "@/lib/utils/format";
 import { Icon } from "@/components/ui";
@@ -24,12 +25,65 @@ interface SuspiciousActivityChartProps {
   durationSeconds: number;
   startedAt?: string | null;
   title?: string;
+  /** Called with the ProctoringEvent id when a marker is clicked. */
+  onEventClick?: (eventId: string) => void;
 }
 
 function severityColor(severity: number): string {
   if (severity >= 0.7) return "var(--danger-text)";
   if (severity >= 0.4) return "var(--warning-text)";
   return "var(--brand-primary)";
+}
+
+function severityLabel(severity: number): string {
+  if (severity >= 0.7) return "High";
+  if (severity >= 0.4) return "Medium";
+  return "Low";
+}
+
+/* ---- Custom tooltip for chart markers -------------------------------- */
+
+function MarkerTooltip({
+  point,
+  visible,
+}: {
+  point: TimelinePoint;
+  visible: boolean;
+}) {
+  if (!visible) return null;
+
+  const style: CSSProperties = {
+    position: "absolute",
+    bottom: "calc(100% + 10px)",
+    left: "50%",
+    transform: "translateX(-50%)",
+    zIndex: 40,
+    background: "var(--slate-950)",
+    color: "var(--white)",
+    padding: "var(--space-3) var(--space-4)",
+    borderRadius: "var(--radius-sm)",
+    fontSize: "0.82rem",
+    lineHeight: 1.45,
+    whiteSpace: "nowrap",
+    boxShadow: "var(--shadow-md)",
+    pointerEvents: "none",
+  };
+
+  return (
+    <div style={style} role="tooltip">
+      <strong style={{ color: severityColor(point.severity) }}>
+        {severityLabel(point.severity)} Severity ({(point.severity * 100).toFixed(0)}%)
+      </strong>
+      <br />
+      Type: {point.eventType}
+      <br />
+      {formatCountdown(point.startSeconds)} → {formatCountdown(point.endSeconds)} ({point.durationSeconds}s)
+      <br />
+      Logged: {formatTime(point.timestamp)}
+      <br />
+      <span style={{ color: "var(--slate-300)" }}>{point.message}</span>
+    </div>
+  );
 }
 
 function buildTimelinePoints(
@@ -83,7 +137,9 @@ export function SuspiciousActivityChart({
   durationSeconds,
   startedAt,
   title = "Alert Timeline",
+  onEventClick,
 }: SuspiciousActivityChartProps) {
+  const [hoveredId, setHoveredId] = useState<string | null>(null);
   const data = buildTimelinePoints(events, durationSeconds, startedAt);
   const eventTypes = Array.from(new Set(data.map((point) => point.eventType)));
   const tickCount = Math.min(5, Math.max(2, Math.floor(durationSeconds / 15) + 1));
@@ -155,7 +211,7 @@ export function SuspiciousActivityChart({
                       borderRadius: "var(--radius-md)",
                       background: "rgba(15, 76, 129, 0.05)",
                       border: "1px solid var(--border-subtle)",
-                      overflow: "hidden",
+                      overflow: "visible",
                     }}
                   >
                     <div
@@ -176,20 +232,22 @@ export function SuspiciousActivityChart({
                         1.2,
                       );
                       const color = severityColor(point.severity);
-                      const tooltip = [
+                      const ariaLabel = [
                         point.eventType,
                         `${formatCountdown(point.startSeconds)} to ${formatCountdown(point.endSeconds)}`,
                         `Duration: ${point.durationSeconds}s`,
                         `Logged at ${formatTime(point.timestamp)}`,
                         point.message,
-                      ].join("\n");
+                      ].join(", ");
 
                       return (
                         <button
                           key={point.id}
                           type="button"
-                          title={tooltip}
-                          aria-label={tooltip}
+                          aria-label={ariaLabel}
+                          onMouseEnter={() => setHoveredId(point.id)}
+                          onMouseLeave={() => setHoveredId(null)}
+                          onClick={() => onEventClick?.(point.id)}
                           style={{
                             position: "absolute",
                             left: `${lineLeft}%`,
@@ -204,6 +262,8 @@ export function SuspiciousActivityChart({
                             cursor: "pointer",
                           }}
                         >
+                          {/* Custom styled tooltip */}
+                          <MarkerTooltip point={point} visible={hoveredId === point.id} />
                           <span
                             style={{
                               position: "absolute",

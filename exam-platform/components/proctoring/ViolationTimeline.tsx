@@ -1,16 +1,19 @@
 "use client";
 
 /* ------------------------------------------------------------------ */
-/*  ViolationTimeline – chronological event timeline for staff review  */
+/*  ViolationTimeline – evidence-focused event log for review         */
+/*  Supports scrollToId so chart marker clicks jump to the right row. */
 /* ------------------------------------------------------------------ */
 
-import { useState, type CSSProperties } from "react";
+import { useEffect, useRef, useState, type CSSProperties } from "react";
 import type { ProctoringEvent } from "@/types";
 import { formatTime, eventTypeLabel } from "@/lib/utils/format";
 import { EmptyState, Icon } from "@/components/ui";
 
 interface ViolationTimelineProps {
   events: ProctoringEvent[];
+  /** When set, the row with this event id will be scrolled into view and highlighted. */
+  scrollToId?: string | null;
 }
 
 function severityClass(severity: number): string {
@@ -76,8 +79,18 @@ function EventTooltip({
 
 /* ---- Main component --------------------------------------------- */
 
-export function ViolationTimeline({ events }: ViolationTimelineProps) {
+export function ViolationTimeline({ events, scrollToId }: ViolationTimelineProps) {
   const [hoveredId, setHoveredId] = useState<string | null>(null);
+  const rowRefs = useRef<Map<string, HTMLDivElement>>(new Map());
+
+  /* Scroll to the highlighted row whenever scrollToId changes */
+  useEffect(() => {
+    if (!scrollToId) return;
+    const el = rowRefs.current.get(scrollToId);
+    if (el) {
+      el.scrollIntoView({ behavior: "smooth", block: "center" });
+    }
+  }, [scrollToId]);
 
   if (events.length === 0) {
     return <EmptyState message="No violation events recorded for this student." />;
@@ -87,15 +100,23 @@ export function ViolationTimeline({ events }: ViolationTimelineProps) {
     <div className="panel">
       <div className="title-with-icon" style={{ marginBottom: "var(--space-4)" }}>
         <Icon name="list" />
-        <h3 style={{ margin: 0, fontSize: "1rem" }}>Violation Timeline</h3>
+        <h3 style={{ margin: 0, fontSize: "1rem" }}>Violation Evidence Log</h3>
       </div>
-      <div className="timeline-list" aria-label="Violation event timeline">
+      <p className="helper-text" style={{ margin: "0 0 var(--space-3)" }}>
+        Click a marker on the timeline above to jump to the corresponding entry.
+      </p>
+      <div className="timeline-list" aria-label="Violation event evidence log">
         {events.map((evt) => (
           <TimelineRow
             key={evt.id}
             event={evt}
             isHovered={hoveredId === evt.id}
+            isHighlighted={scrollToId === evt.id}
             onHover={setHoveredId}
+            rowRef={(el) => {
+              if (el) rowRefs.current.set(evt.id, el);
+              else rowRefs.current.delete(evt.id);
+            }}
           />
         ))}
       </div>
@@ -108,16 +129,26 @@ export function ViolationTimeline({ events }: ViolationTimelineProps) {
 function TimelineRow({
   event,
   isHovered,
+  isHighlighted,
   onHover,
+  rowRef,
 }: {
   event: ProctoringEvent;
   isHovered: boolean;
+  isHighlighted: boolean;
   onHover: (id: string | null) => void;
+  rowRef: (el: HTMLDivElement | null) => void;
 }) {
   return (
     <div
+      ref={rowRef}
       className={`timeline-row ${severityClass(event.severity)}`}
-      style={{ position: "relative" }}
+      style={{
+        position: "relative",
+        outline: isHighlighted ? "2px solid var(--brand-primary)" : undefined,
+        borderRadius: isHighlighted ? "var(--radius-sm)" : undefined,
+        transition: "outline 0.2s ease",
+      }}
       onMouseEnter={() => onHover(event.id)}
       onMouseLeave={() => onHover(null)}
     >

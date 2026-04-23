@@ -23,6 +23,7 @@ import {
 import {
   saveCompletedSession,
   saveLiveSession,
+  uploadEventClips,
 } from "@/features/proctoring/live-session-store";
 import type { PersistedProctoringSession } from "@/features/proctoring/live-session-store";
 import { useProctoringSession } from "@/features/proctoring/useProctoringSession";
@@ -112,6 +113,7 @@ function Comp1023ExamContent({ examId }: { examId: string }) {
     sendFrame,
     recordViolation,
     pushClipChunk,
+    cachedClips,
   } = useProctoringSession(examId, studentId, started);
 
   const {
@@ -324,9 +326,20 @@ function Comp1023ExamContent({ examId }: { examId: string }) {
     if (isComplete && !completedSavedRef.current) {
       saveCompletedSession(sessionSnapshot);
       completedSavedRef.current = true;
+      // Upload evidence video clips to the backend so they survive page navigation.
+      if (cachedClips.length > 0) {
+        void uploadEventClips(
+          cachedClips.map((clip) => ({
+            eventId: clip.id,
+            blob: clip.blob,
+            mimeType: clip.url.startsWith("blob:") ? (clip.blob.type || "video/webm") : "video/webm",
+          })),
+        );
+      }
     }
   }, [
     buckets,
+    cachedClips,
     events,
     examId,
     isComplete,
@@ -523,25 +536,59 @@ function Comp1023ExamContent({ examId }: { examId: string }) {
         )}
       </div>
 
-      <div className="grid grid-3">
-        <MetricCard label="Total Warnings" value={events.length} />
-        <MetricCard label="Risk Score" value={totalRiskScore} />
-        <MetricCard
-          label="Session"
-          value={isComplete ? "Completed" : started ? "Active" : "Ready Check"}
-        />
-      </div>
-
-      {started && (
-        <div className="grid grid-2">
-          <MetricCard label="High Severity Alerts" value={highSeverityCount} />
-          <MetricCard label="Screen Monitoring" value={screenReady ? "Enabled" : "Stopped"} />
-        </div>
+      {isComplete && (
+        <>
+          <div className="grid grid-3">
+            <MetricCard label="Total Warnings" value={events.length} />
+            <MetricCard label="Risk Score" value={totalRiskScore} />
+            <MetricCard label="Session" value="Completed" />
+          </div>
+          <div className="grid grid-2">
+            <MetricCard label="High Severity Alerts" value={highSeverityCount} />
+            <MetricCard label="Screen Monitoring" value={screenReady ? "Enabled" : "Stopped"} />
+          </div>
+        </>
       )}
 
       {started && !isComplete && (
         <>
-          <div style={{ display: activeTab === "monitoring" ? "block" : "none" }} />
+          {/*
+           * WebcamPreview – rendered ONCE, always mounted so the frame-capture
+           * interval and MediaRecorder never stop regardless of active tab.
+           *
+           * • Exam tab  → small floating card (position:fixed, bottom-right)
+           *               videoWidth/Height remain non-zero, so capture works.
+           * • Monitoring tab → full-width slot above the status panel.
+           *
+           * This avoids the display:none bug where some browsers return
+           * videoWidth = 0 for hidden <video> elements, breaking frame capture.
+           */}
+          <div
+            style={
+              activeTab === "exam"
+                ? {
+                    position: "fixed",
+                    bottom: "1.5rem",
+                    right: "1.5rem",
+                    width: "200px",
+                    zIndex: 50,
+                    borderRadius: "var(--radius-md)",
+                    boxShadow: "var(--shadow-lg)",
+                    overflow: "hidden",
+                  }
+                : {}
+            }
+            aria-label="Live webcam monitoring – always active"
+          >
+            <WebcamPreview
+              active={isRunning}
+              onFrame={sendFrame}
+              captureIntervalMs={DETECTION_CADENCE_MS}
+              onPermissionDenied={handleCameraPermissionDenied}
+              onPermissionGranted={handleCameraPermissionGranted}
+              onClipChunk={pushClipChunk}
+            />
+          </div>
 
           <div className="tab-list" role="tablist" aria-label="Exam workspace tabs">
             <button
@@ -577,33 +624,20 @@ function Comp1023ExamContent({ examId }: { examId: string }) {
             />
           </div>
 
-          <div
-            style={{
-              display: activeTab === "monitoring" ? "grid" : "none",
-              gap: "var(--space-6)",
-            }}
-          >
-            <div className="grid grid-2">
-              <WebcamPreview
-                active={isRunning}
-                onFrame={sendFrame}
-                captureIntervalMs={DETECTION_CADENCE_MS}
-                onPermissionDenied={handleCameraPermissionDenied}
-                onPermissionGranted={handleCameraPermissionGranted}
-                onClipChunk={pushClipChunk}
-              />
-              <div style={{ display: "grid", gap: "var(--space-4)", alignContent: "start" }}>
-                <div className="panel">
-                  <div className="title-with-icon" style={{ marginBottom: "var(--space-3)" }}>
-                    <Icon name="shield" />
-                    <h2 style={{ margin: 0, fontSize: "1rem" }}>Live Status</h2>
-                  </div>
-                  <LiveStatusPanel status={liveStatus} />
+          {activeTab === "monitoring" && (
+            <div style={{ display: "grid", gap: "var(--space-6)" }}>
+              {/* Status panel – WebcamPreview is rendered above in its own wrapper */}
+              <div className="panel">
+                <div className="title-with-icon" style={{ marginBottom: "var(--space-3)" }}>
+                  <Icon name="shield" />
+                  <h2 style={{ margin: 0, fontSize: "1rem" }}>Live Status</h2>
                 </div>
+                <LiveStatusPanel status={liveStatus} />
                 {cameraError && (
                   <div
                     className="badge-danger"
                     style={{
+                      marginTop: "var(--space-3)",
                       padding: "var(--space-3) var(--space-4)",
                       borderRadius: "var(--radius-sm)",
                     }}
@@ -615,6 +649,7 @@ function Comp1023ExamContent({ examId }: { examId: string }) {
                   <div
                     className="badge-warning"
                     style={{
+                      marginTop: "var(--space-3)",
                       padding: "var(--space-3) var(--space-4)",
                       borderRadius: "var(--radius-sm)",
                     }}
@@ -623,15 +658,15 @@ function Comp1023ExamContent({ examId }: { examId: string }) {
                   </div>
                 )}
               </div>
+              <SuspiciousActivityChart
+                events={events}
+                durationSeconds={exam.durationSeconds}
+                startedAt={sessionStartedAt}
+                title="Exam Alert Timeline"
+              />
+              <WarningFeed events={events} />
             </div>
-            <SuspiciousActivityChart
-              events={events}
-              durationSeconds={exam.durationSeconds}
-              startedAt={sessionStartedAt}
-              title="Exam Alert Timeline"
-            />
-            <WarningFeed events={events} />
-          </div>
+          )}
         </>
       )}
     </div>

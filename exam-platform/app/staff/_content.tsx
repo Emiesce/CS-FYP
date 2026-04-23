@@ -23,22 +23,34 @@ export function StaffDashboardContent() {
 
   useEffect(() => {
     let cancelled = false;
-    void getDashboardCatalog()
-      .then((catalog) => {
-        if (cancelled) return;
-        setSemesters(catalog.semesters);
-        setAllExams(catalog.exams);
-        setSemester(
-          catalog.semesters.find((item) => item.id === catalog.currentSemesterId) ??
-            catalog.semesters[0] ??
-            null,
-        );
-      })
-      .finally(() => {
-        if (!cancelled) setLoading(false);
-      });
+
+    const load = () => {
+      void getDashboardCatalog()
+        .then((catalog) => {
+          if (cancelled) return;
+          setSemesters(catalog.semesters);
+          setAllExams(catalog.exams);
+          setSemester((prev) =>
+            prev
+              ? (catalog.semesters.find((s) => s.id === prev.id) ?? prev)
+              : (catalog.semesters.find((item) => item.id === catalog.currentSemesterId) ??
+                  catalog.semesters[0] ??
+                  null),
+          );
+        })
+        .finally(() => {
+          if (!cancelled) setLoading(false);
+        });
+    };
+
+    load();
+    // Poll every 30 s so that an exam transitioning from "current" → "past"
+    // is reflected without requiring a manual page refresh.
+    const interval = setInterval(load, 30_000);
+
     return () => {
       cancelled = true;
+      clearInterval(interval);
     };
   }, []);
 

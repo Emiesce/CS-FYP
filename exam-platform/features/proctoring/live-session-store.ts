@@ -157,6 +157,11 @@ function fromBackendEvent(event: BackendProctoringEvent): ProctoringEvent {
     startedAt: event.started_at ?? undefined,
     durationSeconds: event.duration_seconds ?? undefined,
     message: event.message,
+    // If the backend recorded a clip mime type, construct a stable URL to
+    // retrieve the uploaded clip binary from the backend.
+    evidenceClipUrl: event.has_evidence_clip
+      ? `/api/proctoring/events/${encodeURIComponent(event.id)}/clip`
+      : undefined,
     evidenceClipMimeType: event.has_evidence_clip ?? undefined,
   };
 }
@@ -333,12 +338,55 @@ export function clearPersistedProctoringSessions(): void {
   broadcastUpdate();
 }
 
+/** Remove all local proctoring data for a specific exam only. */
+export function clearExamProctoringSessions(examId: string): void {
+  if (typeof window === "undefined") return;
+
+  // Clear the live session if it belongs to this exam.
+  const live = readLiveSession();
+  if (live?.examId === examId) {
+    localStorage.removeItem(LIVE_SESSION_KEY);
+    rawCache.set(LIVE_SESSION_KEY, null);
+    parsedCache.set(LIVE_SESSION_KEY, SERVER_LIVE_SESSION);
+  }
+
+  // Remove the exam's entries from the completed sessions list.
+  const remaining = readCompletedSessions().filter((s) => s.examId !== examId);
+  writeJson(COMPLETED_SESSION_KEY, remaining);
+
+  broadcastUpdate();
+}
+
 export function subscribeToLiveSession(
   callback: (session: PersistedProctoringSession | null) => void,
 ): () => void {
   const unsubscribe = subscribeToPersistedProctoringSessions(() => callback(readLiveSession()));
   callback(readLiveSession());
   return unsubscribe;
+}
+
+/**
+ * Upload raw video clip blobs to the backend for long-term storage.
+ * Called once after exam completion for each event that has a blob clip.
+ *
+ * @param clips - array of { eventId, blob, mimeType } objects
+ */
+export async function uploadEventClips(
+  clips: Array<{ eventId: string; blob: Blob; mimeType: string }>,
+): Promise<void> {
+  if (typeof fetch === "undefined" || clips.length === 0) return;
+  const token = getSessionToken();
+  const headers: HeadersInit = token ? { Authorization: `Bearer ${token}` } : {};
+
+  await Promise.allSettled(
+    clips.map(({ eventId, blob, mimeType }) =>
+      fetch(`/api/proctoring/events/${encodeURIComponent(eventId)}/clip`, {
+        method: "PUT",
+        headers: { ...headers, "Content-Type": mimeType },
+        body: blob,
+      }),
+    ),
+  );
 }
 
 export function buildLiveViolationEntries(

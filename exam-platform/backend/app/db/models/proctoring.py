@@ -13,7 +13,7 @@ from datetime import datetime
 from typing import Optional
 import uuid
 
-from sqlalchemy import Column, DateTime, Float, ForeignKey, Integer, String, Text
+from sqlalchemy import Column, DateTime, Float, ForeignKey, Integer, LargeBinary, String, Text
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import relationship
 
@@ -84,6 +84,7 @@ class ProctoringEvent(Base):
 
     # Optional clip metadata (URL is ephemeral; we store type + flag only)
     has_evidence_clip = Column(String, nullable=True)    # mime type, e.g. "video/webm"
+    clip_data = Column(LargeBinary, nullable=True)       # raw video bytes uploaded after exam
 
     session = relationship("ProctoringSession", back_populates="events")
 
