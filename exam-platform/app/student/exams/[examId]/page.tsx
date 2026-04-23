@@ -11,6 +11,8 @@ import {
   fetchStudentProctoringSession,
 } from "@/features/proctoring/live-session-store";
 import { fetchExamDefinition } from "@/features/exams/exam-service";
+import { fetchMyGradingResult } from "@/features/grading/grading-service";
+import type { GradingRun } from "@/types";
 import { EmptyState, MetricCard } from "@/components/ui";
 import { formatDate } from "@/lib/utils/format";
 import { computeRiskScore, countHighSeverityEvents } from "@/lib/utils/risk-score";
@@ -22,6 +24,7 @@ function ExamDetailContent({ examId }: { examId: string }) {
   const [exam, setExam] = useState<Awaited<ReturnType<typeof fetchExamDefinition>> | null>(null);
   const [completedSession, setCompletedSession] =
     useState<Awaited<ReturnType<typeof fetchStudentProctoringSession>> | null>(null);
+  const [gradingRun, setGradingRun] = useState<GradingRun | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -43,6 +46,14 @@ function ExamDetailContent({ examId }: { examId: string }) {
       cancelled = true;
     };
   }, [examId, user]);
+
+  useEffect(() => {
+    let cancelled = false;
+    void fetchMyGradingResult(examId).then((run) => {
+      if (!cancelled) setGradingRun(run);
+    }).catch(() => { /* results not yet available */ });
+    return () => { cancelled = true; };
+  }, [examId]);
 
   const completedSessionEvents = completedSession?.events ?? [];
   const personalEvents = completedSessionEvents;
@@ -75,6 +86,26 @@ function ExamDetailContent({ examId }: { examId: string }) {
           <span>Location: {exam.location}</span>
           <span>Duration: {Math.round(exam.durationSeconds / 60)} minutes</span>
         </div>
+        {gradingRun && (
+          <div style={{ marginTop: "var(--space-5)", paddingTop: "var(--space-4)", borderTop: "1px solid var(--border-subtle)", display: "flex", alignItems: "center", gap: "var(--space-4)", flexWrap: "wrap" }}>
+            <div style={{ flex: 1 }}>
+              <div style={{ display: "flex", alignItems: "center", gap: "var(--space-2)", marginBottom: "var(--space-1)" }}>
+                <span style={{ fontWeight: 600, color: "var(--success-text)", fontSize: "0.9rem" }}>Graded Results are Available</span>
+              </div>
+              <p style={{ margin: 0, fontSize: "0.82rem", color: "var(--text-muted)" }}>
+                Score: <strong style={{ color: "var(--text-primary)" }}>{gradingRun.totalScore} / {gradingRun.maxTotalPoints}</strong>
+                {" "}— Reviewed by a human grader
+              </p>
+            </div>
+            <Link
+              href={`/student/exams/${examId}/results`}
+              className="button-primary"
+              style={{ flexShrink: 0 }}
+            >
+              View Graded Results →
+            </Link>
+          </div>
+        )}
       </div>
 
       {showPersonalSummary && (

@@ -2,6 +2,7 @@ from app.db.base import Base
 from app.db.models.core import User, Course, CourseStaff, CourseEnrollment, Exam, ExamQuestion, ExamAttempt, QuestionResponse
 from app.db.models.proctoring import ProctoringSession, ProctoringEvent, ProctoringBucket
 from app.db.models.grading import GradingRun, Rubric
+from app.db.models.analytics import AiSummaryCache
 
 __all__ = [
     "Base",
@@ -18,4 +19,5 @@ __all__ = [
     "ProctoringBucket",
     "GradingRun",
     "Rubric",
+    "AiSummaryCache",
 ]

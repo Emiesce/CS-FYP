@@ -219,3 +219,28 @@ async def api_list_runs(
 ) -> list[GradingRunOut]:
     """List all grading runs for an exam."""
     return GradingRepository(db).list_runs_for_exam(exam_id)
+
+
+@router.get(
+    "/my-results/{exam_id}",
+    response_model=GradingRunOut,
+)
+async def api_get_my_grading_result(
+    exam_id: str,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_roles("student")),
+) -> GradingRunOut:
+    """Get approved grading results for the current student's exam attempt.
+
+    Only returns a result when a human grader has reviewed and approved the run
+    (status == 'reviewed').
+    """
+    run = GradingRepository(db).get_run_for_student(exam_id, current_user.id)
+    if not run:
+        raise HTTPException(status_code=404, detail="No graded result found for this exam.")
+    if run.status not in ("reviewed", "finalized"):
+        raise HTTPException(
+            status_code=404,
+            detail="Results are not yet released. Grading is still pending human review.",
+        )
+    return run

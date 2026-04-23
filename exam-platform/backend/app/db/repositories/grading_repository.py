@@ -103,6 +103,16 @@ class GradingRepository:
         runs = self.db.query(GradingRun).filter(GradingRun.exam_id == exam_id).all()
         return [self._to_pydantic(run) for run in runs]
 
+    def get_run_for_student(self, exam_id: str, student_id: str) -> Optional[GradingRunOut]:
+        run = (
+            self.db.query(GradingRun)
+            .filter(GradingRun.exam_id == exam_id, GradingRun.student_id == student_id)
+            .first()
+        )
+        if not run:
+            return None
+        return self._to_pydantic(run)
+
     def save_rubric(self, rubric: StructuredRubric) -> StructuredRubric:
         r = self.db.query(Rubric).filter(Rubric.question_id == rubric.question_id).first()
         if not r:

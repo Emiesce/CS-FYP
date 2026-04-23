@@ -166,28 +166,39 @@ def seed_mgmt2110_dataset(db):
     question_type_map = {question.id: question.type_data.type for question in exam.questions}
     base_started_at = datetime(2026, 4, 17, 12, 0, 0)
 
+    # Student number of the Demo Account – their answers will be linked to stu-001
+    DEMO_STUDENT_NUMBER = "21841234"
+    DEMO_USER_ID = "stu-001"
+
     for index, row in enumerate(answer_rows):
         student_number = str(row["studentId"])
         first_name, last_name = _split_name(str(row["studentName"]))
-        user_id = f"mgmt-stu-{student_number}"
+
+        # If this is the demo student, reuse the existing stu-001 account
+        is_demo = (student_number == DEMO_STUDENT_NUMBER)
+        user_id = DEMO_USER_ID if is_demo else f"mgmt-stu-{student_number}"
+
         started_at = base_started_at + timedelta(minutes=index)
         submitted_at = started_at + timedelta(minutes=45)
 
-        db.merge(
-            User(
-                id=user_id,
-                email=f"mgmt2110.{student_number}@seed.local",
-                first_name=first_name,
-                last_name=last_name,
-                role="student",
-                student_number=student_number,
-                avatar_url=None,
-                password_hash=hash_password(f"seed-{student_number}"),
+        if not is_demo:
+            # Only create a separate user record for non-demo students
+            db.merge(
+                User(
+                    id=user_id,
+                    email=f"mgmt2110.{student_number}@seed.local",
+                    first_name=first_name,
+                    last_name=last_name,
+                    role="student",
+                    student_number=student_number,
+                    avatar_url=None,
+                    password_hash=hash_password(f"seed-{student_number}"),
+                )
             )
-        )
         db.flush()
 
-        db.add(CourseEnrollment(course_id="course-mgmt2110", user_id=user_id))
+        # Enroll in MGMT2110 (merge is idempotent)
+        db.merge(CourseEnrollment(course_id="course-mgmt2110", user_id=user_id))
 
         attempt_id = f"attempt-{MGMT2110_EXAM_ID}-{student_number}"
         db.add(

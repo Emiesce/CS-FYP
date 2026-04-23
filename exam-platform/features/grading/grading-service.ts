@@ -100,6 +100,19 @@ export async function listGradingRuns(examId: string): Promise<GradingRun[]> {
   return snakeToCamel(raw) as GradingRun[];
 }
 
+/**
+ * Fetch the approved grading result for the currently-authenticated student.
+ * Returns null if results have not yet been released / reviewed.
+ */
+export async function fetchMyGradingResult(examId: string): Promise<GradingRun | null> {
+  const res = await apiFetch(`${BASE}/api/grading/my-results/${examId}`, {
+    headers: authHeaders(),
+  });
+  if (res.status === 404) return null;
+  const raw = await json<unknown>(res);
+  return snakeToCamel(raw) as GradingRun;
+}
+
 export async function getGradingRun(
   examId: string,
   runId: string,
