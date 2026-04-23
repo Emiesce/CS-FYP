@@ -103,8 +103,8 @@ def _empty_snapshot(exam_id: str, db: Optional[Session] = None) -> ExamAnalytics
     )
 
 
-def _get_snapshot(exam_id: str, db=None) -> ExamAnalyticsSnapshotOut:
-    """Build analytics snapshot for an exam.
+def _get_snapshot(exam_id: str, db=None) -> tuple[ExamAnalyticsSnapshotOut, list]:
+    """Build analytics snapshot for an exam. Returns (snapshot, grading_runs).
 
     Resolution order:
       1. Exam definition from DB (via exam repository)
@@ -124,12 +124,12 @@ def _get_snapshot(exam_id: str, db=None) -> ExamAnalyticsSnapshotOut:
             snap.course_code = exam.course_code
             snap.course_name = exam.course_name
             snap.exam_title = exam.title
-            return snap
-        return _empty_snapshot(exam_id, db=db)
+            return snap, []
+        return _empty_snapshot(exam_id, db=db), []
 
     # 4. Full snapshot
     question_meta = _build_question_meta(exam) if exam else []
-    return build_analytics_snapshot(
+    snap = build_analytics_snapshot(
         exam_id=exam_id,
         course_code=exam.course_code if exam else "—",
         course_name=exam.course_name if exam else "—",
@@ -139,6 +139,7 @@ def _get_snapshot(exam_id: str, db=None) -> ExamAnalyticsSnapshotOut:
         question_meta=question_meta,
         db=db,
     )
+    return snap, runs
 
 
 @router.get(
@@ -151,15 +152,16 @@ async def api_get_analytics_snapshot(
     current_user: User = Depends(require_roles("instructor", "teaching_assistant", "administrator")),
 ) -> ExamAnalyticsSnapshotOut:
     """Get the full analytics snapshot for an exam."""
-    snapshot = _get_snapshot(exam_id, db=db)
+    snapshot, runs = _get_snapshot(exam_id, db=db)
 
     # Attempt AI summary (non-blocking, optional)
     try:
-        summary = await generate_ai_summary(snapshot)
+        summary = await generate_ai_summary(snapshot, grading_runs=runs, db=db)
         if summary:
             snapshot.ai_summary = summary
-    except Exception:
-        pass  # AI is optional
+    except Exception as _ai_err:
+        import logging as _log
+        _log.getLogger(__name__).warning("AI summary failed for %s: %s", exam_id, _ai_err)
 
     return snapshot
 
@@ -175,8 +177,8 @@ async def api_analytics_chat(
     current_user: User = Depends(require_roles("instructor", "teaching_assistant", "administrator")),
 ) -> AnalyticsChatResponse:
     """Chat with AI about exam analytics."""
-    snapshot = _get_snapshot(exam_id, db=db)
-    reply = await analytics_chat(snapshot, body.message, body.history)
+    snapshot, runs = _get_snapshot(exam_id, db=db)
+    reply = await analytics_chat(snapshot, body.message, body.history, grading_runs=runs)
     return AnalyticsChatResponse(
         reply=reply,
         timestamp=datetime.now(timezone.utc).isoformat(),

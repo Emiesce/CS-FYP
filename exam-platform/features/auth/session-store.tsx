@@ -9,10 +9,12 @@ import {
   createContext,
   useCallback,
   useContext,
+  useEffect,
   useMemo,
   useSyncExternalStore,
   type ReactNode,
 } from "react";
+import { UNAUTHORIZED_EVENT } from "@/lib/utils/api-fetch";
 import type { User, UserRole } from "@/types";
 import { isStaffRole } from "@/types";
 
@@ -119,6 +121,13 @@ export function SessionProvider({ children }: { children: ReactNode }) {
 
   const logout = useCallback(() => {
     saveSession(null);
+  }, []);
+
+  // Auto-logout when any API call receives a 401 Unauthorized response.
+  useEffect(() => {
+    const handler = () => saveSession(null);
+    window.addEventListener(UNAUTHORIZED_EVENT, handler);
+    return () => window.removeEventListener(UNAUTHORIZED_EVENT, handler);
   }, []);
 
   const value = useMemo<SessionContextValue>(

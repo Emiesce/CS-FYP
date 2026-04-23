@@ -2,6 +2,7 @@
 
 import { BACKEND_API_BASE } from "@/lib/constants";
 import { getSessionToken } from "@/features/auth";
+import { apiFetch } from "@/lib/utils/api-fetch";
 import type { Course, Exam, Semester, User, UserRole } from "@/types";
 
 interface BackendSemester {
@@ -75,7 +76,7 @@ function authHeaders(extra?: HeadersInit): HeadersInit {
 }
 
 async function apiJson<T>(path: string, init?: RequestInit): Promise<T> {
-  const response = await fetch(`${BACKEND_API_BASE}${path}`, {
+  const response = await apiFetch(`${BACKEND_API_BASE}${path}`, {
     cache: "no-store",
     ...init,
     headers: authHeaders(init?.headers),

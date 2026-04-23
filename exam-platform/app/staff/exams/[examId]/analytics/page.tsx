@@ -296,13 +296,106 @@ function AISummaryCard({ summary }: { summary?: ExamAnalyticsSnapshot["aiSummary
 }
 
 /* ================================================================== */
+/*  Lightweight Markdown renderer (no external deps)                  */
+/* ================================================================== */
+
+/** Renders a subset of Markdown that LLMs typically produce:
+ *  - **bold** / *italic*
+ *  - Bullet lists (- / * / •)
+ *  - Numbered lists (1. …)
+ *  - `inline code`
+ *  - Blank lines become paragraph breaks
+ */
+function MdMessage({ content, color }: { content: string; color: string }) {
+  const lines = content.split("\n");
+  const elements: React.ReactNode[] = [];
+  let listItems: React.ReactNode[] = [];
+  let listType: "ul" | "ol" | null = null;
+
+  const flushList = (key: number) => {
+    if (listItems.length === 0) return;
+    if (listType === "ul") {
+      elements.push(<ul key={`ul-${key}`} style={{ margin: "4px 0 4px 16px", padding: 0 }}>{listItems}</ul>);
+    } else {
+      elements.push(<ol key={`ol-${key}`} style={{ margin: "4px 0 4px 16px", padding: 0 }}>{listItems}</ol>);
+    }
+    listItems = [];
+    listType = null;
+  };
+
+  const renderInline = (text: string, key: string): React.ReactNode => {
+    // Split on **bold**, *italic*, `code` markers
+    const parts = text.split(/(\*\*[^*]+\*\*|\*[^*]+\*|`[^`]+`)/g);
+    return parts.map((part, i) => {
+      if (part.startsWith("**") && part.endsWith("**"))
+        return <strong key={`${key}-${i}`}>{part.slice(2, -2)}</strong>;
+      if (part.startsWith("*") && part.endsWith("*"))
+        return <em key={`${key}-${i}`}>{part.slice(1, -1)}</em>;
+      if (part.startsWith("`") && part.endsWith("`"))
+        return <code key={`${key}-${i}`} style={{ background: "rgba(0,0,0,0.12)", borderRadius: 3, padding: "0 3px", fontFamily: "monospace", fontSize: "0.78rem" }}>{part.slice(1, -1)}</code>;
+      return part;
+    });
+  };
+
+  lines.forEach((line, idx) => {
+    const ulMatch = /^[\-\*•]\s+(.+)$/.exec(line);
+    const olMatch = /^\d+\.\s+(.+)$/.exec(line);
+
+    if (ulMatch) {
+      if (listType === "ol") flushList(idx);
+      listType = "ul";
+      listItems.push(<li key={idx} style={{ marginBottom: 2 }}>{renderInline(ulMatch[1], `li-${idx}`)}</li>);
+    } else if (olMatch) {
+      if (listType === "ul") flushList(idx);
+      listType = "ol";
+      listItems.push(<li key={idx} style={{ marginBottom: 2 }}>{renderInline(olMatch[1], `li-${idx}`)}</li>);
+    } else {
+      flushList(idx);
+      if (line.trim() === "") {
+        elements.push(<br key={`br-${idx}`} />);
+      } else {
+        elements.push(<p key={`p-${idx}`} style={{ margin: "2px 0" }}>{renderInline(line, `p-${idx}`)}</p>);
+      }
+    }
+  });
+  flushList(lines.length);
+
+  return <div style={{ color, fontSize: "0.82rem", textAlign: "left" }}>{elements}</div>;
+}
+
+/* ================================================================== */
 /*  Analytics Chat Panel                                              */
 /* ================================================================== */
 
 function ChatPanel({ examId }: { examId: string }) {
-  const [messages, setMessages] = useState<AnalyticsChatMessage[]>([]);
+  const storageKey = `analytics_chat_${examId}`;
+
+  const [messages, setMessages] = useState<AnalyticsChatMessage[]>(() => {
+    try {
+      const saved = localStorage.getItem(storageKey);
+      return saved ? (JSON.parse(saved) as AnalyticsChatMessage[]) : [];
+    } catch {
+      return [];
+    }
+  });
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
+
+  // Persist messages to localStorage whenever they change
+  useEffect(() => {
+    try {
+      // Keep the last 40 messages to avoid unbounded growth
+      const toSave = messages.slice(-40);
+      localStorage.setItem(storageKey, JSON.stringify(toSave));
+    } catch {
+      // Ignore quota errors
+    }
+  }, [messages, storageKey]);
+
+  const clearHistory = useCallback(() => {
+    setMessages([]);
+    localStorage.removeItem(storageKey);
+  }, [storageKey]);
 
   const send = useCallback(async () => {
     const text = input.trim();
@@ -323,7 +416,18 @@ function ChatPanel({ examId }: { examId: string }) {
 
   return (
     <div style={{ ...card, display: "flex", flexDirection: "column", height: 500 }}>
-      <h3 style={sectionTitle}><IconMessageCircle /> Analytics Chat</h3>
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "var(--space-1)" }}>
+        <h3 style={sectionTitle}><IconMessageCircle /> Analytics Chat</h3>
+        {messages.length > 0 && (
+          <button
+            onClick={clearHistory}
+            style={{ fontSize: "0.75rem", color: "var(--text-muted)", background: "none", border: "none", cursor: "pointer", padding: "2px 6px" }}
+            title="Clear chat history"
+          >
+            Clear history
+          </button>
+        )}
+      </div>
       <div style={{ flex: 1, overflowY: "auto", marginBottom: "var(--space-3)", padding: "var(--space-2)", background: "var(--surface-muted)", borderRadius: "var(--radius-sm)" }}>
         {messages.length === 0 && (
           <p style={{ color: "var(--text-muted)", fontSize: "0.82rem", textAlign: "center", marginTop: "var(--space-8)" }}>Ask questions about the exam analytics data.</p>
@@ -337,11 +441,11 @@ function ChatPanel({ examId }: { examId: string }) {
               borderRadius: "var(--radius-sm)",
               background: m.role === "user" ? "var(--hkust-blue-700)" : "var(--surface-strong)",
               color: m.role === "user" ? "#fff" : "var(--text-primary)",
-              fontSize: "0.82rem",
               textAlign: "left",
-              whiteSpace: "pre-wrap",
             }}>
-              {m.content}
+              {m.role === "user"
+                ? <span style={{ fontSize: "0.82rem", color: "#fff", whiteSpace: "pre-wrap" }}>{m.content}</span>
+                : <MdMessage content={m.content} color="var(--text-primary)" />}
             </div>
           </div>
         ))}

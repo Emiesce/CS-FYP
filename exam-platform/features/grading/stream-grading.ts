@@ -4,6 +4,7 @@
 
 import { BACKEND_API_BASE } from "@/lib/constants";
 import { getSessionToken } from "@/features/auth";
+import { apiFetch } from "@/lib/utils/api-fetch";
 
 export interface StreamingAnswerPayload {
   question_id: string;
@@ -71,7 +72,7 @@ export async function streamGradingRun({
   onResult,
   onDone,
 }: StreamGradingRunOptions): Promise<void> {
-  const res = await fetch(`${BACKEND_API_BASE}/api/test-grading/submit-stream`, {
+  const res = await apiFetch(`${BACKEND_API_BASE}/api/test-grading/submit-stream`, {
     method: "POST",
     headers: authHeaders({ "Content-Type": "application/json" }),
     body: JSON.stringify({
@@ -137,7 +138,7 @@ export async function streamGradingRun({
 /* ------------------------------------------------------------------ */
 
 export async function clearAllGradingResults(): Promise<{ cleared: number; message: string }> {
-  const res = await fetch(`${BACKEND_API_BASE}/api/test-grading/results`, {
+  const res = await apiFetch(`${BACKEND_API_BASE}/api/test-grading/results`, {
     method: "DELETE",
     headers: authHeaders(),
   });

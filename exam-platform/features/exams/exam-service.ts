@@ -18,6 +18,7 @@ import type {
 import { getSessionToken } from "@/features/auth";
 import { uid } from "@/lib/utils/format";
 import { BACKEND_API_BASE } from "@/lib/constants";
+import { apiFetch } from "@/lib/utils/api-fetch";
 
 /* ------------------------------------------------------------------ */
 /*  Question creation defaults                                        */
@@ -438,7 +439,7 @@ function serializeExamDefinition(
 
 export async function fetchExamDefinition(examId: string): Promise<ExamDefinition | null> {
   try {
-    const res = await fetch(`${API_BASE}/api/exams/${examId}`, {
+    const res = await apiFetch(`${API_BASE}/api/exams/${examId}`, {
       headers: authHeaders(),
     });
     if (!res.ok) return null;
@@ -456,7 +457,7 @@ export async function saveExamDefinition(
   try {
     const url = examId ? `${API_BASE}/api/exams/${examId}` : `${API_BASE}/api/exams`;
     const method = examId ? "PUT" : "POST";
-    const res = await fetch(url, {
+    const res = await apiFetch(url, {
       method,
       headers: authHeaders({ "Content-Type": "application/json" }),
       body: JSON.stringify(serializeExamDefinition(data)),
@@ -476,7 +477,7 @@ export async function startAttempt(
   studentId: string,
 ): Promise<ExamAttempt | null> {
   try {
-    const res = await fetch(`${API_BASE}/api/exams/${examId}/attempt`, {
+    const res = await apiFetch(`${API_BASE}/api/exams/${examId}/attempt`, {
       method: "POST",
       headers: authHeaders({ "Content-Type": "application/json" }),
       body: JSON.stringify({
@@ -500,7 +501,7 @@ export async function fetchAttempt(
   studentId: string,
 ): Promise<ExamAttempt | null> {
   try {
-    const res = await fetch(
+    const res = await apiFetch(
       `${API_BASE}/api/exams/${examId}/attempt?student_id=${encodeURIComponent(studentId)}`,
       {
         headers: authHeaders(),
@@ -520,7 +521,7 @@ export async function saveDraft(
   payload: SaveDraftPayload,
 ): Promise<ExamAttempt | null> {
   try {
-    const res = await fetch(`${API_BASE}/api/exams/${examId}/attempt`, {
+    const res = await apiFetch(`${API_BASE}/api/exams/${examId}/attempt`, {
       method: "PUT",
       headers: authHeaders({ "Content-Type": "application/json" }),
       body: JSON.stringify({
@@ -544,7 +545,7 @@ export async function submitAttempt(
   studentId: string,
 ): Promise<ExamAttempt | null> {
   try {
-    const res = await fetch(
+    const res = await apiFetch(
       `${API_BASE}/api/exams/${examId}/submit?student_id=${encodeURIComponent(studentId)}`,
       {
         method: "POST",
@@ -561,7 +562,7 @@ export async function submitAttempt(
 
 export async function listAttempts(examId: string): Promise<ExamAttempt[]> {
   try {
-    const res = await fetch(`${API_BASE}/api/exams/${examId}/attempts`, {
+    const res = await apiFetch(`${API_BASE}/api/exams/${examId}/attempts`, {
       headers: authHeaders(),
     });
     if (!res.ok) return [];

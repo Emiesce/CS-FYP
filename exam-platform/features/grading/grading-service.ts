@@ -10,6 +10,7 @@ import type {
 import type { GradingRun, StructuredRubric } from "@/types";
 import { getSessionToken } from "@/features/auth";
 import { BACKEND_API_BASE } from "@/lib/constants";
+import { apiFetch } from "@/lib/utils/api-fetch";
 
 const BASE = BACKEND_API_BASE;
 
@@ -64,7 +65,7 @@ async function json<T>(res: Response): Promise<T> {
 export async function generateRubric(
   payload: RubricGeneratePayload,
 ): Promise<{ rubric: StructuredRubric; generatedBy: string; latencyMs: number }> {
-  const res = await fetch(`${BASE}/api/grading/rubric/generate`, {
+  const res = await apiFetch(`${BASE}/api/grading/rubric/generate`, {
     method: "POST",
     headers: authHeaders({ "Content-Type": "application/json" }),
     body: JSON.stringify(camelToSnake(payload)),
@@ -79,7 +80,7 @@ export async function startGradingRun(
   examId: string,
   payload: GradingRunRequest,
 ): Promise<GradingRun> {
-  const res = await fetch(
+  const res = await apiFetch(
     `${BASE}/api/grading/exams/${examId}/attempts/${payload.attemptId}/run`,
     {
       method: "POST",
@@ -92,7 +93,7 @@ export async function startGradingRun(
 }
 
 export async function listGradingRuns(examId: string): Promise<GradingRun[]> {
-  const res = await fetch(`${BASE}/api/grading/exams/${examId}/runs`, {
+  const res = await apiFetch(`${BASE}/api/grading/exams/${examId}/runs`, {
     headers: authHeaders(),
   });
   const raw = await json<unknown>(res);
@@ -103,7 +104,7 @@ export async function getGradingRun(
   examId: string,
   runId: string,
 ): Promise<GradingRun> {
-  const res = await fetch(
+  const res = await apiFetch(
     `${BASE}/api/test-grading/results/${runId}`,
     {
       headers: authHeaders(),
@@ -120,7 +121,7 @@ export async function submitReview(
   runId: string,
   payload: ReviewSubmitPayload,
 ): Promise<GradingRun> {
-  const res = await fetch(
+  const res = await apiFetch(
     `${BASE}/api/test-grading/review/${runId}`,
     {
       method: "PUT",

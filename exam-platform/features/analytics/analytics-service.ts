@@ -8,6 +8,7 @@ import type {
 } from "@/types";
 import { getSessionToken } from "@/features/auth";
 import { BACKEND_API_BASE } from "@/lib/constants";
+import { apiFetch } from "@/lib/utils/api-fetch";
 
 const BASE = BACKEND_API_BASE;
 
@@ -48,7 +49,7 @@ async function json<T>(res: Response): Promise<T> {
 export async function getAnalyticsSnapshot(
   examId: string,
 ): Promise<ExamAnalyticsSnapshot> {
-  const res = await fetch(`${BASE}/api/analytics/exams/${examId}/snapshot`, {
+  const res = await apiFetch(`${BASE}/api/analytics/exams/${examId}/snapshot`, {
     headers: authHeaders(),
   });
   const raw = await json<unknown>(res);
@@ -62,7 +63,7 @@ export async function sendAnalyticsChat(
   message: string,
   history: AnalyticsChatMessage[],
 ): Promise<{ reply: string; timestamp: string }> {
-  const res = await fetch(`${BASE}/api/analytics/exams/${examId}/chat`, {
+  const res = await apiFetch(`${BASE}/api/analytics/exams/${examId}/chat`, {
     method: "POST",
     headers: authHeaders({ "Content-Type": "application/json" }),
     body: JSON.stringify({
@@ -85,7 +86,7 @@ export async function syncProctoringForAnalytics(
     eventCount: number;
   },
 ): Promise<void> {
-  await fetch(`${BASE}/api/analytics/exams/${examId}/proctoring-sync`, {
+  await apiFetch(`${BASE}/api/analytics/exams/${examId}/proctoring-sync`, {
     method: "POST",
     headers: authHeaders({ "Content-Type": "application/json" }),
     body: JSON.stringify({
