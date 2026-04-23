@@ -17,6 +17,12 @@ export const EVENT_WEIGHTS: Record<ProctoringEventType, number> = {
   camera_unavailable: 25,
   tab_switch: 30,
   window_exit: 45,
+  clipboard_paste: 20,
+  clipboard_copy: 20,
+  clipboard_cut: 20,
+  select_all: 15,
+  browser_shortcut: 25,
+  devtools_open: 40,
 } as const;
 
 export type RiskLevel = "low" | "medium" | "high";

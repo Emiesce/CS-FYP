@@ -5,21 +5,17 @@
 /*  Receives initialSemesterId from the Server Component (page.tsx)  */
 /* ------------------------------------------------------------------ */
 
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { DashboardHeader, SemesterSwitcher } from "@/components/dashboard";
-import { HKUST_SEMESTERS, DEMO_COURSES } from "@/lib/fixtures";
+import {
+  createCourse,
+  deleteCourse,
+  getAdminBootstrap,
+  updateCourse,
+  updateCourseMembers,
+  updateUserRole,
+} from "@/features/catalog/catalog-service";
 import type { Course, Semester, User, UserRole } from "@/types";
-
-/* ------------------------------------------------------------------ */
-/*  Seed data (in-memory for demo)                                    */
-/* ------------------------------------------------------------------ */
-
-const SEED_USERS: User[] = [
-  { id: "stu-001", email: "student@ust.hk", firstName: "Alex", lastName: "Chan", role: "student", studentId: "20845671" },
-  { id: "staff-001", email: "instructor@ust.hk", firstName: "Dr. Wong", lastName: "Mei Ling", role: "instructor" },
-  { id: "staff-002", email: "ta@ust.hk", firstName: "Kevin", lastName: "Lau", role: "teaching_assistant" },
-  { id: "admin-001", email: "admin@ust.hk", firstName: "System", lastName: "Administrator", role: "administrator" },
-];
 
 const ROLE_OPTIONS: { value: UserRole; label: string }[] = [
   { value: "student", label: "Student" },
@@ -118,14 +114,40 @@ function MemberAssignPanel({ course, users, onSave, onClose }: MemberAssignPanel
 /*  AdminDashboardContent                                             */
 /* ------------------------------------------------------------------ */
 
-export function AdminDashboardContent({ initialSemesterId }: { initialSemesterId: string }) {
-  // Seeded from the server — same value on both passes, no mismatch.
-  const [semester, setSemester] = useState<Semester>(
-    () => HKUST_SEMESTERS.find((s) => s.id === initialSemesterId) ?? HKUST_SEMESTERS[0],
-  );
-  const [courses, setCourses]     = useState<Course[]>(DEMO_COURSES);
-  const [users, setUsers]         = useState<User[]>(SEED_USERS);
+export function AdminDashboardContent() {
+  const [semesters, setSemesters] = useState<Semester[]>([]);
+  const [semester, setSemester] = useState<Semester | null>(null);
+  const [courses, setCourses]     = useState<Course[]>([]);
+  const [users, setUsers]         = useState<User[]>([]);
   const [activeTab, setActiveTab] = useState<"courses" | "users">("courses");
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    void getAdminBootstrap()
+      .then((payload) => {
+        if (cancelled) return;
+        setSemesters(payload.semesters);
+        setSemester(
+          payload.semesters.find((item) => item.id === payload.currentSemesterId) ??
+            payload.semesters[0] ??
+            null,
+        );
+        setCourses(payload.courses);
+        setUsers(payload.users);
+      })
+      .catch((err) => {
+        if (!cancelled) setError(err instanceof Error ? err.message : "Failed to load admin data.");
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   /* ---- Course CRUD ---- */
   const [editCourseId,   setEditCourseId]   = useState<string | null>(null);
@@ -133,8 +155,8 @@ export function AdminDashboardContent({ initialSemesterId }: { initialSemesterId
   const [courseForm, setCourseForm]         = useState({ code: "", name: "" });
 
   const filteredCourses = useMemo(
-    () => courses.filter((c) => c.semesterId === semester.id),
-    [courses, semester.id],
+    () => courses.filter((c) => !semester || c.semesterId === semester.id),
+    [courses, semester],
   );
 
   const startCreateCourse = useCallback(() => {
@@ -149,57 +171,65 @@ export function AdminDashboardContent({ initialSemesterId }: { initialSemesterId
     setMemberCourseId(null);
   }, []);
 
-  const saveCourse = useCallback(() => {
-    if (!courseForm.code.trim() || !courseForm.name.trim()) return;
-    const now = new Date().toISOString();
-    if (editCourseId === "__new__") {
-      setCourses((prev) => [
-        ...prev,
-        {
-          id: `course-${Date.now()}`,
+  const saveCourse = useCallback(async () => {
+    if (!courseForm.code.trim() || !courseForm.name.trim() || !semester) return;
+    try {
+      if (editCourseId === "__new__") {
+        const created = await createCourse({
           code: courseForm.code.trim(),
           name: courseForm.name.trim(),
           semesterId: semester.id,
-          instructorIds: [],
-          taIds: [],
-          studentIds: [],
-          createdAt: now,
-          updatedAt: now,
-        },
-      ]);
-    } else {
-      setCourses((prev) =>
-        prev.map((c) =>
-          c.id === editCourseId
-            ? { ...c, code: courseForm.code.trim(), name: courseForm.name.trim(), updatedAt: now }
-            : c,
-        ),
-      );
+        });
+        setCourses((prev) => [...prev, created]);
+      } else if (editCourseId) {
+        const updated = await updateCourse(editCourseId, {
+          code: courseForm.code.trim(),
+          name: courseForm.name.trim(),
+          semesterId: semester.id,
+        });
+        setCourses((prev) => prev.map((course) => (course.id === updated.id ? updated : course)));
+      }
+      setEditCourseId(null);
+      setError(null);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to save course.");
     }
-    setEditCourseId(null);
-  }, [courseForm, editCourseId, semester.id]);
+  }, [courseForm, editCourseId, semester]);
 
-  const deleteCourse = useCallback((id: string) => {
-    setCourses((prev) => prev.filter((c) => c.id !== id));
-    if (memberCourseId === id) setMemberCourseId(null);
+  const handleDeleteCourse = useCallback(async (id: string) => {
+    try {
+      await deleteCourse(id);
+      setCourses((prev) => prev.filter((c) => c.id !== id));
+      if (memberCourseId === id) setMemberCourseId(null);
+      setError(null);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to delete course.");
+    }
   }, [memberCourseId]);
 
   const saveMembers = useCallback(
-    (courseId: string, instructorIds: string[], taIds: string[], studentIds: string[]) => {
-      const now = new Date().toISOString();
-      setCourses((prev) =>
-        prev.map((c) =>
-          c.id === courseId ? { ...c, instructorIds, taIds, studentIds, updatedAt: now } : c,
-        ),
-      );
-      setMemberCourseId(null);
+    async (courseId: string, instructorIds: string[], taIds: string[], studentIds: string[]) => {
+      try {
+        const updated = await updateCourseMembers(courseId, { instructorIds, taIds, studentIds });
+        setCourses((prev) => prev.map((c) => (c.id === updated.id ? updated : c)));
+        setMemberCourseId(null);
+        setError(null);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : "Failed to update course members.");
+      }
     },
     [],
   );
 
   /* ---- User role management ---- */
-  const changeUserRole = useCallback((userId: string, newRole: UserRole) => {
-    setUsers((prev) => prev.map((u) => (u.id === userId ? { ...u, role: newRole } : u)));
+  const changeUserRole = useCallback(async (userId: string, newRole: UserRole) => {
+    try {
+      const updated = await updateUserRole(userId, newRole);
+      setUsers((prev) => prev.map((u) => (u.id === updated.id ? updated : u)));
+      setError(null);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to update user role.");
+    }
   }, []);
 
   return (
@@ -207,8 +237,26 @@ export function AdminDashboardContent({ initialSemesterId }: { initialSemesterId
       <DashboardHeader />
 
       <div style={{ marginBottom: "var(--space-6)" }}>
-        <SemesterSwitcher semesters={HKUST_SEMESTERS} current={semester} onChange={setSemester} />
+        {semester ? (
+          <SemesterSwitcher
+            semesters={semesters}
+            current={semester}
+            onChange={(value) => setSemester(value)}
+          />
+        ) : null}
       </div>
+
+      {loading && (
+        <div className="panel">
+          <p className="helper-text" style={{ margin: 0 }}>Loading admin data...</p>
+        </div>
+      )}
+
+      {error && (
+        <div className="badge-danger" style={{ padding: "var(--space-3) var(--space-4)", borderRadius: "var(--radius-sm)", marginBottom: "var(--space-4)" }}>
+          {error}
+        </div>
+      )}
 
       {/* Tabs */}
       <div className="tab-list" role="tablist" style={{ marginBottom: "var(--space-6)" }}>
@@ -285,7 +333,7 @@ export function AdminDashboardContent({ initialSemesterId }: { initialSemesterId
                           {memberCourseId === c.id ? "Close Members" : "Manage Members"}
                         </button>
                         <button className="button-ghost" onClick={() => startEditCourse(c)} style={{ fontSize: "0.85rem" }}>Edit</button>
-                        <button className="button-ghost" onClick={() => deleteCourse(c.id)} style={{ fontSize: "0.85rem", color: "var(--danger-text)" }}>Delete</button>
+                        <button className="button-ghost" onClick={() => void handleDeleteCourse(c.id)} style={{ fontSize: "0.85rem", color: "var(--danger-text)" }}>Delete</button>
                       </div>
                     </td>
                   </tr>

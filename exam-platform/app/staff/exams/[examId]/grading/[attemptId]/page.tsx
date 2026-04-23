@@ -10,10 +10,11 @@ import { useRouter } from "next/navigation";
 import { CriterionScoreCard } from "@/components/grading/CriterionScoreCard";
 import { EvidenceHighlighter } from "@/components/grading/EvidenceHighlighter";
 import { GradingSummaryCard } from "@/components/grading/GradingSummaryCard";
-import { getGradingRun, submitReview } from "@/features/grading/grading-service";
+import { getGradingRun, listGradingRuns, submitReview } from "@/features/grading/grading-service";
 import {
   getAllSubmissions,
   getAllSubmissionsServer,
+  refreshExamSubmissions,
   subscribeToExamAnswers,
 } from "@/features/exams/exam-answer-store";
 import { QUESTION_TYPE_LABELS } from "@/types";
@@ -64,6 +65,10 @@ function AttemptReviewContent({
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    void refreshExamSubmissions(examId);
+  }, [examId]);
+
+  useEffect(() => {
     let cancelled = false;
     (async () => {
       try {
@@ -84,6 +89,23 @@ function AttemptReviewContent({
     })();
     return () => { cancelled = true; };
   }, [examId, attemptId]);
+
+  useEffect(() => {
+    let cancelled = false;
+    void listGradingRuns(examId)
+      .then((runs) => {
+        if (cancelled) return;
+        const nextMap: Record<string, CachedRunRef> = {};
+        for (const gradingRun of runs) {
+          nextMap[gradingRun.studentId] = { id: gradingRun.id };
+        }
+        setCachedRunsByStudent((prev) => ({ ...prev, ...nextMap }));
+      })
+      .catch(() => {});
+    return () => {
+      cancelled = true;
+    };
+  }, [examId]);
 
   const currentQ = run?.questionResults.find((qr) => qr.questionId === selectedQ) ?? null;
 
@@ -397,7 +419,7 @@ function AttemptReviewContent({
               </div>
             </div>
 
-            <div className="panel" style={{ padding: "var(--space-5)", minHeight: "72vh" }}>
+            <div className="panel" style={{ padding: "var(--space-5)" }}>
               <div style={{ fontSize: "0.78rem", fontWeight: 700, letterSpacing: "0.04em", textTransform: "uppercase", color: "var(--text-muted)", marginBottom: "var(--space-2)" }}>
                 Student Answer {currentQAllReviewed ? "With Evidence" : ""}
               </div>
@@ -434,7 +456,6 @@ function AttemptReviewContent({
                   {activeCriterion === cr.criterionId && (
                     <div
                       style={{
-                        marginTop: "var(--space-2)",
                         paddingTop: "var(--space-4)",
                         borderTop: "1px solid var(--border-default)",
                         display: "grid",
@@ -479,39 +500,6 @@ function AttemptReviewContent({
                           style={{ resize: "vertical" }}
                         />
                       </label>
-
-                      {revealAiAssessment && (
-                        <div
-                          style={{
-                            padding: "var(--space-3)",
-                            borderRadius: "var(--radius-md)",
-                            background: "rgba(255, 235, 130, 0.25)",
-                            border: "1px solid rgba(200, 170, 50, 0.3)",
-                            display: "grid",
-                            gap: "var(--space-2)",
-                          }}
-                        >
-                          <div style={{ display: "flex", gap: "var(--space-2)", flexWrap: "wrap" }}>
-                            <span className="badge badge-info">
-                              AI {cr.score}/{cr.maxPoints}
-                            </span>
-                            {cr.overrideScore != null && (
-                              <span className="badge badge-success">
-                                Saved {cr.overrideScore}/{cr.maxPoints}
-                              </span>
-                            )}
-                          </div>
-                          <div>
-                            <div style={{ fontSize: "0.78rem", fontWeight: 700, color: "var(--text-muted)", marginBottom: 4 }}>
-                              AI Criterion Rationale
-                            </div>
-                            <p style={{ margin: 0, fontSize: "0.86rem", lineHeight: 1.6, color: "var(--text-secondary)" }}>
-                              {cr.rationale || "No criterion rationale available."}
-                            </p>
-                          </div>
-                        </div>
-                      )}
-
                       <div style={{ display: "flex", gap: "var(--space-3)", flexWrap: "wrap" }}>
                         <button
                           type="button"

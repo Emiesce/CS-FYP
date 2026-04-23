@@ -7,77 +7,56 @@
 /*  — no hydration mismatch, no useEffect required.                  */
 /* ------------------------------------------------------------------ */
 
-import { useMemo, useState, useSyncExternalStore } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { DashboardHeader, ExamSection, SemesterSwitcher } from "@/components/dashboard";
-import {
-  DEMO_CURRENT_EXAM,
-  UPCOMING_EXAMS,
-  PAST_EXAMS,
-  HKUST_SEMESTERS,
-  COMP1023_EXAM,
-  MGMT2110_EXAM,
-  MGMT2110_EXAM_ID,
-} from "@/lib/fixtures";
+import { getDashboardCatalog } from "@/features/catalog/catalog-service";
 import { useSession } from "@/features/auth";
-import {
-  getAllSubmissions,
-  getAllSubmissionsServer,
-  subscribeToExamAnswers,
-} from "@/features/exams/exam-answer-store";
 import { hasPermission } from "@/types";
 import type { Exam, Semester } from "@/types";
 import Link from "next/link";
-
-interface Props {
-  initialSemesterId: string;
-}
-
-export function StaffDashboardContent({ initialSemesterId }: Props) {
+export function StaffDashboardContent() {
   const { user } = useSession();
+  const [semesters, setSemesters] = useState<Semester[]>([]);
+  const [semester, setSemester] = useState<Semester | null>(null);
+  const [allExams, setAllExams] = useState<Exam[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  // Seeded from the server — same value on both passes, no mismatch.
-  const [semester, setSemester] = useState<Semester>(
-    () => HKUST_SEMESTERS.find((s) => s.id === initialSemesterId) ?? HKUST_SEMESTERS[0],
-  );
-
-  // Check if any student has submitted the COMP1023 exam
-  const submissions = useSyncExternalStore(
-    subscribeToExamAnswers,
-    getAllSubmissions,
-    getAllSubmissionsServer,
-  );
-  const comp1023HasSubmission = submissions.some((s) => s.examId === COMP1023_EXAM.id);
-
-  const allExams = useMemo(() => {
-    const comp1023: Exam = comp1023HasSubmission
-      ? { ...COMP1023_EXAM, status: "past" }
-      : COMP1023_EXAM;
-    return [
-      DEMO_CURRENT_EXAM,
-      comp1023,
-      ...UPCOMING_EXAMS,
-      MGMT2110_EXAM,
-      ...PAST_EXAMS,
-    ];
-  }, [comp1023HasSubmission]);
+  useEffect(() => {
+    let cancelled = false;
+    void getDashboardCatalog()
+      .then((catalog) => {
+        if (cancelled) return;
+        setSemesters(catalog.semesters);
+        setAllExams(catalog.exams);
+        setSemester(
+          catalog.semesters.find((item) => item.id === catalog.currentSemesterId) ??
+            catalog.semesters[0] ??
+            null,
+        );
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   const filtered = useMemo(
-    () => allExams.filter((e) => e.semesterId === semester.id),
-    [allExams, semester.id],
+    () => allExams.filter((e) => !semester || e.semesterId === semester.id),
+    [allExams, semester],
   );
 
   const currentExams  = filtered.filter((e) => e.status === "current");
   const upcomingExams = filtered.filter((e) => e.status === "upcoming");
   const pastExams     = filtered.filter((e) => e.status === "past");
 
+  const canCreate        = user ? hasPermission(user.role, "exam:create")         : false;
   const canEdit          = user ? hasPermission(user.role, "exam:edit")           : false;
   const canViewQuestions = user ? hasPermission(user.role, "exam:view_questions") : false;
 
-  const gradingExamIds = new Set([MGMT2110_EXAM_ID, COMP1023_EXAM.id]);
-
   const hrefForExam = (exam: Exam) => {
     if (exam.status === "current")                  return `/staff/exams/current/proctoring`;
-    if (gradingExamIds.has(exam.id))                return `/staff/exams/${exam.id}/grading`;
     if (exam.status === "past")                     return `/staff/exams/${exam.id}/proctoring`;
     if (exam.status === "upcoming" && canEdit)      return `/staff/exams/${exam.id}/edit`;
     if (exam.status === "upcoming" && canViewQuestions) return `/staff/exams/${exam.id}/view`;
@@ -107,14 +86,12 @@ export function StaffDashboardContent({ initialSemesterId }: Props) {
     return (
       <Link
         href={
-          gradingExamIds.has(exam.id)
-            ? `/staff/exams/${exam.id}/grading`
-            : `/staff/exams/${exam.id}/proctoring`
+          `/staff/exams/${exam.id}/proctoring`
         }
         className="button-secondary"
         style={{ textDecoration: "none", fontSize: "0.85rem" }}
       >
-        {gradingExamIds.has(exam.id) ? "Open Grading →" : "View Results →"}
+        View Results →
       </Link>
     );
   };
@@ -123,13 +100,29 @@ export function StaffDashboardContent({ initialSemesterId }: Props) {
     <>
       <DashboardHeader />
 
-      <div style={{ marginBottom: "var(--space-6)" }}>
-        <SemesterSwitcher
-          semesters={HKUST_SEMESTERS}
-          current={semester}
-          onChange={setSemester}
-        />
+      <div
+        className="flex-between"
+        style={{ marginBottom: "var(--space-6)", gap: "var(--space-3)", flexWrap: "wrap" }}
+      >
+        {semester ? (
+          <SemesterSwitcher
+            semesters={semesters}
+            current={semester}
+            onChange={(value) => setSemester(value)}
+          />
+        ) : null}
+        {canCreate && (
+          <Link href="/staff/exams/new" className="button" style={{ textDecoration: "none" }}>
+            Create Exam
+          </Link>
+        )}
       </div>
+
+      {loading && (
+        <div className="panel">
+          <p className="helper-text" style={{ margin: 0 }}>Loading exam catalog...</p>
+        </div>
+      )}
 
       <div className="section-stack">
         <ExamSection

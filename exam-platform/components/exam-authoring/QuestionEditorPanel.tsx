@@ -306,6 +306,68 @@ export function QuestionEditorPanel({ question, examId, onChange, onDelete }: Qu
             Required
           </label>
         </div>
+
+        {/* Topic IDs (comma-separated tag input) */}
+        <label className="form-label">
+          Topic Tags
+          <span style={{ fontSize: "0.72rem", color: "var(--text-muted)", fontWeight: 400, marginLeft: "var(--space-2)" }}>
+            (comma-separated, used for analytics &amp; grading)
+          </span>
+          <input
+            className="input"
+            placeholder="e.g. hypothesis-testing, t-test, p-value"
+            value={(question.topicIds ?? []).join(", ")}
+            onChange={(e) => {
+              const raw = e.target.value;
+              // Split on commas, trim each, filter empty — but keep trailing comma while typing
+              const ids = raw.endsWith(",")
+                ? [...raw.slice(0, -1).split(",").map((s) => s.trim()).filter(Boolean)]
+                : raw.split(",").map((s) => s.trim()).filter(Boolean);
+              updateBase({ topicIds: ids });
+            }}
+          />
+          {/* Show current tags as pills */}
+          {(question.topicIds ?? []).length > 0 && (
+            <div style={{ display: "flex", flexWrap: "wrap", gap: "var(--space-1)", marginTop: "var(--space-1)" }}>
+              {(question.topicIds ?? []).map((tag) => (
+                <span
+                  key={tag}
+                  style={{
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: 4,
+                    padding: "2px 8px",
+                    borderRadius: 999,
+                    fontSize: "0.72rem",
+                    background: "var(--hkust-blue-100)",
+                    color: "var(--hkust-blue-700)",
+                    border: "1px solid color-mix(in srgb, var(--hkust-blue-700) 20%, transparent)",
+                  }}
+                >
+                  {tag}
+                  <button
+                    type="button"
+                    aria-label={`Remove ${tag}`}
+                    onClick={() =>
+                      updateBase({ topicIds: (question.topicIds ?? []).filter((t) => t !== tag) })
+                    }
+                    style={{
+                      background: "none",
+                      border: "none",
+                      cursor: "pointer",
+                      padding: 0,
+                      lineHeight: 1,
+                      color: "var(--hkust-blue-700)",
+                      fontSize: "0.8rem",
+                    }}
+                  >
+                    ×
+                  </button>
+                </span>
+              ))}
+            </div>
+          )}
+        </label>
       </div>
 
       {/* Rubric / Marking Scheme Editor */}

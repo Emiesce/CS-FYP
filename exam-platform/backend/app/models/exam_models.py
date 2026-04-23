@@ -29,6 +29,8 @@ class RubricAttachment(BaseModel):
 
 
 class QuestionRubric(BaseModel):
+    model_config = {"extra": "allow"}   # ignore unknown fields (e.g. structured_rubric)
+
     text: str = ""
     attachment: Optional[RubricAttachment] = None
 
@@ -90,12 +92,13 @@ class ExamQuestionIn(BaseModel):
 
     id: str = Field(min_length=1)
     order: int = Field(ge=1)
-    title: str = Field(min_length=1)
-    prompt: str = Field(min_length=1)
+    title: str = ""
+    prompt: str = ""
     points: float = Field(ge=0)
     required: bool = True
     rubric: Optional[QuestionRubric] = None
     type_data: QuestionTypeData = Field(discriminator="type")
+    topic_ids: list[str] = Field(default_factory=list)
 
 
 class ExamDefinitionIn(BaseModel):
@@ -103,11 +106,11 @@ class ExamDefinitionIn(BaseModel):
 
     course_code: str = Field(min_length=1)
     course_name: str = Field(min_length=1)
-    title: str = Field(min_length=1)
+    title: str = ""
     date: str
     start_time: str
     duration_seconds: int = Field(gt=0)
-    location: str = Field(min_length=1)
+    location: str = ""
     instructions: str = ""
     questions: list[ExamQuestionIn] = Field(default_factory=list)
 

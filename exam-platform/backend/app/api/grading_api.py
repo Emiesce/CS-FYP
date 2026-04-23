@@ -26,8 +26,14 @@ from app.models.grading_models import (
 )
 from app.services.grading.orchestrator import run_grading
 from app.services.grading.rubric_generation import generate_rubric
-from app.storage.exam_storage import get_exam_store
-from app.storage.grading_storage import get_grading_store
+from app.db.repositories.grading_repository import GradingRepository
+from app.db.session import get_db
+from app.db.repositories.exam_repository import ExamRepository
+from app.db.repositories.attempt_repository import AttemptRepository
+from app.db.models.core import User
+from app.dependencies.auth import require_roles
+from sqlalchemy.orm import Session
+from fastapi import Depends
 
 router = APIRouter(prefix="/api/grading", tags=["grading"])
 
@@ -35,7 +41,11 @@ router = APIRouter(prefix="/api/grading", tags=["grading"])
 # ---- Rubric generation -----------------------------------------------
 
 @router.post("/rubric/generate", response_model=RubricGenerateResponse)
-async def api_generate_rubric(body: RubricGenerateRequest) -> RubricGenerateResponse:
+async def api_generate_rubric(
+    body: RubricGenerateRequest,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_roles("instructor", "teaching_assistant", "administrator")),
+) -> RubricGenerateResponse:
     """Generate a structured rubric for a question using AI."""
     try:
         rubric, model_used, latency_ms = await generate_rubric(
@@ -51,7 +61,7 @@ async def api_generate_rubric(body: RubricGenerateRequest) -> RubricGenerateResp
         raise HTTPException(status_code=422, detail=str(e))
 
     # Persist the rubric
-    get_grading_store().save_rubric(rubric)
+    GradingRepository(db).save_rubric(rubric)
 
     return RubricGenerateResponse(
         rubric=rubric,
@@ -70,18 +80,19 @@ async def api_start_grading_run(
     exam_id: str,
     attempt_id: str,
     body: GradingRunRequest,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_roles("instructor", "teaching_assistant", "administrator")),
 ) -> GradingRunOut:
     """Start a grading run for a submitted attempt."""
-    exam_store = get_exam_store()
-    grading_store = get_grading_store()
+    grading_store = GradingRepository(db)
 
-    # Load exam definition
-    exam = exam_store.get_definition(exam_id)
+    # Load exam definition from DB
+    exam = ExamRepository(db).get(exam_id)
     if not exam:
         raise HTTPException(status_code=404, detail="Exam not found.")
 
-    # Load attempt
-    attempt = exam_store.get_attempt(exam_id, body.student_id)
+    # Load attempt from DB
+    attempt = AttemptRepository(db).get_attempt(exam_id, body.student_id)
     if not attempt or attempt.id != attempt_id:
         raise HTTPException(status_code=404, detail="Attempt not found.")
 
@@ -119,9 +130,11 @@ async def api_start_grading_run(
 async def api_get_grading_result(
     exam_id: str,
     attempt_id: str,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_roles("instructor", "teaching_assistant", "administrator")),
 ) -> GradingRunOut:
     """Get grading results for an attempt."""
-    run = get_grading_store().get_run_by_attempt(attempt_id)
+    run = GradingRepository(db).get_run_by_attempt(attempt_id)
     if not run or run.exam_id != exam_id:
         raise HTTPException(status_code=404, detail="Grading run not found.")
     return run
@@ -135,16 +148,18 @@ async def api_submit_review(
     exam_id: str,
     attempt_id: str,
     body: ReviewSubmitRequest,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_roles("instructor", "teaching_assistant", "administrator")),
 ) -> GradingRunOut:
     """Submit a staff review / override for a graded question."""
-    store = get_grading_store()
+    store = GradingRepository(db)
     run = store.get_run_by_attempt(attempt_id)
     if not run or run.exam_id != exam_id:
         raise HTTPException(status_code=404, detail="Grading run not found.")
 
     review = GradingReviewDecision(
         question_id=body.question_id,
-        reviewer_id="staff-001",  # TODO: from auth
+        reviewer_id=current_user.id,
         original_score=0,
         override_score=body.override_score,
         comment=body.comment,
@@ -158,7 +173,36 @@ async def api_submit_review(
             review.original_score = qr.raw_score
             break
 
-    updated = store.apply_review(attempt_id, review)
+    
+    # Apply override and recompute scores (human review takes precedence)
+    criteria_overrides = getattr(body, "criteria_overrides", []) or []
+    if criteria_overrides or review.override_score is not None:
+        for qr in run.question_results:
+            if qr.question_id == review.question_id:
+                if criteria_overrides:
+                    override_by_id  = {o.criterion_id: o.override_score for o in criteria_overrides}
+                    reasoning_by_id = {o.criterion_id: o.reasoning       for o in criteria_overrides}
+                    for cr in qr.criterion_results:
+                        if cr.criterion_id in override_by_id:
+                            cr.override_score     = override_by_id[cr.criterion_id]
+                            cr.reviewer_rationale = reasoning_by_id.get(cr.criterion_id) or cr.reviewer_rationale
+                    if qr.criterion_results:
+                        qr.raw_score = sum(
+                            (cr.override_score if cr.override_score is not None else cr.score)
+                            for cr in qr.criterion_results
+                        )
+                if review.override_score is not None:
+                    qr.raw_score = review.override_score
+                qr.status = "reviewed"
+                if qr.max_points > 0:
+                    qr.normalized_score = qr.raw_score / qr.max_points
+                break
+
+    run.reviews.append(review)
+    run.total_score = sum(qr.raw_score for qr in run.question_results)
+    run.status = "reviewed"
+    updated = store.save_run(run)
+
     if not updated:
         raise HTTPException(status_code=404, detail="Failed to apply review.")
     return updated
@@ -168,6 +212,10 @@ async def api_submit_review(
     "/exams/{exam_id}/runs",
     response_model=list[GradingRunOut],
 )
-async def api_list_runs(exam_id: str) -> list[GradingRunOut]:
+async def api_list_runs(
+    exam_id: str,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_roles("instructor", "teaching_assistant", "administrator")),
+) -> list[GradingRunOut]:
     """List all grading runs for an exam."""
-    return get_grading_store().list_runs_for_exam(exam_id)
+    return GradingRepository(db).list_runs_for_exam(exam_id)

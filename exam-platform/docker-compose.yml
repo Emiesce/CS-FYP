@@ -1,0 +1,27 @@
+version: '3.9'
+services:
+  db:
+    image: postgres:16
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: exam_platform
+      POSTGRES_USER: examuser
+      POSTGRES_PASSWORD: examsecret
+    ports:
+      - "5433:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U examuser"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+  # Optional: DB viewer (comment out if not needed)
+  adminer:
+    image: adminer
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+volumes:
+  pgdata:
+    driver: local

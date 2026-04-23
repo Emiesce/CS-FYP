@@ -17,28 +17,55 @@ import {
   upsertResponse,
 } from "@/features/exams/exam-service";
 
+export interface ExamWorkspaceState {
+  responses: QuestionResponse[];
+  currentQuestionIndex: number;
+  flaggedQuestionIds: string[];
+}
+
 interface ExamWorkspaceShellProps {
   definition: ExamDefinition;
   /** Pre-loaded draft answers so state survives tab switches. */
   initialResponses?: QuestionResponse[];
-  /** Called whenever the response list changes (for draft persistence). */
-  onResponsesChange?: (responses: QuestionResponse[]) => void;
+  initialCurrentQuestionIndex?: number;
+  initialFlaggedQuestionIds?: string[];
+  /** Called whenever the workspace state changes (for draft persistence). */
+  onStateChange?: (state: ExamWorkspaceState) => void;
   /** Called when the student clicks the submit button. */
-  onSubmit?: (responses: QuestionResponse[]) => void;
+  onSubmit?: (state: ExamWorkspaceState) => void;
 }
 
 export function ExamWorkspaceShell({
   definition,
   initialResponses,
-  onResponsesChange,
+  initialCurrentQuestionIndex = 0,
+  initialFlaggedQuestionIds,
+  onStateChange,
   onSubmit,
 }: ExamWorkspaceShellProps) {
   const [responses, setResponses] = useState<QuestionResponse[]>(initialResponses ?? []);
-  const [flaggedIds, setFlaggedIds] = useState<string[]>([]);
-  const [currentIndex, setCurrentIndex] = useState(0);
+  const [flaggedIds, setFlaggedIds] = useState<string[]>(
+    initialFlaggedQuestionIds ?? [],
+  );
+  const [currentIndex, setCurrentIndex] = useState(initialCurrentQuestionIndex);
 
   const questions = definition.questions;
   const currentQuestion = questions[currentIndex] ?? null;
+
+  const notifyStateChange = useCallback(
+    (
+      nextResponses: QuestionResponse[],
+      nextCurrentIndex: number,
+      nextFlaggedIds: string[],
+    ) => {
+      onStateChange?.({
+        responses: nextResponses,
+        currentQuestionIndex: nextCurrentIndex,
+        flaggedQuestionIds: nextFlaggedIds,
+      });
+    },
+    [onStateChange],
+  );
 
   /* ---- nav items ------------------------------------------------- */
   const navItems = useMemo(
@@ -65,24 +92,33 @@ export function ExamWorkspaceShell({
       };
       const next = upsertResponse(responses, resp);
       setResponses(next);
-      onResponsesChange?.(next);
+      notifyStateChange(next, currentIndex, flaggedIds);
     },
-    [currentQuestion, responses, onResponsesChange],
+    [currentIndex, currentQuestion, flaggedIds, notifyStateChange, responses],
   );
 
   /* ---- flag toggle ----------------------------------------------- */
   const toggleFlag = useCallback(() => {
     if (!currentQuestion) return;
-    setFlaggedIds((prev) =>
-      prev.includes(currentQuestion.id)
-        ? prev.filter((id) => id !== currentQuestion.id)
-        : [...prev, currentQuestion.id],
-    );
-  }, [currentQuestion]);
+    const nextFlaggedIds = flaggedIds.includes(currentQuestion.id)
+      ? flaggedIds.filter((id) => id !== currentQuestion.id)
+      : [...flaggedIds, currentQuestion.id];
+    setFlaggedIds(nextFlaggedIds);
+    notifyStateChange(responses, currentIndex, nextFlaggedIds);
+  }, [currentIndex, currentQuestion, flaggedIds, notifyStateChange, responses]);
 
   /* ---- navigation ------------------------------------------------ */
-  const goPrev = () => setCurrentIndex((i) => Math.max(0, i - 1));
-  const goNext = () => setCurrentIndex((i) => Math.min(questions.length - 1, i + 1));
+  const goPrev = useCallback(() => {
+    const nextIndex = Math.max(0, currentIndex - 1);
+    setCurrentIndex(nextIndex);
+    notifyStateChange(responses, nextIndex, flaggedIds);
+  }, [currentIndex, flaggedIds, notifyStateChange, responses]);
+
+  const goNext = useCallback(() => {
+    const nextIndex = Math.min(questions.length - 1, currentIndex + 1);
+    setCurrentIndex(nextIndex);
+    notifyStateChange(responses, nextIndex, flaggedIds);
+  }, [currentIndex, flaggedIds, notifyStateChange, questions.length, responses]);
 
   const isFlagged = currentQuestion ? flaggedIds.includes(currentQuestion.id) : false;
 
@@ -92,7 +128,10 @@ export function ExamWorkspaceShell({
       <QuestionNavigator
         items={navItems}
         currentIndex={currentIndex}
-        onNavigate={setCurrentIndex}
+        onNavigate={(nextIndex) => {
+          setCurrentIndex(nextIndex);
+          notifyStateChange(responses, nextIndex, flaggedIds);
+        }}
       />
 
       {/* Right: question + answer */}
@@ -153,7 +192,13 @@ export function ExamWorkspaceShell({
                 <button
                   className="button"
                   style={{ background: "var(--success-text)" }}
-                  onClick={() => onSubmit?.(responses)}
+                  onClick={() =>
+                    onSubmit?.({
+                      responses,
+                      currentQuestionIndex: currentIndex,
+                      flaggedQuestionIds: flaggedIds,
+                    })
+                  }
                 >
                   ✅ Submit Exam
                 </button>

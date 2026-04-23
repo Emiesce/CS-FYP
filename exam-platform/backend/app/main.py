@@ -17,9 +17,13 @@ load_dotenv(_env_path)
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
+from app.api.auth_api import router as auth_router
+from app.api.catalog_api import router as catalog_router
 from app.api.exam_api import router as exam_router
 from app.api.grading_api import router as grading_router
 from app.api.test_grading_api import router as test_grading_router
+from app.api.analytics_api import router as analytics_router
+from app.api.proctoring_api import router as proctoring_router
 
 logging.basicConfig(
     level=logging.INFO,
@@ -45,9 +49,13 @@ app.add_middleware(
 )
 
 # Register API routes
+app.include_router(auth_router)
+app.include_router(catalog_router)
 app.include_router(exam_router)
 app.include_router(grading_router)
 app.include_router(test_grading_router)
+app.include_router(analytics_router)
+app.include_router(proctoring_router)
 
 
 @app.get("/health")

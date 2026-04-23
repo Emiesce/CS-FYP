@@ -218,6 +218,8 @@ interface QuestionBase {
   points: number;
   required: boolean;
   rubric?: QuestionRubric;
+  /** Topic / learning-outcome tags for analytics grouping. */
+  topicIds?: string[];
 }
 
 /* ---- Per-type discriminated unions ------------------------------- */
@@ -542,4 +544,97 @@ export interface ModelUsageRecord {
   completionTokens: number;
   latencyMs: number;
   cached: boolean;
+}
+
+/* ------------------------------------------------------------------ */
+/*  Analytics – Domain Types                                          */
+/* ------------------------------------------------------------------ */
+
+/** Per-student record within an analytics snapshot. */
+export interface StudentAnalyticsRecord {
+  studentId: string;
+  studentName: string;
+  totalScore: number;
+  maxScore: number;
+  percentage: number;
+  questionScores: Record<string, { score: number; maxPoints: number }>;
+  topicScores: Record<string, { score: number; maxPoints: number }>;
+  riskScore?: number;
+  highSeverityEventCount?: number;
+  proctoringEventCount?: number;
+  reviewOverrideCount: number;
+}
+
+/** Per-question aggregated analytics. */
+export interface QuestionAnalytics {
+  questionId: string;
+  questionTitle: string;
+  questionType: QuestionType;
+  maxPoints: number;
+  topicIds: string[];
+  meanScore: number;
+  medianScore: number;
+  minScore: number;
+  maxScore: number;
+  stdDev: number;
+  /** Percentage of students scoring ≥70% on this question. */
+  successRate: number;
+  overrideCount: number;
+  scoreDistribution: { label: string; count: number }[];
+}
+
+/** Per-topic aggregated analytics. */
+export interface TopicAnalytics {
+  topicId: string;
+  topicLabel: string;
+  questionCount: number;
+  meanScore: number;
+  maxPossible: number;
+  percentage: number;
+  weakestQuestionId?: string;
+}
+
+/** Exam-level analytics overview. */
+export interface AnalyticsOverview {
+  examId: string;
+  studentCount: number;
+  gradedCount: number;
+  meanScore: number;
+  medianScore: number;
+  highestScore: number;
+  lowestScore: number;
+  stdDev: number;
+  maxTotalPoints: number;
+  meanPercentage: number;
+  scoreDistribution: { label: string; count: number }[];
+  passRate: number;
+}
+
+/** Full analytics snapshot for an exam. */
+export interface ExamAnalyticsSnapshot {
+  examId: string;
+  courseCode: string;
+  courseName: string;
+  examTitle: string;
+  generatedAt: string;
+  overview: AnalyticsOverview;
+  questions: QuestionAnalytics[];
+  topics: TopicAnalytics[];
+  students: StudentAnalyticsRecord[];
+  aiSummary?: AnalyticsAISummary;
+}
+
+/** AI-generated analytics summary. */
+export interface AnalyticsAISummary {
+  commonMisconceptions: string[];
+  recommendations: string[];
+  confidence: "high" | "medium" | "low";
+  generatedAt: string;
+}
+
+/** Chat message in analytics assistant. */
+export interface AnalyticsChatMessage {
+  role: "user" | "assistant";
+  content: string;
+  timestamp: string;
 }

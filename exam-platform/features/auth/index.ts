@@ -1,2 +1,2 @@
-export { SessionProvider, useSession, dashboardPath } from "./session-store";
-export { authenticate } from "./auth-service";
+export { SessionProvider, useSession, dashboardPath, getSessionToken } from "./session-store";
+export { authenticate, fetchCurrentUser, fetchDemoAccounts } from "./auth-service";
