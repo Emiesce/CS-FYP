@@ -292,6 +292,24 @@ async def clear_all_results(
     return {"cleared": count, "message": f"Cleared {count} grading run(s) from server memory."}
 
 
+@router.get("/current-run", response_model=GradingRunOut)
+async def get_current_run(
+    exam_id: str = "comp1023-midterm-f25",
+    student_id: str = "test-student",
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_roles("instructor", "teaching_assistant", "administrator")),
+) -> GradingRunOut:
+    """Fetch the most recent grading run for the given test exam + student.
+
+    Used by the test-grading UI on mount to restore session state from the DB
+    instead of from localStorage.
+    """
+    run = GradingRepository(db).get_run_for_student(exam_id, student_id)
+    if not run:
+        raise HTTPException(status_code=404, detail="No run found.")
+    return run
+
+
 @router.get("/results/{run_id}", response_model=GradingRunOut)
 async def get_test_results(
     run_id: str,

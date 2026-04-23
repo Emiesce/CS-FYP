@@ -1,10 +1,5 @@
 """
-ORM model for persisting AI-generated analytics summaries.
-
-The summary is keyed by (exam_id, grading_hash) where grading_hash is a
-SHA-256 digest of the set of grading-run IDs and graded_count for the exam.
-This ensures a new summary is generated only when grading data actually changes,
-not on every page load.
+ORM models for analytics: AI summary cache and per-user chat history.
 """
 
 from datetime import datetime
@@ -25,3 +20,18 @@ class AiSummaryCache(Base):
     payload = Column(Text, nullable=False)
 
     created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+
+
+class ChatHistory(Base):
+    """Persists AI analytics chat messages per (exam, user).
+
+    ``messages_json`` holds the full message list as a JSON array of
+    ``{role, content, timestamp}`` objects (max 40 entries, trimmed on write).
+    """
+
+    __tablename__ = "chat_history"
+
+    exam_id = Column(String, primary_key=True, nullable=False)
+    user_id = Column(String, primary_key=True, nullable=False)
+    messages_json = Column(Text, nullable=False, default="[]")
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)

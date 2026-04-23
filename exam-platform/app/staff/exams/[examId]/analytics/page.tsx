@@ -6,7 +6,7 @@
 /* ------------------------------------------------------------------ */
 
 import { use, useCallback, useEffect, useMemo, useState } from "react";
-import { getAnalyticsSnapshot, sendAnalyticsChat } from "@/features/analytics/analytics-service";
+import { getAnalyticsSnapshot, sendAnalyticsChat, getChatHistory, clearChatHistory } from "@/features/analytics/analytics-service";
 import type {
   ExamAnalyticsSnapshot,
   AnalyticsOverview,
@@ -368,44 +368,43 @@ function MdMessage({ content, color }: { content: string; color: string }) {
 /* ================================================================== */
 
 function ChatPanel({ examId }: { examId: string }) {
-  const storageKey = `analytics_chat_${examId}`;
-
-  const [messages, setMessages] = useState<AnalyticsChatMessage[]>(() => {
-    try {
-      const saved = localStorage.getItem(storageKey);
-      return saved ? (JSON.parse(saved) as AnalyticsChatMessage[]) : [];
-    } catch {
-      return [];
-    }
-  });
+  const [messages, setMessages] = useState<AnalyticsChatMessage[]>([]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
+  const [historyLoaded, setHistoryLoaded] = useState(false);
 
-  // Persist messages to localStorage whenever they change
+  // Load history from DB on mount
   useEffect(() => {
-    try {
-      // Keep the last 40 messages to avoid unbounded growth
-      const toSave = messages.slice(-40);
-      localStorage.setItem(storageKey, JSON.stringify(toSave));
-    } catch {
-      // Ignore quota errors
-    }
-  }, [messages, storageKey]);
+    let cancelled = false;
+    getChatHistory(examId)
+      .then((history) => {
+        if (!cancelled) {
+          setMessages(history);
+          setHistoryLoaded(true);
+        }
+      })
+      .catch(() => {
+        if (!cancelled) setHistoryLoaded(true);
+      });
+    return () => { cancelled = true; };
+  }, [examId]);
 
-  const clearHistory = useCallback(() => {
+  const clearHistory = useCallback(async () => {
     setMessages([]);
-    localStorage.removeItem(storageKey);
-  }, [storageKey]);
+    await clearChatHistory(examId).catch(() => {});
+  }, [examId]);
 
   const send = useCallback(async () => {
     const text = input.trim();
     if (!text || loading) return;
     const userMsg: AnalyticsChatMessage = { role: "user", content: text, timestamp: new Date().toISOString() };
-    setMessages(prev => [...prev, userMsg]);
+    const nextMessages = [...messages, userMsg];
+    setMessages(nextMessages);
     setInput("");
     setLoading(true);
     try {
-      const { reply, timestamp } = await sendAnalyticsChat(examId, text, [...messages, userMsg]);
+      // sendAnalyticsChat sends the full history; backend persists it after each reply
+      const { reply, timestamp } = await sendAnalyticsChat(examId, text, nextMessages);
       setMessages(prev => [...prev, { role: "assistant", content: reply, timestamp }]);
     } catch (e) {
       setMessages(prev => [...prev, { role: "assistant", content: `Error: ${e instanceof Error ? e.message : "Unknown error"}`, timestamp: new Date().toISOString() }]);
@@ -443,7 +442,12 @@ function ChatPanel({ examId }: { examId: string }) {
         display: "flex", flexDirection: "column", gap: "var(--space-3)",
         background: "var(--surface-muted)",
       }}>
-        {messages.length === 0 && (
+        {!historyLoaded && (
+          <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", color: "var(--text-muted)", fontSize: "0.82rem" }}>
+            Loading chat history…
+          </div>
+        )}
+        {historyLoaded && messages.length === 0 && (
           <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: "var(--space-2)", color: "var(--text-muted)", paddingTop: "var(--space-12)" }}>
             <IconMessageCircle />
             <p style={{ fontSize: "0.85rem", margin: 0, textAlign: "center" }}>Ask questions about the exam analytics data.</p>

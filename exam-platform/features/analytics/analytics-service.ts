@@ -68,10 +68,28 @@ export async function sendAnalyticsChat(
     headers: authHeaders({ "Content-Type": "application/json" }),
     body: JSON.stringify({
       message,
-      history: history.map((h) => ({ role: h.role, content: h.content })),
+      // Send the full history so the backend can persist it
+      history: history.map((h) => ({ role: h.role, content: h.content, timestamp: h.timestamp })),
     }),
   });
   return json(res);
+}
+
+/** Retrieve persisted chat history for the current user and exam. */
+export async function getChatHistory(examId: string): Promise<AnalyticsChatMessage[]> {
+  const res = await apiFetch(`${BASE}/api/analytics/exams/${examId}/chat-history`, {
+    headers: authHeaders(),
+  });
+  if (!res.ok) return [];
+  return res.json() as Promise<AnalyticsChatMessage[]>;
+}
+
+/** Clear the persisted chat history for the current user and exam. */
+export async function clearChatHistory(examId: string): Promise<void> {
+  await apiFetch(`${BASE}/api/analytics/exams/${examId}/chat-history`, {
+    method: "DELETE",
+    headers: authHeaders(),
+  });
 }
 
 /* ---- Proctoring sync ---- */

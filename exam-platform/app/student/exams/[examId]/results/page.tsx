@@ -416,9 +416,6 @@ function ResultsContent({ examId }: { examId: string }) {
             }}>
               {gradeText}
             </span>
-            <span style={{ opacity: 0.8, fontSize: "0.9rem" }}>
-              Human-reviewed result
-            </span>
           </div>
         </div>
 
@@ -449,7 +446,7 @@ function ResultsContent({ examId }: { examId: string }) {
         padding: "var(--space-3) var(--space-4)",
       }}>
         <p style={{ margin: 0, fontSize: "0.87rem", color: "var(--info-text)", lineHeight: 1.55 }}>
-          These results have been reviewed and approved by a human grader. Grader notes are shown where available, otherwise the AI feedback is shown.
+          These results have been reviewed and approved by a human grader. Grader feedback is provided for each criterion.
         </p>
       </div>
 

@@ -114,17 +114,21 @@ export default function TestGradingPage() {
   const [streamedResults, setStreamedResults] = useState<QuestionGradeResult[]>([]);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
-  // Restore persisted grading run on mount
+  // Restore the most recent grading run from the database on mount
   useEffect(() => {
-    try {
-      const saved = localStorage.getItem("grading_run");
-      if (saved) {
-        const parsed = JSON.parse(saved) as GradingRun;
-        setGradingRun(parsed);
-        setStreamedResults(parsed.question_results ?? []);
+    fetch(`${API}/api/test-grading/current-run`, { headers: authHeaders() })
+      .then((r) => {
+        if (!r.ok) return null;
+        return r.json();
+      })
+      .then((parsed) => {
+        if (!parsed) return;
+        setGradingRun(parsed as GradingRun);
+        setStreamedResults((parsed as GradingRun).question_results ?? []);
         setGradingDone(true);
-      }
-    } catch { /* ignore corrupt data */ }
+        setPhase("review");
+      })
+      .catch(() => { /* no prior run – proceed to exam view */ });
   }, []);
 
   useEffect(() => {
@@ -132,13 +136,9 @@ export default function TestGradingPage() {
       .then((r) => { if (!r.ok) throw new Error(`HTTP ${r.status}`); return r.json(); })
       .then((data: ExamData) => {
         setExam(data);
-        // If we have a persisted run, go straight to review
-        const saved = localStorage.getItem("grading_run");
-        if (saved) {
-          setPhase("review");
-        } else {
-          setPhase("exam");
-        }
+        // Phase is driven by the separate useEffect that fetches the DB run;
+        // defer to exam view by default and let that effect switch to review if needed.
+        setPhase((prev) => prev === "loading" ? "exam" : prev);
       })
       .catch((e) => setError(e.message));
   }, []);
@@ -219,8 +219,7 @@ export default function TestGradingPage() {
                 setGradingDone(true);
                 if (timerRef.current) clearInterval(timerRef.current);
                 setGradingRun(data as GradingRun);
-                // Persist so results survive navigation
-                try { localStorage.setItem("grading_run", JSON.stringify(data)); } catch {}
+                // Run is already persisted to DB by the backend (no localStorage needed)
               } else if (eventType === "error") {
                 setError(data.error);
               }
@@ -246,7 +245,7 @@ export default function TestGradingPage() {
       if (!res.ok) throw new Error("Review failed");
       const updated = await res.json();
       setGradingRun(updated);
-      try { localStorage.setItem("grading_run", JSON.stringify(updated)); } catch {}
+      // Review is persisted by the backend; no localStorage write needed
     } catch (e: unknown) {
       setError(e instanceof Error ? e.message : String(e));
     }
@@ -297,7 +296,7 @@ export default function TestGradingPage() {
 
   if (phase === "review" && liveRun && exam)
     return <ReviewView exam={exam} run={liveRun} answers={answers} onOverride={handleOverride} error={error} gradingDone={gradingDone} gradingElapsed={gradingElapsed} totalGradingTime={totalGradingTime} onReset={() => {
-      localStorage.removeItem("grading_run");
+      // Clear local UI state; the run record stays in the DB for history
       setGradingRun(null);
       setStreamedResults([]);
       setGradingDone(false);

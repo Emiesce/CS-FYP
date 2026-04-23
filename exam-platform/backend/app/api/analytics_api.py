@@ -3,12 +3,15 @@ HKUST CSE Exam Platform – Analytics API
 
 Endpoints:
   GET    /api/analytics/exams/{exam_id}/snapshot      – full analytics snapshot
-  POST   /api/analytics/exams/{exam_id}/chat          – analytics chat
+  POST   /api/analytics/exams/{exam_id}/chat          – analytics chat (persists history)
+  GET    /api/analytics/exams/{exam_id}/chat-history  – retrieve persisted chat history
+  DELETE /api/analytics/exams/{exam_id}/chat-history  – clear chat history for current user
   POST   /api/analytics/exams/{exam_id}/proctoring-sync – sync proctoring data
 """
 
 from __future__ import annotations
 
+import json as _json
 from datetime import datetime, timezone
 from typing import Optional
 
@@ -16,6 +19,7 @@ from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 
 from app.db.models.core import User
+from app.db.models.analytics import ChatHistory
 from app.dependencies.auth import require_roles
 from app.models.analytics_models import (
     AnalyticsChatRequest,
@@ -176,13 +180,73 @@ async def api_analytics_chat(
     db: Session = Depends(get_db),
     current_user: User = Depends(require_roles("instructor", "teaching_assistant", "administrator")),
 ) -> AnalyticsChatResponse:
-    """Chat with AI about exam analytics."""
+    """Chat with AI about exam analytics. Persists the full history to the DB."""
     snapshot, runs = _get_snapshot(exam_id, db=db)
     reply = await analytics_chat(snapshot, body.message, body.history, grading_runs=runs)
-    return AnalyticsChatResponse(
-        reply=reply,
-        timestamp=datetime.now(timezone.utc).isoformat(),
+    timestamp = datetime.now(timezone.utc).isoformat()
+
+    # Build the new full history (history sent by client + assistant reply)
+    new_messages = list(body.history) + [
+        {"role": "assistant", "content": reply, "timestamp": timestamp},
+    ]
+    # Trim to last 40 messages to prevent unbounded growth
+    new_messages = new_messages[-40:]
+
+    # Upsert into chat_history table
+    row = (
+        db.query(ChatHistory)
+        .filter(ChatHistory.exam_id == exam_id, ChatHistory.user_id == current_user.id)
+        .first()
     )
+    if row:
+        row.messages_json = _json.dumps(new_messages)
+        row.updated_at = datetime.utcnow()
+    else:
+        row = ChatHistory(
+            exam_id=exam_id,
+            user_id=current_user.id,
+            messages_json=_json.dumps(new_messages),
+            updated_at=datetime.utcnow(),
+        )
+        db.add(row)
+    db.commit()
+
+    return AnalyticsChatResponse(reply=reply, timestamp=timestamp)
+
+
+@router.get("/exams/{exam_id}/chat-history")
+async def api_get_chat_history(
+    exam_id: str,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_roles("instructor", "teaching_assistant", "administrator")),
+) -> list:
+    """Retrieve persisted chat history for the current user and exam."""
+    row = (
+        db.query(ChatHistory)
+        .filter(ChatHistory.exam_id == exam_id, ChatHistory.user_id == current_user.id)
+        .first()
+    )
+    if not row:
+        return []
+    try:
+        return _json.loads(row.messages_json)
+    except Exception:
+        return []
+
+
+@router.delete("/exams/{exam_id}/chat-history", status_code=200)
+async def api_clear_chat_history(
+    exam_id: str,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_roles("instructor", "teaching_assistant", "administrator")),
+) -> dict:
+    """Clear chat history for the current user and exam."""
+    db.query(ChatHistory).filter(
+        ChatHistory.exam_id == exam_id,
+        ChatHistory.user_id == current_user.id,
+    ).delete()
+    db.commit()
+    return {"cleared": True}
 
 
 @router.post("/exams/{exam_id}/proctoring-sync")

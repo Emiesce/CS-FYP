@@ -37,16 +37,6 @@ interface StudentGradingProgress {
   error?: string;
 }
 
-function readSessionCache<T>(key: string, fallback: T): T {
-  if (typeof window === "undefined") return fallback;
-  try {
-    const raw = sessionStorage.getItem(key);
-    return raw ? (JSON.parse(raw) as T) : fallback;
-  } catch {
-    return fallback;
-  }
-}
-
 function writeSessionCache<T>(key: string, value: T): void {
   if (typeof window === "undefined") return;
   sessionStorage.setItem(key, JSON.stringify(value));
@@ -92,12 +82,8 @@ function GradingDashboardContent({ examId }: { examId: string }) {
     fetchExamDefinition(examId).then(setDefinition).catch(() => {});
   }, [examId]);
 
-  const [gradingRuns, setGradingRuns] = useState<Record<string, GradingRunData>>(() =>
-    readSessionCache(`grading_runs_${examId}`, {}),
-  );
-  const [gradingSignatures, setGradingSignatures] = useState<Record<string, string>>(() =>
-    readSessionCache(`grading_run_signatures_${examId}`, {}),
-  );
+  const [gradingRuns, setGradingRuns] = useState<Record<string, GradingRunData>>({});
+  const [gradingSignatures, setGradingSignatures] = useState<Record<string, string>>({});
   const [studentProgress, setStudentProgress] = useState<
     Record<string, StudentGradingProgress>
   >({});
@@ -108,57 +94,50 @@ function GradingDashboardContent({ examId }: { examId: string }) {
   useEffect(() => {
     localStorage.removeItem(`grading_runs_${examId}`);
     localStorage.removeItem(`grading_run_signatures_${examId}`);
+    sessionStorage.removeItem(`grading_runs_${examId}`);
+    sessionStorage.removeItem(`grading_run_signatures_${examId}`);
   }, [examId]);
-
-  useEffect(() => {
-    writeSessionCache(`grading_runs_${examId}`, gradingRuns);
-  }, [examId, gradingRuns]);
-
-  useEffect(() => {
-    writeSessionCache(`grading_run_signatures_${examId}`, gradingSignatures);
-  }, [examId, gradingSignatures]);
 
   useEffect(() => {
     let cancelled = false;
     void listGradingRuns(examId)
       .then((runs) => {
         if (cancelled) return;
-        setGradingRuns((prev) => {
-          const next = { ...prev };
-          for (const run of runs) {
-            next[run.studentId] = {
-              id: run.id,
-              status: run.status,
-              total_score: run.totalScore,
-              max_total_points: run.maxTotalPoints,
-              question_results: run.questionResults.map((question) => ({
-                question_id: question.questionId,
-                question_type: question.questionType,
-                raw_score: question.rawScore,
-                max_points: question.maxPoints,
-                normalized_score: question.normalizedScore,
-                rationale: question.rationale,
-                lane: question.lane,
-                model: question.model ?? null,
-                status: question.status,
-                evidence_spans: question.evidenceSpans,
-                criterion_results: question.criterionResults.map((criterion) => ({
-                  criterion_id: criterion.criterionId,
-                  criterion_label: criterion.criterionLabel,
-                  score: criterion.score,
-                  max_points: criterion.maxPoints,
-                  rationale: criterion.rationale,
-                  evidence_spans: criterion.evidenceSpans,
-                  override_score: criterion.overrideScore ?? null,
-                  reviewer_rationale: criterion.reviewerRationale ?? null,
-                })),
+        // Replace the entire map with what the DB returns — never merge from cache.
+        const next: Record<string, GradingRunData> = {};
+        for (const run of runs) {
+          next[run.studentId] = {
+            id: run.id,
+            status: run.status,
+            total_score: run.totalScore,
+            max_total_points: run.maxTotalPoints,
+            question_results: run.questionResults.map((question) => ({
+              question_id: question.questionId,
+              question_type: question.questionType,
+              raw_score: question.rawScore,
+              max_points: question.maxPoints,
+              normalized_score: question.normalizedScore,
+              rationale: question.rationale,
+              lane: question.lane,
+              model: question.model ?? null,
+              status: question.status,
+              evidence_spans: question.evidenceSpans,
+              criterion_results: question.criterionResults.map((criterion) => ({
+                criterion_id: criterion.criterionId,
+                criterion_label: criterion.criterionLabel,
+                score: criterion.score,
+                max_points: criterion.maxPoints,
+                rationale: criterion.rationale,
+                evidence_spans: criterion.evidenceSpans,
+                override_score: criterion.overrideScore ?? null,
+                reviewer_rationale: criterion.reviewerRationale ?? null,
               })),
-              started_at: run.startedAt,
-              completed_at: run.completedAt ?? null,
-            };
-          }
-          return next;
-        });
+            })),
+            started_at: run.startedAt,
+            completed_at: run.completedAt ?? null,
+          };
+        }
+        setGradingRuns(next);
       })
       .catch(() => {});
     return () => {
