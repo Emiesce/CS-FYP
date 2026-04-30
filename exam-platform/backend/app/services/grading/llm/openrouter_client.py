@@ -17,6 +17,7 @@ import httpx
 
 from app.models.grading_models import TokenUsage
 from app.services.grading.settings import get_grading_settings
+from app.services.grading.llm.json_extraction import extract_json_dict
 
 logger = logging.getLogger(__name__)
 
@@ -31,14 +32,11 @@ def _cache_key(model: str, messages: list, json_schema: Optional[dict]) -> str:
 
 def _looks_like_json_object(text: str) -> bool:
     """Heuristic check for object-shaped JSON output."""
-    stripped = text.strip()
-    if not stripped:
-        return False
-    if stripped.startswith("{"):
+    try:
+        extract_json_dict(text)
         return True
-    if stripped.startswith("```"):
-        return "{" in stripped and "}" in stripped
-    return False
+    except ValueError:
+        return False
 
 
 def _with_json_retry_hint(messages: list[dict[str, str]], json_schema: Optional[dict]) -> list[dict[str, str]]:

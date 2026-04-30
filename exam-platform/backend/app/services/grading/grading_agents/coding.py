@@ -52,6 +52,7 @@ async def grade_coding(
     rubric: StructuredRubric | None = None,
     lecture_context: str | None = None,
     mode: str = "balanced",
+    use_cache: bool = True,
 ) -> QuestionGradeResult:
     """Grade a coding question."""
 
@@ -92,6 +93,7 @@ async def grade_coding(
         ],
         json_schema=GRADING_OUTPUT_SCHEMA,
         max_tokens=4096,
+        use_cache=use_cache,
     )
 
     try:

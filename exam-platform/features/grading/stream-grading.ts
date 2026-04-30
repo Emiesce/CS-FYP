@@ -51,6 +51,7 @@ interface StreamGradingRunOptions {
   examId: string;
   studentId: string;
   answers: StreamingAnswerPayload[];
+  useCache?: boolean;
   signal?: AbortSignal;
   onResult?: (result: StreamingQuestionResult) => void;
   onDone?: (run: StreamingGradingRun) => void;
@@ -68,6 +69,7 @@ export async function streamGradingRun({
   examId,
   studentId,
   answers,
+  useCache = true,
   signal,
   onResult,
   onDone,
@@ -79,6 +81,7 @@ export async function streamGradingRun({
       exam_id: examId,
       student_id: studentId,
       answers,
+      use_cache: useCache,
     }),
     signal,
   });

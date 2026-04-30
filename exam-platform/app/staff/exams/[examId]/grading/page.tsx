@@ -243,6 +243,7 @@ function GradingDashboardContent({ examId }: { examId: string }) {
           examId,
           studentId: sub.studentId,
           answers,
+          useCache: false,
           signal: controller.signal,
           onResult: () => {
             setStudentProgress((prev) => {

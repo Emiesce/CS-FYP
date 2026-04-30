@@ -42,6 +42,7 @@ async def grade_mathematics(
     expected_values: list[str] | None = None,
     lecture_context: str | None = None,
     mode: str = "balanced",
+    use_cache: bool = True,
 ) -> QuestionGradeResult:
     """Grade a mathematics question."""
 
@@ -83,7 +84,8 @@ async def grade_mathematics(
             {"role": "user", "content": user_prompt},
         ],
         json_schema=GRADING_OUTPUT_SCHEMA,
-        max_tokens=2048,
+        max_tokens=4096,
+        use_cache=use_cache,
     )
 
     try:

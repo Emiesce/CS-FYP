@@ -85,6 +85,7 @@ class SubmitRequest(BaseModel):
     exam_id: str = Field(default="comp1023-midterm-f25")
     student_id: str = Field(default="test-student")
     answers: list[AnswerPayload]
+    use_cache: bool = Field(default=True)
 
 
 class ExamQuestionOut(BaseModel):
@@ -186,6 +187,7 @@ async def submit_and_grade(
         attempt=attempt,
         rubrics=rubrics,
         mode="quality_first",
+        use_cache=body.use_cache,
     )
 
     # Persist so we can fetch / review later
@@ -243,6 +245,7 @@ async def submit_and_grade_stream(
                 attempt=attempt,
                 rubrics=rubrics,
                 mode="quality_first",
+                use_cache=body.use_cache,
                 on_result=on_result,
             )
             GradingRepository(db).save_run(final_run)

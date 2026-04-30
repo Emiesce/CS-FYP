@@ -59,6 +59,7 @@ class GradingState(TypedDict):
     attempt: ExamAttemptOut
     rubrics: dict[str, StructuredRubric]
     mode: str
+    use_cache: bool
     question_results: list[QuestionGradeResult]
     model_usage: list[ModelUsageRecord]
     status: str
@@ -215,6 +216,7 @@ async def grade_questions_node(state: GradingState) -> GradingState:
                 student_answer=answer_val,
                 rubric=rubric,
                 mode=mode,
+                use_cache=state.get("use_cache", True),
             )
         )
         task_question_ids.append(question.id)
@@ -244,6 +246,7 @@ async def _grade_single_question(
     student_answer: str | list[str],
     rubric: StructuredRubric | None,
     mode: str,
+    use_cache: bool = True,
 ) -> QuestionGradeResult:
     """Dispatch a single question to the appropriate grading agent."""
     q_type = question.type_data.type
@@ -272,6 +275,7 @@ async def _grade_single_question(
             rubric=rubric,
             acceptable_answers=_derive_short_answer_acceptable_answers(question, rubric),
             mode=mode,
+            use_cache=use_cache,
         )
 
     elif q_type in (QuestionType.LONG_ANSWER.value, QuestionType.ESSAY.value):
@@ -283,6 +287,7 @@ async def _grade_single_question(
             max_points=question.points,
             rubric=rubric,
             mode=mode,
+            use_cache=use_cache,
         )
 
     elif q_type == QuestionType.CODING.value:
@@ -294,6 +299,7 @@ async def _grade_single_question(
             language=question.type_data.language,
             rubric=rubric,
             mode=mode,
+            use_cache=use_cache,
         )
 
     elif q_type == QuestionType.MATHEMATICS.value:
@@ -304,6 +310,7 @@ async def _grade_single_question(
             max_points=question.points,
             rubric=rubric,
             mode=mode,
+            use_cache=use_cache,
         )
 
     else:
@@ -316,6 +323,7 @@ async def _grade_single_question(
             rubric=rubric,
             acceptable_answers=_derive_short_answer_acceptable_answers(question, rubric),
             mode=mode,
+            use_cache=use_cache,
         )
 
 
@@ -414,8 +422,9 @@ async def run_grading(
     *,
     exam: ExamDefinitionOut,
     attempt: ExamAttemptOut,
-    rubrics: dict[str, StructuredRubric] | None = None,
+    rubrics: Optional[dict[str, StructuredRubric]] = None,
     mode: str = "balanced",
+    use_cache: bool = True,
 ) -> GradingRunOut:
     """
     Execute a full grading run for one student attempt.
@@ -429,6 +438,7 @@ async def run_grading(
         "attempt": attempt,
         "rubrics": rubrics or {},
         "mode": mode,
+        "use_cache": use_cache,
         "question_results": [],
         "model_usage": [],
         "status": GradingRunStatus.PENDING.value,
@@ -486,7 +496,8 @@ async def run_grading_streaming(
     attempt: ExamAttemptOut,
     rubrics: Optional[dict[str, StructuredRubric]] = None,
     mode: str = "balanced",
-    on_result: Optional[OnResultCallback] = None,
+    use_cache: bool = True,
+    on_result: OnResultCallback,
 ) -> GradingRunOut:
     """
     Grade questions concurrently but stream each result via on_result callback
@@ -546,6 +557,7 @@ async def run_grading_streaming(
                 student_answer=answer_val,
                 rubric=rubric,
                 mode=mode,
+                use_cache=use_cache,
             )
         )
         task_meta.append((question.id, question))

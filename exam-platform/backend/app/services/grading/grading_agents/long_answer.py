@@ -41,6 +41,7 @@ async def grade_long_answer(
     rubric: StructuredRubric | None = None,
     lecture_context: str | None = None,
     mode: str = "balanced",
+    use_cache: bool = True,
 ) -> QuestionGradeResult:
     """Grade a long-answer or essay question using quality LLM."""
 
@@ -72,6 +73,7 @@ async def grade_long_answer(
         ],
         json_schema=GRADING_OUTPUT_SCHEMA,
         max_tokens=4096,
+        use_cache=use_cache,
     )
 
     try:

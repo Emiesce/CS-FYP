@@ -43,6 +43,7 @@ async def grade_short_answer(
     acceptable_answers: list[str] | None = None,
     lecture_context: str | None = None,
     mode: str = "balanced",
+    use_cache: bool = True,
 ) -> QuestionGradeResult:
     """Grade a short-answer question."""
 
@@ -84,7 +85,8 @@ async def grade_short_answer(
             {"role": "user", "content": user_prompt},
         ],
         json_schema=GRADING_OUTPUT_SCHEMA,
-        max_tokens=2048,
+        max_tokens=4096,
+        use_cache=use_cache,
     )
 
     try:
@@ -172,7 +174,8 @@ async def _escalate(
             {"role": "user", "content": user_prompt},
         ],
         json_schema=GRADING_OUTPUT_SCHEMA,
-        max_tokens=2048,
+        max_tokens=4096,
+        use_cache=use_cache,
     )
 
     try:
