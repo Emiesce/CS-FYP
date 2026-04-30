@@ -382,7 +382,9 @@ export async function uploadEventClips(
     clips.map(({ eventId, blob, mimeType }) =>
       fetch(`/api/proctoring/events/${encodeURIComponent(eventId)}/clip`, {
         method: "PUT",
-        headers: { ...headers, "Content-Type": mimeType },
+        // Strip codec params so the Content-Type header is a clean base type
+        // (e.g. "video/webm") that all browsers accept on the <source> element.
+        headers: { ...headers, "Content-Type": mimeType.split(";")[0].trim() },
         body: blob,
       }),
     ),

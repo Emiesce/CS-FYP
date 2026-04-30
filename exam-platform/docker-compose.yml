@@ -16,6 +16,19 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+  # Message broker for real-time proctoring alerts (Pub/Sub)
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    command: ["redis-server", "--save", "", "--appendonly", "no"]
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
   # Optional: DB viewer (comment out if not needed)
   adminer:
     image: adminer

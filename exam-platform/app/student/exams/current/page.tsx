@@ -487,7 +487,7 @@ function CurrentExamContent() {
 
           <div className="precheck-footer">
             <p className="helper-text" style={{ margin: 0 }}>
-              The 1-minute placeholder exam starts only after the required checks pass.
+              The examination starts only after the required checks pass.
             </p>
             <button
               type="button"

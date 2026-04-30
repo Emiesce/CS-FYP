@@ -90,8 +90,11 @@ export function WebcamPreview({
         /* Start MediaRecorder for the rolling clip buffer */
         if (onClipChunk && typeof MediaRecorder !== "undefined") {
           try {
+            // MP4 chunks from MediaRecorder cannot be safely concatenated into
+            // a playable Blob — the format requires a complete moov atom.
+            // We therefore only consider WebM variants, which are designed for
+            // streamable, concatenable chunk recording.
             const supportedMimeType = [
-              "video/mp4;codecs=h264",
               "video/webm;codecs=vp9",
               "video/webm;codecs=vp8",
               "video/webm",

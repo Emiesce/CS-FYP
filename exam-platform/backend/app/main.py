@@ -6,6 +6,7 @@ from __future__ import annotations
 
 import logging
 import os
+from contextlib import asynccontextmanager
 from pathlib import Path
 
 from dotenv import load_dotenv
@@ -23,18 +24,30 @@ from app.api.exam_api import router as exam_router
 from app.api.grading_api import router as grading_router
 from app.api.test_grading_api import router as test_grading_router
 from app.api.analytics_api import router as analytics_router
-from app.api.proctoring_api import router as proctoring_router
+from app.api.proctoring_api import router as proctoring_router, ws_router as proctoring_ws_router
 from app.api.materials_api import router as materials_router
+from app.core.redis import close_pool
 
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s [%(levelname)s] %(name)s: %(message)s",
 )
 
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    """Manage startup / shutdown of shared resources."""
+    # Nothing to pre-warm for Redis — pool is lazy.
+    yield
+    # Gracefully close the Redis connection pool on shutdown.
+    await close_pool()
+
+
 app = FastAPI(
     title="HKUST CSE Exam Platform – Exam API",
     version="0.1.0",
     description="Exam authoring and attempt backend for the HKUST CSE exam platform.",
+    lifespan=lifespan,
 )
 
 # CORS – allow the Next.js frontend
@@ -57,6 +70,7 @@ app.include_router(grading_router)
 app.include_router(test_grading_router)
 app.include_router(analytics_router)
 app.include_router(proctoring_router)
+app.include_router(proctoring_ws_router)
 app.include_router(materials_router)
 
 

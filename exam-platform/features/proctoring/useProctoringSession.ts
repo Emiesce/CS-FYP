@@ -129,8 +129,16 @@ export function useProctoringSession(
     if (clipBufferRef.current.length > 0) {
       const highSeverityIndex = nextEvents.findIndex((event) => event.severity >= 0.7);
       if (highSeverityIndex >= 0) {
-        const clipMimeType =
+        // Use the MIME type reported by the first chunk that has one.
+        const rawMimeType =
           clipBufferRef.current.find((chunk) => chunk.type)?.type || "video/webm";
+
+        // Strip codec parameters (e.g. "video/webm;codecs=vp9" → "video/webm").
+        // The base container type is all that's needed for Blob construction
+        // and for the <source type> hint; full codec strings cause some
+        // browsers to reject the <source> element entirely.
+        const clipMimeType = rawMimeType.split(";")[0].trim();
+
         const clipBlob = new Blob([...clipBufferRef.current], {
           type: clipMimeType,
         });

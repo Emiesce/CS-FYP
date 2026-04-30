@@ -99,7 +99,7 @@ function LoginPageContent() {
       <div className="card auth-card" style={{ padding: "var(--space-8)" }}>
         {/* Brand header */}
         <div style={{ textAlign: "center", marginBottom: "var(--space-6)" }}>
-          <h1 className="auth-title">HKUST CSE</h1>
+          <h1 className="auth-title">HKUST</h1>
           <p className="auth-copy">Examination Platform</p>
         </div>
 

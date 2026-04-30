@@ -5,17 +5,22 @@ Endpoints:
   POST /api/proctoring/sync                       – upsert session + events + buckets
   GET  /api/proctoring/exams/{exam_id}/sessions   – list all sessions for an exam
   GET  /api/proctoring/sessions/{session_id}      – single session with events
+  WS   /ws/proctoring/{exam_id}                   – real-time alert stream for staff
 """
 
 from __future__ import annotations
 
+import asyncio
+import json
+import logging
 from datetime import datetime
 from typing import Optional
 
-from fastapi import APIRouter, Depends, HTTPException, Request
+from fastapi import APIRouter, Depends, HTTPException, Request, WebSocket, WebSocketDisconnect
 from fastapi.responses import Response
 from sqlalchemy.orm import Session
 
+from app.core.redis import publish_alert, subscribe_alerts
 from app.db.models.core import User
 from app.db.models.proctoring import ProctoringSession as ProctoringSessionModel, ProctoringEvent as ProctoringEventModel
 from app.db.session import get_db
@@ -27,7 +32,10 @@ from app.models.analytics_models import (
     ProctoringEventOut,
 )
 
+logger = logging.getLogger(__name__)
+
 router = APIRouter(prefix="/api/proctoring", tags=["proctoring"])
+ws_router = APIRouter(prefix="/ws/proctoring", tags=["proctoring-ws"])
 
 
 def _session_to_out(
@@ -127,6 +135,33 @@ async def api_proctoring_sync(
     new_events = repo.upsert_events(session, body.events)
     repo.sync_buckets(session, body.buckets)
     db.commit()
+
+    # ---- Publish new events to Redis so staff dashboards receive them in
+    #      real time via the WebSocket endpoint below. ----
+    if new_events and exam_id:
+        alert_payload = {
+            "session_id": session.id,
+            "student_id": body.student_id,
+            "student_name": body.student_name,
+            "risk_score": body.risk_score,
+            "rolling_average": body.rolling_average,
+            "events": [
+                {
+                    "id": ev.get("id"),
+                    "type": ev.get("type"),
+                    "severity": ev.get("severity"),
+                    "timestamp": ev.get("timestamp"),
+                    "message": ev.get("message"),
+                    "duration_seconds": ev.get("durationSeconds"),
+                }
+                for ev in (body.events or [])
+            ],
+        }
+        try:
+            await publish_alert(exam_id, alert_payload)
+        except Exception:
+            # Redis being unavailable must not fail the sync response.
+            logger.warning("[proctoring-sync] Could not publish alert to Redis", exc_info=True)
 
     return {
         "status": "synced",
@@ -242,3 +277,122 @@ async def get_event_clip(
 
     mime = event.has_evidence_clip or "video/webm"
     return Response(content=event.clip_data, media_type=mime)
+
+
+# ---------------------------------------------------------------------------
+# WebSocket – real-time alert stream for staff dashboards
+# ---------------------------------------------------------------------------
+
+# Simple in-process connection registry per exam so we can track active
+# connections for health-check purposes without any extra infrastructure.
+_ACTIVE_CONNECTIONS: dict[str, set[WebSocket]] = {}
+
+
+@ws_router.websocket("/{exam_id}")
+async def ws_proctoring_alerts(
+    exam_id: str,
+    websocket: WebSocket,
+) -> None:
+    """
+    Staff WebSocket: ``ws://backend/ws/proctoring/{exam_id}``
+
+    The client authenticates by sending a JSON handshake immediately after
+    connecting::
+
+        { "type": "auth", "token": "<JWT>" }
+
+    After a successful auth acknowledgement, the connection receives a stream
+    of JSON alert messages whenever a student's browser POSTs to
+    ``/api/proctoring/sync``.  Each message has the shape::
+
+        {
+          "type": "alert",
+          "exam_id": "...",
+          "session_id": "...",
+          "student_id": "...",
+          "student_name": "...",
+          "risk_score": 42,
+          "rolling_average": 30,
+          "events": [ { "id", "type", "severity", "timestamp", "message" }, ... ]
+        }
+
+    The server also sends a periodic ``{"type": "ping"}`` every 25 seconds so
+    firewalls / load-balancers don't tear down idle connections.
+    """
+    await websocket.accept()
+
+    # ---- Simple JWT auth handshake ----------------------------------------
+    try:
+        raw = await asyncio.wait_for(websocket.receive_text(), timeout=10.0)
+        handshake = json.loads(raw)
+    except (asyncio.TimeoutError, json.JSONDecodeError):
+        await websocket.close(code=4001, reason="auth_timeout")
+        return
+
+    token: str = handshake.get("token", "")
+    if not token:
+        await websocket.close(code=4001, reason="missing_token")
+        return
+
+    # Re-use the existing JWT verification logic via a lightweight import.
+    from app.core.tokens import decode_access_token  # type: ignore[import]
+    try:
+        claims = decode_access_token(token)
+        role: str = claims.get("role", "student")
+    except Exception:
+        await websocket.close(code=4003, reason="invalid_token")
+        return
+
+    if role not in ("instructor", "teaching_assistant", "administrator"):
+        await websocket.close(code=4003, reason="forbidden")
+        return
+
+    await websocket.send_json({"type": "auth_ok", "exam_id": exam_id})
+
+    # ---- Register connection -----------------------------------------------
+    _ACTIVE_CONNECTIONS.setdefault(exam_id, set()).add(websocket)
+    logger.info("[ws-proctoring] Staff connected for exam %s  (total=%d)", exam_id, len(_ACTIVE_CONNECTIONS[exam_id]))
+
+    # ---- Main loop: forward Redis messages to the WebSocket ----------------
+    ping_task: asyncio.Task | None = None
+
+    async def _ping() -> None:
+        """Keep the connection alive with periodic pings."""
+        while True:
+            await asyncio.sleep(25)
+            try:
+                await websocket.send_json({"type": "ping"})
+            except Exception:
+                return
+
+    ping_task = asyncio.create_task(_ping())
+
+    try:
+        async with subscribe_alerts(exam_id) as pubsub:
+            async for raw_msg in pubsub.listen():
+                if raw_msg["type"] != "message":
+                    continue
+                try:
+                    payload = json.loads(raw_msg["data"])
+                except json.JSONDecodeError:
+                    continue
+
+                alert = {"type": "alert", "exam_id": exam_id, **payload}
+                try:
+                    await websocket.send_json(alert)
+                except WebSocketDisconnect:
+                    break
+                except Exception:
+                    break
+    except WebSocketDisconnect:
+        pass
+    except Exception as exc:
+        logger.warning("[ws-proctoring] Unexpected error for exam %s: %s", exam_id, exc)
+    finally:
+        ping_task.cancel()
+        _ACTIVE_CONNECTIONS.get(exam_id, set()).discard(websocket)
+        logger.info("[ws-proctoring] Staff disconnected from exam %s", exam_id)
+        try:
+            await websocket.close()
+        except Exception:
+            pass
