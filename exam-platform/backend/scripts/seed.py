@@ -76,7 +76,6 @@ def seed_exams(db):
     print("Seeding exams...")
 
     for builder, cid in [
-        (build_comp1023_exam, "course-comp1023"),
         (build_comp1023_finals_exam, "course-comp1023"),
         (build_mgmt2110_exam, "course-mgmt2110"),
     ]:
@@ -114,12 +113,15 @@ def seed_exams(db):
             )
             db.merge(eq)
 
+    # Seed the COMP1023 Midterm as the live "current" demo exam (with full questions)
+    midterm = build_comp1023_exam()
+    semester_id = db.query(Course).filter(Course.id == "course-comp1023").first().semester_id
     current_exam = Exam(
         id=DEMO_CURRENT_EXAM["id"],
         course_id=DEMO_CURRENT_EXAM["course_id"],
         course_code=DEMO_CURRENT_EXAM["course_code"],
         course_name=DEMO_CURRENT_EXAM["course_name"],
-        semester_id=DEMO_CURRENT_EXAM["semester_id"],
+        semester_id=semester_id,
         status=DEMO_CURRENT_EXAM["status"],
         title=DEMO_CURRENT_EXAM["title"],
         date=DEMO_CURRENT_EXAM["date"],
@@ -127,9 +129,23 @@ def seed_exams(db):
         duration_seconds=DEMO_CURRENT_EXAM["duration_seconds"],
         location=DEMO_CURRENT_EXAM["location"],
         instructions=DEMO_CURRENT_EXAM["instructions"],
-        total_points=0,
+        total_points=midterm.total_points,
     )
     db.merge(current_exam)
+
+    for q in midterm.questions:
+        db.merge(ExamQuestion(
+            id=q.id,
+            exam_id=current_exam.id,
+            order=q.order,
+            title=q.title,
+            prompt=q.prompt,
+            points=q.points,
+            required=q.required,
+            rubric_json=q.rubric.model_dump() if q.rubric else None,
+            type=q.type_data.type,
+            type_data_json=q.type_data.model_dump()
+        ))
 
     for upcoming in DEMO_UPCOMING_EXAMS:
         db.merge(

@@ -65,15 +65,6 @@ DEMO_COURSES = [
         "student_ids": ["stu-001"],
     },
     {
-        "id": "course-comp3511",
-        "code": "COMP3511",
-        "name": "Operating Systems",
-        "semester_id": "2025-26-spring",
-        "instructor_ids": ["staff-001"],
-        "ta_ids": ["staff-002"],
-        "student_ids": ["stu-001"],
-    },
-    {
         "id": "course-comp4321",
         "code": "COMP4321",
         "name": "Search Engines",
@@ -95,18 +86,18 @@ DEMO_COURSES = [
 
 
 DEMO_CURRENT_EXAM = {
-    "id": "exam_current_demo",
-    "course_code": "COMP3511",
-    "course_name": "Operating Systems",
-    "course_id": "course-comp3511",
+    "id": "comp1023-midterm-f25",
+    "course_code": "COMP1023",
+    "course_name": "Introduction to Python Programming",
+    "course_id": "course-comp1023",
     "semester_id": "2025-26-spring",
     "status": "current",
-    "title": "One-Minute Demo Examination",
-    "date": "2026-04-22",
+    "title": "Midterm",
+    "date": "2026-05-02",
     "start_time": "09:00",
-    "duration_seconds": 60,
+    "duration_seconds": 180,
     "location": "Online Demo Workspace",
-    "instructions": "This is a short live demo exam used to showcase real-time proctoring.",
+    "instructions": "This is a live demonstration of the COMP1023 Midterm examination with real-time proctoring enabled.",
 }
 
 

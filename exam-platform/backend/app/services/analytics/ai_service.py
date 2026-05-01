@@ -28,7 +28,7 @@ logger = logging.getLogger(__name__)
 # ── Configuration ────────────────────────────────────────────────────────────
 _API_KEY  = os.getenv("OPENROUTER_API_KEY")
 _BASE_URL = "https://openrouter.ai/api/v1"
-_MODEL    = os.getenv("AI_MODEL", "deepseek/deepseek-v3.2")   # override via .env
+_MODEL    = os.getenv("AI_MODEL", "deepseek/deepseek-v4-pro")   # override via .env
 _HAS_AI   = bool(_API_KEY)
 
 # ── Context cache (in-memory, rebuilt per process) ────────────────────────────
