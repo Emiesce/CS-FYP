@@ -430,6 +430,59 @@ def build_grading_graph() -> StateGraph:
 
 # ---- Public API: run grading ----------------------------------------
 
+# ---- Public API: run grading ----------------------------------------
+
+
+async def regrade_question(
+    *,
+    run: GradingRunOut,
+    question_id: str,
+    exam: ExamDefinitionOut,
+    rubrics: Optional[dict[str, StructuredRubric]] = None,
+    mode: str = "balanced",
+) -> GradingRunOut:
+    """Re-grade a single question within an existing grading run.
+
+    Replaces the QuestionGradeResult for *question_id* in-place and
+    recomputes run totals. The caller is responsible for persisting the
+    returned run.
+    """
+    from app.services.grading.grading_agents.answer_cache import clear_cache
+
+    # Find the question definition and the student's original answer
+    q_def = next((q for q in exam.questions if q.id == question_id), None)
+    if q_def is None:
+        raise ValueError(f"Question {question_id} not found in exam {exam.id}")
+
+    # Locate existing result to get the student answer
+    existing = next((qr for qr in run.question_results if qr.question_id == question_id), None)
+    if existing is None:
+        raise ValueError(f"Question {question_id} has no prior result in run {run.id}")
+
+    student_answer_text = existing.student_answer or ""
+
+    # Evict this question from the similarity cache so the re-grade is fresh
+    clear_cache(question_id)
+
+    # Grade the single question
+    new_result = await _grade_single_question(
+        question=q_def,
+        student_answer=student_answer_text,
+        rubric=(rubrics or {}).get(question_id),
+        mode=mode,
+        use_cache=False,  # always bypass cache for explicit re-grade
+    )
+    new_result.student_answer = student_answer_text
+
+    # Replace the old result in the run
+    run.question_results = [
+        new_result if qr.question_id == question_id else qr
+        for qr in run.question_results
+    ]
+    run.total_score = sum(qr.raw_score for qr in run.question_results)
+    return run
+
+
 async def run_grading(
     *,
     exam: ExamDefinitionOut,

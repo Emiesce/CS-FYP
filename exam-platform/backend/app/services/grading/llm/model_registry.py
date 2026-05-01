@@ -6,10 +6,47 @@ Maps grading lanes and question types to model IDs.
 
 from __future__ import annotations
 
+import itertools
 from typing import Optional
 from app.models.exam_models import QuestionType
 from app.models.grading_models import GradingLane
 from app.services.grading.settings import get_grading_settings
+
+# ---------------------------------------------------------------------------
+# Round-robin counter for short-answer model rotation.
+# itertools.count() is not thread-safe in CPython's GIL sense, but asyncio is
+# single-threaded so this is safe for our async grading pipeline.
+# ---------------------------------------------------------------------------
+_short_answer_counter = itertools.count()
+_coding_counter = itertools.count()
+_math_counter = itertools.count()
+
+
+def get_short_answer_model() -> str:
+    """Return the next model from the short-answer rotation pool (round-robin)."""
+    pool = get_grading_settings().short_answer_models
+    idx = next(_short_answer_counter) % len(pool)
+    return pool[idx]
+
+
+def get_coding_model() -> str:
+    """Return the next model from the coding rotation pool (round-robin)."""
+    pool = get_grading_settings().coding_models
+    idx = next(_coding_counter) % len(pool)
+    return pool[idx]
+
+
+def get_math_model() -> str:
+    """Return the next model from the math rotation pool (round-robin)."""
+    pool = get_grading_settings().math_models
+    idx = next(_math_counter) % len(pool)
+    return pool[idx]
+
+
+def _peer_model(model: str, pool: list[str]) -> str | None:
+    """Return the other model in the pool (the one that isn't `model`), or None."""
+    others = [m for m in pool if m != model]
+    return others[0] if others else None
 
 
 def get_model_for_question_type(question_type: QuestionType) -> str:

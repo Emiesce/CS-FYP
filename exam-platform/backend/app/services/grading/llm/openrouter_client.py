@@ -2,7 +2,15 @@
 HKUST CSE Exam Platform – OpenRouter Client
 
 Thin async wrapper around OpenRouter's chat completion API.
-Handles retries, structured JSON mode, and usage tracking.
+Handles retries, structured JSON mode, usage tracking, and
+automatic model/provider switching on repeated 429 rate-limits.
+
+429 escalation strategy (per call):
+  attempt 0          → primary model, default provider routing
+  1st 429            → wait Retry-After, retry same model/provider
+  2nd consecutive 429 → switch to fallback_model (if supplied) OR
+                        add alternative provider routing for same model
+  3rd+ consecutive 429 → continue with whatever model is active
 """
 
 from __future__ import annotations
@@ -23,6 +31,19 @@ logger = logging.getLogger(__name__)
 
 # ---- In-memory prompt cache ------------------------------------------
 _prompt_cache: dict[str, dict[str, Any]] = {}
+
+# ---- Alternative providers per model (OpenRouter provider routing) ---
+# When a model is rate-limited twice in a row and no fallback_model is
+# provided, we ask OpenRouter to route via these providers instead.
+# Values are OpenRouter provider display names (case-sensitive).
+_PROVIDER_FALLBACKS: dict[str, list[str]] = {
+    "deepseek/deepseek-v4-flash": ["Fireworks", "Together", "Novita"],
+    "deepseek/deepseek-v4-pro":   ["Fireworks", "Together", "Novita"],
+    "qwen/qwen3-235b-a22b-2507":  ["Fireworks", "Together", "Nebius"],
+    "qwen/qwen3-30b-a3b":         ["Fireworks", "Together", "Nebius"],
+    "moonshotai/kimi-k2.5":       ["Together", "Fireworks"],
+    "xiaomi/mimo-v2-flash":       ["Together", "Fireworks", "Novita"],
+}
 
 
 def _cache_key(model: str, messages: list, json_schema: Optional[dict]) -> str:
@@ -75,7 +96,8 @@ class OpenRouterClient:
         max_tokens: int = 4096,
         json_schema: Optional[dict] = None,
         use_cache: bool = True,
-        max_retries: int = 3,
+        max_retries: int = 4,
+        fallback_model: Optional[str] = None,
     ) -> dict[str, Any]:
         """
         Send a chat completion request.
@@ -91,6 +113,10 @@ class OpenRouterClient:
         ck = _cache_key(model, messages, json_schema)
         if use_cache and ck in _prompt_cache:
             cached = _prompt_cache[ck]
+            logger.info(
+                "Prompt cache HIT for model=%s (question likely identical to a previous student's answer)",
+                model,
+            )
             return {**cached, "cached": True}
 
         headers = {
@@ -120,15 +146,27 @@ class OpenRouterClient:
                 body["messages"] = modified
 
         last_err: Exception | None = None
+        consecutive_429s = 0       # resets on any non-429 response
+        active_model = model       # may switch to fallback_model on 2nd 429
+        provider_override: list[str] | None = None  # set after 2nd 429 if no fallback
+
         for attempt in range(max_retries + 1):
             t0 = time.monotonic()
             try:
-                request_body = body
-                if json_schema is not None and attempt > 0:
-                    request_body = {
-                        **body,
-                        "messages": _with_json_retry_hint(body["messages"], json_schema),
+                request_body = body.copy()
+                request_body["model"] = active_model
+
+                # Add provider routing override when triggered
+                if provider_override:
+                    request_body["provider"] = {
+                        "order": provider_override,
+                        "allow_fallbacks": True,
                     }
+
+                if json_schema is not None and attempt > 0:
+                    request_body["messages"] = _with_json_retry_hint(
+                        request_body["messages"], json_schema
+                    )
 
                 resp = await self._client.post(
                     f"{self._base_url}/chat/completions",
@@ -136,22 +174,55 @@ class OpenRouterClient:
                     json=request_body,
                 )
 
-                # Handle 429 rate-limit explicitly before raise_for_status so we
-                # can inspect Retry-After and apply a longer backoff.
+                # ---- 429 handling ----
                 if resp.status_code == 429:
                     retry_after = _parse_retry_after(resp)
-                    logger.warning(
-                        "OpenRouter 429 rate-limited for model=%s (attempt %d/%d), "
-                        "backing off %.1fs",
-                        model, attempt + 1, max_retries + 1, retry_after,
-                    )
+                    consecutive_429s += 1
+
+                    if consecutive_429s >= 2:
+                        # Second consecutive 429 — escalate model or provider
+                        if fallback_model and active_model != fallback_model:
+                            logger.warning(
+                                "OpenRouter 429×2 for model=%s — switching to "
+                                "fallback_model=%s",
+                                active_model, fallback_model,
+                            )
+                            active_model = fallback_model
+                            body["model"] = active_model
+                            provider_override = None   # reset provider for new model
+                        elif provider_override is None:
+                            # No fallback model — try alternative providers
+                            alts = _PROVIDER_FALLBACKS.get(active_model, [])
+                            if alts:
+                                provider_override = alts
+                                logger.warning(
+                                    "OpenRouter 429×2 for model=%s — adding "
+                                    "provider override: %s",
+                                    active_model, alts,
+                                )
+                            else:
+                                logger.warning(
+                                    "OpenRouter 429×2 for model=%s — no provider "
+                                    "fallback available, backing off",
+                                    active_model,
+                                )
+                    else:
+                        logger.warning(
+                            "OpenRouter 429 for model=%s (attempt %d/%d), "
+                            "backing off %.1fs",
+                            active_model, attempt + 1, max_retries + 1, retry_after,
+                        )
+
                     last_err = httpx.HTTPStatusError(
-                        f"429 Too Many Requests", request=resp.request, response=resp
+                        "429 Too Many Requests", request=resp.request, response=resp
                     )
                     if attempt < max_retries:
                         import asyncio as _asyncio
                         await _asyncio.sleep(retry_after)
                     continue
+
+                # Non-429: reset consecutive counter
+                consecutive_429s = 0
 
                 resp.raise_for_status()
                 data = resp.json()
@@ -161,26 +232,38 @@ class OpenRouterClient:
                 if not choices:
                     raise RuntimeError("OpenRouter returned no choices")
                 content = choices[0].get("message", {}).get("content")
-                # content may be None if the model returned nothing — retry
+
+                # content may be None — switch to fallback_model immediately on first occurrence
                 if content is None or (isinstance(content, str) and content.strip() == ""):
-                    logger.warning("OpenRouter returned null/empty content for model=%s (attempt %d)", model, attempt + 1)
+                    if fallback_model and active_model != fallback_model:
+                        logger.warning(
+                            "OpenRouter null/empty content for model=%s (attempt %d) — "
+                            "switching immediately to fallback_model=%s",
+                            active_model, attempt + 1, fallback_model,
+                        )
+                        active_model = fallback_model
+                        provider_override = None  # reset provider routing for new model
+                    else:
+                        logger.warning(
+                            "OpenRouter null/empty content for model=%s (attempt %d)",
+                            active_model, attempt + 1,
+                        )
                     if attempt < max_retries:
                         await _backoff(attempt)
-                        last_err = RuntimeError(f"Null content from {model}")
+                        last_err = RuntimeError(f"Null content from {active_model}")
                         continue
-                    # Last attempt — use empty string
                     content = ""
+
                 if json_schema is not None and isinstance(content, str) and not _looks_like_json_object(content):
                     logger.warning(
-                        "OpenRouter returned non-object content for model=%s (attempt %d): %s",
-                        model,
-                        attempt + 1,
-                        content[:120],
+                        "OpenRouter non-object content for model=%s (attempt %d): %s",
+                        active_model, attempt + 1, content[:120],
                     )
                     if attempt < max_retries:
                         await _backoff(attempt)
-                        last_err = RuntimeError(f"Non-object JSON content from {model}")
+                        last_err = RuntimeError(f"Non-object JSON from {active_model}")
                         continue
+
                 usage_raw = data.get("usage", {})
                 usage = TokenUsage(
                     prompt=usage_raw.get("prompt_tokens", 0),
@@ -192,7 +275,7 @@ class OpenRouterClient:
                     "usage": usage,
                     "latency_ms": latency_ms,
                     "cached": False,
-                    "model": model,
+                    "model": active_model,
                 }
 
                 if use_cache and (json_schema is None or _looks_like_json_object(str(content))):
@@ -204,10 +287,7 @@ class OpenRouterClient:
                 last_err = e
                 logger.warning(
                     "OpenRouter attempt %d/%d failed for model=%s: %s",
-                    attempt + 1,
-                    max_retries + 1,
-                    model,
-                    e,
+                    attempt + 1, max_retries + 1, active_model, e,
                 )
                 if attempt < max_retries:
                     await _backoff(attempt)
@@ -222,8 +302,8 @@ class OpenRouterClient:
 
 async def _backoff(attempt: int) -> None:
     import asyncio
-    # Exponential backoff: 4s, 8s, 16s … capped at 30s
-    await asyncio.sleep(min(4 * (2 ** attempt), 30))
+    # Exponential backoff: 5s, 10s, 20s, 40s … capped at 60s
+    await asyncio.sleep(min(5 * (2 ** attempt), 60))
 
 
 def _parse_retry_after(response: httpx.Response) -> float:
@@ -234,7 +314,7 @@ def _parse_retry_after(response: httpx.Response) -> float:
             return max(float(header), 5.0)
         except ValueError:
             pass
-    return 15.0  # conservative default when header is absent
+    return 30.0  # conservative default — OpenRouter rate limits typically reset in 30–60s
 
 
 # Singleton

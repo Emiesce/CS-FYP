@@ -22,6 +22,7 @@ from app.models.exam_models import QuestionType
 from app.services.grading.llm.json_extraction import extract_json_dict
 from app.services.grading.llm.model_registry import get_model_for_lane, get_model_for_question_type
 from app.services.grading.llm.openrouter_client import get_openrouter_client
+from app.services.grading.settings import get_grading_settings
 from app.services.grading.llm.prompt_templates import (
     GRADING_OUTPUT_SCHEMA,
     GRADING_SYSTEM_PREFIX,
@@ -49,6 +50,7 @@ async def grade_long_answer(
     qt = QuestionType.ESSAY if question_type == "essay" else QuestionType.LONG_ANSWER
     model = get_model_for_question_type(qt)
     assert model is not None
+    fallback_model = get_grading_settings().quality_fallback_model
 
     rubric_json = json.dumps(
         [c.model_dump() for c in rubric.criteria] if rubric else [],
@@ -72,8 +74,9 @@ async def grade_long_answer(
             {"role": "user", "content": user_prompt},
         ],
         json_schema=GRADING_OUTPUT_SCHEMA,
-        max_tokens=4096,
+        max_tokens=8192,
         use_cache=use_cache,
+        fallback_model=fallback_model,
     )
 
     try:

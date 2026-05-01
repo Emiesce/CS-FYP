@@ -18,10 +18,11 @@ from app.models.grading_models import (
     StructuredRubric,
     TokenUsage,
 )
-from app.models.exam_models import QuestionType
+from app.models.exam_models import QuestionType  # noqa: F401 – kept for type hints in callers
 from app.services.grading.llm.json_extraction import extract_json_dict
 from app.services.grading.grading_agents.deterministic import grade_numeric_match
-from app.services.grading.llm.model_registry import get_model_for_question_type
+from app.services.grading.llm.model_registry import get_math_model, _peer_model
+from app.services.grading.settings import get_grading_settings
 from app.services.grading.llm.openrouter_client import get_openrouter_client
 from app.services.grading.llm.prompt_templates import (
     GRADING_OUTPUT_SCHEMA,
@@ -59,7 +60,9 @@ async def grade_mathematics(
 
     # ---- LLM path ----
     lane = GradingLane.CHEAP_LLM if mode != "quality_first" else GradingLane.QUALITY_LLM
-    model = get_model_for_question_type(QuestionType.MATHEMATICS)
+    model = get_math_model()
+    peer = _peer_model(model, get_grading_settings().math_models)
+    fallback = peer if peer != model else get_grading_settings().quality_fallback_model
     assert model is not None
 
     rubric_json = json.dumps(
@@ -84,7 +87,8 @@ async def grade_mathematics(
             {"role": "user", "content": user_prompt},
         ],
         json_schema=GRADING_OUTPUT_SCHEMA,
-        max_tokens=4096,
+        max_tokens=8192,
+        fallback_model=fallback,
         use_cache=use_cache,
     )
 

@@ -15,15 +15,26 @@
       "prompt": "The two print statements in the following program would print the exact same thing.\n\ndef main() -> None:\n    number: int = 10\n    string: str = \"10\"\n    print(number + int(string))\n    print(str(number) + string)\n\nif __name__ == \"__main__\":\n    main()",
       "points": 1.0,
       "required": true,
-      "topic_ids": ["data-types", "type-conversion"],
+      "topic_ids": [
+        "data-types",
+        "type-conversion"
+      ],
       "rubric": {
         "text": "Correct answer: False. The first print outputs the integer 20, while the second outputs the string '1010'. They are not the same."
       },
       "type_data": {
         "type": "mcq",
         "options": [
-          { "id": "q1a-opt-t", "label": "True", "is_correct": false },
-          { "id": "q1a-opt-f", "label": "False", "is_correct": true }
+          {
+            "id": "q1a-opt-t",
+            "label": "True",
+            "is_correct": false
+          },
+          {
+            "id": "q1a-opt-f",
+            "label": "False",
+            "is_correct": true
+          }
         ],
         "allow_multiple": false
       }
@@ -35,15 +46,26 @@
       "prompt": "In Python, loop statements cannot have an else clause associated with them.",
       "points": 1.0,
       "required": true,
-      "topic_ids": ["loops", "control-flow"],
+      "topic_ids": [
+        "loops",
+        "control-flow"
+      ],
       "rubric": {
         "text": "Correct answer: False. In Python, both for and while loops can have an else clause that executes when the loop completes normally (without a break)."
       },
       "type_data": {
         "type": "mcq",
         "options": [
-          { "id": "q1b-opt-t", "label": "True", "is_correct": false },
-          { "id": "q1b-opt-f", "label": "False", "is_correct": true }
+          {
+            "id": "q1b-opt-t",
+            "label": "True",
+            "is_correct": false
+          },
+          {
+            "id": "q1b-opt-f",
+            "label": "False",
+            "is_correct": true
+          }
         ],
         "allow_multiple": false
       }
@@ -55,15 +77,26 @@
       "prompt": "In Python, the *args and **kwargs syntax in function definitions allows you to pass a variable number of positional and keyword arguments, respectively.",
       "points": 1.0,
       "required": true,
-      "topic_ids": ["functions", "arguments"],
+      "topic_ids": [
+        "functions",
+        "arguments"
+      ],
       "rubric": {
         "text": "Correct answer: True. *args collects extra positional arguments into a tuple; **kwargs collects extra keyword arguments into a dictionary."
       },
       "type_data": {
         "type": "mcq",
         "options": [
-          { "id": "q1c-opt-t", "label": "True", "is_correct": true },
-          { "id": "q1c-opt-f", "label": "False", "is_correct": false }
+          {
+            "id": "q1c-opt-t",
+            "label": "True",
+            "is_correct": true
+          },
+          {
+            "id": "q1c-opt-f",
+            "label": "False",
+            "is_correct": false
+          }
         ],
         "allow_multiple": false
       }
@@ -75,15 +108,26 @@
       "prompt": "The following program runs without any errors.\n\ndef func(a: int, b: int, c: int) -> None:\n    pass\n\ndef main() -> None:\n    func(a=1, 2, 3)\n\nif __name__ == \"__main__\":\n    main()",
       "points": 1.0,
       "required": true,
-      "topic_ids": ["functions", "arguments"],
+      "topic_ids": [
+        "functions",
+        "arguments"
+      ],
       "rubric": {
         "text": "Correct answer: False. A positional argument cannot follow a keyword argument. Python raises a SyntaxError."
       },
       "type_data": {
         "type": "mcq",
         "options": [
-          { "id": "q1d-opt-t", "label": "True", "is_correct": false },
-          { "id": "q1d-opt-f", "label": "False", "is_correct": true }
+          {
+            "id": "q1d-opt-t",
+            "label": "True",
+            "is_correct": false
+          },
+          {
+            "id": "q1d-opt-f",
+            "label": "False",
+            "is_correct": true
+          }
         ],
         "allow_multiple": false
       }
@@ -95,15 +139,26 @@
       "prompt": "The expression [\"Python\", \"is\", \"fun!\"][:4] would lead to an error.",
       "points": 1.0,
       "required": true,
-      "topic_ids": ["lists", "slicing"],
+      "topic_ids": [
+        "lists",
+        "slicing"
+      ],
       "rubric": {
         "text": "Correct answer: False. Python list slicing with an index beyond the list length does not raise an error; it simply returns the full list (all 3 elements)."
       },
       "type_data": {
         "type": "mcq",
         "options": [
-          { "id": "q1e-opt-t", "label": "True", "is_correct": false },
-          { "id": "q1e-opt-f", "label": "False", "is_correct": true }
+          {
+            "id": "q1e-opt-t",
+            "label": "True",
+            "is_correct": false
+          },
+          {
+            "id": "q1e-opt-f",
+            "label": "False",
+            "is_correct": true
+          }
         ],
         "allow_multiple": false
       }
@@ -115,15 +170,27 @@
       "prompt": "The following Python program defines a function named add_item that modifies a list. Because mutable objects like lists are passed to functions by object reference, the list data is modified by the function call, and its final value is [10, 20, 100].\n\ndef add_item(my_list: list[int]) -> None:\n    my_list.append(100)\n\ndef main() -> None:\n    data: list[int] = [10, 20]\n    add_item(data)\n\nif __name__ == \"__main__\":\n    main()",
       "points": 1.0,
       "required": true,
-      "topic_ids": ["lists", "functions", "mutability"],
+      "topic_ids": [
+        "lists",
+        "functions",
+        "mutability"
+      ],
       "rubric": {
         "text": "Correct answer: True. Lists are mutable and passed by object reference. The append modifies the original list, so data becomes [10, 20, 100]."
       },
       "type_data": {
         "type": "mcq",
         "options": [
-          { "id": "q1f-opt-t", "label": "True", "is_correct": true },
-          { "id": "q1f-opt-f", "label": "False", "is_correct": false }
+          {
+            "id": "q1f-opt-t",
+            "label": "True",
+            "is_correct": true
+          },
+          {
+            "id": "q1f-opt-f",
+            "label": "False",
+            "is_correct": false
+          }
         ],
         "allow_multiple": false
       }
@@ -135,15 +202,26 @@
       "prompt": "The output of the following program is [1, 3].\n\ndef append_to(element: int, target: list[int] = []) -> list[int]:\n    target.append(element)\n    return target\n\ndef main() -> None:\n    list1 = append_to(1)\n    list2 = append_to(2, [])\n    list3 = append_to(3)\n    print(list1)\n\nif __name__ == \"__main__\":\n    main()",
       "points": 1.0,
       "required": true,
-      "topic_ids": ["functions", "mutable-default-arguments"],
+      "topic_ids": [
+        "functions",
+        "mutable-default-arguments"
+      ],
       "rubric": {
         "text": "Correct answer: True. The mutable default argument [] is shared across calls that do not provide a target. list1 and list3 both use the same default list. After append_to(1), the default is [1]; after append_to(3), the default becomes [1, 3]. list1 references this same object, so print(list1) prints [1, 3]."
       },
       "type_data": {
         "type": "mcq",
         "options": [
-          { "id": "q1g-opt-t", "label": "True", "is_correct": true },
-          { "id": "q1g-opt-f", "label": "False", "is_correct": false }
+          {
+            "id": "q1g-opt-t",
+            "label": "True",
+            "is_correct": true
+          },
+          {
+            "id": "q1g-opt-f",
+            "label": "False",
+            "is_correct": false
+          }
         ],
         "allow_multiple": false
       }
@@ -155,15 +233,26 @@
       "prompt": "In a Python dictionary, you can use any data type (e.g., integers, strings, lists, tuples) as a key.",
       "points": 1.0,
       "required": true,
-      "topic_ids": ["dictionaries", "data-types"],
+      "topic_ids": [
+        "dictionaries",
+        "data-types"
+      ],
       "rubric": {
         "text": "Correct answer: False. Dictionary keys must be hashable (immutable). Lists are mutable and cannot be used as dictionary keys; doing so raises a TypeError."
       },
       "type_data": {
         "type": "mcq",
         "options": [
-          { "id": "q1h-opt-t", "label": "True", "is_correct": false },
-          { "id": "q1h-opt-f", "label": "False", "is_correct": true }
+          {
+            "id": "q1h-opt-t",
+            "label": "True",
+            "is_correct": false
+          },
+          {
+            "id": "q1h-opt-f",
+            "label": "False",
+            "is_correct": true
+          }
         ],
         "allow_multiple": false
       }
@@ -175,15 +264,26 @@
       "prompt": "In NumPy, assigning an existing array to a new variable (e.g., b = a) creates a deep copy of the data. Therefore, modifying b will not affect the original array a.",
       "points": 1.0,
       "required": true,
-      "topic_ids": ["numpy", "arrays"],
+      "topic_ids": [
+        "numpy",
+        "arrays"
+      ],
       "rubric": {
         "text": "Correct answer: False. In NumPy, b = a creates a view (shallow copy), not a deep copy. Modifying b will affect a. A deep copy requires np.copy(a) or a.copy()."
       },
       "type_data": {
         "type": "mcq",
         "options": [
-          { "id": "q1i-opt-t", "label": "True", "is_correct": false },
-          { "id": "q1i-opt-f", "label": "False", "is_correct": true }
+          {
+            "id": "q1i-opt-t",
+            "label": "True",
+            "is_correct": false
+          },
+          {
+            "id": "q1i-opt-f",
+            "label": "False",
+            "is_correct": true
+          }
         ],
         "allow_multiple": false
       }
@@ -195,15 +295,26 @@
       "prompt": "The following program runs without any errors and prints 6.\n\nclass Q:\n    def __init__(self, x:list[int] = [1]):\n        self.val = x\n    def func(self) -> None:\n        self.val.append(1)\n    def question(self, num: int) -> list[int]:\n        for _ in range(num):\n            self.func()\n        return sum(self.val)\n\ndef main() -> None:\n    q = Q\n    print(q.question(5))\n\nif __name__ == \"__main__\":\n    main()",
       "points": 1.0,
       "required": true,
-      "topic_ids": ["oop", "classes"],
+      "topic_ids": [
+        "oop",
+        "classes"
+      ],
       "rubric": {
         "text": "Correct answer: False. q = Q assigns the class itself to q, not an instance. Calling q.question(5) passes 5 as self and an error occurs because an integer does not have a val attribute. The program raises a TypeError."
       },
       "type_data": {
         "type": "mcq",
         "options": [
-          { "id": "q1j-opt-t", "label": "True", "is_correct": false },
-          { "id": "q1j-opt-f", "label": "False", "is_correct": true }
+          {
+            "id": "q1j-opt-t",
+            "label": "True",
+            "is_correct": false
+          },
+          {
+            "id": "q1j-opt-f",
+            "label": "False",
+            "is_correct": true
+          }
         ],
         "allow_multiple": false
       }
@@ -215,7 +326,11 @@
       "prompt": "The code below uses a for loop to iterate over the 4 students' scores and a conditional expression to show qualification results. Write the exact output (include all lines, no extra/missing content).\n\nassignment_scores: list[int] = [85, 58, 72, 60]\nfor score in assignment_scores:\n    print(f\"Score: {score}\", 'Qualified' if score >= 60 else 'Unqualified')",
       "points": 2.0,
       "required": true,
-      "topic_ids": ["loops", "branching", "output"],
+      "topic_ids": [
+        "loops",
+        "branching",
+        "output"
+      ],
       "rubric": {
         "text": "Expected output (0.5 points per correct line):\nScore: 85 Qualified\nScore: 58 Unqualified\nScore: 72 Qualified\nScore: 60 Qualified"
       },
@@ -232,7 +347,10 @@
       "prompt": "The code below counts how many students are Unqualified (score < 60) using a for loop. Fill in the missing blank to make the code output the number of unqualified students from the list [85, 58, 72, 60].\n\nassignment_scores: list[int] = [85, 58, 72, 60]\nunqualified_count: int = 0  # Initialize counter for unqualified students\n\nfor score in assignment_scores:\n    if ____________________:  # Check if the score is unqualified\n        unqualified_count += 1\n\nprint(f\"Number of unqualified students: {unqualified_count}\")\n\nWhat should replace the blank?",
       "points": 1.0,
       "required": true,
-      "topic_ids": ["loops", "branching"],
+      "topic_ids": [
+        "loops",
+        "branching"
+      ],
       "rubric": {
         "text": "Correct answer: score < 60"
       },
@@ -249,7 +367,10 @@
       "prompt": "Write a Python code using a while loop to calculate the total sum of the 4 students' assignment scores ([85, 58, 72, 60]). The code must include:\n• Initialization of variables (total sum and loop control variable).\n• The while loop (correct condition and update of the loop control variable).\n• A print statement to output the calculated total sum as follows:\n\nTotal assignment score: 275\n\nNote: The list assignment_scores: list[int] = [85, 58, 72, 60] is already defined.",
       "points": 4.0,
       "required": true,
-      "topic_ids": ["loops", "while-loop"],
+      "topic_ids": [
+        "loops",
+        "while-loop"
+      ],
       "rubric": {
         "text": "Model answer:\nassignment_scores: list[int] = [85, 58, 72, 60]\nprint(f\"Total assignment score: \", end='')\ntotal_sum: int = 0\ncount: int = 0\nwhile count < 4:\n    total_sum += assignment_scores[count]\n    count += 1\nprint(total_sum)\n\nMarking:\n• 1 point for correct initialization (total_sum = 0 and count = 0).\n• 0.5 points for correct while loop condition (count < 4).\n• 1.5 points for correct loop body (total_sum += assignment_scores[count]).\n• 0.5 point for correct update (count += 1).\n• 0.5 point for correct print statement."
       },
@@ -267,7 +388,11 @@
       "prompt": "Write a Python code using a for loop to find the highest score among the 4 students' assignment scores ([85, 58, 72, 60]). The code must use an if statement to compare scores and include a print statement to output the highest score found as follows:\n\nHighest assignment score: 85\n\nNote: The list assignment_scores: list[int] = [85, 58, 72, 60] is already defined. You are not allowed to use any functions except for print().",
       "points": 3.0,
       "required": true,
-      "topic_ids": ["loops", "for-loop", "branching"],
+      "topic_ids": [
+        "loops",
+        "for-loop",
+        "branching"
+      ],
       "rubric": {
         "text": "Model answer:\nassignment_scores: list[int] = [85, 58, 72, 60]\nprint(f\"Highest assignment score: \", end='')\nhighest_score: int = assignment_scores[0]\nfor score in assignment_scores:\n    if score > highest_score:\n        highest_score = score\nprint(highest_score)\n\nMarking:\n• 1 point for correct initialization of highest_score (e.g., highest_score = assignment_scores[0]). Hard coding is only acceptable when the highest_score is set to a value less than or equal to 0; otherwise, no points will be given.\n• 0.5 points for correct for loop (traverses all scores in assignment_scores).\n• 1 point for correct branching (if score > highest_score: highest_score = score). No points will be given for hard coding. Any function is not allowed.\n• 0.5 points for correct print statement. If extra words are printed, deduct 0.25 points."
       },
@@ -285,7 +410,10 @@
       "prompt": "Analyze the following Python code involving list slicing and methods. Write down the exact output.\n\ndef main():\n    data: list[int] = [10, 20, 30, 40, 50, 60, 70, 80]\n\n    # Operation 1: Slicing with step\n    subset: list[int] = data[1:7:2]\n    print(f\"Subset: {subset}\")\n\n    # Operation 2: Negative indexing and popping\n    val: int = data.pop(-2)\n    print(f\"Popped: {val}\")\n    print(f\"Final Data: {data[-3:]}\")\n\nif __name__ == \"__main__\":\n    main()",
       "points": 1.5,
       "required": true,
-      "topic_ids": ["lists", "slicing"],
+      "topic_ids": [
+        "lists",
+        "slicing"
+      ],
       "rubric": {
         "text": "Expected output (0.5 points each):\nSubset: [20, 40, 60]\nPopped: 70\nFinal Data: [50, 60, 80]"
       },
@@ -302,7 +430,10 @@
       "prompt": "The following code snippet attempts to use a dictionary to store coordinates. However, it crashes with a runtime error.\n\n1  locations = {}\n2  home_coords = [22, 114]\n3\n4  locations[home_coords] = \"Home\"\n5\n6  print(locations)\n\n(I) Write the line number where the error occurs.",
       "points": 0.5,
       "required": true,
-      "topic_ids": ["dictionaries", "data-types"],
+      "topic_ids": [
+        "dictionaries",
+        "data-types"
+      ],
       "rubric": {
         "text": "Correct answer: Line 4"
       },
@@ -319,7 +450,11 @@
       "prompt": "The following code snippet attempts to use a dictionary to store coordinates. However, it crashes with a runtime error.\n\n1  locations = {}\n2  home_coords = [22, 114]\n3\n4  locations[home_coords] = \"Home\"\n5\n6  print(locations)\n\n(II) Explain why this error occurs.",
       "points": 1.0,
       "required": true,
-      "topic_ids": ["dictionaries", "data-types", "mutability"],
+      "topic_ids": [
+        "dictionaries",
+        "data-types",
+        "mutability"
+      ],
       "rubric": {
         "text": "home_coords is a list, which is a mutable type. Dictionary keys must be immutable (hashable). Python raises a TypeError: unhashable type: 'list'. Must mention that lists are mutable and keys must be immutable/hashable for full marks."
       },
@@ -336,7 +471,11 @@
       "prompt": "The following code snippet attempts to use a dictionary to store coordinates. However, it crashes with a runtime error.\n\n1  locations = {}\n2  home_coords = [22, 114]\n3\n4  locations[home_coords] = \"Home\"\n5\n6  print(locations)\n\n(III) What can you do to fix the error while preserving the logic of the code? Explain briefly and provide the corrected line of code.",
       "points": 1.0,
       "required": true,
-      "topic_ids": ["dictionaries", "data-types", "tuples"],
+      "topic_ids": [
+        "dictionaries",
+        "data-types",
+        "tuples"
+      ],
       "rubric": {
         "text": "Fix: Convert the list to a tuple (which is immutable).\nCorrected line: locations[tuple(home_coords)] = \"Home\"\nOR change the definition to: home_coords = (22, 114)\nNote: The answer that switches a dictionary's keys and values will also be accepted as correct."
       },
@@ -353,7 +492,12 @@
       "prompt": "Write the exact output of the following code.\n\ndef manage_student_scores() -> None:\n    score_list: list[float] = [92.5, 88.0, 76.5, 95.0, 82.0]\n\n    info_tuple: tuple[str, int, list[float], str] = \\\n        (\"Alice\", 202501, score_list, \"Math\")\n    student_dict: dict[int, str] = \\\n        {202501: \"Alice\", 202502: \"Bob\", 202503: \"Charlie\"}\n\n    print(score_list[1:4:2])\n\n    info_tuple[2][0] = 90.0\n    print(info_tuple[2][0])\n\n    print(202504 in student_dict)\n\n    new_tuple: tuple[str, int, str, float] = \\\n        info_tuple[:2] + (\"Physics\", 89.0)  # Concatenate two tuples\n    print(new_tuple[-1])\n\nmanage_student_scores()",
       "points": 2.0,
       "required": true,
-      "topic_ids": ["lists", "tuples", "dictionaries", "output"],
+      "topic_ids": [
+        "lists",
+        "tuples",
+        "dictionaries",
+        "output"
+      ],
       "rubric": {
         "text": "Expected output (0.5 points per correct line):\n[88.0, 95.0]\n90.0\nFalse\n89.0"
       },
@@ -370,7 +514,10 @@
       "prompt": "The process_data function is used to filter and adjust student scores, and retrieve student names. Complete blank1 with one line of code.\n\ndef process_data(score_list: list[float], student_id: int,\n                student_dict: dict[int, str]) -> tuple[list[float], str]:\n    # blank1: Filter and adjust scores (list comprehension)\n    adjusted_scores = blank1\n    # blank2: Get student name with default value (dictionary method)\n    student_name = blank2\n    return adjusted_scores, student_name\n\nscores: list[float] = [80, 92, 78, 88, 95]\nstu_dict: dict[int, str] = {202501: \"Alice\", 202502: \"Bob\"}\nresult_scores, name = process_data(scores, 202504, stu_dict)\nprint(result_scores)  # Expected output: [101.2, 96.8, 104.5]\nprint(name)           # Expected output: Unknown Student\n\nTask for blank1: Use a list comprehension to filter scores > 85 from score_list, then multiply each filtered score by 1.1 (extra credit coefficient).",
       "points": 2.0,
       "required": true,
-      "topic_ids": ["lists", "list-comprehension"],
+      "topic_ids": [
+        "lists",
+        "list-comprehension"
+      ],
       "rubric": {
         "text": "Correct answer: [score * 1.1 for score in score_list if score > 85]\nMarking:\n• 1 point for correct conditional judgment (if score > 85).\n• 0.5 points for correct list comprehension structure.\n• 0.5 points for correct multiplication by 1.1."
       },
@@ -387,7 +534,9 @@
       "prompt": "The process_data function is used to filter and adjust student scores, and retrieve student names. Complete blank2 with one line of code.\n\ndef process_data(score_list: list[float], student_id: int,\n                student_dict: dict[int, str]) -> tuple[list[float], str]:\n    # blank1: Filter and adjust scores (list comprehension)\n    adjusted_scores = blank1\n    # blank2: Get student name with default value (dictionary method)\n    student_name = blank2\n    return adjusted_scores, student_name\n\nscores: list[float] = [80, 92, 78, 88, 95]\nstu_dict: dict[int, str] = {202501: \"Alice\", 202502: \"Bob\"}\nresult_scores, name = process_data(scores, 202504, stu_dict)\nprint(result_scores)  # Expected output: [101.2, 96.8, 104.5]\nprint(name)           # Expected output: Unknown Student\n\nTask for blank2: Use a dictionary method to get the student's name from student_dict via student_id. If student_id is not in the dictionary, return the default value \"Unknown Student\".",
       "points": 1.0,
       "required": true,
-      "topic_ids": ["dictionaries"],
+      "topic_ids": [
+        "dictionaries"
+      ],
       "rubric": {
         "text": "Correct answer: student_dict.get(student_id, \"Unknown Student\")\nMarking:\n• 0.5 points for using the get() method.\n• 0.5 points for correct default value (\"Unknown Student\")."
       },
@@ -404,7 +553,12 @@
       "prompt": "The code below is used to count passing scores (≥ 60), update student names, and store scores in a dictionary. There are 4 errors in the code. For each error, fill in the line number and write down the correct version of the line.\n\n1  def count_scores():\n2      # Student data: (student_id, name, [scores]) — A tuple contains a mutable list\n3      student_tuple = (202501, \"Alice\", [58, 90, 75])\n4      pass_count = 0\n5      for i in range(len(student_tuple[2]) + 1):\n6          if student_tuple[2][i] >= 60:\n7              pass_count += 1\n8      # Update Alice's name to her full name\n9      student_tuple[1] = \"Alice Smith\"\n10     # Try to use a list as a dictionary key\n11     score_dict = {[202501]: student_tuple[2]}\n12     score_dict[[202501]].append(88)\n13\n14     print(\"pass_count:\", pass_count)\n15     print(\"student_tuple:\", student_tuple)\n16     print(\"score_dict:\", score_dict)\n17\n18 count_scores()\n\nAfter making corrections, the program should output:\npass_count: 2\nstudent_tuple: (202501, 'Alice Smith', [58, 90, 75, 88])\nscore_dict: {202501: [58, 90, 75, 88]}\n\nFor each of the 4 errors, state: (1) the line number, and (2) the corrected line of code.",
       "points": 6.0,
       "required": true,
-      "topic_ids": ["debugging", "tuples", "dictionaries", "loops"],
+      "topic_ids": [
+        "debugging",
+        "tuples",
+        "dictionaries",
+        "loops"
+      ],
       "rubric": {
         "text": "Error 1 — Line 5:\nReason: Removed '+1' to fix index out-of-bounds error.\nCorrection: for i in range(len(student_tuple[2])):\n(0.25 pts line number, 1 pt correct code)\n\nError 2 — Line 9:\nReason: Tuples are immutable; you cannot assign to an element directly. Recreate the tuple.\nCorrection: student_tuple = (student_tuple[0], \"Alice Smith\", student_tuple[2])\n(0.25 pts line number, 2 pts correct code)\n\nError 3 — Line 11:\nReason: Lists cannot be used as dictionary keys (unhashable). Use int instead.\nCorrection: score_dict = {202501: student_tuple[2]}\n(0.25 pts line number, 1 pt correct code)\n\nError 4 — Line 12:\nReason: Lists cannot be used as dictionary keys. Use int instead.\nCorrection: score_dict[202501].append(88)\n(0.25 pts line number, 1 pt correct code)"
       },
@@ -420,7 +574,10 @@
       "prompt": "Consider the following function:\n\ndef secret(x: int, y: int) -> tuple[int, int]:\n    x = x + y\n    y = x - y\n    x = x - y\n    return x, y\n\nWhat would be the resulting values of x and y from the following function calls?\n• x, y = secret(101, -101)\n• x, y = secret(0, 55)\n• x, y = secret(-73, -37)\n• x, y = secret(30624700, 30624770)\n\nFor each call, state the resulting value of x and the resulting value of y.",
       "points": 2.0,
       "required": true,
-      "topic_ids": ["functions", "tracing"],
+      "topic_ids": [
+        "functions",
+        "tracing"
+      ],
       "rubric": {
         "text": "0.25 points for each correct value (8 values total = 2 points):\n• secret(101, -101)  → x = -101, y = 101\n• secret(0, 55)      → x = 55,   y = 0\n• secret(-73, -37)   → x = -37,  y = -73\n• secret(30624700, 30624770) → x = 30624770, y = 30624700"
       },
@@ -437,7 +594,9 @@
       "prompt": "Based on all the examples in Q4(a)(i)(I), identify the purpose of the secret function:\n\ndef secret(x: int, y: int) -> tuple[int, int]:\n    x = x + y\n    y = x - y\n    x = x - y\n    return x, y",
       "points": 1.0,
       "required": true,
-      "topic_ids": ["functions"],
+      "topic_ids": [
+        "functions"
+      ],
       "rubric": {
         "text": "Correct answer: The purpose is to swap two integer variables (without using a temporary variable)."
       },
@@ -454,7 +613,10 @@
       "prompt": "Consider the following function. The difference from the secret function in part (i) is the operators involved.\n\ndef secret2(x: int, y: int) -> tuple[int, int]:\n    x = x * y\n    y = x // y\n    x = x // y\n    return x, y\n\nCan the secret2 function achieve the same purpose as the secret function in part (i), for any possible integer input parameters? Why?\n\nHint: Consider some of the function calls in part (a)(i).",
       "points": 3.0,
       "required": true,
-      "topic_ids": ["functions", "integer-arithmetic"],
+      "topic_ids": [
+        "functions",
+        "integer-arithmetic"
+      ],
       "rubric": {
         "text": "Answer: No.\nReason 1 (1 pt): If at least one of the input parameters is zero, it will cause a division by zero problem, which prevents correct swapping.\nReason 2 (1 pt): This swapping also fails for integers with different signs (e.g., secret2(101, -101) would involve x = 101 * -101 = -10201, then y = -10201 // -101 = 101, x = -10201 // 101 = -102, which is wrong).\n1 pt for answering 'No'.\nNote: 0.5 pts if the error is identified but the reason is not fully explained."
       },
@@ -470,7 +632,10 @@
       "prompt": "Consider the following function, which extends secret() in part (i) to floats. The difference from the secret function in part (i) is the data type of the input parameters.\n\ndef secret3(x: float, y: float) -> tuple[float, float]:\n    x = x + y\n    y = x - y\n    x = x - y\n    return x, y\n\nCan the secret3 function achieve the same purpose as the secret function in part (i), for any possible float input parameters? Why?\n\nHint: Consider a classic example that 0.1 + 0.2 in Python results in 0.30000000000000004.",
       "points": 2.0,
       "required": true,
-      "topic_ids": ["functions", "floating-point"],
+      "topic_ids": [
+        "functions",
+        "floating-point"
+      ],
       "rubric": {
         "text": "Answer: No.\nReason (1 pt): Since addition and subtraction of float variables would introduce floating-point precision problems, resulting in incorrect swapping results. For example, 0.1 + 0.2 = 0.30000000000000004 in Python due to floating-point representation, so subtracting values back may not restore the original numbers exactly.\n1 pt for answering 'No'.\nNote: 0 pts if only an example is given without explaining the issue. -0.5 pts for attributing the issue to rounding rather than floating-point representation."
       },
@@ -486,7 +651,11 @@
       "prompt": "Write a recursive function named sum_even_nested(data). This function takes a nested list data as an argument, which may contain integers and other lists. The function should compute and return the sum of all even numbers within this nested structure. You must use recursion to process the nested lists.\n\nFor example:\n• sum_even_nested([1, 2, [3, 4, [5]], 6]) should return 12 (because 2 + 4 + 6 = 12).\n• sum_even_nested([10, [20, 30], [[40], 50]]) should return 150 (because 10 + 20 + 30 + 40 + 50 = 150).\n• sum_even_nested([1, 3, [5, 7]]) should return 0.\n\nAssume the function is_list, which checks if an element is a list, is defined for you:\n\ndef is_list(element):\n    return type(element) == list\n\nExpected output when tested:\nThe sum of even numbers in [1, 2, [3, 4, [5]], 6] is: 12\nThe sum of even numbers in [10, [20, 30], [[40], 50]] is: 150\nThe sum of even numbers in [1, 3, [5, 7]] is: 0\nThe sum of even numbers in [] is: 0",
       "points": 6.0,
       "required": true,
-      "topic_ids": ["recursion", "functions", "lists"],
+      "topic_ids": [
+        "recursion",
+        "functions",
+        "lists"
+      ],
       "rubric": {
         "text": "Model answer:\ndef sum_even_nested(data: list) -> int:\n    total = 0\n    for element in data:\n        if is_list(element):\n            total += sum_even_nested(element)\n        elif element % 2 == 0:\n            total += element\n    return total\n\nMarking for recursive loop approach (A):\n• 0.5 pts for initialization of accumulator (total = 0)\n• 1 pt for the loop\n• 2 pts for handling nested lists via recursion\n• 2 pts for handling even integers\n• 0.5 pts for correct final return\n\nMarking for pure recursion approach (B):\n• 1.5 pts for correct base case\n• 2 pts for correct recursive case for nested lists\n• 2 pts for correct handling of integers\n• 0.5 pts for correct final return\n• -1 pt for each line of error\n\nOthers: 0 for non-recursive function and hard coding."
       },
@@ -504,7 +673,11 @@
       "prompt": "Analyze the execution of the following Python code. Pay close attention to variable assignment and object references. Write the exact output.\n\nclass EWallet:\n    def __init__(self, id_num: int, cash: float) -> None:\n        self.id = id_num\n        self.cash = cash\n\n    def spend(self, amount: float) -> None:\n        if self.cash >= amount:\n            self.cash -= amount\n            print(f\"#{self.id} spent {amount}\")\n        else:\n            print(f\"#{self.id} rejected\")\n\n    def transfer(self, target: 'EWallet', amount: float) -> None:\n        if self.cash >= amount:\n            self.cash -= amount\n            target.deposit(amount)\n\n    def deposit(self, amount: float) -> None:\n        self.cash += amount\n\n# Main Execution\nw1: EWallet = EWallet(1, 100)\nw2: EWallet = EWallet(2, 50)\nw3: EWallet = w1\n\nw2.deposit(20)\nw3.transfer(w2, 90)\nw1.spend(5)\n\nprint(f\"W1: {w1.cash}\")\nprint(f\"W2: {w2.cash}\")\nprint(f\"W3: {w3.cash}\")",
       "points": 4.0,
       "required": true,
-      "topic_ids": ["oop", "classes", "object-references"],
+      "topic_ids": [
+        "oop",
+        "classes",
+        "object-references"
+      ],
       "rubric": {
         "text": "Expected output (1 point per correct line):\n#1 spent 5\nW1: 5\nW2: 160\nW3: 5\n\nExplanation:\n- w3 = w1, so w3 and w1 refer to the same EWallet object (id=1, cash=100).\n- w2.deposit(20): w2.cash = 50 + 20 = 70.\n- w3.transfer(w2, 90): w3 is w1, cash=100 >= 90, so w1/w3 cash = 100 - 90 = 10; w2.cash = 70 + 90 = 160.\n- w1.spend(5): w1.cash = 10 >= 5, so prints '#1 spent 5', w1.cash = 5.\n- W1 = 5, W2 = 160, W3 = 5 (same object as w1)."
       },
@@ -521,7 +694,10 @@
       "prompt": "Implement the logic for the Battery class below, which manages the processes of charging and draining power.\n• __init__: Sets up the battery to be fully charged initially.\n• drain: Reduces battery level only if there is enough power.\n\nFill in the blanks labeled Part (i), Part (ii), and Part (iii) so that the program produces the expected output.\n\nclass Battery:\n    def __init__(self, capacity: int) -> None:\n        self.__capacity: int = capacity\n        # Initialize the current level to be equal to the capacity\n        self.__level: int = Part (i)\n\n    def drain(self, amount: int) -> bool:\n        if Part (ii) >= amount:\n            self.__level -= amount\n            return True\n        return False\n\n    def get_status(self) -> str:\n        return f\"{self.__level}/{self.__capacity} mAh\"\n\ndef main() -> None:\n    my_phone: Battery = Battery(3000)  # 3000 mAh battery\n    if Part (iii):\n        print(\"Using App...\")\n    else:\n        print(\"Low Battery!\")\n    print(my_phone.get_status())\n\nif __name__ == \"__main__\":\n    main()\n\nExpected output:\nUsing App...\n2500/3000 mAh\n\nState what should replace Part (i), Part (ii), and Part (iii).",
       "points": 3.0,
       "required": true,
-      "topic_ids": ["oop", "classes"],
+      "topic_ids": [
+        "oop",
+        "classes"
+      ],
       "rubric": {
         "text": "Part (i): capacity — 0.5 pts. (Assigning the argument to the attribute: self.__level = capacity)\nPart (ii): self.__level — 0.5 pts. (Checking the instance variable)\nPart (iii): my_phone.drain(500) — 2 pts. (Calling the drain method with 500 to reduce from 3000 to 2500)"
       },
@@ -538,7 +714,10 @@
       "prompt": "Complete Part (i) of the process() function below. Use array slicing to extract the center 3×3 region from the 5×5 img array and assign it to a variable named center.\n\nThe expected center array is:\nnp.array([ [65, 75, 85],\n           [70, 80, 90],\n           [75, 85, 95] ])\n\nThe img array is:\nnp.array([\n    [50, 60, 70, 80, 90],\n    [55, 65, 75, 85, 95],\n    [60, 70, 80, 90, 100],\n    [65, 75, 85, 95, 105],\n    [70, 80, 90, 100, 110]\n])\n\nYou are NOT allowed to use any loops or comprehensions.",
       "points": 1.0,
       "required": true,
-      "topic_ids": ["numpy", "slicing"],
+      "topic_ids": [
+        "numpy",
+        "slicing"
+      ],
       "rubric": {
         "text": "Model answer: center: np.ndarray = img[1:-1, 1:-1]\n• 0.5 pts for correct slicing syntax.\n• 0.5 pts for correct indices (1:-1 for both axes)."
       },
@@ -556,7 +735,10 @@
       "prompt": "Complete Part (ii) of the process() function. Given the center array (3×3 extracted in Part (i)), rotate it 90 degrees clockwise and assign the result to a variable named rot90. You are NOT allowed to use np.rot90().\n\nThe expected rot90 array is:\nnp.array([ [75, 70, 65],\n           [85, 80, 75],\n           [95, 90, 85] ])\n\nYou are NOT allowed to use any loops, comprehensions, or np.rot90().",
       "points": 3.0,
       "required": true,
-      "topic_ids": ["numpy", "array-manipulation"],
+      "topic_ids": [
+        "numpy",
+        "array-manipulation"
+      ],
       "rubric": {
         "text": "Model answer: rot90: np.ndarray = center[::-1, :].T\n• 2 pts for reversing rows (center[::-1, :]).\n• 1 pt for transposing (.T).\nAlternative: center.T[:, ::-1] rotates 90 degrees counter-clockwise, so must be center[::-1, :].T for clockwise."
       },
@@ -574,7 +756,10 @@
       "prompt": "Complete Part (iii) of the process() function. Given the rot90 array from Part (ii), extract the top-left 2×2 block and the bottom-right 2×2 block, then concatenate them horizontally into a 2×4 array. Assign this result to a variable named combined.\n\nThe expected combined array is:\nnp.array([ [75, 70, 80, 75],\n           [85, 80, 90, 85] ])\n\nYou are NOT allowed to use any loops or comprehensions.",
       "points": 3.0,
       "required": true,
-      "topic_ids": ["numpy", "array-manipulation"],
+      "topic_ids": [
+        "numpy",
+        "array-manipulation"
+      ],
       "rubric": {
         "text": "Model answer:\ntop_left: np.ndarray = rot90[:2, :2]\nbottom_right: np.ndarray = rot90[-2:, -2:]\ncombined: np.ndarray = np.hstack([top_left, bottom_right])\n• 1 pt for correct extraction of top-left block (rot90[:2, :2]).\n• 1 pt for correct extraction of bottom-right block (rot90[-2:, -2:]).\n• 1 pt for correct horizontal concatenation (np.hstack)."
       },
@@ -588,47 +773,39 @@
     {
       "id": "q6bi",
       "order": 33,
-      "title": "Q6(b)(i) – Coding: Pandas daily min and max",
-      "prompt": "The temperature DataFrame is loaded from temperature.csv with the days as the index and times as columns. Compute the daily minimum and maximum temperatures, and provide the answer as a tuple of two Pandas Series named daily_min_max, ensuring that the minimum is the first value and the maximum is the second value.\n\nThe DataFrame is named temperature and has already been loaded:\ntemperature: pd.DataFrame = pd.read_csv('temperature.csv', index_col=0)\n\nWrite the one line of code that creates the tuple daily_min_max.",
-      "points": 2.0,
+      "title": "Q6(b) – Coding: Pandas daily min/max and Matplotlib line plot",
+      "prompt": "Part (i): The temperature DataFrame is loaded from temperature.csv with the days as the index and times as columns. Compute the daily minimum and maximum temperatures, and provide the answer as a tuple of two Pandas Series named daily_min_max, ensuring that the minimum is the first value and the maximum is the second value.\n\nThe DataFrame is named temperature and has already been loaded:\ntemperature: pd.DataFrame = pd.read_csv('temperature.csv', index_col=0)\n\nWrite the one line of code that creates the tuple daily_min_max.\n\nPart (ii): Using the daily_min_max tuple computed in Q6(b)(i), add two statements to plot the daily maximum and minimum temperatures as line plots on the axes object ax.\n\n• Add a statement to plot the daily maximum temperature data with the label 'Daily Max'.\n• Add a statement to plot the daily minimum temperature data with the label 'Daily Min'.\n\nThe code context is:\nfig, ax = plt.subplots(figsize=(10, 7))\n# Your two plot statements go here\nax.legend()\nplt.xticks(rotation=45)\nfig.savefig(\"temperature.png\")\n\nWrite the two plot statements.",
+      "points": 4.0,
       "required": true,
-      "topic_ids": ["pandas", "dataframe"],
+      "topic_ids": [
+        "matplotlib",
+        "plotting",
+        "dataframe",
+        "pandas"
+      ],
       "rubric": {
-        "text": "Model answer:\ndaily_min_max: tuple[pd.Series, pd.Series] = (temperature.min(axis=1), temperature.max(axis=1))\n\nMarking:\n• 0.75 pts for using max() with axis=1.\n• 0.75 pts for using min() with axis=1.\n• 0.5 pts for creating the tuple (only if min and max are correctly created)."
+        "text": "Part (i) [2 pts]:\nModel answer:\ndaily_min_max: tuple[pd.Series, pd.Series] = (temperature.min(axis=1), temperature.max(axis=1))\n\nMarking:\n• 0.75 pts for using max() with axis=1.\n• 0.75 pts for using min() with axis=1.\n• 0.5 pts for creating the tuple (only if min and max are correctly created).\n\nPart (ii) [2 pts]:\nModel answer:\nax.plot(daily_min_max[1], label='Daily Max')\nax.plot(daily_min_max[0], label='Daily Min')\n\nMarking (per plot line):\n• 0.5 pts for correctly specifying the data.\n• 0.5 pts for the correct label.\nNote:\n• -0.5 pts for any error in label assignment.\n• -0.5 pts for missing label=....\n• -0.25 pts for calling wrong functions (e.g., plt.ax.plot...).\n• 0.5 pts only if ax.set_label('...') is used."
       },
       "type_data": {
         "type": "coding",
         "language": "python",
-        "starter_code": "import pandas as pd\n\ntemperature: pd.DataFrame = pd.read_csv('temperature.csv', index_col=0)\n\n# Create the tuple daily_min_max here (one line):\ndaily_min_max = # Your code here\n",
-        "constraints": "You must use Pandas DataFrame methods. The minimum should be the first element and maximum the second element of the tuple."
-      }
-    },
-    {
-      "id": "q6bii",
-      "order": 34,
-      "title": "Q6(b)(ii) – Coding: Matplotlib line plot for daily max and min",
-      "prompt": "Using the daily_min_max tuple computed in Q6(b)(i), add two statements to plot the daily maximum and minimum temperatures as line plots on the axes object ax.\n\n• Add a statement to plot the daily maximum temperature data with the label 'Daily Max'.\n• Add a statement to plot the daily minimum temperature data with the label 'Daily Min'.\n\nThe code context is:\nfig, ax = plt.subplots(figsize=(10, 7))\n# Your two plot statements go here\nax.legend()\nplt.xticks(rotation=45)\nfig.savefig(\"temperature.png\")\n\nWrite the two plot statements.",
-      "points": 2.0,
-      "required": true,
-      "topic_ids": ["matplotlib", "plotting"],
-      "rubric": {
-        "text": "Model answer:\nax.plot(daily_min_max[1], label='Daily Max')\nax.plot(daily_min_max[0], label='Daily Min')\n\nMarking (per plot line):\n• 0.5 pts for correctly specifying the data.\n• 0.5 pts for the correct label.\nNote:\n• -0.5 pts for any error in label assignment.\n• -0.5 pts for missing label=....\n• -0.25 pts for calling wrong functions (e.g., plt.ax.plot...).\n• 0.5 pts only if ax.set_label('...') is used."
-      },
-      "type_data": {
-        "type": "coding",
-        "language": "python",
-        "starter_code": "import matplotlib.pyplot as plt\n\n# daily_min_max is the tuple from Q6(b)(i)\nfig, ax = plt.subplots(figsize=(10, 7))\n\n# Add a statement below to plot the daily maximum temperature data,\n# and set the label for this line as 'Daily Max'.\n# Your code here\n\n# Add a statement below to plot the daily minimum temperature data,\n# and set the label for this line as 'Daily Min'.\n# Your code here\n\nax.legend()\nplt.xticks(rotation=45)\nfig.savefig(\"temperature.png\")\n",
-        "constraints": "Use ax.plot() with the label keyword argument. Do not use loops or comprehensions."
+        "starter_code": "import pandas as pd\n\ntemperature: pd.DataFrame = pd.read_csv('temperature.csv', index_col=0)\n\n# Create the tuple daily_min_max here (one line):\ndaily_min_max = # Your code here\n\n# --- Part (ii): Matplotlib line plot ---\nimport matplotlib.pyplot as plt\n\n# daily_min_max is the tuple from Q6(b)(i)\nfig, ax = plt.subplots(figsize=(10, 7))\n\n# Add a statement below to plot the daily maximum temperature data,\n# and set the label for this line as 'Daily Max'.\n# Your code here\n\n# Add a statement below to plot the daily minimum temperature data,\n# and set the label for this line as 'Daily Min'.\n# Your code here\n\nax.legend()\nplt.xticks(rotation=45)\nfig.savefig(\"temperature.png\")",
+        "constraints": "You must use Pandas DataFrame methods. The minimum should be the first element and maximum the second element of the tuple. Use ax.plot() with the label keyword argument. Do not use loops or comprehensions."
       }
     },
     {
       "id": "q7",
-      "order": 35,
+      "order": 34,
       "title": "Q7 – Debug: 4 errors in count_phrase_appearance()",
       "prompt": "\"Let It Be\" is a well-known song. Your task involves debugging the count_phrase_appearance function below, which counts how many times the phrase \"let it be\" (case insensitive) appears in each paragraph of lyrics.\n\nThere are 4 errors in the count_phrase_appearance function (lines 1–18). For each error, indicate the line number, explain the reason for the error, and correct that line using a one-line statement. You are NOT allowed to insert additional lines, remove some lines, or modify the main function.\n\n1  def count_phrase_appearance(article: str, phrase: str) -> None:\n2      appearance_dict: dict[int, int] = {}\n3      phrase_tokens: list[str] = list(filter(lambda x: x.lower(), phrase.split(\" \")))\n4      article_by_paragraphs: list[str] = article.split(\"\\n\\n\")\n5      paragraph_number: int = 0\n6      for paragraph in article_by_paragraphs:\n7          paragraph_number += 1\n8          appearance_dict[paragraph_number] = 0\n9          text_tokens: list[str] = paragraph.split(\" \")\n10         for i in range(0, len(text_tokens)):\n11             window: list[str] = [text for text in text_tokens[i:i+len(phrase_tokens)]]\n12             window_lower: list[str] = list(map(lambda x: x.lower(), window))\n13             if window_lower is phrase_tokens:\n14                 appearance_dict[paragraph_number] = 1\n15     for key, value in appearance_dict.items():\n16         print(f\"Paragraph {key}: the phrase appears {value} time(s).\")\n17     total_count = sum(appearance_dict.keys())\n18     print(f\"In total, the phrase appears {total_count} time(s).\")\n\nAfter corrections, the expected output is:\nParagraph 1: the phrase appears 2 time(s).\nParagraph 2: the phrase appears 5 time(s).\nParagraph 3: the phrase appears 2 time(s).\nParagraph 4: the phrase appears 5 time(s).\nParagraph 5: the phrase appears 5 time(s).\nParagraph 6: the phrase appears 5 time(s).\nParagraph 7: the phrase appears 2 time(s).\nParagraph 8: the phrase appears 10 time(s).\nIn total, the phrase appears 36 time(s).",
       "points": 13.0,
       "required": true,
-      "topic_ids": ["debugging", "strings", "dictionaries", "lambda"],
+      "topic_ids": [
+        "debugging",
+        "strings",
+        "dictionaries",
+        "lambda"
+      ],
       "rubric": {
         "text": "Error 1 — Line 3:\nReason: The filter function cannot make all characters into lower cases. filter() keeps elements for which the lambda returns True (non-empty strings), but does NOT transform them to lowercase.\nCorrection: phrase_tokens: list[str] = list(map(lambda x: x.lower(), phrase.split(\" \")))\n(0.5 pts line number, 1.0 pts reasoning, 1.5 pts correction)\n\nError 2 — Line 13:\nReason: The 'is' operator checks object identity, not equality. Two different list objects with the same elements will not be 'is' equal.\nCorrection: if window_lower == phrase_tokens:\n(0.5 pts line number, 2.0 pts reasoning, 1.5 pts correction)\n\nError 3 — Line 14:\nReason: The program assigns 1 to the count every time instead of incrementing by 1.\nCorrection: appearance_dict[paragraph_number] += 1\n(0.5 pts line number, 1.0 pts reasoning, 1.5 pts correction)\n\nError 4 — Line 17:\nReason: The count for each paragraph is stored in the dictionary's values, but the program sums the keys instead.\nCorrection: total_count = sum(appearance_dict.values())\n(0.5 pts line number, 1.0 pts reasoning, 1.5 pts correction)"
       },
@@ -639,12 +816,15 @@
     },
     {
       "id": "q8ai",
-      "order": 36,
+      "order": 35,
       "title": "Q8(a)(i) – Coding: NumPy attendance() function",
       "prompt": "In COMP 1023, your lab total (out of 50) is calculated as follows: 10 points for each lab's attendance and 10 points each for the best 4 out of 5 lab exercises.\n\nImplement the function attendance(scores: np.ndarray) -> tuple[np.ndarray, np.ndarray] that:\n• Calculates each student's total attendance score (sum of attended labs, where np.nan means excused/absent).\n• Returns a tuple of two 1D arrays: (attendance_scores, count_attended), where count_attended is the number of labs that count (non-NaN entries).\n\nNote: Excused lab attendance scores are stored as np.nan. You can assume the given array is always a 2D array with 10 columns.\n\nExpected output when called with:\natt_scores = np.array([\n    [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],   # Full\n    [0, 1, 0, 1, 0, 1, 0, 1, 0, 1],   # Only half\n    [1, np.nan, 1, 1, 1, 1, 1, 1, 1, 1],  # Excused once + full\n])\natt, count = attendance(att_scores)\nprint(att, count)\n\nOutput: [10.  5.  9.] [10 10  9]\n\nYou are NOT allowed to use any loops, comprehensions, or non-NumPy functions.",
       "points": 4.0,
       "required": true,
-      "topic_ids": ["numpy", "nan-handling"],
+      "topic_ids": [
+        "numpy",
+        "nan-handling"
+      ],
       "rubric": {
         "text": "Model answer:\ndef attendance(scores: np.ndarray) -> tuple[np.ndarray, np.ndarray]:\n    count = np.count_nonzero(np.isnan(scores), axis=1)\n    scores[np.isnan(scores)] = 0\n    return scores.sum(axis=1), 10 - count\n\nMarking:\n• 1 pt for using np.isnan to get boolean array of NaN values.\n• 1 pt for getting number of np.nan using np.count_nonzero.\n• 1 pt for removing np.nan values by changing them to 0.\n• 0.5 pts for getting the sum across columns.\n• 0.5 pts for getting 10 - count.\n• -0.5 pts if return statement is missing.\n• 0 pts if any loops or comprehensions are used.\n• 0 pts if any non-NumPy functions are used."
       },
@@ -657,12 +837,15 @@
     },
     {
       "id": "q8aii",
-      "order": 37,
+      "order": 36,
       "title": "Q8(a)(ii) – Coding: NumPy exercise() function",
       "prompt": "Implement the function exercise(scores: np.ndarray) -> np.ndarray that calculates the sum of each student's best 4 lab exercise scores (dropping the lowest score) and returns a 1D array.\n\nYou can assume the given array is always a 2D array with 5 columns.\n\nExpected output when called with:\nexercise_scores = np.array([\n    [10, 10, 9.5, 9.5, 10],\n    [9, 9, 9, 9, 10],\n    [10, 10, 10, 10, 10],\n])\nexe = exercise(exercise_scores)\nprint(exe)\n\nOutput: [39.5 37.  40. ]\n\nYou are NOT allowed to use any loops, comprehensions, or non-NumPy functions.",
       "points": 3.0,
       "required": true,
-      "topic_ids": ["numpy", "sorting"],
+      "topic_ids": [
+        "numpy",
+        "sorting"
+      ],
       "rubric": {
         "text": "Model answers:\ndef exercise(scores: np.ndarray) -> np.ndarray:\n    return np.sort(scores, axis=1)[:, 1:].sum(axis=1)\n\nOR:\ndef exercise(scores: np.ndarray) -> np.ndarray:\n    return scores.sum(axis=1) - scores.min(axis=1)\n\nMarking:\n• 1 pt for using np.sort or np.ndarray.sort on scores.\n• 1 pt for removing the smallest score (via slicing or subtraction).\n• 1 pt for getting the sum across columns.\n• -0.5 pts if return statement is missing.\n• 0 pts if any loops or comprehensions are used."
       },
@@ -675,12 +858,15 @@
     },
     {
       "id": "q8aiii",
-      "order": 38,
+      "order": 37,
       "title": "Q8(a)(iii) – Coding: NumPy total() function",
       "prompt": "Using the results of attendance() and exercise(), implement the function total(att, count, exe) -> np.ndarray that calculates each student's lab total out of 10.\n\nThe formula is: total = (att + exe) / (40 + count) * 10\n\nNote: Excused labs are excluded from the total calculation, so the maximum attainable points are not necessarily 50. count represents the number of labs that count (non-excused).\n\nExpected output:\nprint(total(att, count, exe))\nOutput: [ 9.9  8.4 10. ]\n\n(Using att=[10. 5. 9.], count=[10 10 9], exe=[39.5 37. 40.])\n\nYou are NOT allowed to use any loops, comprehensions, or non-NumPy functions.",
       "points": 3.0,
       "required": true,
-      "topic_ids": ["numpy", "arithmetic"],
+      "topic_ids": [
+        "numpy",
+        "arithmetic"
+      ],
       "rubric": {
         "text": "Model answer:\ndef total(att: np.ndarray, count: np.ndarray, exe: np.ndarray) -> np.ndarray:\n    return (att + exe) / (40 + count) * 10\n\nMarking:\n• 1 pt for att + exe.\n• 1 pt for the correct logic of adding 40 to count.\n• 1 pt for the correct final calculation (dividing and multiplying by 10).\n• -0.5 pts if return statement is missing.\n• 0 pts if any loops or comprehensions are used."
       },
@@ -693,12 +879,16 @@
     },
     {
       "id": "q8bi",
-      "order": 39,
+      "order": 38,
       "title": "Q8(b)(i) – Coding: pa_sum() using map",
       "prompt": "The teaching team gives each PA submission a score by converting each character to an integer using to_num() and summing them.\n\nGiven the function to_num(c: str) -> int (which maps any character to an int and is already implemented), implement pa_sum(submission: str) -> int that sums together a student's converted PA submission.\n\nYou must use only ONE statement (without semi-colons).\n\nExpected behaviour:\npa_sum(\"ABC\") returns 198\npa_sum(\"AB\") returns 131\npa_sum(\"ZZZ\") returns 270\n\nYou are NOT allowed to use any loops or comprehensions.",
       "points": 3.0,
       "required": true,
-      "topic_ids": ["functions", "map", "functional-programming"],
+      "topic_ids": [
+        "functions",
+        "map",
+        "functional-programming"
+      ],
       "rubric": {
         "text": "Model answer:\ndef pa_sum(submission: str) -> int:\n    return sum(map(to_num, submission))\n\nOR:\ndef pa_sum(submission: str) -> int:\n    return sum(map(lambda c: to_num(c), submission))\n\nMarking:\n• 1 pt for using the map function.\n• 1 pt for applying to_num to each character of submission.\n• 1 pt for getting the sum via sum function.\n• 0 pts if any loops or comprehensions are used.\n• 0 pts if more than 1 statement is used."
       },
@@ -711,12 +901,15 @@
     },
     {
       "id": "q8bii",
-      "order": 40,
+      "order": 39,
       "title": "Q8(b)(ii) – Coding: pairwise() absolute differences",
       "prompt": "Implement the function pairwise(differences: np.ndarray) -> np.ndarray that calculates the absolute pairwise difference between each student's submission sum.\n\nThe function takes a 1D NumPy array of submission sums and returns a 2D array where element [i][j] is the absolute difference between student i's and student j's sum.\n\nYou must use only ONE statement (without semi-colons).\n\nExpected output:\np = pairwise(np.array([198, 131, 270]))\nprint(p)\n[[ 0 67 72]\n [ 67  0 139]\n [ 72 139   0]]\n\nYou are NOT allowed to use any loops, comprehensions, or non-NumPy functions.",
       "points": 3.0,
       "required": true,
-      "topic_ids": ["numpy", "broadcasting"],
+      "topic_ids": [
+        "numpy",
+        "broadcasting"
+      ],
       "rubric": {
         "text": "Model answer:\ndef pairwise(differences: np.ndarray) -> np.ndarray:\n    return np.abs(differences[:, np.newaxis] - differences[np.newaxis, :])\n\nOR:\ndef pairwise(differences: np.ndarray) -> np.ndarray:\n    return np.abs(differences[np.newaxis, :] - differences[:, np.newaxis])\n\nMarking:\n• 1 pt for expanding the dimensions so the array can be broadcast with itself for pairwise calculation.\n• 1 pt for subtraction between 2 broadcastable arrays.\n• 1 pt for using np.abs or np.absolute.\n• 0 pts if any loops or comprehensions are used.\n• 0 pts if any non-NumPy functions are used.\n• 0 pts if more than 1 statement is used."
       },
@@ -729,12 +922,15 @@
     },
     {
       "id": "q8biii",
-      "order": 41,
+      "order": 40,
       "title": "Q8(b)(iii) – Coding: get_students() minimum pairwise pair",
       "prompt": "Implement the function get_students(ids: np.ndarray, pairs: np.ndarray) -> tuple[int, int] that, given an array of student IDs and the pairwise difference matrix, returns the pair of students with the minimum pairwise difference in ascending order of student ID.\n\nYou can assume there is only one pair of students with the minimum pairwise difference.\n\nExpected output:\nprint(get_students(np.array([21000000, 21000001, 21000002]), p))\n(21000000, 21000001)\n\n(Where p is the pairwise matrix from Q8(b)(ii))\n\nYou are NOT allowed to use any loops, comprehensions, or non-NumPy functions.",
       "points": 4.0,
       "required": true,
-      "topic_ids": ["numpy", "indexing"],
+      "topic_ids": [
+        "numpy",
+        "indexing"
+      ],
       "rubric": {
         "text": "Model answer:\ndef get_students(ids: np.ndarray, pairs: np.ndarray) -> tuple[int, int]:\n    np.fill_diagonal(pairs, pairs.max() + 1)\n    r, c = np.where(pairs.min() == pairs)\n    return ids[r[0]], ids[c[0]]\n\nMarking:\n• 1 pt for realising the diagonal is always 0 and must be excluded using np.fill_diagonal.\n• 1 pt for filling the diagonal with pairs.max() + k (k >= 1). (0.5 pts for filling with pairs.max() only).\n• 1 pt for correctly using np.where to get indices of the minimum. (0.5 pts if np.where is used incorrectly).\n• 0.5 pts for getting the correct indices.\n• 0.5 pts for indexing ids with the acquired indices.\n• -0.5 pts if return statement is missing.\n• 0 pts if any loops or comprehensions are used.\n• 0 pts if any non-NumPy functions are used."
       },

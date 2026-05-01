@@ -50,7 +50,7 @@ from app.models.grading_models import (
     GradingRunStatus,
     ReviewSubmitRequest,
 )
-from app.services.grading.orchestrator import run_grading, run_grading_streaming
+from app.services.grading.orchestrator import run_grading, run_grading_streaming, regrade_question
 from app.db.repositories.grading_repository import GradingRepository
 from app.db.session import get_db
 from app.db.models.core import User
@@ -290,6 +290,43 @@ async def submit_and_grade_stream(
             "X-Accel-Buffering": "no",
         },
     )
+
+
+@router.post("/regrade/{run_id}/{question_id}", response_model=GradingRunOut)
+async def regrade_single_question(
+    run_id: str,
+    question_id: str,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_roles("instructor", "teaching_assistant", "administrator")),
+) -> GradingRunOut:
+    """Re-grade a single question in an existing run using a fresh LLM call.
+
+    Useful when the initial AI grading was incomplete, escalated, or failed.
+    Returns the updated GradingRunOut with the new result persisted.
+    """
+    store = GradingRepository(db)
+    run = store.get_run(run_id)
+    if not run:
+        raise HTTPException(status_code=404, detail="Run not found.")
+
+    exam = _get_exam(run.exam_id)
+    rubrics = _get_rubrics(run.exam_id)
+
+    try:
+        updated = await regrade_question(
+            run=run,
+            question_id=question_id,
+            exam=exam,
+            rubrics=rubrics,
+            mode="quality_first",
+        )
+    except ValueError as exc:
+        raise HTTPException(status_code=422, detail=str(exc))
+
+    saved = store.save_run(updated)
+    if not saved:
+        raise HTTPException(status_code=500, detail="Failed to persist re-graded run.")
+    return saved
 
 
 @router.delete("/results", status_code=200)

@@ -129,6 +129,21 @@ export async function getGradingRun(
 
 /* ---- Reviews ---- */
 
+export async function regradeQuestion(
+  runId: string,
+  questionId: string,
+): Promise<GradingRun> {
+  const res = await apiFetch(
+    `${BASE}/api/test-grading/regrade/${runId}/${questionId}`,
+    {
+      method: "POST",
+      headers: authHeaders(),
+    },
+  );
+  const raw = await json<unknown>(res);
+  return snakeToCamel(raw) as GradingRun;
+}
+
 export async function submitReview(
   examId: string,
   runId: string,

@@ -26,10 +26,11 @@ if TYPE_CHECKING:
 logger = logging.getLogger(__name__)
 
 # ── Configuration ────────────────────────────────────────────────────────────
-_API_KEY  = os.getenv("OPENROUTER_API_KEY")
-_BASE_URL = "https://openrouter.ai/api/v1"
-_MODEL    = os.getenv("AI_MODEL", "deepseek/deepseek-v4-pro")   # override via .env
-_HAS_AI   = bool(_API_KEY)
+_API_KEY      = os.getenv("OPENROUTER_API_KEY")
+_BASE_URL     = "https://openrouter.ai/api/v1"
+_MODEL        = os.getenv("AI_MODEL", "deepseek/deepseek-v4-pro")   # override via .env
+_FALLBACK_MODEL = os.getenv("AI_FALLBACK_MODEL", "qwen/qwen3-30b-a3b")  # used on null content
+_HAS_AI       = bool(_API_KEY)
 
 # ── Context cache (in-memory, rebuilt per process) ────────────────────────────
 # Stores the prebuilt LLM context string keyed by grading_hash so chat turns
@@ -44,9 +45,10 @@ def _grading_hash(exam_id: str, grading_runs: list[GradingRunOut]) -> str:
     Keyed on exam_id + sorted run IDs + graded count so that:
     - Adding a new student grade → new hash → regenerate summary
     - Reloading the same data → same hash → DB cache hit, no LLM call
+    - v2: includes student answer text in context (busts old v1 cache rows)
     """
     run_ids = sorted(str(r.id) for r in grading_runs)
-    raw = f"{exam_id}|{len(grading_runs)}|{'|'.join(run_ids)}"
+    raw = f"v2|{exam_id}|{len(grading_runs)}|{'|'.join(run_ids)}"
     return hashlib.sha256(raw.encode()).hexdigest()[:24]
 
 
@@ -62,16 +64,11 @@ async def _chat_completion(
     max_tokens: int,
     json_mode: bool = False,
 ) -> str:
-    """Call the OpenRouter chat-completion endpoint and return the text content."""
-    payload: dict = {
-        "model": _MODEL,
-        "temperature": temperature,
-        "max_tokens": max_tokens,
-        "messages": messages,
-    }
-    if json_mode:
-        payload["response_format"] = {"type": "json_object"}
+    """Call OpenRouter chat-completion with automatic null-content fallback.
 
+    On the first null/empty response from the primary model, immediately retries
+    with _FALLBACK_MODEL before giving up.
+    """
     headers = {
         "Authorization": f"Bearer {_API_KEY}",
         "Content-Type": "application/json",
@@ -79,15 +76,46 @@ async def _chat_completion(
         "X-Title": "HKUST Exam Platform Analytics",
     }
 
-    async with httpx.AsyncClient(timeout=60.0) as client:
-        response = await client.post(
-            f"{_BASE_URL}/chat/completions",
-            headers=headers,
-            json=payload,
-        )
-        response.raise_for_status()
-        data = response.json()
-        return data["choices"][0]["message"]["content"] or ""
+    models_to_try = [_MODEL]
+    if _FALLBACK_MODEL and _FALLBACK_MODEL != _MODEL:
+        models_to_try.append(_FALLBACK_MODEL)
+
+    last_err: Exception | None = None
+    async with httpx.AsyncClient(timeout=90.0) as client:
+        for model in models_to_try:
+            payload: dict = {
+                "model": model,
+                "temperature": temperature,
+                "max_tokens": max_tokens,
+                "messages": messages,
+            }
+            if json_mode:
+                payload["response_format"] = {"type": "json_object"}
+            try:
+                response = await client.post(
+                    f"{_BASE_URL}/chat/completions",
+                    headers=headers,
+                    json=payload,
+                )
+                response.raise_for_status()
+                data = response.json()
+                content = (data.get("choices") or [{}])[0].get("message", {}).get("content") or ""
+                if not content.strip():
+                    logger.warning(
+                        "Analytics AI: null/empty content from model=%s — %s",
+                        model,
+                        "trying fallback" if model == _MODEL and _FALLBACK_MODEL != _MODEL else "no more fallbacks",
+                    )
+                    last_err = RuntimeError(f"Null content from {model}")
+                    continue  # try next model
+                logger.info("Analytics AI: response from model=%s (%d chars)", model, len(content))
+                return content
+            except Exception as exc:
+                logger.warning("Analytics AI: model=%s failed: %s", model, exc)
+                last_err = exc
+                continue
+
+    raise RuntimeError(f"Analytics AI call failed: {last_err}")
 
 
 # ── Snapshot context builder ─────────────────────────────────────────────────
@@ -196,23 +224,35 @@ def _grading_feedback_context(
         for qr in run.question_results:
             qid = str(qr.question_id)
             q = q_data[qid]
-            # QuestionGradeResult has no question_title field — use question_id as label
             q["title"] = q["title"] or qid
             q["max"] = qr.max_points
             q["type"] = qr.question_type or ""
             q["scores"].append(qr.raw_score)
 
+            # Include the student's answer text (truncated) so the AI can discuss
+            # common mistakes concretely rather than saying "data not available".
+            answer_snippet = (qr.student_answer or "").strip()[:200]
+            if answer_snippet:
+                score_frac_q = qr.raw_score / qr.max_points if qr.max_points else 1.0
+                # Only store answer + question-level rationale for non-full-marks responses
+                if score_frac_q < 1.0:
+                    q.setdefault("answer_samples", [])
+                    if len(q["answer_samples"]) < 4:
+                        q["answer_samples"].append({
+                            "score": f"{qr.raw_score}/{qr.max_points}",
+                            "answer": answer_snippet,
+                            "rationale": (qr.rationale or "")[:120],
+                        })
+
             for cr in qr.criterion_results:
                 label = cr.criterion_label or str(cr.criterion_id)
                 cdata = q["criteria"][label]
-                cdata["max"] = cr.max_points  # store the authoritative max_points
+                cdata["max"] = cr.max_points
                 cdata["scores"].append(cr.score)
                 frac = cr.score / cr.max_points if cr.max_points else 1.0
                 worst.append((frac, label))
-                # Collect up to 5 failure rationale snippets per criterion
                 if frac < 1.0 and cr.rationale and len(cdata["fails"]) < 5:
                     cdata["fails"].append(cr.rationale[:120])
-                # Override comments are rare — always include
                 if cr.override_score is not None and cr.reviewer_rationale:
                     over_line = (
                         f"[Override {cr.override_score}/{cr.max_points}] "
@@ -256,6 +296,11 @@ def _grading_feedback_context(
             # Override comments
             for ov in cdata.get("overrides", [])[:2]:
                 lines.append(f"    ★ {ov}")
+        # Student answer samples for below-full-marks responses
+        for sample in q.get("answer_samples", [])[:3]:
+            lines.append(f"  Student answer ({sample['score']}): \"{sample['answer']}\"")
+            if sample["rationale"]:
+                lines.append(f"    Grading note: {sample['rationale']}")
 
     # Student summary table
     lines += ["", "── STUDENT SCORE SUMMARY ──"]
@@ -274,9 +319,9 @@ def _build_full_context(
     if key in _context_cache:
         return _context_cache[key]
 
-    # Reserve ~4 000 chars for overview, ~3 000 for aggregated feedback
+    # Reserve ~4 000 chars for overview, ~5 000 for aggregated feedback (includes answer samples)
     overview = _snapshot_context(snapshot, max_chars=4000)
-    feedback = _grading_feedback_context(grading_runs, max_chars=3000)
+    feedback = _grading_feedback_context(grading_runs, max_chars=5000)
     combined = overview + feedback
 
     # Evict oldest entry if cache is full
@@ -354,7 +399,7 @@ async def generate_ai_summary(
                 {"role": "user", "content": context},
             ],
             temperature=0.3,
-            max_tokens=600,
+            max_tokens=800,
             json_mode=True,
         )
         data = json.loads(raw or "{}")

@@ -19,10 +19,11 @@ from app.models.grading_models import (
     StructuredRubric,
     TokenUsage,
 )
-from app.models.exam_models import QuestionType
-from app.services.grading.grading_agents.deterministic import grade_exact_match
+from app.models.exam_models import QuestionType  # noqa: F401 – kept for type hints in callers
+from app.services.grading.grading_agents.answer_cache import cache_result, get_cached_result
+from app.services.grading.grading_agents.deterministic import _normalise, grade_exact_match
 from app.services.grading.llm.json_extraction import extract_json_dict
-from app.services.grading.llm.model_registry import get_model_for_lane, get_model_for_question_type
+from app.services.grading.llm.model_registry import get_model_for_lane, get_short_answer_model
 from app.services.grading.llm.openrouter_client import get_openrouter_client
 from app.services.grading.llm.prompt_templates import (
     GRADING_OUTPUT_SCHEMA,
@@ -47,7 +48,7 @@ async def grade_short_answer(
 ) -> QuestionGradeResult:
     """Grade a short-answer question."""
 
-    # ---- Deterministic path ----
+    # ---- Deterministic path: explicit acceptable answers ----
     if acceptable_answers:
         det = grade_exact_match(
             student_answer=student_answer,
@@ -58,9 +59,32 @@ async def grade_short_answer(
             det.question_id = question_id
             return det
 
+    # ---- Deterministic path: model-answer string match ----
+    # If the rubric carries a model_answer, compare normalised text first
+    # to avoid an LLM call for students who exactly reproduced the answer.
+    rubric_model_answer: str | None = getattr(rubric, "model_answer", None)
+    if rubric_model_answer and _normalise(student_answer) == _normalise(rubric_model_answer):
+        det = grade_exact_match(
+            student_answer=student_answer,
+            acceptable_answers=[rubric_model_answer],
+            max_points=max_points,
+        )
+        if det is not None:
+            det.question_id = question_id
+            logger.debug("Model-answer string match for %s — full marks", question_id)
+            return det
+
+    # ---- Cross-student similarity cache ----
+    if use_cache and student_answer.strip():
+        cached = get_cached_result(question_id, student_answer)
+        if cached is not None:
+            cached.question_id = question_id
+            return cached
+
     # ---- LLM path ----
     lane = GradingLane.CHEAP_LLM if mode != "quality_first" else GradingLane.QUALITY_LLM
-    model = get_model_for_question_type(QuestionType.SHORT_ANSWER)
+    # Rotate across the short-answer model pool to distribute rate-limit pressure
+    model = get_short_answer_model()
     assert model is not None
 
     rubric_json = json.dumps(
@@ -103,7 +127,7 @@ async def grade_short_answer(
             context=f"short_answer_repair:{question_id}",
         )
         if repaired is not None:
-            return _build_result(
+            built = _build_result(
                 repaired,
                 question_id,
                 model,
@@ -112,6 +136,8 @@ async def grade_short_answer(
                 max_points_override=max_points,
                 student_answer=student_answer,
             )
+            cache_result(question_id, student_answer, built)
+            return built
         logger.warning("Short-answer parse error for %s: %s", question_id, parse_err)
         # Escalate on malformed output
         return await _escalate(
@@ -124,7 +150,7 @@ async def grade_short_answer(
             reason=f"Malformed JSON from model: {parse_err}",
         )
 
-    return _build_result(
+    built = _build_result(
         data,
         question_id,
         model,
@@ -133,6 +159,8 @@ async def grade_short_answer(
         max_points_override=max_points,
         student_answer=student_answer,
     )
+    cache_result(question_id, student_answer, built)
+    return built
 
 
 async def _escalate(
@@ -145,12 +173,14 @@ async def _escalate(
     lecture_context: str | None,
     reason: str,
 ) -> QuestionGradeResult:
-    """Escalate to quality model."""
+    """Escalate to quality model, with cheap model as 429 fallback."""
     logger.info("Escalating short_answer %s: %s", question_id, reason)
 
     lane = GradingLane.ESCALATED
     model = get_model_for_lane(lane)
     assert model is not None
+    # If the quality model is rate-limited, fall back to the cheap model
+    cheap_model = get_short_answer_model()
 
     rubric_json = json.dumps(
         [c.model_dump() for c in rubric.criteria] if rubric else [],
@@ -175,7 +205,9 @@ async def _escalate(
         ],
         json_schema=GRADING_OUTPUT_SCHEMA,
         max_tokens=4096,
-        use_cache=use_cache,
+        use_cache=False,  # escalation is already a fallback — no prompt cache
+        max_retries=5,
+        fallback_model=cheap_model if cheap_model != model else None,
     )
 
     try:

@@ -8,10 +8,11 @@ Model IDs, routing thresholds, concurrency limits, and cost controls.
 from __future__ import annotations
 
 import os
-from dataclasses import dataclass
+from dataclasses import dataclass, field
+from typing import List
 
 
-@dataclass(frozen=True)
+@dataclass
 class GradingSettings:
     """Immutable grading configuration loaded once at startup."""
 
@@ -26,6 +27,40 @@ class GradingSettings:
     short_answer_model: str = os.environ.get(
         "GRADING_SHORT_ANSWER_MODEL", "deepseek/deepseek-v4-flash"
     )
+    # Rotation pool for short-answer grading — distributes load across providers
+    # to avoid rate-limiting any single model. Env var is comma-separated.
+    short_answer_models: List[str] = field(default_factory=lambda: [
+        m.strip() for m in os.environ.get(
+            "GRADING_SHORT_ANSWER_MODELS",
+            "deepseek/deepseek-v4-flash,qwen/qwen3-235b-a22b-2507",
+        ).split(",") if m.strip()
+    ])
+    # Rotation pool for coding grading (quality models)
+    coding_models: List[str] = field(default_factory=lambda: [
+        m.strip() for m in os.environ.get(
+            "GRADING_CODING_MODELS",
+            "deepseek/deepseek-v4-pro",
+        ).split(",") if m.strip()
+    ])
+    # Cheap model used for simple coding questions (short, low points, trivial rubric)
+    coding_cheap_model: str = os.environ.get(
+        "GRADING_CODING_CHEAP_MODEL", "deepseek/deepseek-v4-flash"
+    )
+    # Router model — lightweight classifier that decides cheap vs quality for coding
+    coding_router_model: str = os.environ.get(
+        "GRADING_CODING_ROUTER_MODEL", "xiaomi/mimo-v2-flash"
+    )
+    # Point threshold below which a coding question is always cheap (skip router)
+    coding_cheap_points_threshold: float = float(
+        os.environ.get("GRADING_CODING_CHEAP_THRESHOLD", "1.5")
+    )
+    # Rotation pool for mathematics grading
+    math_models: List[str] = field(default_factory=lambda: [
+        m.strip() for m in os.environ.get(
+            "GRADING_MATH_MODELS",
+            "deepseek/deepseek-v4-pro",
+        ).split(",") if m.strip()
+    ])
     math_model: str = os.environ.get(
         "GRADING_MATH_MODEL", "moonshotai/kimi-k2.5"
     )
@@ -58,6 +93,10 @@ class GradingSettings:
     quality_model: str = os.environ.get(
         "GRADING_QUALITY_MODEL", "deepseek/deepseek-v4-pro"
     )
+    # Fallback when the quality model returns null/empty content (e.g. DeepSeek outage)
+    quality_fallback_model: str = os.environ.get(
+        "GRADING_QUALITY_FALLBACK_MODEL", "qwen/qwen3-30b-a3b"
+    )
     rubric_gen_model: str = os.environ.get(
         "GRADING_RUBRIC_MODEL", "deepseek/deepseek-v4-pro"
     )
@@ -74,7 +113,7 @@ class GradingSettings:
     )
 
     # ---- Concurrency --------------------------------------------------
-    cheap_concurrency: int = int(os.environ.get("GRADING_CHEAP_CONCURRENCY", "3"))
+    cheap_concurrency: int = int(os.environ.get("GRADING_CHEAP_CONCURRENCY", "10"))
     quality_concurrency: int = int(
         os.environ.get("GRADING_QUALITY_CONCURRENCY", "2")
     )

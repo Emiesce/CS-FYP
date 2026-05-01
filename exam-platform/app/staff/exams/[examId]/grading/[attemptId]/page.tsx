@@ -10,7 +10,7 @@ import { useRouter } from "next/navigation";
 import { CriterionScoreCard } from "@/components/grading/CriterionScoreCard";
 import { EvidenceHighlighter } from "@/components/grading/EvidenceHighlighter";
 import { GradingSummaryCard } from "@/components/grading/GradingSummaryCard";
-import { getGradingRun, listGradingRuns, submitReview } from "@/features/grading/grading-service";
+import { getGradingRun, listGradingRuns, regradeQuestion, submitReview } from "@/features/grading/grading-service";
 import {
   getAllSubmissions,
   getAllSubmissionsServer,
@@ -62,6 +62,7 @@ function AttemptReviewContent({
   const [criterionDraftScores, setCriterionDraftScores] = useState<Record<string, string>>({});
   const [criterionDraftReasoning, setCriterionDraftReasoning] = useState<Record<string, string>>({});
   const [criterionReviewSavingId, setCriterionReviewSavingId] = useState<string | null>(null);
+  const [regradingQuestionId, setRegradingQuestionId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -233,8 +234,24 @@ function AttemptReviewContent({
     [attemptId, criterionDraftReasoning, criterionDraftScores, currentQ, examId],
   );
 
-  if (loading) return <div className="empty-state">Loading grading results…</div>;
-  if (!run) return <div className="empty-state">No grading results found.</div>;
+  const handleRegrade = useCallback(
+    async (questionId: string) => {
+      if (!run) return;
+      try {
+        setRegradingQuestionId(questionId);
+        setError(null);
+        const updated = await regradeQuestion(run.id, questionId);
+        setRun(updated);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : "Re-grade failed");
+      } finally {
+        setRegradingQuestionId(null);
+      }
+    },
+    [run],
+  );
+
+  if (loading) return <div className="empty-state">Loading grading results…</div>;  if (!run) return <div className="empty-state">No grading results found.</div>;
 
   return (
     <>
@@ -295,7 +312,8 @@ function AttemptReviewContent({
               {run.questionResults.length > 1 && (
                 <div role="tablist" style={{ display: "flex", gap: "var(--space-1)", flexWrap: "wrap" }}>
                   {run.questionResults.map((qr, i) => {
-                    const isDeterministic = qr.lane === "deterministic" || qr.lane === "incomplete";
+                    const isDeterministic = qr.lane === "deterministic";
+                    const isIncomplete = qr.lane === "incomplete";
                     const isSelected = selectedQ === qr.questionId;
                     return (
                       <button
@@ -303,14 +321,23 @@ function AttemptReviewContent({
                         type="button"
                         role="tab"
                         aria-selected={isSelected}
-                        title={`${qr.questionId} · ${qr.questionType}${isDeterministic ? " · auto-graded" : ""}`}
+                        title={`${qr.questionId} · ${qr.questionType}${isDeterministic ? " · auto-graded" : isIncomplete ? " · incomplete / not answered" : ""}`}
                         className="button-ghost"
                         onClick={() => { setSelectedQ(qr.questionId); setActiveCriterion(qr.criterionResults[0]?.criterionId ?? null); }}
                         style={{
                           padding: "2px var(--space-2)",
                           fontSize: "0.78rem",
-                          border: isSelected ? "2px solid var(--primary)" : "1px solid var(--border-default)",
-                          background: isSelected ? "color-mix(in srgb, var(--primary) 8%, var(--surface-raised))" : "var(--surface-raised)",
+                          border: isSelected
+                            ? `2px solid ${isIncomplete ? "var(--danger-text, #dc2626)" : "var(--primary)"}`
+                            : `1px solid ${isIncomplete ? "color-mix(in srgb, var(--danger-text, #dc2626) 45%, transparent)" : "var(--border-default)"}`,
+                          background: isSelected
+                            ? isIncomplete
+                              ? "color-mix(in srgb, var(--danger-text, #dc2626) 10%, var(--surface-raised))"
+                              : "color-mix(in srgb, var(--primary) 8%, var(--surface-raised))"
+                            : isIncomplete
+                              ? "color-mix(in srgb, var(--danger-text, #dc2626) 5%, var(--surface-raised))"
+                              : "var(--surface-raised)",
+                          color: isIncomplete ? "var(--danger-text, #dc2626)" : undefined,
                           borderRadius: "var(--radius-sm)",
                           position: "relative",
                         }}
@@ -318,6 +345,9 @@ function AttemptReviewContent({
                         Q{i + 1}
                         {isDeterministic && (
                           <span style={{ marginLeft: 3, fontSize: "0.65rem", color: "var(--success-text, #16a34a)", fontWeight: 700 }}>✓</span>
+                        )}
+                        {isIncomplete && (
+                          <span style={{ marginLeft: 3, fontSize: "0.65rem", color: "var(--danger-text, #dc2626)", fontWeight: 700 }}>✗</span>
                         )}
                       </button>
                     );
@@ -337,7 +367,6 @@ function AttemptReviewContent({
                     ? `Q${run.questionResults.findIndex((qr) => qr.questionId === currentQ.questionId) + 1} · `
                     : ""}
                   {currentQ.questionId}
-                  {currentQAllReviewed ? " · Evidence Highlighted" : ""}
                 </span>
                 <span className="badge badge-info" style={{ fontSize: "0.75rem" }}>{currentQ.lane}</span>
                 {currentQAllReviewed ? (
@@ -346,6 +375,27 @@ function AttemptReviewContent({
                   </span>
                 ) : (
                   <span className="badge" style={{ fontSize: "0.75rem", color: "var(--muted)" }}>??/{currentQ.maxPoints}</span>
+                )}
+                {(currentQ.status === "escalated" || currentQ.lane === "incomplete") && (
+                  <button
+                    type="button"
+                    className="button-ghost"
+                    onClick={() => { void handleRegrade(currentQ.questionId); }}
+                    disabled={regradingQuestionId === currentQ.questionId}
+                    title="Re-grade this question with a fresh AI call"
+                    style={{
+                      marginLeft: "auto",
+                      fontSize: "0.78rem",
+                      padding: "3px 10px",
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "5px",
+                      opacity: regradingQuestionId === currentQ.questionId ? 0.6 : 1,
+                    }}
+                  >
+                    <span style={{ fontSize: "0.9rem", lineHeight: 1 }}>↻</span>
+                    {regradingQuestionId === currentQ.questionId ? "Re-grading…" : "Re-grade"}
+                  </button>
                 )}
               </div>
               <EvidenceHighlighter

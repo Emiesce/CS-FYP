@@ -20,9 +20,11 @@ from app.models.grading_models import (
     StructuredRubric,
     TokenUsage,
 )
-from app.models.exam_models import QuestionType
+from app.models.exam_models import QuestionType  # noqa: F401 – kept for type hints in callers
 from app.services.grading.llm.json_extraction import extract_json_dict
-from app.services.grading.llm.model_registry import get_model_for_lane, get_model_for_question_type
+from app.services.grading.llm.model_registry import get_model_for_lane, get_coding_model, _peer_model
+from app.services.grading.llm.coding_router import classify_coding_complexity
+from app.services.grading.settings import get_grading_settings
 from app.services.grading.llm.openrouter_client import get_openrouter_client
 from app.services.grading.llm.prompt_templates import (
     GRADING_OUTPUT_SCHEMA,
@@ -62,14 +64,33 @@ async def grade_coding(
         syntax_note = _check_python_syntax(student_answer)
 
     # ---- LLM grading ----
-    lane = GradingLane.QUALITY_LLM
-    model = get_model_for_question_type(QuestionType.CODING)
-    assert model is not None
-
-    rubric_json = json.dumps(
+    # Ask the cheap router model whether this question needs a quality model.
+    rubric_text = json.dumps(
         [c.model_dump() for c in rubric.criteria] if rubric else [],
         indent=2,
     )
+    complexity = await classify_coding_complexity(
+        question_prompt=question_prompt,
+        rubric_text=rubric_text,
+        student_answer=student_answer,
+        max_points=max_points,
+        syntax_error=syntax_note,
+    )
+
+    s = get_grading_settings()
+    if complexity == "simple":
+        lane = GradingLane.CHEAP_LLM
+        model = s.coding_cheap_model
+        fallback = get_coding_model()   # quality model as fallback on failure
+    else:
+        lane = GradingLane.QUALITY_LLM
+        model = get_coding_model()
+        # Prefer a peer pool model; if only one model in pool use the quality fallback
+        peer = _peer_model(model, s.coding_models)
+        fallback = peer if peer != model else s.quality_fallback_model
+    assert model is not None
+
+    rubric_json = rubric_text
 
     extra_context = ""
     if syntax_note:
@@ -92,7 +113,8 @@ async def grade_coding(
             {"role": "user", "content": user_prompt},
         ],
         json_schema=GRADING_OUTPUT_SCHEMA,
-        max_tokens=4096,
+        max_tokens=8192,
+        fallback_model=fallback,
         use_cache=use_cache,
     )
 

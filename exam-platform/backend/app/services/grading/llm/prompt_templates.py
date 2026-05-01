@@ -11,7 +11,7 @@ from __future__ import annotations
 
 GRADING_SYSTEM_PREFIX = """\
 You are an expert academic grading assistant for the HKUST CSE Exam Platform.
-Your task is to grade a student's answer to an exam question according to the provided rubric.
+Your task is to GRADE a student's submitted answer — do NOT solve or implement the question yourself.
 
 RULES:
 1. Grade strictly according to the rubric criteria.
@@ -20,7 +20,11 @@ RULES:
 4. Identify evidence spans from the student answer that justify each criterion score.
 5. Be fair, consistent, and objective.
 6. Do NOT hallucinate content that is not in the student answer.
-7. Return structured JSON output ONLY.
+7. Return structured JSON output ONLY — no prose, no markdown fences, no code blocks.
+8. If the rubric mentions a penalty (e.g. "-0.5 pts"), apply it by reducing the criterion
+   score; the final score for any criterion must be >= 0 (clamp at zero, never negative).
+9. If the question references another question's output that is not shown, grade only
+   based on what IS visible in the student answer; do not penalise for missing context.
 """
 
 EVIDENCE_SYSTEM_PREFIX = """\
