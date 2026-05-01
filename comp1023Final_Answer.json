@@ -682,7 +682,7 @@
             {
                 "question_id": "q3biii_II",
                 "question_type": "coding",
-                "value": "Line (7): student_tuple = student_tuple[:1] + (\"Alice Smith\",) + student_tuple[2:]",
+                "value": "Line (9): student_tuple = student_tuple[:1] + (\"Alice Smith\",) + student_tuple[2:]",
                 "answered_at": "2025-10-25T13:54:00Z"
             },
             {
@@ -700,25 +700,25 @@
             {
                 "question_id": "q4ai",
                 "question_type": "short_answer",
-                "value": "x=-101, y=101; x=55, y=0; x=-37, y=-73; x=30624770, y=30624700",
+                "value": "x=-101, y=101; x=55, y=0; x=-37, y=-73; x=30624700, y=30624700",
                 "answered_at": "2025-10-25T14:05:00Z"
             },
             {
                 "question_id": "q4ai_Purpose",
                 "question_type": "short_answer",
-                "value": "It swaps the values of x and y",
+                "value": "It swaps and returns the values of x and y",
                 "answered_at": "2025-10-25T14:06:00Z"
             },
             {
                 "question_id": "q4aii",
                 "question_type": "short_answer",
-                "value": "No. Reason: If the value of y is passed as 0, a division by zero error will occur, causing this function to result in an exception.",
+                "value": "No. Reason:if any of the parameters are 0, a division by zero error will occur, causing this function to result in an exception, so this function does not work for all integer inputs. If the parameters are non zero, then only this function works.",
                 "answered_at": "2025-10-25T14:10:00Z"
             },
             {
                 "question_id": "q4aiii",
                 "question_type": "short_answer",
-                "value": "No. Reason: Floating point arithmetic is imprecise and calculations performed on x and y will cause their values to be affected by this rounding error.",
+                "value": "No. Reason: Floating point arithmetic is imprecise and calculations performed on x and y will cause their values to be affected by this rounding error, hence this method of swapping will lead to wrong values of x and y",
                 "answered_at": "2025-10-25T14:15:00Z"
             },
             {
@@ -748,42 +748,42 @@
             {
                 "question_id": "q6aii",
                 "question_type": "coding",
-                "value": "rot_90 = center.T[:, ::-1]",
+                "value": "rot_90 = center.T[::, ::-1]",
                 "answered_at": "2025-10-25T14:45:00Z"
             },
             {
                 "question_id": "q6aiii",
                 "question_type": "coding",
-                "value": "combined = np.hstack((center[0:2, 0:2], center[1:3, 1:3]))",
+                "value": "combined = np.hstack(center[0:2, 0:2], center[1:3, 1:3])",
                 "answered_at": "2025-10-25T14:55:00Z"
             },
             {
                 "question_id": "q6b",
                 "question_type": "coding",
-                "value": "daily_min_max = (temperature.min(axis=1), temperature.max(axis=1))\nax.plot(daily_min_max[1], label=\"Daily Max\")\nax.plot(daily_min_max[0], label=\"Daily Min\")",
+                "value": "daily_min_max = (temperature.min(axis=1), temperature.max(axis=1))\nax.plot(daily_min_max[1],\"Daily Max\")\nax.plot(daily_min_max[0], \"Daily Min\")",
                 "answered_at": "2025-10-25T15:05:00Z"
             },
             {
                 "question_id": "q7",
                 "question_type": "short_answer",
                 "value": {
-                    "line_3": "Reason: The purpose of this line is to converteach word in the list to lower case, for which a map is needed. Filter is incorrect because it is used to extract values from a list that meet a condition.Correction: phrase_tokens = list(map(lambda x: x.lower(), phrase.split(\" \")))",
-                    "line_13": "Reason: In this line, We need to check if lists have same values, for which we use ==. However 'is' is used, which checks whether two objects refer to the same object in memory. Correction: if window_lower == phrase_tokens:",
-                    "line_14": "Reason: Instead of incrementing the count of the appearance of the phrase by 1, it instead assigns it to 1, which therefore will not count the appearance. Correction: appearance_dict[paragraph_number] += 1",
-                    "line_17": "Reason: This line supposed to calculate the total number of the appearance of the phrase (ie a sum of the values in the dictionary since these contains the counts), but instead it does a sum of the dictionary keys. ie. a sum of the paragraph numbers. Correction: total_count = sum(appearance_dict.values())"
+                    "line_3": "Reason: The purpose of this line is to convert each word in the list to lower case, for which a map is needed. Filter is incorrect because it is used to extract values from a list that meet a condition. Correction: phrase_tokens = list(map(lambda x: x.lower(), phrase.split(\" \")))",
+                    "line_13": "Reason: In this line, we need to check whether both lists have same values in the same order, for which we use ==. However 'is' is used, which checks whether two objects refer to the same object in memory, that will never be true. Correction: if window_lower == phrase_tokens:",
+                    "line_14": "Reason: Instead of incrementing the count of the appearance of the phrase by 1, it instead assigns it to 1, which therefore will not count the appearances, rather will always be 1 (incorrect). Correction: appearance_dict[paragraph_number] += 1",
+                    "line_17": "Reason: This line supposed to calculate the total number of the appearance of the phrase (i.e. a sum of the values in the dictionary since these contain the counts), but instead it does a sum of the dictionary keys. i.e. a sum of the paragraph numbers. Correction: total_count = sum(appearance_dict.values())"
                 },
                 "answered_at": null
             },
             {
                 "question_id": "q8ai",
                 "question_type": "coding",
-                "value": "temp_scores = np.copy(scores)\ntemp_scores[np.isnan(scores)] = 0\natt = np.sum(temp_scores, axis=1)\ntemp_scores[~np.isnan(scores)] = 1\ncount = np.sum(temp_scores, axis=1)\nreturn att, count",
+                "value": "temp_scores = np.copy(scores)\ntemp_scores[np.isnan(scores)] = 0\natt = np.sum(temp_scores, axis=1)\ntemp_scores[not np.isnan(scores)] = 1\ncount = np.sum(temp_scores, axis=1)\nreturn att, count",
                 "answered_at": "2025-10-25T15:40:00Z"
             },
             {
                 "question_id": "q8aii",
                 "question_type": "coding",
-                "value": "return np.sum(np.sort(scores)[:, 1:], axis=1)",
+                "value": "return np.sum(np.sort(scores)[::, 1:], axis=1)",
                 "answered_at": "2025-10-25T15:45:00Z"
             },
             {
@@ -807,7 +807,7 @@
             {
                 "question_id": "q8biii",
                 "question_type": "coding",
-                "value": "np.fill_diagonal(pairs, np.max(pairs))\nindices = np.where(pairs == np.min(pairs))\nreturn ids[indices[0][0]], ids[indices[0][1]]",
+                "value": "np.fill_diagonal(pairs, np.max(pairs))\npairs[pairs != np.min(pairs)] = 0\nindices = np.where(pairs)\nreturn ids[indices[0][0]], ids[indices[0][1]]",
                 "answered_at": "2025-10-25T16:10:00Z"
             }
         ]
@@ -917,7 +917,7 @@
             {
                 "question_id": "q3aii_II",
                 "question_type": "short_answer",
-                "value": "The key of Python dictionaries have to be immutable, but a list, which is mutable, thus an error occurs",
+                "value": "The key of Python dictionaries have to be immutable, but a home_coords is a list, which is mutable, thus an error occurs",
                 "answered_at": "2025-10-25T14:35:00Z"
             },
             {
@@ -941,7 +941,7 @@
             {
                 "question_id": "q3bii_II",
                 "question_type": "coding",
-                "value": "student_name = student_dict.get(student_id, \"Unknown Student\")",
+                "value": "student_name = student_dict.get(student_id, default = \"Unknown Student\")",
                 "answered_at": "2025-10-25T14:45:00Z"
             },
             {
@@ -977,19 +977,19 @@
             {
                 "question_id": "q4ai_2",
                 "question_type": "short_answer",
-                "value": "It reverses the order and return (y,x) in a tuple.",
+                "value": "It reverses the order of x, y and return (y,x) in a tuple.",
                 "answered_at": "2025-10-25T14:56:00Z"
             },
             {
                 "question_id": "q4aii",
                 "question_type": "short_answer",
-                "value": "No. When x=1, y=0, y=x//y will trigger a run-time error, because we are trying to divide by zero, whereas \"secret function\" in part (i) will return (0,1). So they are not the same purpose.",
+                "value": "No. When x=1, y=0, y=x//y will trigger a run-time error, as we are trying to divide by zero, whereas, \"secret function\" in part (i) will return (0,1). So it doesn't achieve the same purpose.",
                 "answered_at": "2025-10-25T15:00:00Z"
             },
             {
                 "question_id": "q4aiii",
                 "question_type": "short_answer",
-                "value": "No. Floating point errors i.e. when x=0.1, y=0.2; x=x+y, the result of x might be 0.3000000001 due to floating point error. y=x-y might be 0.09999999999, and the return tuple will be (0.20000000001, 0.09999999999) instead of (0.2, 0.1).",
+                "value": "No. There will be floating point errors i.e. when x=0.1, y=0.2, x=x+y, the result of x might be 0.3000000001 due to floating point error. y=x-y might be 0.09999999999 due to floating point error. x=x-y might be 0.20000000001 due to floating point error, and the return tuple will be (0.20000000001, 0.09999999999) instead our original purpose, which should be returning (0.2, 0.1).",
                 "answered_at": "2025-10-25T15:05:00Z"
             },
             {
@@ -1019,7 +1019,7 @@
             {
                 "question_id": "q6aii",
                 "question_type": "coding",
-                "value": "col1, col2, col3 = center[:, 0], center[:, 1], center[:, 2]\ncol1, col2, col3 = col1[::-1], col2[::-1], col3[::-1]\nrot_90 = np.array([col1, col2, col3])",
+                "value": "col1, col2, col3 = center[:, 0], center[:, 1], center[:, 2]\ncol1, col2, col3 = col1[::-1], col2[::-1], col3[::-1]\nrot90 = np.array([col1, col2, col3])",
                 "answered_at": "2025-10-25T15:40:00Z"
             },
             {
@@ -1038,17 +1038,17 @@
                 "question_id": "q7",
                 "question_type": "short_answer",
                 "value": {
-                    "line_3": "Reason: filter() returns a view of elements which returns True when passed into the parameter function, but we are trying to apply the lower function to every element. Correction: phrase_tokens = list(map(lambda x: x.lower(), phrase.split(\" \")))",
-                    "line_13": "Reason: The \"is\" keyword check whether the object has the same id, but we only want to check whether the values are the same. Correction: if window_lower == phrase_tokens:",
-                    "line_14": "Reason: Instead of incrementing the counter by 1, we are just checking whether it is present. Correction: appearance_dict[paragraph_number] += 1",
-                    "line_17": "Reason: keys() returns the keys, but we want to sum all the values as they represent the appearance count. Correction: total_count = sum(appearance_dict.values())"
+                    "line_3": "Reason: filter() returns a view of elements which returns True when passed into the parameter function, but we aren't trying to do filter this case, we are trying to apply the .lower function to every element. Correction: phrase_tokens = list(map(lambda x: x.lower(), phrase.split(\" \")))",
+                    "line_13": "Reason: The \"is\" keyword check whether the object has the same id, but we only want to check whether the values are the samem not the id. Correction: if window_lower == phrase_tokens:",
+                    "line_14": "Reason: We should be incrementing the counter by 1. as we are counting for total number of \"let it be\", instead of just checking whether \"let it be\" is present in the paragraph or not. Correction: appearance_dict[paragraph_number] += 1",
+                    "line_17": "Reason: keys() returns the keys of the dictionary, but we want to sum all the values as they represent the appearance count in each paragraph. Correction: total_count = sum(appearance_dict.values())"
                 },
                 "answered_at": "2025-10-25T16:00:00Z"
             },
             {
                 "question_id": "q8ai",
                 "question_type": "coding",
-                "value": "mask = np.isnan(scores)\nmask[mask == True] = 1\nmask[mask == False] = 0\nscores[mask] = 0\natt = np.sum(scores, axis=1)\ncount = 10 - np.sum(mask, axis=1)\nreturn att, count",
+                "value": "mask = np.isnan(scores)\ncount = 10 - np.sum(mask, axis=1)\nscores[mask] = 0\natt = np.sum(scores, axis=1)\nreturn att, count",
                 "answered_at": "2025-10-25T16:40:00Z"
             },
             {
@@ -1060,13 +1060,13 @@
             {
                 "question_id": "q8aiii",
                 "question_type": "coding",
-                "value": "actual_score = att + exe\nmax_achievable_score = count + 40\nreturn (actual_score / max_achievable_score) * 10",
+                "value": "actual_score = att + exe\nmax_achievable_score = count + exe\nreturn (actual_score / max_achievable_score) * 10",
                 "answered_at": "2025-10-25T17:00:00Z"
             },
             {
                 "question_id": "q8bi",
                 "question_type": "coding",
-                "value": "return sum(list(map(to_num, list(submission))))",
+                "value": "return np.sum(np.array(map(to_num, list(submission))))",
                 "answered_at": "2025-10-25T17:05:00Z"
             },
             {
@@ -1078,7 +1078,7 @@
             {
                 "question_id": "q8biii",
                 "question_type": "coding",
-                "value": "flattened = pairs.reshape((-1))\nn = pairs.shape[0]\nsorted_flattened = np.sort(flattened)\nmin_element = sorted_flattened[n]\nindices = np.where(flattened == min_element)\ni = indices[0][0] // n\nj = indices[0][0] % n\nreturn ids[i], ids[j]",
+                "value": "flattened = pairs.reshape((-1))\nn = pairs.shape[0]\nsorted_flattened = np.sort(flattened)\nmin_element = sorted_flattened[n]\nindices = np.where(flattened == min_element)\ni = indices[0][0]//n\nj = indices[1]//n n\nreturn ids[i], ids[j]",
                 "answered_at": "2025-10-25T17:25:00Z"
             }
         ]
@@ -1164,7 +1164,7 @@
             {
                 "question_id": "q2c",
                 "question_type": "coding",
-                "value": "i = 0\ntotal = 0\nwhile i < len(assignment_scores):\n    total += assignment_scores[i]\n    i += 1\nprint(f\" Total assignment score {total}\")\nprint(total)",
+                "value": "i = 0\ntotal = 0\nwhile i < len(assignment_scores):\n    total += assignment_scores[i]\n    i += 1\nprint(total)",
                 "answered_at": "2025-10-25T14:22:00Z"
             },
             {
@@ -1176,7 +1176,7 @@
             {
                 "question_id": "q3ai",
                 "question_type": "short_answer",
-                "value": "Subset 20, 40, 60: [20, 40, 60]\nPopped: 70\nFinal Data: [50, 40, 50, 200]",
+                "value": "Subset: [20, 40, 60]\nPopped: 70\nFinal Data: [50, 40, 50, 20, 10]",
                 "answered_at": "2025-10-25T14:32:00Z"
             },
             {
@@ -1194,19 +1194,19 @@
             {
                 "question_id": "q3aii_III",
                 "question_type": "short_answer",
-                "value": "Change home_coords from list to tuple so that it is immutable.",
+                "value": "ChaConvertnge home_coords from list to string so that it is immutable.",
                 "answered_at": "2025-10-25T14:37:00Z"
             },
             {
                 "question_id": "q3bi",
                 "question_type": "short_answer",
-                "value": "[88.0, 95.0]\n90.0\nIndex Error \"Charlie\"\n89.0",
+                "value": "[88.0, 95.0]\n90.0\n \"Charlie\"\n89.0",
                 "answered_at": "2025-10-25T14:40:00Z"
             },
             {
                 "question_id": "q3bii_I",
                 "question_type": "coding",
-                "value": "adjusted_scores = [float(scores) * 1.1 for scores in score_list if float(scores) > 85]",
+                "value": "adjusted_scores = [float(scores) for for float (scores)>85 in score_list] *1.1",
                 "answered_at": "2025-10-25T14:43:00Z"
             },
             {
@@ -1230,13 +1230,13 @@
             {
                 "question_id": "q3biii_III",
                 "question_type": "coding",
-                "value": "Line (11): score_dict = {202501: student_tuple [2]}",
+                "value": "Line (12): score_dict[202501].append(88)",
                 "answered_at": "2025-10-25T14:50:00Z"
             },
             {
                 "question_id": "q3biii_IV",
                 "question_type": "coding",
-                "value": "Line (12): score_dict[202501].append(88)",
+                "value": "Line (11): score_dict = {202501: student_tuple [2]}",
                 "answered_at": "2025-10-25T14:51:00Z"
             },
             {
@@ -1254,19 +1254,19 @@
             {
                 "question_id": "q4aii",
                 "question_type": "short_answer",
-                "value": "No. If x=0, both x and y will return 0 regardless of initial value of y. Also Zero Error would occur if y=0.",
+                "value": "No. If x=0, both x and y will return 0 regardless of initial value of y. Zero Error would occur if input value of y=0.",
                 "answered_at": "2025-10-25T15:00:00Z"
             },
             {
                 "question_id": "q4aiii",
                 "question_type": "short_answer",
-                "value": "No. Many decimal places will be displayed after float addition. x and y values after secret function will not be exactly the same. Rounding error would occur over float input.",
+                "value": "No. Many decimal places will be displayed after float addition. x and y values after secret function will not be exactly the same as y,x float input. Rounding error would occur.",
                 "answered_at": "2025-10-25T15:05:00Z"
             },
             {
                 "question_id": "q4b",
                 "question_type": "coding",
-                "value": "def sum_even_nested(data):\n    for element in data:\n        if is_list(element):\n             return element + sum_even_nested(data.remove(element))",
+                "value": "def sum_even_nested(data):\n    for element in data:\n        if is_list(element):\n             return element",
                 "answered_at": "2025-10-25T15:15:00Z"
             },
             {
@@ -1284,7 +1284,7 @@
             {
                 "question_id": "q6ai",
                 "question_type": "coding",
-                "value": "center = img[1:4, 1:4]",
+                "value": "center = np.img[1:4, 1:4]",
                 "answered_at": "2025-10-25T15:30:00Z"
             },
             {
@@ -1296,28 +1296,28 @@
             {
                 "question_id": "q6aiii",
                 "question_type": "coding",
-                "value": "combined = np.array([[rot90[0, 0:2], rot90[0, 1:1]], [rot90[1, 0:2], rot90[1, 2:1]]])",
+                "value": "combined = np.array[[rot90[0, 0:2], rot90[0, 1:1]], [rot90[1, 0:2], rot90[1, 2:1]]]",
                 "answered_at": "2025-10-25T15:50:00Z"
             },
             {
                 "question_id": "q6b",
                 "question_type": "coding",
-                "value": "max_temp = temperature.max(axis=1)\nmin_temp = temperature.min(axis=1)\nplt.plot(max_temp, \"Daily Max\")\nplt.plot(min_temp, \"Daily Min\")",
+                "value": "max_temp = temperature.max(axis=1)\nmin_temp = temperature.min(axis=1)\ndaily_min_max = (min_temp, max_temp)\nplt.plot(max_temp, \"Daily Max\")\nplt.plot(min_temp, \"Daily Min\")",
                 "answered_at": "2025-10-25T16:00:00Z"
             },
             {
                 "question_id": "q7",
                 "question_type": "short_answer",
                 "value": {
-                    "line_13": "Reason: 'is' checks whether both objects refer to the same separate item. Correction: if window_lower == phrase_tokens:",
-                    "line_17": "Reason: Sum cannot be calculated on dict_keys object. Correction: total_count = sum(int(key) for key in appearance_dict.values())"
+                    "line_13": "Reason: 'is' checks whether both objects refer to the same item. window_lower and phrase_tokens are separate lists. Correction: for i in range(len(window_lower)):\n    if window_lower[i] == phrase_tokens[i]:\n        return True",
+                    "line_17": "Reason: apperance_dict.keys() returns a list. Sum cannot be calculated. Correction: total_count = sum(int(key) for key in appearance_dict.keys())"
                 },
                 "answered_at": "2025-10-25T16:00:00Z"
             },
             {
                 "question_id": "q8ai",
                 "question_type": "coding",
-                "value": "if np.isnan(scores) == False:\n    sum = np.count_nonzero(scores)\nreturn sum, np.array([count])",
+                "value": "if np.isnan(scores) == False:\n    sum = np.count_nonzero(scores)\n count +=1\n return sum, np.array([count])",
                 "answered_at": "2025-10-25T16:40:00Z"
             },
             {
@@ -1329,7 +1329,7 @@
             {
                 "question_id": "q8aiii",
                 "question_type": "coding",
-                "value": "tot = count / sum\nreturn tot_min_score / 10",
+                "value": "return exe/attention * 10",
                 "answered_at": "2025-10-25T17:00:00Z"
             },
             {
@@ -1341,7 +1341,7 @@
             {
                 "question_id": "q8bii",
                 "question_type": "coding",
-                "value": "return np.abs(pairwise_differences)",
+                "value": "return np.abs(differences)",
                 "answered_at": "2025-10-25T17:10:00Z"
             }
         ]
@@ -1578,9 +1578,9 @@
         ]
     },
     {
-        "exam_id": "comp1023-final-f25",
-        "student_id": "stu-007",
-        "responses": [
+            "exam_id": "comp1023-final-f25",
+            "student_id": "stu-007",
+            "responses": [
             {
                 "question_id": "q1a",
                 "question_type": "mcq",
@@ -1686,7 +1686,7 @@
             {
                 "question_id": "q3aii_III",
                 "question_type": "short_answer",
-                "value": "use an alternative code: locations[\"Home\"]=home_coords this code can set the values of Home as the home_coords list",
+                "value": "use an alternative code: locations[\"Home\"]=home_coords this code can set the values of [\"Home\"] as the home_coords list",
                 "answered_at": null
             },
             {
@@ -1746,19 +1746,19 @@
             {
                 "question_id": "q4aii",
                 "question_type": "short_answer",
-                "value": "No. when y=0, the function secret2 occurs an error while secret1 ok so it cannot do what secret do.",
+                "value": "No. when y=0, the function secret2 occurs an error while y=x/y ok so it cannot do what secret do.",
                 "answered_at": null
             },
             {
                 "question_id": "q4aiii",
                 "question_type": "short_answer",
-                "value": "No. because of the binary cannot exactly represent a float like 0.1, so the answer of the float calculation will be not what we expected if it be so the function secret3 cannot do what secret do.",
+                "value": "No. because of the binary cannot exactly represent a float like 0.1, so the answer of the float calculation will not be what we expected it to be so the function secret3 cannot do what secret do.",
                 "answered_at": null
             },
             {
                 "question_id": "q4b",
                 "question_type": "coding",
-                "value": "def sum_even_nested(data):\n    a=0\n    if is_list(data):\n        for i in data:\n            if i % 2 == 0 and not is_list(i):\n                a += i\n            elif is_list(i):\n                a += sum_even_nested(i)\n    return a",
+                "value": "def sum_even_nested(data):\n    a=0\n    if is_list(data):\n        for i in data:\n            if i % 2 == 0 and not is_list(i):\n                a += i\n            elif is_list(i):\n                a += sum_even_nested(i)\n",
                 "answered_at": null
             },
             {
@@ -1771,9 +1771,9 @@
                 "question_id": "q5b",
                 "question_type": "coding",
                 "value": {
-                    "part_i": "capacity",
-                    "part_ii": "self.__level",
-                    "part_iii": "drain(self.my_phone, 500)"
+                "part_i": "capacity",
+                "part_ii": "self.__level",
+                "part_iii": "drain(self.my_phone, 500)"
                 },
                 "answered_at": null
             },
@@ -1792,23 +1792,22 @@
             {
                 "question_id": "q6aiii",
                 "question_type": "coding",
-                "value": "",
+                "value": "a=np.array([rot90[:2,:2], rot90[1:,1:]])\nb=np.array([a[:,a], a[:,:1]])\ncombined=b.reshape(2,4)",
                 "answered_at": null
             },
             {
                 "question_id": "q6b",
                 "question_type": "coding",
-                "value": "",
+                "value": "a=pd.Series[temperature.iloc[i].max for i in range(len(temperature))]\nb=pd.Series[temperature.iloc[i].min for i in range(len(temperature))]\ndaily_min_max=(b,a)\nax.plot(y=a,b=\"Daily Max\")\nax.plot(y=b,b=\"Daily Min\")",
                 "answered_at": null
             },
             {
                 "question_id": "q7",
                 "question_type": "short_answer",
                 "value": {
-                    "line_7": "phrase_tokens = list(map(lambda x: x.lower(), phrase.split()))",
-                    "line_13": "if window_lower == phrase_tokens:",
-                    "line_17": "total_count = sum(appearance_dict.values())",
-                    "line_21": "appearance_dict[paragraph_number] = appearance_dict.get(paragraph_number, 0) + 1"
+                "line_14": "Reason: it should be t=1 because the phrase can appear more than once\nCorrection:appearance_dict[paragraph_number]+=1",
+                "line_17": "Reason:it should sum the value, not the keys\nCorrection: total_count = sum(appearance_dict.values())",
+                "line_3": "Reason:it should use map(), not filter()\nCorrection: phrase_tokens=list(map(lambda x: x.lower(), phrase.split(\"\\\"\")))"
                 },
                 "answered_at": null
             },
@@ -1923,7 +1922,7 @@
             {
                 "question_id": "q2b",
                 "question_type": "coding",
-                "value": "score <= 60",
+                "value": "score < 60",
                 "answered_at": null
             },
             {
@@ -2019,7 +2018,7 @@
             {
                 "question_id": "q4aii",
                 "question_type": "short_answer",
-                "value": "No. x // y returns an error",
+                "value": "No. x // 0 returns an error",
                 "answered_at": null
             },
             {
@@ -2031,13 +2030,13 @@
             {
                 "question_id": "q4b",
                 "question_type": "coding",
-                "value": "def sum_even_nested(data):\n    if len(data) == 0:\n        return 0\n    if type(data[0]) == int:\n        if data[0] % 2 == 0:\n            return data[0] + sum_even_nested(data[1:])\n        else:\n            return sum_even_nested(data[1:])\n    else:\n        return sum_even_nested(data[0]) + sum_even_nested(data[1:])",
+                "value": "def sum_even_nested(data):\n    if len(sum_even_nested[0]) == 0:\n        return 0\n    if type(sum_even_nest[0]) == int:\n        if sum_even_nest[0] % 2 == 0:\n            return sum_even_nest[0] + sum_even_nest([1:])\n        else:\n            return sum_even_nest([1:])\n    else:\n        return sum_even_nest(sum_even_nest[0])",
                 "answered_at": null
             },
             {
                 "question_id": "q5a",
                 "question_type": "short_answer",
-                "value": "#1 spent 5\nSIM\nw2: 120\nw3: 5",
+                "value": "#1 spent 5\nw1=5\nw2=100\nw3=5",
                 "answered_at": null
             },
             {
@@ -2046,14 +2045,14 @@
                 "value": {
                     "part_i": "capacity",
                     "part_ii": "self.__level",
-                    "part_iii": "my_phone.drain(500)"
+                    "part_iii": "my_phone.drain()"
                 },
                 "answered_at": null
             },
             {
                 "question_id": "q6ai",
                 "question_type": "coding",
-                "value": "center = img[1:4, 1:4]",
+                "value": "center = img[1:3, 1:3]",
                 "answered_at": null
             },
             {
@@ -2071,16 +2070,16 @@
             {
                 "question_id": "q6b",
                 "question_type": "coding",
-                "value": "daily_max = temperature[:, :].max(1)\ndaily_min = temperature[:, :].min(1)\nax.plot(daily_min_max[1], label='Daily Max')\nax.plot(daily_min_max[0], label='Daily Min')",
+                "value": "daily_max = temperature[1:, :].max()\ndaily_min = temperature[1:, :].min()\ndaily_min_max=\nax.plot(daily_min_max[1], label=\"Daily Max\")\nax.plot(daily_min_max[0], label=\"Daily Min\")",
                 "answered_at": null
             },
             {
                 "question_id": "q7",
                 "question_type": "short_answer",
                 "value": {
-                    "line_9": "Reason: it len(phrase_tokens) when i = len(text_tokens) is out of range. Correction: for i in range(len(text_tokens) - 1 - len(phrase_tokens))",
-                    "line_14": "Reason: should add the value with 1, not set the value to be i. Correction: appearance_dict[paragraph_number] += 1",
-                    "line_17": "Reason: appearance_dict.items() returns a view object that displays a list of dict's key-value tuple. should not sum that. Correction: sum(appearance_dict[appearance_dict.keys()])"
+                    "line_10": "Reason: when i=len(tex_tokens) when i+len(phrase_tokens) is out of range. Correction: for i in range(len(text_tokens) - 1 - len(phrase_tokens))",
+                    "line_14": "Reason: should add the value with 1, not set the value to be 1. Correction: appearance_dict[paragraph_number] += 1",
+                    "line_17": "Reason: appearance_dict.items() returns a view object that displays a list of dict's key-value should not sum that. Correction: sum(appearance_dict[appearance_dict.keys()])"
                 },
                 "answered_at": null
             },
@@ -2105,7 +2104,7 @@
             {
                 "question_id": "q8bi",
                 "question_type": "coding",
-                "value": "return np.sum(np.array(submission.split()).to_numeric())",
+                "value": "return np.sum(np.array(submission.split()).to_num())",
                 "answered_at": null
             },
             {
@@ -2189,7 +2188,7 @@
             {
                 "question_id": "q2a",
                 "question_type": "short_answer",
-                "value": "Qualified\nQualified!\nQualified\nQ\nQualified",
+                "value": "Qualified\nUnqualified!\nQualified\nQ\nQualified",
                 "answered_at": null
             },
             {
@@ -2207,13 +2206,13 @@
             {
                 "question_id": "q2d",
                 "question_type": "coding",
-                "value": "count=0 \n for i in rangext 0, 101)",
+                "value": "count=0 \n for i in range of (0, 101)",
                 "answered_at": null
             },
             {
                 "question_id": "q3ai",
                 "question_type": "short_answer",
-                "value": "0",
+                "value": null,
                 "answered_at": null
             },
             {
@@ -2225,7 +2224,7 @@
             {
                 "question_id": "q3aii_II",
                 "question_type": "short_answer",
-                "value": "Xan",
+                "value": null,
                 "answered_at": null
             },
             {
@@ -2237,7 +2236,7 @@
             {
                 "question_id": "q3bi",
                 "question_type": "short_answer",
-                "value": "0",
+                "value": null,
                 "answered_at": null
             },
             {
@@ -2285,7 +2284,7 @@
             {
                 "question_id": "q4ai_2",
                 "question_type": "short_answer",
-                "value": "?",
+                "value": null,
                 "answered_at": null
             },
             {
@@ -2303,7 +2302,7 @@
             {
                 "question_id": "q4b",
                 "question_type": "coding",
-                "value": "0",
+                "value": null,
                 "answered_at": null
             },
             {
@@ -2349,11 +2348,7 @@
             {
                 "question_id": "q7",
                 "question_type": "short_answer",
-                "value": {
-                    "line_1": null,
-                    "line_2": null,
-                    "line_3": null
-                },
+                "value": null,
                 "answered_at": null
             },
             {
