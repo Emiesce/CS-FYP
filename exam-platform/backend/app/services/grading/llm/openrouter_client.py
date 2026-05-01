@@ -75,7 +75,7 @@ class OpenRouterClient:
         max_tokens: int = 4096,
         json_schema: Optional[dict] = None,
         use_cache: bool = True,
-        max_retries: int = 2,
+        max_retries: int = 3,
     ) -> dict[str, Any]:
         """
         Send a chat completion request.
@@ -135,6 +135,24 @@ class OpenRouterClient:
                     headers=headers,
                     json=request_body,
                 )
+
+                # Handle 429 rate-limit explicitly before raise_for_status so we
+                # can inspect Retry-After and apply a longer backoff.
+                if resp.status_code == 429:
+                    retry_after = _parse_retry_after(resp)
+                    logger.warning(
+                        "OpenRouter 429 rate-limited for model=%s (attempt %d/%d), "
+                        "backing off %.1fs",
+                        model, attempt + 1, max_retries + 1, retry_after,
+                    )
+                    last_err = httpx.HTTPStatusError(
+                        f"429 Too Many Requests", request=resp.request, response=resp
+                    )
+                    if attempt < max_retries:
+                        import asyncio as _asyncio
+                        await _asyncio.sleep(retry_after)
+                    continue
+
                 resp.raise_for_status()
                 data = resp.json()
                 latency_ms = int((time.monotonic() - t0) * 1000)
@@ -204,7 +222,19 @@ class OpenRouterClient:
 
 async def _backoff(attempt: int) -> None:
     import asyncio
-    await asyncio.sleep(min(2 ** attempt, 8))
+    # Exponential backoff: 4s, 8s, 16s … capped at 30s
+    await asyncio.sleep(min(4 * (2 ** attempt), 30))
+
+
+def _parse_retry_after(response: httpx.Response) -> float:
+    """Return seconds to wait from a 429 response's Retry-After header, or a safe default."""
+    header = response.headers.get("retry-after") or response.headers.get("x-ratelimit-reset-requests")
+    if header:
+        try:
+            return max(float(header), 5.0)
+        except ValueError:
+            pass
+    return 15.0  # conservative default when header is absent
 
 
 # Singleton

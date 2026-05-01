@@ -1,0 +1,3246 @@
+[
+    {
+        "exam_id": "comp1023-final-f25",
+        "student_id": "stu-001",
+        "current_question_index": 10,
+        "flagged_question_ids": [],
+        "responses": [
+            {
+                "question_id": "q1a",
+                "question_type": "mcq",
+                "value": "F",
+                "answered_at": "2025-10-25T13:05:00Z"
+            },
+            {
+                "question_id": "q1b",
+                "question_type": "mcq",
+                "value": "F",
+                "answered_at": "2025-10-25T13:05:30Z"
+            },
+            {
+                "question_id": "q1c",
+                "question_type": "mcq",
+                "value": "T",
+                "answered_at": "2025-10-25T13:06:00Z"
+            },
+            {
+                "question_id": "q1d",
+                "question_type": "mcq",
+                "value": "F",
+                "answered_at": "2025-10-25T13:06:30Z"
+            },
+            {
+                "question_id": "q1e",
+                "question_type": "mcq",
+                "value": "F",
+                "answered_at": "2025-10-25T13:07:00Z"
+            },
+            {
+                "question_id": "q1f",
+                "question_type": "mcq",
+                "value": "T",
+                "answered_at": "2025-10-25T13:07:30Z"
+            },
+            {
+                "question_id": "q1g",
+                "question_type": "mcq",
+                "value": "T",
+                "answered_at": "2025-10-25T13:08:00Z"
+            },
+            {
+                "question_id": "q1h",
+                "question_type": "mcq",
+                "value": "F",
+                "answered_at": "2025-10-25T13:08:30Z"
+            },
+            {
+                "question_id": "q1i",
+                "question_type": "mcq",
+                "value": "F",
+                "answered_at": "2025-10-25T13:09:00Z"
+            },
+            {
+                "question_id": "q1j",
+                "question_type": "mcq",
+                "value": "F",
+                "answered_at": "2025-10-25T13:09:30Z"
+            },
+            {
+                "question_id": "q2a",
+                "question_type": "short_answer",
+                "value": "Score: 85 Qualified\nScore: 58 Unqualified\nScore: 72 Qualified\nScore: 60 Qualified",
+                "answered_at": "2025-10-25T13:15:00Z"
+            },
+            {
+                "question_id": "q2b",
+                "question_type": "short_answer",
+                "value": "score < 60",
+                "answered_at": "2025-10-25T13:16:00Z"
+            },
+            {
+                "question_id": "q2c",
+                "question_type": "coding",
+                "value": "ans = 0\ni = 0\nwhile i < len(assignment_scores):\n    ans += assignment_scores[i]\n    i += 1\nprint(ans)",
+                "answered_at": "2025-10-25T13:25:00Z"
+            },
+            {
+                "question_id": "q2d",
+                "question_type": "coding",
+                "value": "highest = 0\nfor score in assignment_scores:\n    if score > highest:\n        highest = score\nprint(highest)",
+                "answered_at": "2025-10-25T13:30:00Z"
+            },
+            {
+                "question_id": "q3ai",
+                "question_type": "short_answer",
+                "value": "Subset: [20, 40, 60]\nPopped: 70\nFinal Data: [50, 60, 80]",
+                "answered_at": "2025-10-25T13:35:00Z"
+            },
+            {
+                "question_id": "q3aii_I",
+                "question_type": "short_answer",
+                "value": "4",
+                "answered_at": "2025-10-25T13:36:00Z"
+            },
+            {
+                "question_id": "q3aii_II",
+                "question_type": "short_answer",
+                "value": "It is trying to make home_coords which is [22, 114] a key and assign the value 'Home' to it, however, home_coords is a list which is mutable. Python does not allow mutable keys in a dictionary.",
+                "answered_at": "2025-10-25T13:38:00Z"
+            },
+            {
+                "question_id": "q3aii_III",
+                "question_type": "short_answer",
+                "value": "Write home_coords = (22, 114) instead, then home_coords is a Tuple which is immutable and can be a key in dictionary.",
+                "answered_at": "2025-10-25T13:40:00Z"
+            },
+            {
+                "question_id": "q3bi",
+                "question_type": "short_answer",
+                "value": "[88.0, 95.0]\n90.0\nFalse\n89.0",
+                "answered_at": "2025-10-25T13:45:00Z"
+            },
+            {
+                "question_id": "q3bii_I",
+                "question_type": "coding",
+                "value": "adjusted_scores = [x * 1.1 if x > 85  for x in score_list]",
+                "answered_at": "2025-10-25T13:48:00Z"
+            },
+            {
+                "question_id": "q3bii_II",
+                "question_type": "coding",
+                "value": "student_name = student_dict.get(student_id, \"Unknown Student\")",
+                "answered_at": "2025-10-25T13:50:00Z"
+            },
+            {
+                "question_id": "q3biii_I",
+                "question_type": "coding",
+                "value": "Line (5): for i in range(len(student_tuple[2])):",
+                "answered_at": "2025-10-25T13:52:00Z"
+            },
+            {
+                "question_id": "q3biii_II",
+                "question_type": "coding",
+                "value": "Line (9): student_tuple = (202501, \"Alice Smith\", student_tuple[2])",
+                "answered_at": "2025-10-25T13:54:00Z"
+            },
+            {
+                "question_id": "q3biii_III",
+                "question_type": "coding",
+                "value": "Line (11): score_dict = {202501: student_tuple[2]}",
+                "answered_at": "2025-10-25T13:55:00Z"
+            },
+            {
+                "question_id": "q3biii_IV",
+                "question_type": "coding",
+                "value": "Line (12): score_dict[202501].append(88)",
+                "answered_at": "2025-10-25T13:56:00Z"
+            },
+            {
+                "question_id": "q4ai",
+                "question_type": "short_answer",
+                "value": " x=-101, y=101; x=55, y=0; x=-37, y=-73; x=30624770, y=30624700",
+                "answered_at": "2025-10-25T14:05:00Z"
+            },
+            {
+                "question_id": "q4ai_Purpose",
+                "question_type": "short_answer",
+                "value": "flip x to y and y to x",
+                "answered_at": "2025-10-25T14:06:00Z"
+            },
+            {
+                "question_id": "q4aii",
+                "question_type": "short_answer",
+                "value": "No. Reason: if y=0 then x=0 from 2nd line and y=x//y will be y=0//0 which is an error.",
+                "answered_at": "2025-10-25T14:10:00Z"
+            },
+            {
+                "question_id": "q4aiii",
+                "question_type": "short_answer",
+                "value": "No. Reason: Float arithmetics are inaccurate, from the example x=0.1 and y=0.2, the code will be x=x+y <-0.30000...4 \n y= x-y <- 0.100...4\n x=x-y <- 0.2 \n y does not equal 0.1 due to precision errors.",
+                "answered_at": "2025-10-25T14:15:00Z"
+            },
+            {
+                "question_id": "q4b",
+                "question_type": "coding",
+                "value": "def sum_even_nested(nested_list):\n    sum = 0\n    for val in nested_list:\n        if is_list(val):\n            sum += sum_even_nested(val)\n        else:\n            if val % 2 == 0:\n                sum += val\n    return sum",
+                "answered_at": "2025-10-25T14:25:00Z"
+            },
+            {
+                "question_id": "q5a",
+                "question_type": "short_answer",
+                "value": "#1 spent 5\nW1: 5\nW2: 160\nW3: 5",
+                "answered_at": "2025-10-25T14:30:00Z"
+            },
+            {
+                "question_id": "q5b",
+                "question_type": "coding",
+                "value": "(i) capacity\n(ii) self.__level\n(iii) my_phone.drain(500)",
+                "answered_at": "2025-10-25T14:35:00Z"
+            },
+            {
+                "question_id": "q6ai",
+                "question_type": "coding",
+                "value": "center = img[1:4, 1:4]",
+                "answered_at": "2025-10-25T14:40:00Z"
+            },
+            {
+                "question_id": "q6aii",
+                "question_type": "coding",
+                "value": "rot90 = center.T[:, ::-1]",
+                "answered_at": "2025-10-25T14:45:00Z"
+            },
+            {
+                "question_id": "q6aiii",
+                "question_type": "coding",
+                "value": "left = rot90[0:2, 0:2]\nright = rot90[1:3, 1:3]\ncombined = np.array([[left[0,0], left[0,1], right[0,0], right[0,1]], [left[1,0], left[1,1], right[1,0], right[1,1]]])",
+                "answered_at": "2025-10-25T14:55:00Z"
+            },
+            {
+                "question_id": "q6b",
+                "question_type": "coding",
+                "value": "daily_min_max = (temperature.min(axis=1), temperature.max(axis=1))\nax.plot(daily_min_max[1], \"Daily Max\")\nax.plot(daily_min_max[0], \"Daily Min\")",
+                "answered_at": "2025-10-25T15:05:00Z"
+            },
+            {
+                "question_id": "q7",
+                "question_type": "short_answer",
+                "value": {
+                    "line_3": "Reason: Filter should not be used here, what it wants is map as it wants to change the whole list. Correction: phrase_tokens = list(map(lambda x: x.lower(), phrase.split(\" \")))",
+                    "line_13": "Reason: window_lower and phrase_tokens are two objects that should always have different id, so the statement always fails. What we want is compare the lists. Correction: if window_lower == phrase_tokens:",
+                    "line_14": "Reason: Everytime it appears the count is still 1, we want to increment by 1 not set to 1. Correction: appearance_dict[paragraph_number] += 1",
+                    "line_17": "Reason: .keys gets the paragraph number which is not what we want, we want to sum the values. Correction: total_count = sum(appearance_dict.values())"
+                },
+                "answered_at": null
+            },
+            {
+                "question_id": "q8ai",
+                "question_type": "coding",
+                "value": "nan_array = np.isnan(scores)\nnon_nan_array = (nan_array == False)\nscores[nan_array] = 0\natt = scores.sum(axis=1)\nscores[non_nan_array] = 1\ncount = scores.sum(axis=1)\nreturn att, count",
+                "answered_at": "2025-10-25T15:40:00Z"
+            },
+            {
+                "question_id": "q8aii",
+                "question_type": "coding",
+                "value": "return np.sum(scores, axis=1) - np.min(scores, axis=1)",
+                "answered_at": "2025-10-25T15:45:00Z"
+            },
+            {
+                "question_id": "q8aiii",
+                "question_type": "coding",
+                "value": "return (att + exe) / (40 + count) * 10",
+                "answered_at": "2025-10-25T15:50:00Z"
+            },
+            {
+                "question_id": "q8bi",
+                "question_type": "coding",
+                "value": "return sum(list(map(lambda x: to_num(x), list(submission))))",
+                "answered_at": "2025-10-25T15:55:00Z"
+            },
+            {
+                "question_id": "q8bii",
+                "question_type": "coding",
+                "value": "return np.abs(differences - differences.reshape(-1, 1))",
+                "answered_at": "2025-10-25T16:00:00Z"
+            },
+            {
+                "question_id": "q8biii",
+                "question_type": "coding",
+                "value": "new_p = np.fill_diagonal(pairs, np.max(pairs))\neach_min = np.min(new_p, axis=1)\nadj_min = each_min - np.min(each_min)\nmin_pair = np.where(adj_min == 0)\nreturn ids[min_pair]",
+                "answered_at": "2025-10-25T16:10:00Z"
+            }
+        ]
+    },
+    {
+        "exam_id": "comp1023-final-f25",
+        "student_id": "stu-002",
+        "current_question_index": 50,
+        "flagged_question_ids": [],
+        "responses": [
+            {
+                "question_id": "q1a",
+                "question_type": "mcq",
+                "value": "F",
+                "answered_at": "2025-10-25T13:05:00Z"
+            },
+            {
+                "question_id": "q1b",
+                "question_type": "mcq",
+                "value": "F",
+                "answered_at": "2025-10-25T13:05:30Z"
+            },
+            {
+                "question_id": "q1c",
+                "question_type": "mcq",
+                "value": "T",
+                "answered_at": "2025-10-25T13:06:00Z"
+            },
+            {
+                "question_id": "q1d",
+                "question_type": "mcq",
+                "value": "F",
+                "answered_at": "2025-10-25T13:06:30Z"
+            },
+            {
+                "question_id": "q1e",
+                "question_type": "mcq",
+                "value": "F",
+                "answered_at": "2025-10-25T13:07:00Z"
+            },
+            {
+                "question_id": "q1f",
+                "question_type": "mcq",
+                "value": "T",
+                "answered_at": "2025-10-25T13:07:30Z"
+            },
+            {
+                "question_id": "q1g",
+                "question_type": "mcq",
+                "value": "T",
+                "answered_at": "2025-10-25T13:08:00Z"
+            },
+            {
+                "question_id": "q1h",
+                "question_type": "mcq",
+                "value": "F",
+                "answered_at": "2025-10-25T13:08:30Z"
+            },
+            {
+                "question_id": "q1i",
+                "question_type": "mcq",
+                "value": "F",
+                "answered_at": "2025-10-25T13:09:00Z"
+            },
+            {
+                "question_id": "q1j",
+                "question_type": "mcq",
+                "value": "F",
+                "answered_at": "2025-10-25T13:09:30Z"
+            },
+            {
+                "question_id": "q2a",
+                "question_type": "short_answer",
+                "value": "Score: 85 Qualified\nScore: 58 Unqualified\nScore: 72 Qualified\nScore: 60 Qualified",
+                "answered_at": "2025-10-25T13:15:00Z"
+            },
+            {
+                "question_id": "q2b",
+                "question_type": "short_answer",
+                "value": "score < 60",
+                "answered_at": "2025-10-25T13:16:00Z"
+            },
+            {
+                "question_id": "q2c",
+                "question_type": "coding",
+                "value": "total_sum = 0\nindex = 0\nwhile index < len(assignment_scores):\n    total_sum += assignment_scores[index]\n    index += 1\nprint(f\"Total assignment score: {total_sum}\")",
+                "answered_at": "2025-10-25T13:25:00Z"
+            },
+            {
+                "question_id": "q2d",
+                "question_type": "coding",
+                "value": "max_score = assignment_scores[0]\nfor score in assignment_scores[1:]:\n    if score > max_score:\n        max_score = score\nprint(f\"Highest assignment score: {max_score}\")",
+                "answered_at": "2025-10-25T13:30:00Z"
+            },
+            {
+                "question_id": "q3ai",
+                "question_type": "short_answer",
+                "value": "Subset: [20, 40, 60]\nPopped: 70\nFinal Data: [50, 60, 80]",
+                "answered_at": "2025-10-25T13:35:00Z"
+            },
+            {
+                "question_id": "q3aii_I",
+                "question_type": "short_answer",
+                "value": "4",
+                "answered_at": "2025-10-25T13:36:00Z"
+            },
+            {
+                "question_id": "q3aii_II",
+                "question_type": "short_answer",
+                "value": "Lists are not hashable and therefore cannot be used as dictionary keys.",
+                "answered_at": "2025-10-25T13:38:00Z"
+            },
+            {
+                "question_id": "q3aii_III",
+                "question_type": "short_answer",
+                "value": "Change the home_coords to a tuple e.g. home_coords = (22, 114). Tuple containing integers is immutable and hashable, therefore it can be used as a dictionary key.",
+                "answered_at": "2025-10-25T13:40:00Z"
+            },
+            {
+                "question_id": "q3bi",
+                "question_type": "short_answer",
+                "value": "[88.0, 95.0]\n90.0\nFalse\n89.0",
+                "answered_at": "2025-10-25T13:45:00Z"
+            },
+            {
+                "question_id": "q3bii_I",
+                "question_type": "coding",
+                "value": "adjusted_scores = [score * 1.1 for score in score_list if score > 85]",
+                "answered_at": "2025-10-25T13:48:00Z"
+            },
+            {
+                "question_id": "q3bii_II",
+                "question_type": "coding",
+                "value": "student_name = student_dict.get(student_id, \"Unknown Student\")",
+                "answered_at": "2025-10-25T13:50:00Z"
+            },
+            {
+                "question_id": "q3biii_I",
+                "question_type": "coding",
+                "value": "Line (5): for i in range(len(student_tuple[2])):",
+                "answered_at": "2025-10-25T13:52:00Z"
+            },
+            {
+                "question_id": "q3biii_II",
+                "question_type": "coding",
+                "value": "Line (9): student_tuple = (student_tuple[0], \"Alice Smith\", student_tuple[2])",
+                "answered_at": "2025-10-25T13:54:00Z"
+            },
+            {
+                "question_id": "q3biii_III",
+                "question_type": "coding",
+                "value": "Line (11): score_dict = {202501: student_tuple[2]}",
+                "answered_at": "2025-10-25T13:55:00Z"
+            },
+            {
+                "question_id": "q3biii_IV",
+                "question_type": "coding",
+                "value": "Line (12): score_dict[202501].append(88)",
+                "answered_at": "2025-10-25T13:56:00Z"
+            },
+            {
+                "question_id": "q4ai",
+                "question_type": "short_answer",
+                "value": "x=-101, y=101; x=55, y=0; x=-37, y=-73; x=30624770, y=30624700",
+                "answered_at": "2025-10-25T14:05:00Z"
+            },
+            {
+                "question_id": "q4ai_Purpose",
+                "question_type": "short_answer",
+                "value": "Return the integer arguments passed as a tuple in the reversed order they're passed.",
+                "answered_at": "2025-10-25T14:06:00Z"
+            },
+            {
+                "question_id": "q4aii",
+                "question_type": "short_answer",
+                "value": "No. Reason: If 0 is passed to y, then there will be a division by 0 error. This does not happen in the secret function.",
+                "answered_at": "2025-10-25T14:10:00Z"
+            },
+            {
+                "question_id": "q4aiii",
+                "question_type": "short_answer",
+                "value": "No. Reason: Due to quantization errors for floating point arithmetic in python, it is possible for the values in the return tuple to be slightly different to the argument passed.",
+                "answered_at": "2025-10-25T14:15:00Z"
+            },
+            {
+                "question_id": "q4b",
+                "question_type": "coding",
+                "value": "def sum_even_nested(data):\n    if len(data) = 0:\n        return 0\n    sum = 0\n    if is_list(data[0]):\n        sum += sum_even_nested(data[0])\n    else:\n        if data[0] % 2 == 0:\n            sum += data[0]\n    sum += sum_even_nested(data[1:])\n    return sum",
+                "answered_at": "2025-10-25T14:25:00Z"
+            },
+            {
+                "question_id": "q5a",
+                "question_type": "short_answer",
+                "value": "#1 spent 5\nW1: 5\nW2: 160\nW3: 5",
+                "answered_at": "2025-10-25T14:30:00Z"
+            },
+            {
+                "question_id": "q5b",
+                "question_type": "coding",
+                "value": "(i) capacity\n(ii) self.__level\n(iii) my_phone.drain(500)",
+                "answered_at": "2025-10-25T14:35:00Z"
+            },
+            {
+                "question_id": "q6ai",
+                "question_type": "coding",
+                "value": "center = img[1:4, 1:4]",
+                "answered_at": "2025-10-25T14:40:00Z"
+            },
+            {
+                "question_id": "q6aii",
+                "question_type": "coding",
+                "value": "rot90 = center.T[:, ::-1]",
+                "answered_at": "2025-10-25T14:45:00Z"
+            },
+            {
+                "question_id": "q6aiii",
+                "question_type": "coding",
+                "value": "combined = np.hstack((rot90[0:2, 0:2], rot90[1:3, 1:3]))",
+                "answered_at": "2025-10-25T14:55:00Z"
+            },
+            {
+                "question_id": "q6b",
+                "question_type": "coding",
+                "value": "daily_min = temperature.min(axis=1)\ndaily_max = temperature.max(axis=1)\ndaily_min_max = (daily_min, daily_max)\nax.plot(temperature.index, daily_min_max[1], label=\"Daily Max\")\nax.plot(temperature.index, daily_min_max[0], label=\"Daily Min\")",
+                "answered_at": "2025-10-25T15:05:00Z"
+            },
+            {
+                "question_id": "q7",
+                "question_type": "short_answer",
+                "value": {
+                    "line_3": "Reason: It does not make the strings lower case (only check it .lower() return a truesy value. Correction: phrase_tokens = list(map(lambda x: x.lower(), phrase.split(\" \")))",
+                    "line_13": "Reason: is keyword check if the variables are the same object in memory, not to check equality. Correction: if window_lower == phrase_tokens:",
+                    "line_14": "Reason: It should increment count by 1, not set it to 1. Correction: appearance_dict[paragraph_number] += 1",
+                    "line_17": "Reason: It should sum the number of appearances, not the paragraph numbers (keys). Correction: total_count = sum(appearance_dict.values())"
+                },
+                "answered_at": null
+            },
+            {
+                "question_id": "q8ai",
+                "question_type": "coding",
+                "value": "counted = 10 - np.sum(np.isnan(scores), axis=1)\nlab_scores = scores.copy()\nlab_scores[np.isnan(lab_scores)] = 0\nlab_scores = np.sum(lab_scores, axis=1)\nreturn lab_scores, counted",
+                "answered_at": "2025-10-25T15:40:00Z"
+            },
+            {
+                "question_id": "q8aii",
+                "question_type": "coding",
+                "value": "sorted_scores = np.sort(scores, axis=1)\nexercise_scores = np.sum(sorted_scores[:, 1:], axis=1)\nreturn exercise_scores",
+                "answered_at": "2025-10-25T15:45:00Z"
+            },
+            {
+                "question_id": "q8aiii",
+                "question_type": "coding",
+                "value": "return (att + exe) / (40 + count)",
+                "answered_at": "2025-10-25T15:50:00Z"
+            },
+            {
+                "question_id": "q8bi",
+                "question_type": "coding",
+                "value": "return sum(map(to_num, submission))",
+                "answered_at": "2025-10-25T15:55:00Z"
+            },
+            {
+                "question_id": "q8bii",
+                "question_type": "coding",
+                "value": "return np.abs(differences[:, np.newaxis] - differences[np.newaxis, :])",
+                "answered_at": "2025-10-25T16:00:00Z"
+            },
+            {
+                "question_id": "q8biii",
+                "question_type": "coding",
+                "value": "max_score = np.max(pairs)\nfilled_pairs = np.fill_diagonal(pairs, max_score)\nmin_each_row = np.min(filled_pairs, axis=1)\nglobal_min = np.min(filled_pairs)\nindices = np.where(global_min == min_each_row)\nid1 = ids[indices[0]]\nid2 = ids[indices[1]]\nreturn (id1, id2) if id1 < id2 else (id2, id1)",
+                "answered_at": "2025-10-25T16:10:00Z"
+            }
+        ]
+    },
+    {
+        "exam_id": "comp1023-final-f25",
+        "student_id": "stu-003",
+        "current_question_index": 50,
+        "flagged_question_ids": [],
+        "responses": [
+            {
+                "question_id": "q1a",
+                "question_type": "mcq",
+                "value": "F",
+                "answered_at": "2025-10-25T13:05:00Z"
+            },
+            {
+                "question_id": "q1b",
+                "question_type": "mcq",
+                "value": "F",
+                "answered_at": "2025-10-25T13:05:30Z"
+            },
+            {
+                "question_id": "q1c",
+                "question_type": "mcq",
+                "value": "T",
+                "answered_at": "2025-10-25T13:06:00Z"
+            },
+            {
+                "question_id": "q1d",
+                "question_type": "mcq",
+                "value": "F",
+                "answered_at": "2025-10-25T13:06:30Z"
+            },
+            {
+                "question_id": "q1e",
+                "question_type": "mcq",
+                "value": "F",
+                "answered_at": "2025-10-25T13:07:00Z"
+            },
+            {
+                "question_id": "q1f",
+                "question_type": "mcq",
+                "value": "T",
+                "answered_at": "2025-10-25T13:07:30Z"
+            },
+            {
+                "question_id": "q1g",
+                "question_type": "mcq",
+                "value": "T",
+                "answered_at": "2025-10-25T13:08:00Z"
+            },
+            {
+                "question_id": "q1h",
+                "question_type": "mcq",
+                "value": "F",
+                "answered_at": "2025-10-25T13:08:30Z"
+            },
+            {
+                "question_id": "q1i",
+                "question_type": "mcq",
+                "value": "F",
+                "answered_at": "2025-10-25T13:09:00Z"
+            },
+            {
+                "question_id": "q1j",
+                "question_type": "mcq",
+                "value": "F",
+                "answered_at": "2025-10-25T13:09:30Z"
+            },
+            {
+                "question_id": "q2a",
+                "question_type": "short_answer",
+                "value": "Score: 85 Qualified\nScore: 58 Unqualified\nScore: 72 Qualified\nScore: 60 Qualified",
+                "answered_at": "2025-10-25T13:15:00Z"
+            },
+            {
+                "question_id": "q2b",
+                "question_type": "short_answer",
+                "value": "score < 60",
+                "answered_at": "2025-10-25T13:16:00Z"
+            },
+            {
+                "question_id": "q2c",
+                "question_type": "coding",
+                "value": "total = 0\ncount = 0\nwhile count < 4:\n    total += assignment_scores[count]\n    count += 1\nprint(total)",
+                "answered_at": "2025-10-25T13:25:00Z"
+            },
+            {
+                "question_id": "q2d",
+                "question_type": "coding",
+                "value": "highest = 0\nfor score in assignment_scores:\n    if score > highest:\n        highest = score\nprint(highest)",
+                "answered_at": "2025-10-25T13:30:00Z"
+            },
+            {
+                "question_id": "q3ai",
+                "question_type": "short_answer",
+                "value": "Subset: [20, 40, 60]\nPopped: 70\nFinal Data: [50, 60, 80]",
+                "answered_at": "2025-10-25T13:35:00Z"
+            },
+            {
+                "question_id": "q3aii_I",
+                "question_type": "short_answer",
+                "value": "Line 4",
+                "answered_at": "2025-10-25T13:36:00Z"
+            },
+            {
+                "question_id": "q3aii_II",
+                "question_type": "short_answer",
+                "value": "The type list is not hashable hence cannot be used to create the hashtable data structure which is used to create a dictionary under the hood.",
+                "answered_at": "2025-10-25T13:38:00Z"
+            },
+            {
+                "question_id": "q3aii_III",
+                "question_type": "short_answer",
+                "value": "home_coords can be changed to a tuple of (22, 114) since tuples are hashable due to their immutability.",
+                "answered_at": "2025-10-25T13:40:00Z"
+            },
+            {
+                "question_id": "q3bi",
+                "question_type": "short_answer",
+                "value": "[88.0, 95.0]\n90.0\nFalse\n89.0",
+                "answered_at": "2025-10-25T13:45:00Z"
+            },
+            {
+                "question_id": "q3bii_I",
+                "question_type": "coding",
+                "value": "adjusted_scores = [score * 1.1 for score in score_list if score > 85]",
+                "answered_at": "2025-10-25T13:48:00Z"
+            },
+            {
+                "question_id": "q3bii_II",
+                "question_type": "coding",
+                "value": "student_name = student_dict.get(student_id, \"Unknown Student\")",
+                "answered_at": "2025-10-25T13:50:00Z"
+            },
+            {
+                "question_id": "q3biii_I",
+                "question_type": "coding",
+                "value": "Line (5): for i in range(len(student_tuple[2])):",
+                "answered_at": "2025-10-25T13:52:00Z"
+            },
+            {
+                "question_id": "q3biii_II",
+                "question_type": "coding",
+                "value": "Line (7): student_tuple = student_tuple[:1] + (\"Alice Smith\",) + student_tuple[2:]",
+                "answered_at": "2025-10-25T13:54:00Z"
+            },
+            {
+                "question_id": "q3biii_III",
+                "question_type": "coding",
+                "value": "Line (11): score_dict = {(202501,): student_tuple[2]}",
+                "answered_at": "2025-10-25T13:55:00Z"
+            },
+            {
+                "question_id": "q3biii_IV",
+                "question_type": "coding",
+                "value": "Line (12): score_dict[(202501,)].append(88)",
+                "answered_at": "2025-10-25T13:56:00Z"
+            },
+            {
+                "question_id": "q4ai",
+                "question_type": "short_answer",
+                "value": "x=-101, y=101; x=55, y=0; x=-37, y=-73; x=30624770, y=30624700",
+                "answered_at": "2025-10-25T14:05:00Z"
+            },
+            {
+                "question_id": "q4ai_Purpose",
+                "question_type": "short_answer",
+                "value": "It swaps the values of x and y",
+                "answered_at": "2025-10-25T14:06:00Z"
+            },
+            {
+                "question_id": "q4aii",
+                "question_type": "short_answer",
+                "value": "No. Reason: If the value of y is passed as 0, a division by zero error will occur, causing this function to result in an exception.",
+                "answered_at": "2025-10-25T14:10:00Z"
+            },
+            {
+                "question_id": "q4aiii",
+                "question_type": "short_answer",
+                "value": "No. Reason: Floating point arithmetic is imprecise and calculations performed on x and y will cause their values to be affected by this rounding error.",
+                "answered_at": "2025-10-25T14:15:00Z"
+            },
+            {
+                "question_id": "q4b",
+                "question_type": "coding",
+                "value": "def sum_even_nested_list(data):\n    if len(data) == 0:\n        return 0\n    if is_list(data[0]):\n        return sum_even_nested_list(data[0]) + sum_even_nested_list(data[1:])\n    else:\n        num = data[0] if data[0] % 2 == 0 else 0\n        return num + sum_even_nested_list(data[1:])",
+                "answered_at": "2025-10-25T14:25:00Z"
+            },
+            {
+                "question_id": "q5a",
+                "question_type": "short_answer",
+                "value": "#1 spent 5\nWI: 5\nW2: 160\nW3: 5",
+                "answered_at": "2025-10-25T14:30:00Z"
+            },
+            {
+                "question_id": "q5b",
+                "question_type": "coding",
+                "value": "(i) capacity\n(ii) self.__level\n(iii) my_phone.drain(500)",
+                "answered_at": "2025-10-25T14:35:00Z"
+            },
+            {
+                "question_id": "q6ai",
+                "question_type": "coding",
+                "value": "centre_row, centre_col = img.shape[0] // 2, img.shape[1] // 2\ncenter = img[centre_row-1:centre_row+2, centre_col-1:centre_col+2]",
+                "answered_at": "2025-10-25T14:40:00Z"
+            },
+            {
+                "question_id": "q6aii",
+                "question_type": "coding",
+                "value": "rot_90 = center.T[:, ::-1]",
+                "answered_at": "2025-10-25T14:45:00Z"
+            },
+            {
+                "question_id": "q6aiii",
+                "question_type": "coding",
+                "value": "combined = np.hstack((center[0:2, 0:2], center[1:3, 1:3]))",
+                "answered_at": "2025-10-25T14:55:00Z"
+            },
+            {
+                "question_id": "q6b",
+                "question_type": "coding",
+                "value": "daily_min_max = (temperature.min(axis=1), temperature.max(axis=1))\nax.plot(daily_min_max[1], label=\"Daily Max\")\nax.plot(daily_min_max[0], label=\"Daily Min\")",
+                "answered_at": "2025-10-25T15:05:00Z"
+            },
+            {
+                "question_id": "q7",
+                "question_type": "short_answer",
+                "value": {
+                    "line_3": "Reason: The purpose of this line is to converteach word in the list to lower case, for which a map is needed. Filter is incorrect because it is used to extract values from a list that meet a condition.Correction: phrase_tokens = list(map(lambda x: x.lower(), phrase.split(\" \")))",
+                    "line_13": "Reason: In this line, We need to check if lists have same values, for which we use ==. However 'is' is used, which checks whether two objects refer to the same object in memory. Correction: if window_lower == phrase_tokens:",
+                    "line_14": "Reason: Instead of incrementing the count of the appearance of the phrase by 1, it instead assigns it to 1, which therefore will not count the appearance. Correction: appearance_dict[paragraph_number] += 1",
+                    "line_17": "Reason: This line supposed to calculate the total number of the appearance of the phrase (ie a sum of the values in the dictionary since these contains the counts), but instead it does a sum of the dictionary keys. ie. a sum of the paragraph numbers. Correction: total_count = sum(appearance_dict.values())"
+                },
+                "answered_at": null
+            },
+            {
+                "question_id": "q8ai",
+                "question_type": "coding",
+                "value": "temp_scores = np.copy(scores)\ntemp_scores[np.isnan(scores)] = 0\natt = np.sum(temp_scores, axis=1)\ntemp_scores[~np.isnan(scores)] = 1\ncount = np.sum(temp_scores, axis=1)\nreturn att, count",
+                "answered_at": "2025-10-25T15:40:00Z"
+            },
+            {
+                "question_id": "q8aii",
+                "question_type": "coding",
+                "value": "return np.sum(np.sort(scores)[:, 1:], axis=1)",
+                "answered_at": "2025-10-25T15:45:00Z"
+            },
+            {
+                "question_id": "q8aiii",
+                "question_type": "coding",
+                "value": "total_scores = count + 40\ntotal_scores_attained = att + exe\nreturn (total_scores_attained / total_scores) * 10",
+                "answered_at": "2025-10-25T15:50:00Z"
+            },
+            {
+                "question_id": "q8bi",
+                "question_type": "coding",
+                "value": "return sum(list(map(to_num, submission)))",
+                "answered_at": "2025-10-25T15:55:00Z"
+            },
+            {
+                "question_id": "q8bii",
+                "question_type": "coding",
+                "value": "return np.abs(differences[np.newaxis, :] - differences[:, np.newaxis])",
+                "answered_at": "2025-10-25T16:00:00Z"
+            },
+            {
+                "question_id": "q8biii",
+                "question_type": "coding",
+                "value": "np.fill_diagonal(pairs, np.max(pairs))\nindices = np.where(pairs == np.min(pairs))\nreturn ids[indices[0][0]], ids[indices[0][1]]",
+                "answered_at": "2025-10-25T16:10:00Z"
+            }
+        ]
+    },
+    {
+        "exam_id": "comp1023-final-f25",
+        "student_id": "stu-004",
+        "current_question_index": 50,
+        "flagged_question_ids": [],
+        "responses": [
+            {
+                "question_id": "q1a",
+                "question_type": "mcq",
+                "value": "F",
+                "answered_at": "2025-10-25T14:10:00Z"
+            },
+            {
+                "question_id": "q1b",
+                "question_type": "mcq",
+                "value": "F",
+                "answered_at": "2025-10-25T14:10:05Z"
+            },
+            {
+                "question_id": "q1c",
+                "question_type": "mcq",
+                "value": "T",
+                "answered_at": "2025-10-25T14:10:10Z"
+            },
+            {
+                "question_id": "q1d",
+                "question_type": "mcq",
+                "value": "F",
+                "answered_at": "2025-10-25T14:10:15Z"
+            },
+            {
+                "question_id": "q1e",
+                "question_type": "mcq",
+                "value": "F",
+                "answered_at": "2025-10-25T14:10:20Z"
+            },
+            {
+                "question_id": "q1f",
+                "question_type": "mcq",
+                "value": "T",
+                "answered_at": "2025-10-25T14:10:25Z"
+            },
+            {
+                "question_id": "q1g",
+                "question_type": "mcq",
+                "value": "T",
+                "answered_at": "2025-10-25T14:10:30Z"
+            },
+            {
+                "question_id": "q1h",
+                "question_type": "mcq",
+                "value": "F",
+                "answered_at": "2025-10-25T14:10:35Z"
+            },
+            {
+                "question_id": "q1i",
+                "question_type": "mcq",
+                "value": "F",
+                "answered_at": "2025-10-25T14:10:40Z"
+            },
+            {
+                "question_id": "q1j",
+                "question_type": "mcq",
+                "value": "F",
+                "answered_at": "2025-10-25T14:10:45Z"
+            },
+            {
+                "question_id": "q2a",
+                "question_type": "short_answer",
+                "value": "Score: 85 Qualified\nScore: 58 Unqualified\nScore: 72 Qualified\nScore: 60 Qualified",
+                "answered_at": "2025-10-25T14:15:00Z"
+            },
+            {
+                "question_id": "q2b",
+                "question_type": "coding",
+                "value": "score < 60",
+                "answered_at": "2025-10-25T14:17:00Z"
+            },
+            {
+                "question_id": "q2c",
+                "question_type": "coding",
+                "value": "n = len(assignment_scores)\ni = 0\ntotal = 0\nwhile i < n:\n    total = total + assignment_scores[i]\n    i = i + 1\nprint(total)",
+                "answered_at": "2025-10-25T14:22:00Z"
+            },
+            {
+                "question_id": "q2d",
+                "question_type": "coding",
+                "value": "highest = assignment_scores[0]\nfor score in assignment_scores:\n    if score > highest:\n        highest = score\nprint(highest)",
+                "answered_at": "2025-10-25T14:27:00Z"
+            },
+            {
+                "question_id": "q3ai",
+                "question_type": "short_answer",
+                "value": "Subset: [20, 40, 60]\nPopped: 70\nFinal Data: [50, 60, 30]",
+                "answered_at": "2025-10-25T14:32:00Z"
+            },
+            {
+                "question_id": "q3aii_I",
+                "question_type": "short_answer",
+                "value": "Line 4",
+                "answered_at": "2025-10-25T14:33:00Z"
+            },
+            {
+                "question_id": "q3aii_II",
+                "question_type": "short_answer",
+                "value": "The key of Python dictionaries have to be immutable, but a list, which is mutable, thus an error occurs",
+                "answered_at": "2025-10-25T14:35:00Z"
+            },
+            {
+                "question_id": "q3aii_III",
+                "question_type": "short_answer",
+                "value": "We can change the type of home_coords into tuple, i.e. replace line 2 with home_coords = (22, 114)",
+                "answered_at": "2025-10-25T14:37:00Z"
+            },
+            {
+                "question_id": "q3bi",
+                "question_type": "short_answer",
+                "value": "[88.0, 95.0]\n90.0\nFalse\n89.0",
+                "answered_at": "2025-10-25T14:40:00Z"
+            },
+            {
+                "question_id": "q3bii_I",
+                "question_type": "coding",
+                "value": "adjusted_scores = [x * 1.1 for x in score_list if x > 85]",
+                "answered_at": "2025-10-25T14:43:00Z"
+            },
+            {
+                "question_id": "q3bii_II",
+                "question_type": "coding",
+                "value": "student_name = student_dict.get(student_id, \"Unknown Student\")",
+                "answered_at": "2025-10-25T14:45:00Z"
+            },
+            {
+                "question_id": "q3biii_I",
+                "question_type": "coding",
+                "value": "Line (5): for i in range (len (student_tuple [2] )) :",
+                "answered_at": "2025-10-25T14:47:00Z"
+            },
+            {
+                "question_id": "q3biii_II",
+                "question_type": "coding",
+                "value": "Line (9): student_tuple = (student_tuple [0], \"Alice Smith\", student_tuple [2])",
+                "answered_at": "2025-10-25T14:49:00Z"
+            },
+            {
+                "question_id": "q3biii_III",
+                "question_type": "coding",
+                "value": "Line (11): Score_dict = { 202501 : student_tuple [2] }",
+                "answered_at": "2025-10-25T14:50:00Z"
+            },
+            {
+                "question_id": "q3biii_IV",
+                "question_type": "coding",
+                "value": "Line (12): Score_dict [202501].append (88)",
+                "answered_at": "2025-10-25T14:51:00Z"
+            },
+            {
+                "question_id": "q4ai_1",
+                "question_type": "short_answer",
+                "value": "secret(101, -101) -> x=-101, y=101; secret(0, 55) -> x=55, y=0; secret(-73, -37) -> x=-37, y=-73; secret(30624700, 30624770) -> x=30624770, y=30624700",
+                "answered_at": "2025-10-25T14:55:00Z"
+            },
+            {
+                "question_id": "q4ai_2",
+                "question_type": "short_answer",
+                "value": "It reverses the order and return (y,x) in a tuple.",
+                "answered_at": "2025-10-25T14:56:00Z"
+            },
+            {
+                "question_id": "q4aii",
+                "question_type": "short_answer",
+                "value": "No. When x=1, y=0, y=x//y will trigger a run-time error, because we are trying to divide by zero, whereas \"secret function\" in part (i) will return (0,1). So they are not the same purpose.",
+                "answered_at": "2025-10-25T15:00:00Z"
+            },
+            {
+                "question_id": "q4aiii",
+                "question_type": "short_answer",
+                "value": "No. Floating point errors i.e. when x=0.1, y=0.2; x=x+y, the result of x might be 0.3000000001 due to floating point error. y=x-y might be 0.09999999999, and the return tuple will be (0.20000000001, 0.09999999999) instead of (0.2, 0.1).",
+                "answered_at": "2025-10-25T15:05:00Z"
+            },
+            {
+                "question_id": "q4b",
+                "question_type": "coding",
+                "value": "def sum_even_nested(data):\n    ans = 0\n    for x in data:\n        if is_list(x):\n            ans = ans + sum_even_nested(x)\n        elif x % 2 == 0:\n            ans = ans + x\n    return ans",
+                "answered_at": "2025-10-25T15:15:00Z"
+            },
+            {
+                "question_id": "q5a",
+                "question_type": "short_answer",
+                "value": "#1 spent 5\nW1: 5\nW2: 160\nW3: 5",
+                "answered_at": "2025-10-25T15:20:00Z"
+            },
+            {
+                "question_id": "q5b",
+                "question_type": "coding",
+                "value": "(i) self.capacity\n(ii) self.__level\n(iii) my_phone.drain(500)",
+                "answered_at": "2025-10-25T15:25:00Z"
+            },
+            {
+                "question_id": "q6ai",
+                "question_type": "coding",
+                "value": "center = img[1:4, 1:4]",
+                "answered_at": "2025-10-25T15:30:00Z"
+            },
+            {
+                "question_id": "q6aii",
+                "question_type": "coding",
+                "value": "col1, col2, col3 = center[:, 0], center[:, 1], center[:, 2]\ncol1, col2, col3 = col1[::-1], col2[::-1], col3[::-1]\nrot_90 = np.array([col1, col2, col3])",
+                "answered_at": "2025-10-25T15:40:00Z"
+            },
+            {
+                "question_id": "q6aiii",
+                "question_type": "coding",
+                "value": "top_left = center[0:2, 0:2]\nbottom_right = center[1:3, 1:3]\ncombined = np.full((2, 4), 0)\ncombined[:, 0:2] = top_left\ncombined[:, 2:4] = bottom_right",
+                "answered_at": "2025-10-25T15:50:00Z"
+            },
+            {
+                "question_id": "q6b",
+                "question_type": "coding",
+                "value": "daily_min_max = (temperature.min(axis=1), temperature.max(axis=1))\nax.plot(daily_min_max[1], \"Daily Max\")\nax.plot(daily_min_max[0], \"Daily Min\")",
+                "answered_at": "2025-10-25T16:00:00Z"
+            },
+            {
+                "question_id": "q7",
+                "question_type": "short_answer",
+                "value": {
+                    "line_3": "Reason: filter() returns a view of elements which returns True when passed into the parameter function, but we are trying to apply the lower function to every element. Correction: phrase_tokens = list(map(lambda x: x.lower(), phrase.split(\" \")))",
+                    "line_13": "Reason: The \"is\" keyword check whether the object has the same id, but we only want to check whether the values are the same. Correction: if window_lower == phrase_tokens:",
+                    "line_14": "Reason: Instead of incrementing the counter by 1, we are just checking whether it is present. Correction: appearance_dict[paragraph_number] += 1",
+                    "line_17": "Reason: keys() returns the keys, but we want to sum all the values as they represent the appearance count. Correction: total_count = sum(appearance_dict.values())"
+                },
+                "answered_at": "2025-10-25T16:00:00Z"
+            },
+            {
+                "question_id": "q8ai",
+                "question_type": "coding",
+                "value": "mask = np.isnan(scores)\nmask[mask == True] = 1\nmask[mask == False] = 0\nscores[mask] = 0\natt = np.sum(scores, axis=1)\ncount = 10 - np.sum(mask, axis=1)\nreturn att, count",
+                "answered_at": "2025-10-25T16:40:00Z"
+            },
+            {
+                "question_id": "q8aii",
+                "question_type": "coding",
+                "value": "sorted_scores = np.sort(scores, axis=-1)\ntop_4_scores = sorted_scores[:, 1:]\nreturn np.sum(top_4_scores, axis=1)",
+                "answered_at": "2025-10-25T16:50:00Z"
+            },
+            {
+                "question_id": "q8aiii",
+                "question_type": "coding",
+                "value": "actual_score = att + exe\nmax_achievable_score = count + 40\nreturn (actual_score / max_achievable_score) * 10",
+                "answered_at": "2025-10-25T17:00:00Z"
+            },
+            {
+                "question_id": "q8bi",
+                "question_type": "coding",
+                "value": "return sum(list(map(to_num, list(submission))))",
+                "answered_at": "2025-10-25T17:05:00Z"
+            },
+            {
+                "question_id": "q8bii",
+                "question_type": "coding",
+                "value": "return np.abs(differences.reshape((-1,1)) - differences.reshape((1,-1)))",
+                "answered_at": "2025-10-25T17:10:00Z"
+            },
+            {
+                "question_id": "q8biii",
+                "question_type": "coding",
+                "value": "flattened = pairs.reshape((-1))\nn = pairs.shape[0]\nsorted_flattened = np.sort(flattened)\nmin_element = sorted_flattened[n]\nindices = np.where(flattened == min_element)\ni = indices[0][0] // n\nj = indices[0][0] % n\nreturn ids[i], ids[j]",
+                "answered_at": "2025-10-25T17:25:00Z"
+            }
+        ]
+    },
+    {
+        "exam_id": "comp1023-final-f25",
+        "student_id": "stu-005",
+        "current_question_index": 50,
+        "flagged_question_ids": [],
+        "responses": [
+            {
+                "question_id": "q1a",
+                "question_type": "mcq",
+                "value": "T",
+                "answered_at": "2025-10-25T14:10:00Z"
+            },
+            {
+                "question_id": "q1b",
+                "question_type": "mcq",
+                "value": "F",
+                "answered_at": "2025-10-25T14:10:05Z"
+            },
+            {
+                "question_id": "q1c",
+                "question_type": "mcq",
+                "value": "T",
+                "answered_at": "2025-10-25T14:10:10Z"
+            },
+            {
+                "question_id": "q1d",
+                "question_type": "mcq",
+                "value": "F",
+                "answered_at": "2025-10-25T14:10:15Z"
+            },
+            {
+                "question_id": "q1e",
+                "question_type": "mcq",
+                "value": "F",
+                "answered_at": "2025-10-25T14:10:20Z"
+            },
+            {
+                "question_id": "q1f",
+                "question_type": "mcq",
+                "value": "T",
+                "answered_at": "2025-10-25T14:10:25Z"
+            },
+            {
+                "question_id": "q1g",
+                "question_type": "mcq",
+                "value": "F",
+                "answered_at": "2025-10-25T14:10:30Z"
+            },
+            {
+                "question_id": "q1h",
+                "question_type": "mcq",
+                "value": "F",
+                "answered_at": "2025-10-25T14:10:35Z"
+            },
+            {
+                "question_id": "q1i",
+                "question_type": "mcq",
+                "value": "F",
+                "answered_at": "2025-10-25T14:10:40Z"
+            },
+            {
+                "question_id": "q1j",
+                "question_type": "mcq",
+                "value": "F",
+                "answered_at": "2025-10-25T14:10:45Z"
+            },
+            {
+                "question_id": "q2a",
+                "question_type": "short_answer",
+                "value": "Score: 85 Qualified\nScore: 58 Unqualified\nScore: 72 Qualified\nScore: 60 Qualified",
+                "answered_at": "2025-10-25T14:15:00Z"
+            },
+            {
+                "question_id": "q2b",
+                "question_type": "coding",
+                "value": "score < 60",
+                "answered_at": "2025-10-25T14:17:00Z"
+            },
+            {
+                "question_id": "q2c",
+                "question_type": "coding",
+                "value": "i = 0\ntotal = 0\nwhile i < len(assignment_scores):\n    total += assignment_scores[i]\n    i += 1\nprint(f\" Total assignment score {total}\")\nprint(total)",
+                "answered_at": "2025-10-25T14:22:00Z"
+            },
+            {
+                "question_id": "q2d",
+                "question_type": "coding",
+                "value": "max_idx = 0\nfor i in range(1, len(assignment_scores)):\n    if assignment_scores[i] > assignment_scores[max_idx]:\n        max_idx = i\nprint(assignment_scores[max_idx])",
+                "answered_at": "2025-10-25T14:27:00Z"
+            },
+            {
+                "question_id": "q3ai",
+                "question_type": "short_answer",
+                "value": "Subset 20, 40, 60: [20, 40, 60]\nPopped: 70\nFinal Data: [50, 40, 50, 200]",
+                "answered_at": "2025-10-25T14:32:00Z"
+            },
+            {
+                "question_id": "q3aii_I",
+                "question_type": "short_answer",
+                "value": "4",
+                "answered_at": "2025-10-25T14:33:00Z"
+            },
+            {
+                "question_id": "q3aii_II",
+                "question_type": "short_answer",
+                "value": "Lists are Mutable. They cannot be used as a key in a dictionary.",
+                "answered_at": "2025-10-25T14:35:00Z"
+            },
+            {
+                "question_id": "q3aii_III",
+                "question_type": "short_answer",
+                "value": "Change home_coords from list to tuple so that it is immutable.",
+                "answered_at": "2025-10-25T14:37:00Z"
+            },
+            {
+                "question_id": "q3bi",
+                "question_type": "short_answer",
+                "value": "[88.0, 95.0]\n90.0\nIndex Error \"Charlie\"\n89.0",
+                "answered_at": "2025-10-25T14:40:00Z"
+            },
+            {
+                "question_id": "q3bii_I",
+                "question_type": "coding",
+                "value": "adjusted_scores = [float(scores) * 1.1 for scores in score_list if float(scores) > 85]",
+                "answered_at": "2025-10-25T14:43:00Z"
+            },
+            {
+                "question_id": "q3bii_II",
+                "question_type": "coding",
+                "value": "student_name = student_dict.get(student_id, \"Unknown Student\")",
+                "answered_at": "2025-10-25T14:45:00Z"
+            },
+            {
+                "question_id": "q3biii_I",
+                "question_type": "coding",
+                "value": "Line (5): for i in range (len (student_tuple [2] ))",
+                "answered_at": "2025-10-25T14:47:00Z"
+            },
+            {
+                "question_id": "q3biii_II",
+                "question_type": "coding",
+                "value": "Line (9): lst = list(student_tuple); lst[1] = \"Alice Smith\"; student_tuple = tuple(lst)",
+                "answered_at": "2025-10-25T14:49:00Z"
+            },
+            {
+                "question_id": "q3biii_III",
+                "question_type": "coding",
+                "value": "Line (11): score_dict = {202501: student_tuple [2]}",
+                "answered_at": "2025-10-25T14:50:00Z"
+            },
+            {
+                "question_id": "q3biii_IV",
+                "question_type": "coding",
+                "value": "Line (12): score_dict[202501].append(88)",
+                "answered_at": "2025-10-25T14:51:00Z"
+            },
+            {
+                "question_id": "q4ai_1",
+                "question_type": "short_answer",
+                "value": "secret(101, -101) -> x=-101, y=101; secret(0, 55) -> x=55, y=0; secret(-73, -37) -> x=-37, y=-73; secret(30624700, 30624770) -> x=30624770, y=30624700",
+                "answered_at": "2025-10-25T14:55:00Z"
+            },
+            {
+                "question_id": "q4ai_2",
+                "question_type": "short_answer",
+                "value": "Swap the values of x and y",
+                "answered_at": "2025-10-25T14:56:00Z"
+            },
+            {
+                "question_id": "q4aii",
+                "question_type": "short_answer",
+                "value": "No. If x=0, both x and y will return 0 regardless of initial value of y. Also Zero Error would occur if y=0.",
+                "answered_at": "2025-10-25T15:00:00Z"
+            },
+            {
+                "question_id": "q4aiii",
+                "question_type": "short_answer",
+                "value": "No. Many decimal places will be displayed after float addition. x and y values after secret function will not be exactly the same. Rounding error would occur over float input.",
+                "answered_at": "2025-10-25T15:05:00Z"
+            },
+            {
+                "question_id": "q4b",
+                "question_type": "coding",
+                "value": "def sum_even_nested(data):\n    for element in data:\n        if is_list(element):\n             return element + sum_even_nested(data.remove(element))",
+                "answered_at": "2025-10-25T15:15:00Z"
+            },
+            {
+                "question_id": "q5a",
+                "question_type": "short_answer",
+                "value": "#1 spent 5\nW1: 5\nW2: 80\nW3: 5",
+                "answered_at": "2025-10-25T15:20:00Z"
+            },
+            {
+                "question_id": "q5b",
+                "question_type": "coding",
+                "value": "(i) capacity\n(ii) self.__level\n(iii) my_phone.drain()",
+                "answered_at": "2025-10-25T15:25:00Z"
+            },
+            {
+                "question_id": "q6ai",
+                "question_type": "coding",
+                "value": "center = img[1:4, 1:4]",
+                "answered_at": "2025-10-25T15:30:00Z"
+            },
+            {
+                "question_id": "q6aii",
+                "question_type": "coding",
+                "value": "rot90 = np.ndarray.T",
+                "answered_at": "2025-10-25T15:40:00Z"
+            },
+            {
+                "question_id": "q6aiii",
+                "question_type": "coding",
+                "value": "combined = np.array([[rot90[0, 0:2], rot90[0, 1:1]], [rot90[1, 0:2], rot90[1, 2:1]]])",
+                "answered_at": "2025-10-25T15:50:00Z"
+            },
+            {
+                "question_id": "q6b",
+                "question_type": "coding",
+                "value": "max_temp = temperature.max(axis=1)\nmin_temp = temperature.min(axis=1)\nplt.plot(max_temp, \"Daily Max\")\nplt.plot(min_temp, \"Daily Min\")",
+                "answered_at": "2025-10-25T16:00:00Z"
+            },
+            {
+                "question_id": "q7",
+                "question_type": "short_answer",
+                "value": {
+                    "line_13": "Reason: 'is' checks whether both objects refer to the same separate item. Correction: if window_lower == phrase_tokens:",
+                    "line_17": "Reason: Sum cannot be calculated on dict_keys object. Correction: total_count = sum(int(key) for key in appearance_dict.values())"
+                },
+                "answered_at": "2025-10-25T16:00:00Z"
+            },
+            {
+                "question_id": "q8ai",
+                "question_type": "coding",
+                "value": "if np.isnan(scores) == False:\n    sum = np.count_nonzero(scores)\nreturn sum, np.array([count])",
+                "answered_at": "2025-10-25T16:40:00Z"
+            },
+            {
+                "question_id": "q8aii",
+                "question_type": "coding",
+                "value": "min_score = np.min(scores, axis=1)\ntot = np.sum(scores, axis=1)\nreturn tot - min_score",
+                "answered_at": "2025-10-25T16:50:00Z"
+            },
+            {
+                "question_id": "q8aiii",
+                "question_type": "coding",
+                "value": "tot = count / sum\nreturn tot_min_score / 10",
+                "answered_at": "2025-10-25T17:00:00Z"
+            },
+            {
+                "question_id": "q8bi",
+                "question_type": "coding",
+                "value": "return sum(to_num(n) for n in str(submission))",
+                "answered_at": "2025-10-25T17:05:00Z"
+            },
+            {
+                "question_id": "q8bii",
+                "question_type": "coding",
+                "value": "return np.abs(pairwise_differences)",
+                "answered_at": "2025-10-25T17:10:00Z"
+            }
+        ]
+    },
+    {
+        "exam_id": "comp1023-final-f25",
+        "student_id": "stu-006",
+        "responses": [
+            {
+                "question_id": "q1a",
+                "question_type": "mcq",
+                "value": "F",
+                "answered_at": "2025-10-25T14:10:00Z"
+            },
+            {
+                "question_id": "q1b",
+                "question_type": "mcq",
+                "value": "F",
+                "answered_at": "2025-10-25T14:10:05Z"
+            },
+            {
+                "question_id": "q1c",
+                "question_type": "mcq",
+                "value": "T",
+                "answered_at": "2025-10-25T14:10:10Z"
+            },
+            {
+                "question_id": "q1d",
+                "question_type": "mcq",
+                "value": "F",
+                "answered_at": "2025-10-25T14:10:15Z"
+            },
+            {
+                "question_id": "q1e",
+                "question_type": "mcq",
+                "value": "F",
+                "answered_at": "2025-10-25T14:10:20Z"
+            },
+            {
+                "question_id": "q1f",
+                "question_type": "mcq",
+                "value": "T",
+                "answered_at": "2025-10-25T14:10:25Z"
+            },
+            {
+                "question_id": "q1g",
+                "question_type": "mcq",
+                "value": "T",
+                "answered_at": "2025-10-25T14:10:30Z"
+            },
+            {
+                "question_id": "q1h",
+                "question_type": "mcq",
+                "value": "F",
+                "answered_at": "2025-10-25T14:10:35Z"
+            },
+            {
+                "question_id": "q1i",
+                "question_type": "mcq",
+                "value": "F",
+                "answered_at": "2025-10-25T14:10:40Z"
+            },
+            {
+                "question_id": "q1j",
+                "question_type": "mcq",
+                "value": "F",
+                "answered_at": "2025-10-25T14:10:45Z"
+            },
+            {
+                "question_id": "q2a",
+                "question_type": "short_answer",
+                "value": "Score: 85 Qualified\nScore: 58 Unqualified\nScore: 72 Qualified\nScore: 60 Qualified",
+                "answered_at": "2025-10-25T14:12:00Z"
+            },
+            {
+                "question_id": "q2b",
+                "question_type": "coding",
+                "value": "score < 60",
+                "answered_at": "2025-10-25T14:13:00Z"
+            },
+            {
+                "question_id": "q2c",
+                "question_type": "coding",
+                "value": "count = 0\ntotal_sum = 0\nwhile count <= len(assignment_scores) - 1:\n    total_sum += assignment_scores[count]\n    count += 1\nprint(total_sum)",
+                "answered_at": "2025-10-25T14:18:00Z"
+            },
+            {
+                "question_id": "q2d",
+                "question_type": "coding",
+                "value": "for i in range(len(assignment_scores) - 1):\n    if assignment_scores[i] < assignment_scores[i+1]:\n        highest = assignment_scores[i+1]\n    else:\n        highest = assignment_scores[i]\nprint(highest)",
+                "answered_at": "2025-10-25T14:25:00Z"
+            },
+            {
+                "question_id": "q3ai",
+                "question_type": "short_answer",
+                "value": "Subset: [20, 40, 60]\nPopped: 70\nFinal Data: [10, 20, 30, 40, 50]",
+                "answered_at": "2025-10-25T14:30:00Z"
+            },
+            {
+                "question_id": "q3aii_I",
+                "question_type": "short_answer",
+                "value": "4",
+                "answered_at": "2025-10-25T14:31:00Z"
+            },
+            {
+                "question_id": "q3aii_II",
+                "question_type": "short_answer",
+                "value": "The key in dictionary must be immutable",
+                "answered_at": "2025-10-25T14:33:00Z"
+            },
+            {
+                "question_id": "q3aii_III",
+                "question_type": "short_answer",
+                "value": "Let home_coords be a tuple (22, 114)",
+                "answered_at": "2025-10-25T14:35:00Z"
+            },
+            {
+                "question_id": "q3bi",
+                "question_type": "short_answer",
+                "value": "[88.0, 95.0]\n92.5\nFalse\n89.0",
+                "answered_at": "2025-10-25T14:40:00Z"
+            },
+            {
+                "question_id": "q3bii_I",
+                "question_type": "coding",
+                "value": "adjusted_scores = list(i * 1.1 for i in score_list if i > 85)",
+                "answered_at": "2025-10-25T14:47:00Z"
+            },
+            {
+                "question_id": "q3bii_II",
+                "question_type": "coding",
+                "value": "student_name = student_dict.get(student_id, \"Unknown Student\")",
+                "answered_at": "2025-10-25T14:47:00Z"
+            },
+            {
+                "question_id": "q3biii_I",
+                "question_type": "coding",
+                "value": "Line (5): for i in range(len(student_tuple[2]));",
+                "answered_at": "2025-10-25T14:47:00Z"
+            },
+            {
+                "question_id": "q3biii_II",
+                "question_type": "coding",
+                "value": "Line (9): student_tuple = (student_tuple[0], \"Alice Smith\", student_tuple[2])",
+                "answered_at": "2025-10-25T14:49:00Z"
+            },
+            {
+                "question_id": "q3biii_III",
+                "question_type": "coding",
+                "value": "Line (11): score_dict = {202501: student_tuple[2]}",
+                "answered_at": "2025-10-25T14:50:00Z"
+            },
+            {
+                "question_id": "q3biii_IV",
+                "question_type": "coding",
+                "value": "Line (12): score_dict[202501] = score_dict.get(202501).append(88)",
+                "answered_at": "2025-10-25T14:51:00Z"
+            },
+            {
+                "question_id": "q4ai_1",
+                "question_type": "short_answer",
+                "value": "secret(101, -101) -> x=-101, y=101; secret(0, 55) -> x=55, y=0; secret(-73, -37) -> x=-37, y=-73; secret(30624700, 30624770) -> x=30624770, y=30624700",
+                "answered_at": "2025-10-25T14:55:00Z"
+            },
+            {
+                "question_id": "q4ai_2",
+                "question_type": "short_answer",
+                "value": "Change x into y, y into x",
+                "answered_at": "2025-10-25T14:56:00Z"
+            },
+            {
+                "question_id": "q4aii",
+                "question_type": "short_answer",
+                "value": "No. Reason: y can not be 0 it have no meaning in division if 0//0",
+                "answered_at": "2025-10-25T15:00:00Z"
+            },
+            {
+                "question_id": "q4aiii",
+                "question_type": "short_answer",
+                "value": "No. Reason: When you use float to calculaute from Dec into 0 and 1, it will lose accuracy as 0.1 + 0.2 != 0.3.",
+                "answered_at": "2025-10-25T15:05:00Z"
+            },
+            {
+                "question_id": "q4b",
+                "question_type": "coding",
+                "value": "def sum_even_nested(data):\n    if data == even = 0\n    for i in range(len(data)):\n        if type(data[i]) is not int:\n            datalist = [data_even]\n            return sum_even_nested(data)\n        elif data[i] // 2 == 0:\n            data_even = int(datalist)\n    data_even += data[i]",
+                "answered_at": "2025-10-25T15:15:00Z"
+            },
+            {
+                "question_id": "q5a",
+                "question_type": "short_answer",
+                "value": "#1 spent 5\nW1: 5\nW2: 160\nW3: 5",
+                "answered_at": "2025-10-25T15:25:00Z"
+            },
+            {
+                "question_id": "q5b",
+                "question_type": "coding",
+                "value": {
+                    "part_i": "capacity",
+                    "part_ii": "self.__level",
+                    "part_iii": "my_phone.drain(amount = 500)"
+                },
+                "answered_at": "2025-10-25T15:30:00Z"
+            },
+            {
+                "question_id": "q6ai",
+                "question_type": "coding",
+                "value": "center = img[1:4, 1:4]",
+                "answered_at": "2025-10-25T15:40:00Z"
+            },
+            {
+                "question_id": "q6aii",
+                "question_type": "coding",
+                "value": "rot90_center = np.ndarray.T",
+                "answered_at": "2025-10-25T15:45:00Z"
+            },
+            {
+                "question_id": "q7",
+                "question_type": "short_answer",
+                "value": {
+                    "line_7": "Reason: it is to lower the phrase and change it into list to compare with window_lower, so we should operate all the str. Correction: phrase_tokens = list(map(lambda x: x.lower(), phrase.split(\" \")))",
+                    "line_13": "Reason: winodw_lower is a list phrase_tokens is also a list\n list1 would never is list2. Correction: if window_lower == phrase_tokens:",
+                    "line_17": "Reason: .keys would be the number of paragraph. Correction:total_count = sum(appearance_dict.values())",
+                    "line_21": "Reason: if appear several times, you will have a dictionary which should have two same keys. Crrection: appearance_dict[paragraph_number] = appearance_dict.get(paragraph_number, default = 0) + 1"
+                },
+                "answered_at": "2025-10-25T16:15:00Z"
+            },
+            {
+                "question_id": "q8ai",
+                "question_type": "coding",
+                "value": "att = np.count_nonzero(scores)\ncount_one = np.ones_like(scores)\ncount = np.count_nonzero(count_one)\nreturn (att, count)",
+                "answered_at": "2025-10-25T16:45:00Z"
+            }
+        ]
+    },
+    {
+        "exam_id": "comp1023-final-f25",
+        "student_id": "stu-007",
+        "responses": [
+            {
+                "question_id": "q1a",
+                "question_type": "mcq",
+                "value": "F",
+                "answered_at": null
+            },
+            {
+                "question_id": "q1b",
+                "question_type": "mcq",
+                "value": "F",
+                "answered_at": null
+            },
+            {
+                "question_id": "q1c",
+                "question_type": "mcq",
+                "value": "T",
+                "answered_at": null
+            },
+            {
+                "question_id": "q1d",
+                "question_type": "mcq",
+                "value": "T",
+                "answered_at": null
+            },
+            {
+                "question_id": "q1e",
+                "question_type": "mcq",
+                "value": "T",
+                "answered_at": null
+            },
+            {
+                "question_id": "q1f",
+                "question_type": "mcq",
+                "value": "T",
+                "answered_at": null
+            },
+            {
+                "question_id": "q1g",
+                "question_type": "mcq",
+                "value": "F",
+                "answered_at": null
+            },
+            {
+                "question_id": "q1h",
+                "question_type": "mcq",
+                "value": "F",
+                "answered_at": null
+            },
+            {
+                "question_id": "q1i",
+                "question_type": "mcq",
+                "value": "F",
+                "answered_at": null
+            },
+            {
+                "question_id": "q1j",
+                "question_type": "mcq",
+                "value": "F",
+                "answered_at": null
+            },
+            {
+                "question_id": "q2a",
+                "question_type": "short_answer",
+                "value": "Score: 85, Qualified\nScore: 58, Unqualified\nScore: 72, Qualified\nScore: 60, Qualified",
+                "answered_at": null
+            },
+            {
+                "question_id": "q2b",
+                "question_type": "coding",
+                "value": "Score < 60",
+                "answered_at": null
+            },
+            {
+                "question_id": "q2c",
+                "question_type": "coding",
+                "value": "a=0\nb=0\nwhile a < len(assignment_scores):\n    b += assignment_scores[a]\n    a += 1\nprint(b)",
+                "answered_at": null
+            },
+            {
+                "question_id": "q2d",
+                "question_type": "coding",
+                "value": "a=assignment_scores[0]\nfor i in assignment_scores:\n    if i > a:\n        a=i\nprint(a)",
+                "answered_at": null
+            },
+            {
+                "question_id": "q3ai",
+                "question_type": "short_answer",
+                "value": "Subset: [10, 30, 50, 70]\nPopped: [10, 20, 30, 40, 50, 60, 80]\nFinal Data: [60, 70, 80]",
+                "answered_at": null
+            },
+            {
+                "question_id": "q3aii_I",
+                "question_type": "short_answer",
+                "value": "4",
+                "answered_at": null
+            },
+            {
+                "question_id": "q3aii_II",
+                "question_type": "short_answer",
+                "value": "the key cannot be a list, it seems the value and the key has swap the position so it occurs error.",
+                "answered_at": null
+            },
+            {
+                "question_id": "q3aii_III",
+                "question_type": "short_answer",
+                "value": "use an alternative code: locations[\"Home\"]=home_coords this code can set the values of Home as the home_coords list",
+                "answered_at": null
+            },
+            {
+                "question_id": "q3bi",
+                "question_type": "short_answer",
+                "value": "[88.0, 95.0]\n92.5\n(\"physics\", 89.0)",
+                "answered_at": null
+            },
+            {
+                "question_id": "q3bii_I",
+                "question_type": "coding",
+                "value": "adjusted_scores = map(lambda x: x*1.1, filter(lambda x: x>85, score_list))",
+                "answered_at": null
+            },
+            {
+                "question_id": "q3bii_II",
+                "question_type": "coding",
+                "value": "student_name = student_dict[student_id] if student_id in student_dict else \"Unknown Student\"",
+                "answered_at": null
+            },
+            {
+                "question_id": "q3biii_I",
+                "question_type": "coding",
+                "value": "Line (3): student_tuple = [202501, \"Alice\", [58, 90, 75]]",
+                "answered_at": null
+            },
+            {
+                "question_id": "q3biii_II",
+                "question_type": "coding",
+                "value": "Line (11): Score_dict = {202501: student_tuple[2]}",
+                "answered_at": null
+            },
+            {
+                "question_id": "q3biii_III",
+                "question_type": "coding",
+                "value": "Line (12): Score_dict[202501].append(88)",
+                "answered_at": null
+            },
+            {
+                "question_id": "q3biii_IV",
+                "question_type": "coding",
+                "value": "Line (15): print(\"student_tuple:\", tuple(student_tuple))",
+                "answered_at": null
+            },
+            {
+                "question_id": "q4ai_1",
+                "question_type": "short_answer",
+                "value": "secret(101, -101) -> x=-101, y=101; secret(0, 55) -> x=55, y=0; secret(-73, -37) -> x=-37, y=-73; secret(30624700, 30624770) -> x=30624770, y=30624700",
+                "answered_at": null
+            },
+            {
+                "question_id": "q4ai_2",
+                "question_type": "short_answer",
+                "value": "Swap the value of X and Y with eachother",
+                "answered_at": null
+            },
+            {
+                "question_id": "q4aii",
+                "question_type": "short_answer",
+                "value": "No. when y=0, the function secret2 occurs an error while secret1 ok so it cannot do what secret do.",
+                "answered_at": null
+            },
+            {
+                "question_id": "q4aiii",
+                "question_type": "short_answer",
+                "value": "No. because of the binary cannot exactly represent a float like 0.1, so the answer of the float calculation will be not what we expected if it be so the function secret3 cannot do what secret do.",
+                "answered_at": null
+            },
+            {
+                "question_id": "q4b",
+                "question_type": "coding",
+                "value": "def sum_even_nested(data):\n    a=0\n    if is_list(data):\n        for i in data:\n            if i % 2 == 0 and not is_list(i):\n                a += i\n            elif is_list(i):\n                a += sum_even_nested(i)\n    return a",
+                "answered_at": null
+            },
+            {
+                "question_id": "q5a",
+                "question_type": "short_answer",
+                "value": "# 1 spent 5\nW1: 5\nW2: 120\nW3: 5",
+                "answered_at": null
+            },
+            {
+                "question_id": "q5b",
+                "question_type": "coding",
+                "value": {
+                    "part_i": "capacity",
+                    "part_ii": "self.__level",
+                    "part_iii": "drain(self.my_phone, 500)"
+                },
+                "answered_at": null
+            },
+            {
+                "question_id": "q6ai",
+                "question_type": "coding",
+                "value": "center = img[1:4, 1:4]",
+                "answered_at": null
+            },
+            {
+                "question_id": "q6aii",
+                "question_type": "coding",
+                "value": "rot90 = np.array([center[:, 0], center[:, 1], center[:, 2]])",
+                "answered_at": null
+            },
+            {
+                "question_id": "q6aiii",
+                "question_type": "coding",
+                "value": "",
+                "answered_at": null
+            },
+            {
+                "question_id": "q6b",
+                "question_type": "coding",
+                "value": "",
+                "answered_at": null
+            },
+            {
+                "question_id": "q7",
+                "question_type": "short_answer",
+                "value": {
+                    "line_7": "phrase_tokens = list(map(lambda x: x.lower(), phrase.split()))",
+                    "line_13": "if window_lower == phrase_tokens:",
+                    "line_17": "total_count = sum(appearance_dict.values())",
+                    "line_21": "appearance_dict[paragraph_number] = appearance_dict.get(paragraph_number, 0) + 1"
+                },
+                "answered_at": null
+            },
+            {
+                "question_id": "q8ai",
+                "question_type": "coding",
+                "value": "a = np.array([score[0].sum(), score[1].sum(), score[2].sum()])\nb = np.ones(scores.isnotnan().sum())\nreturn (a, b)",
+                "answered_at": null
+            },
+            {
+                "question_id": "q8aii",
+                "question_type": "coding",
+                "value": "return scores.sum(axis = 0)",
+                "answered_at": null
+            },
+            {
+                "question_id": "q8aiii",
+                "question_type": "coding",
+                "value": "a=(att/count)*10\nb=(a+exe)/50\nreturn b",
+                "answered_at": null
+            },
+            {
+                "question_id": "q8bi",
+                "question_type": "coding",
+                "value": "return lo_num(submission).sum()",
+                "answered_at": null
+            },
+            {
+                "question_id": "q8bii",
+                "question_type": "coding",
+                "value": "return (differences.max() - differences.min())",
+                "answered_at": null
+            },
+            {
+                "question_id": "q8biii",
+                "question_type": "coding",
+                "value": "",
+                "answered_at": null
+            }
+        ]
+    },
+    {
+        "exam_id": "comp1023-final-f25",
+        "student_id": "stu-008",
+        "responses": [
+            {
+                "question_id": "q1a",
+                "question_type": "mcq",
+                "value": "F",
+                "answered_at": null
+            },
+            {
+                "question_id": "q1b",
+                "question_type": "mcq",
+                "value": "F",
+                "answered_at": null
+            },
+            {
+                "question_id": "q1c",
+                "question_type": "mcq",
+                "value": "T",
+                "answered_at": null
+            },
+            {
+                "question_id": "q1d",
+                "question_type": "mcq",
+                "value": "T",
+                "answered_at": null
+            },
+            {
+                "question_id": "q1e",
+                "question_type": "mcq",
+                "value": "F",
+                "answered_at": null
+            },
+            {
+                "question_id": "q1f",
+                "question_type": "mcq",
+                "value": "F",
+                "answered_at": null
+            },
+            {
+                "question_id": "q1g",
+                "question_type": "mcq",
+                "value": "F",
+                "answered_at": null
+            },
+            {
+                "question_id": "q1h",
+                "question_type": "mcq",
+                "value": "F",
+                "answered_at": null
+            },
+            {
+                "question_id": "q1i",
+                "question_type": "mcq",
+                "value": "F",
+                "answered_at": null
+            },
+            {
+                "question_id": "q1j",
+                "question_type": "mcq",
+                "value": "F",
+                "answered_at": null
+            },
+            {
+                "question_id": "q2a",
+                "question_type": "short_answer",
+                "value": "Score: 85 Qualified\nScore: 58 Unqualified\nScore: 72 Qualified\nScore: 60 Qualified",
+                "answered_at": null
+            },
+            {
+                "question_id": "q2b",
+                "question_type": "coding",
+                "value": "score <= 60",
+                "answered_at": null
+            },
+            {
+                "question_id": "q2c",
+                "question_type": "coding",
+                "value": "total=0\ncount=0\nwhile count < 4:\n    total += assignment_scores[count]\n    count += 1\nprint(f\"Total assignment score: {total}\", end=\" \")",
+                "answered_at": null
+            },
+            {
+                "question_id": "q2d",
+                "question_type": "coding",
+                "value": "highest = 0\nfor i in range(4):\n    if assignment_scores[i] >= highest:\n        highest = assignment_scores[i]\nprint(f\"Highest assignment score: {highest}\", end=\" \")",
+                "answered_at": null
+            },
+            {
+                "question_id": "q3ai",
+                "question_type": "short_answer",
+                "value": "Subset: [20, 40, 60, 80]\nPopped: [10, 20, 30, 40, 50, 60, 80]\nFinal Data: [60, 70, 80]",
+                "answered_at": null
+            },
+            {
+                "question_id": "q3aii_I",
+                "question_type": "short_answer",
+                "value": "4",
+                "answered_at": null
+            },
+            {
+                "question_id": "q3aii_II",
+                "question_type": "short_answer",
+                "value": "home_coords is a list which is mutable. Can't be a label of dictionary.",
+                "answered_at": null
+            },
+            {
+                "question_id": "q3aii_III",
+                "question_type": "short_answer",
+                "value": "line 3 home_coords = str([22, 114]) let home_coords be a immulatable variable",
+                "answered_at": null
+            },
+            {
+                "question_id": "q3bi",
+                "question_type": "short_answer",
+                "value": "[88.0, 82.0]\n82.0\n90\nFalse\n89.0",
+                "answered_at": null
+            },
+            {
+                "question_id": "q3bii_I",
+                "question_type": "coding",
+                "value": "[num * 1.1 if num > 85 for num in score_list]",
+                "answered_at": null
+            },
+            {
+                "question_id": "q3bii_II",
+                "question_type": "coding",
+                "value": "student_name = student_dict[student_id] if student_id in student_dict else \"Unknown Student\"",
+                "answered_at": null
+            },
+            {
+                "question_id": "q3biii_I",
+                "question_type": "coding",
+                "value": "Line (5): for i in range(len(student_tuple[2]))",
+                "answered_at": null
+            },
+            {
+                "question_id": "q3biii_II",
+                "question_type": "coding",
+                "value": "Line (9): del student_tuple \n student_tuple = (202501, \"Alice Smith\", [58, 90, 75])",
+                "answered_at": null
+            },
+            {
+                "question_id": "q3biii_III",
+                "question_type": "coding",
+                "value": "Line (11): Score_dict = {202501: student_tuple[2]}",
+                "answered_at": null
+            },
+            {
+                "question_id": "q3biii_IV",
+                "question_type": "coding",
+                "value": "Line (12): student_tuple[2].append(88)",
+                "answered_at": null
+            },
+            {
+                "question_id": "q4ai_1",
+                "question_type": "short_answer",
+                "value": "secret(101, -101) -> x=-101, y=101; secret(0, 55) -> x=55, y=0; secret(-73, -37) -> x=-37, y=-73; secret(30624700, 30624770) -> x=30624770, y=30624700",
+                "answered_at": null
+            },
+            {
+                "question_id": "q4ai_2",
+                "question_type": "short_answer",
+                "value": "x, y = y, x",
+                "answered_at": null
+            },
+            {
+                "question_id": "q4aii",
+                "question_type": "short_answer",
+                "value": "No. x // y returns an error",
+                "answered_at": null
+            },
+            {
+                "question_id": "q4aiii",
+                "question_type": "short_answer",
+                "value": "No. floats additions is not precise there is a floating point mistake in x,y",
+                "answered_at": null
+            },
+            {
+                "question_id": "q4b",
+                "question_type": "coding",
+                "value": "def sum_even_nested(data):\n    if len(data) == 0:\n        return 0\n    if type(data[0]) == int:\n        if data[0] % 2 == 0:\n            return data[0] + sum_even_nested(data[1:])\n        else:\n            return sum_even_nested(data[1:])\n    else:\n        return sum_even_nested(data[0]) + sum_even_nested(data[1:])",
+                "answered_at": null
+            },
+            {
+                "question_id": "q5a",
+                "question_type": "short_answer",
+                "value": "#1 spent 5\nSIM\nw2: 120\nw3: 5",
+                "answered_at": null
+            },
+            {
+                "question_id": "q5b",
+                "question_type": "coding",
+                "value": {
+                    "part_i": "capacity",
+                    "part_ii": "self.__level",
+                    "part_iii": "my_phone.drain(500)"
+                },
+                "answered_at": null
+            },
+            {
+                "question_id": "q6ai",
+                "question_type": "coding",
+                "value": "center = img[1:4, 1:4]",
+                "answered_at": null
+            },
+            {
+                "question_id": "q6aii",
+                "question_type": "coding",
+                "value": "rot90 = np.array(center, axis=0)",
+                "answered_at": null
+            },
+            {
+                "question_id": "q6aiii",
+                "question_type": "coding",
+                "value": "a1 = rot90[0:1, 0:1]\na2 = rot90[1:2, 1:2]\nL1 = list(a1)\nL2 = list(a2)\nL = L1 + L2\ncombined = np.array(L)",
+                "answered_at": null
+            },
+            {
+                "question_id": "q6b",
+                "question_type": "coding",
+                "value": "daily_max = temperature[:, :].max(1)\ndaily_min = temperature[:, :].min(1)\nax.plot(daily_min_max[1], label='Daily Max')\nax.plot(daily_min_max[0], label='Daily Min')",
+                "answered_at": null
+            },
+            {
+                "question_id": "q7",
+                "question_type": "short_answer",
+                "value": {
+                    "line_9": "Reason: it len(phrase_tokens) when i = len(text_tokens) is out of range. Correction: for i in range(len(text_tokens) - 1 - len(phrase_tokens))",
+                    "line_14": "Reason: should add the value with 1, not set the value to be i. Correction: appearance_dict[paragraph_number] += 1",
+                    "line_17": "Reason: appearance_dict.items() returns a view object that displays a list of dict's key-value tuple. should not sum that. Correction: sum(appearance_dict[appearance_dict.keys()])"
+                },
+                "answered_at": null
+            },
+            {
+                "question_id": "q8ai",
+                "question_type": "coding",
+                "value": "count = scores\ncount[att != None] = 1\ncount = count.count_nonzero(axis=1)\nscore1 = scores\nscore1[scores == None] = 0\nmarks = score1.count_nonzero()\nreturn marks, count",
+                "answered_at": null
+            },
+            {
+                "question_id": "q8aii",
+                "question_type": "coding",
+                "value": "sorted = scores.sort()\nescores = sum(sorted[:, 3:], axis=1)\nreturn escores",
+                "answered_at": null
+            },
+            {
+                "question_id": "q8aiii",
+                "question_type": "coding",
+                "value": "att_score = att / count\nexe_score = exe / 4\nreturn 10 * (att_score) + exe_score",
+                "answered_at": null
+            },
+            {
+                "question_id": "q8bi",
+                "question_type": "coding",
+                "value": "return np.sum(np.array(submission.split()).to_numeric())",
+                "answered_at": null
+            },
+            {
+                "question_id": "q8bii",
+                "question_type": "coding",
+                "value": "return np.abs(differences[:, None] - differences[None, :])",
+                "answered_at": null
+            },
+            {
+                "question_id": "q8biii",
+                "question_type": "coding",
+                "value": "sorted_pm= min[:][:]sorted())[;1:])\n index_min = np.where(p == sorted_pm)\nmina = min(p[index_min])\nindices_min = np.where(index_min == mina)\nsn = np.arr(pairs[indices_min], ascending=True)\nreturn tuple(sn)",
+                "answered_at": null
+            }
+        ]
+    },
+    {
+        "exam_id": "comp1023-final-f25",
+        "student_id": "stu-009",
+        "responses": [
+            {
+                "question_id": "q1a",
+                "question_type": "mcq",
+                "value": "T",
+                "answered_at": null
+            },
+            {
+                "question_id": "q1b",
+                "question_type": "mcq",
+                "value": "F",
+                "answered_at": null
+            },
+            {
+                "question_id": "q1c",
+                "question_type": "mcq",
+                "value": "T",
+                "answered_at": null
+            },
+            {
+                "question_id": "q1d",
+                "question_type": "mcq",
+                "value": "F",
+                "answered_at": null
+            },
+            {
+                "question_id": "q1e",
+                "question_type": "mcq",
+                "value": "F",
+                "answered_at": null
+            },
+            {
+                "question_id": "q1f",
+                "question_type": "mcq",
+                "value": "F",
+                "answered_at": null
+            },
+            {
+                "question_id": "q1g",
+                "question_type": "mcq",
+                "value": "F",
+                "answered_at": null
+            },
+            {
+                "question_id": "q1h",
+                "question_type": "mcq",
+                "value": "F",
+                "answered_at": null
+            },
+            {
+                "question_id": "q1i",
+                "question_type": "mcq",
+                "value": "F",
+                "answered_at": null
+            },
+            {
+                "question_id": "q1j",
+                "question_type": "mcq",
+                "value": "F",
+                "answered_at": null
+            },
+            {
+                "question_id": "q2a",
+                "question_type": "short_answer",
+                "value": "Qualified\nQualified!\nQualified\nQ\nQualified",
+                "answered_at": null
+            },
+            {
+                "question_id": "q2b",
+                "question_type": "coding",
+                "value": "score <= 60",
+                "answered_at": null
+            },
+            {
+                "question_id": "q2c",
+                "question_type": "coding",
+                "value": "total sum = 0\ncount = 0\nif count = 1 \n total sum += count\nprint(total sum)",
+                "answered_at": null
+            },
+            {
+                "question_id": "q2d",
+                "question_type": "coding",
+                "value": "count=0 \n for i in rangext 0, 101)",
+                "answered_at": null
+            },
+            {
+                "question_id": "q3ai",
+                "question_type": "short_answer",
+                "value": "0",
+                "answered_at": null
+            },
+            {
+                "question_id": "q3aii_I",
+                "question_type": "short_answer",
+                "value": null,
+                "answered_at": null
+            },
+            {
+                "question_id": "q3aii_II",
+                "question_type": "short_answer",
+                "value": "Xan",
+                "answered_at": null
+            },
+            {
+                "question_id": "q3aii_III",
+                "question_type": "short_answer",
+                "value": null,
+                "answered_at": null
+            },
+            {
+                "question_id": "q3bi",
+                "question_type": "short_answer",
+                "value": "0",
+                "answered_at": null
+            },
+            {
+                "question_id": "q3bii_I",
+                "question_type": "coding",
+                "value": null,
+                "answered_at": null
+            },
+            {
+                "question_id": "q3bii_II",
+                "question_type": "coding",
+                "value": null,
+                "answered_at": null
+            },
+            {
+                "question_id": "q3biii_I",
+                "question_type": "coding",
+                "value": null,
+                "answered_at": null
+            },
+            {
+                "question_id": "q3biii_II",
+                "question_type": "coding",
+                "value": null,
+                "answered_at": null
+            },
+            {
+                "question_id": "q3biii_III",
+                "question_type": "coding",
+                "value": null,
+                "answered_at": null
+            },
+            {
+                "question_id": "q3biii_IV",
+                "question_type": "coding",
+                "value": null,
+                "answered_at": null
+            },
+            {
+                "question_id": "q4ai_1",
+                "question_type": "short_answer",
+                "value": null,
+                "answered_at": null
+            },
+            {
+                "question_id": "q4ai_2",
+                "question_type": "short_answer",
+                "value": "?",
+                "answered_at": null
+            },
+            {
+                "question_id": "q4aii",
+                "question_type": "short_answer",
+                "value": null,
+                "answered_at": null
+            },
+            {
+                "question_id": "q4aiii",
+                "question_type": "short_answer",
+                "value": null,
+                "answered_at": null
+            },
+            {
+                "question_id": "q4b",
+                "question_type": "coding",
+                "value": "0",
+                "answered_at": null
+            },
+            {
+                "question_id": "q5a",
+                "question_type": "short_answer",
+                "value": null,
+                "answered_at": null
+            },
+            {
+                "question_id": "q5b",
+                "question_type": "coding",
+                "value": {
+                    "part_i": null,
+                    "part_ii": null,
+                    "part_iii": null
+                },
+                "answered_at": null
+            },
+            {
+                "question_id": "q6ai",
+                "question_type": "coding",
+                "value": null,
+                "answered_at": null
+            },
+            {
+                "question_id": "q6aii",
+                "question_type": "coding",
+                "value": null,
+                "answered_at": null
+            },
+            {
+                "question_id": "q6aiii",
+                "question_type": "coding",
+                "value": null,
+                "answered_at": null
+            },
+            {
+                "question_id": "q6b",
+                "question_type": "coding",
+                "value": null,
+                "answered_at": null
+            },
+            {
+                "question_id": "q7",
+                "question_type": "short_answer",
+                "value": {
+                    "line_1": null,
+                    "line_2": null,
+                    "line_3": null
+                },
+                "answered_at": null
+            },
+            {
+                "question_id": "q8ai",
+                "question_type": "coding",
+                "value": null,
+                "answered_at": null
+            },
+            {
+                "question_id": "q8aii",
+                "question_type": "coding",
+                "value": null,
+                "answered_at": null
+            },
+            {
+                "question_id": "q8aiii",
+                "question_type": "coding",
+                "value": null,
+                "answered_at": null
+            },
+            {
+                "question_id": "q8bi",
+                "question_type": "coding",
+                "value": "0",
+                "answered_at": null
+            },
+            {
+                "question_id": "q8bii",
+                "question_type": "coding",
+                "value": null,
+                "answered_at": null
+            },
+            {
+                "question_id": "q8biii",
+                "question_type": "coding",
+                "value": null,
+                "answered_at": null
+            }
+        ]
+    },
+    {
+        "exam_id": "comp1023-final-f25",
+        "student_id": "stu-0010",
+        "responses": [
+            {
+                "question_id": "q1a",
+                "question_type": "mcq",
+                "value": "F",
+                "answered_at": null
+            },
+            {
+                "question_id": "q1b",
+                "question_type": "mcq",
+                "value": "T",
+                "answered_at": null
+            },
+            {
+                "question_id": "q1c",
+                "question_type": "mcq",
+                "value": "T",
+                "answered_at": null
+            },
+            {
+                "question_id": "q1d",
+                "question_type": "mcq",
+                "value": "F",
+                "answered_at": null
+            },
+            {
+                "question_id": "q1e",
+                "question_type": "mcq",
+                "value": "T",
+                "answered_at": null
+            },
+            {
+                "question_id": "q1f",
+                "question_type": "mcq",
+                "value": "F",
+                "answered_at": null
+            },
+            {
+                "question_id": "q1g",
+                "question_type": "mcq",
+                "value": "F",
+                "answered_at": null
+            },
+            {
+                "question_id": "q1h",
+                "question_type": "mcq",
+                "value": "T",
+                "answered_at": null
+            },
+            {
+                "question_id": "q1i",
+                "question_type": "mcq",
+                "value": "F",
+                "answered_at": null
+            },
+            {
+                "question_id": "q1j",
+                "question_type": "mcq",
+                "value": "F",
+                "answered_at": null
+            },
+            {
+                "question_id": "q2a",
+                "question_type": "short_answer",
+                "value": null,
+                "answered_at": null
+            },
+            {
+                "question_id": "q2b",
+                "question_type": "coding",
+                "value": null,
+                "answered_at": null
+            },
+            {
+                "question_id": "q2c",
+                "question_type": "coding",
+                "value": null,
+                "answered_at": null
+            },
+            {
+                "question_id": "q2d",
+                "question_type": "coding",
+                "value": null,
+                "answered_at": null
+            },
+            {
+                "question_id": "q3ai",
+                "question_type": "short_answer",
+                "value": "0",
+                "answered_at": null
+            },
+            {
+                "question_id": "q3aii_I",
+                "question_type": "short_answer",
+                "value": null,
+                "answered_at": null
+            },
+            {
+                "question_id": "q3aii_II",
+                "question_type": "short_answer",
+                "value": null,
+                "answered_at": null
+            },
+            {
+                "question_id": "q3aii_III",
+                "question_type": "short_answer",
+                "value": null,
+                "answered_at": null
+            },
+            {
+                "question_id": "q3bi",
+                "question_type": "short_answer",
+                "value": null,
+                "answered_at": null
+            },
+            {
+                "question_id": "q3bii_I",
+                "question_type": "coding",
+                "value": null,
+                "answered_at": null
+            },
+            {
+                "question_id": "q3bii_II",
+                "question_type": "coding",
+                "value": null,
+                "answered_at": null
+            },
+            {
+                "question_id": "q3biii_I",
+                "question_type": "coding",
+                "value": null,
+                "answered_at": null
+            },
+            {
+                "question_id": "q3biii_II",
+                "question_type": "coding",
+                "value": null,
+                "answered_at": null
+            },
+            {
+                "question_id": "q3biii_III",
+                "question_type": "coding",
+                "value": null,
+                "answered_at": null
+            },
+            {
+                "question_id": "q3biii_IV",
+                "question_type": "coding",
+                "value": null,
+                "answered_at": null
+            },
+            {
+                "question_id": "q4ai_1",
+                "question_type": "short_answer",
+                "value": null,
+                "answered_at": null
+            },
+            {
+                "question_id": "q4ai_2",
+                "question_type": "short_answer",
+                "value": null,
+                "answered_at": null
+            },
+            {
+                "question_id": "q4aii",
+                "question_type": "short_answer",
+                "value": null,
+                "answered_at": null
+            },
+            {
+                "question_id": "q4aiii",
+                "question_type": "short_answer",
+                "value": null,
+                "answered_at": null
+            },
+            {
+                "question_id": "q4b",
+                "question_type": "coding",
+                "value": null,
+                "answered_at": null
+            },
+            {
+                "question_id": "q5a",
+                "question_type": "short_answer",
+                "value": null,
+                "answered_at": null
+            },
+            {
+                "question_id": "q5b",
+                "question_type": "coding",
+                "value": {
+                    "part_i": null,
+                    "part_ii": null,
+                    "part_iii": null
+                },
+                "answered_at": null
+            },
+            {
+                "question_id": "q6ai",
+                "question_type": "coding",
+                "value": null,
+                "answered_at": null
+            },
+            {
+                "question_id": "q6aii",
+                "question_type": "coding",
+                "value": null,
+                "answered_at": null
+            },
+            {
+                "question_id": "q6aiii",
+                "question_type": "coding",
+                "value": null,
+                "answered_at": null
+            },
+            {
+                "question_id": "q6b",
+                "question_type": "coding",
+                "value": null,
+                "answered_at": null
+            },
+            {
+                "question_id": "q7",
+                "question_type": "short_answer",
+                "value": {
+                    "line_1": null,
+                    "line_2": null,
+                    "line_3": null,
+                    "line_4": null,
+                    "line_5": null
+                },
+                "answered_at": null
+            },
+            {
+                "question_id": "q8ai",
+                "question_type": "coding",
+                "value": null,
+                "answered_at": null
+            },
+            {
+                "question_id": "q8aii",
+                "question_type": "coding",
+                "value": null,
+                "answered_at": null
+            },
+            {
+                "question_id": "q8aiii",
+                "question_type": "coding",
+                "value": null,
+                "answered_at": null
+            },
+            {
+                "question_id": "q8bi",
+                "question_type": "coding",
+                "value": null,
+                "answered_at": null
+            },
+            {
+                "question_id": "q8bii",
+                "question_type": "coding",
+                "value": null,
+                "answered_at": null
+            },
+            {
+                "question_id": "q8biii",
+                "question_type": "coding",
+                "value": null,
+                "answered_at": null
+            }
+        ]
+    },
+    {
+        "exam_id": "comp1023-final-f25",
+        "student_id": "stu-0011",
+        "responses": [
+            {
+                "question_id": "q1a",
+                "question_type": "mcq",
+                "value": "T",
+                "answered_at": null
+            },
+            {
+                "question_id": "q1b",
+                "question_type": "mcq",
+                "value": "F",
+                "answered_at": null
+            },
+            {
+                "question_id": "q1c",
+                "question_type": "mcq",
+                "value": "F",
+                "answered_at": null
+            },
+            {
+                "question_id": "q1d",
+                "question_type": "mcq",
+                "value": "T",
+                "answered_at": null
+            },
+            {
+                "question_id": "q1e",
+                "question_type": "mcq",
+                "value": "T",
+                "answered_at": null
+            },
+            {
+                "question_id": "q1f",
+                "question_type": "mcq",
+                "value": "F",
+                "answered_at": null
+            },
+            {
+                "question_id": "q1g",
+                "question_type": "mcq",
+                "value": "T",
+                "answered_at": null
+            },
+            {
+                "question_id": "q1h",
+                "question_type": "mcq",
+                "value": "T",
+                "answered_at": null
+            },
+            {
+                "question_id": "q1i",
+                "question_type": "mcq",
+                "value": "F",
+                "answered_at": null
+            },
+            {
+                "question_id": "q1j",
+                "question_type": "mcq",
+                "value": null,
+                "answered_at": null
+            },
+            {
+                "question_id": "q2a",
+                "question_type": "short_answer",
+                "value": "85",
+                "answered_at": null
+            },
+            {
+                "question_id": "q2b",
+                "question_type": "coding",
+                "value": "score is under 60 marks",
+                "answered_at": null
+            },
+            {
+                "question_id": "q2c",
+                "question_type": "coding",
+                "value": null,
+                "answered_at": null
+            },
+            {
+                "question_id": "q2d",
+                "question_type": "coding",
+                "value": null,
+                "answered_at": null
+            },
+            {
+                "question_id": "q3ai",
+                "question_type": "short_answer",
+                "value": "70",
+                "answered_at": null
+            },
+            {
+                "question_id": "q3aii_I",
+                "question_type": "short_answer",
+                "value": "Line 5",
+                "answered_at": null
+            },
+            {
+                "question_id": "q3aii_II",
+                "question_type": "short_answer",
+                "value": "It is because the booleans will be easily rided up-",
+                "answered_at": null
+            },
+            {
+                "question_id": "q3aii_III",
+                "question_type": "short_answer",
+                "value": null,
+                "answered_at": null
+            },
+            {
+                "question_id": "q3bi",
+                "question_type": "short_answer",
+                "value": "87",
+                "answered_at": null
+            },
+            {
+                "question_id": "q3bii_I",
+                "question_type": "coding",
+                "value": "93.5 marks",
+                "answered_at": null
+            },
+            {
+                "question_id": "q3bii_II",
+                "question_type": "coding",
+                "value": "Unknown Student",
+                "answered_at": null
+            },
+            {
+                "question_id": "q3biii_I",
+                "question_type": "coding",
+                "value": "line 9",
+                "answered_at": null
+            },
+            {
+                "question_id": "q3biii_II",
+                "question_type": "coding",
+                "value": "line 4",
+                "answered_at": null
+            },
+            {
+                "question_id": "q3biii_III",
+                "question_type": "coding",
+                "value": "line 7",
+                "answered_at": null
+            },
+            {
+                "question_id": "q3biii_IV",
+                "question_type": "coding",
+                "value": "line 11",
+                "answered_at": null
+            },
+            {
+                "question_id": "q4ai_1",
+                "question_type": "short_answer",
+                "value": {
+                    "row_1": {
+                        "x": "0",
+                        "y": "202"
+                    },
+                    "row_2": {
+                        "x": "55",
+                        "y": "-55"
+                    },
+                    "row_3": {
+                        "x": "-110",
+                        "y": "36"
+                    },
+                    "row_4": {
+                        "x": "61241470",
+                        "y": "-1000"
+                    }
+                },
+                "answered_at": null
+            },
+            {
+                "question_id": "q4ai_2",
+                "question_type": "short_answer",
+                "value": "To record clearly",
+                "answered_at": null
+            },
+            {
+                "question_id": "q4aii",
+                "question_type": "short_answer",
+                "value": "Yes",
+                "answered_at": null
+            },
+            {
+                "question_id": "q4aiii",
+                "question_type": "short_answer",
+                "value": "No",
+                "answered_at": null
+            },
+            {
+                "question_id": "q4b",
+                "question_type": "coding",
+                "value": null,
+                "answered_at": null
+            },
+            {
+                "question_id": "q5a",
+                "question_type": "short_answer",
+                "value": null,
+                "answered_at": null
+            },
+            {
+                "question_id": "q5b",
+                "question_type": "coding",
+                "value": {
+                    "part_i": "battery is fully charged",
+                    "part_ii": "power enough",
+                    "part_iii": "Battery almost run out"
+                },
+                "answered_at": null
+            },
+            {
+                "question_id": "q6ai",
+                "question_type": "coding",
+                "value": null,
+                "answered_at": null
+            },
+            {
+                "question_id": "q6aii",
+                "question_type": "coding",
+                "value": null,
+                "answered_at": null
+            },
+            {
+                "question_id": "q6aiii",
+                "question_type": "coding",
+                "value": null,
+                "answered_at": null
+            },
+            {
+                "question_id": "q6b",
+                "question_type": "coding",
+                "value": null,
+                "answered_at": null
+            },
+            {
+                "question_id": "q7",
+                "question_type": "short_answer",
+                "value": {
+                    "line_6": null,
+                    "line_11": null,
+                    "line_19": null,
+                    "line_26": null
+                },
+                "answered_at": null
+            },
+            {
+                "question_id": "q8ai",
+                "question_type": "coding",
+                "value": null,
+                "answered_at": null
+            },
+            {
+                "question_id": "q8aii",
+                "question_type": "coding",
+                "value": null,
+                "answered_at": null
+            },
+            {
+                "question_id": "q8aiii",
+                "question_type": "coding",
+                "value": null,
+                "answered_at": null
+            },
+            {
+                "question_id": "q8bi",
+                "question_type": "coding",
+                "value": null,
+                "answered_at": null
+            },
+            {
+                "question_id": "q8bii",
+                "question_type": "coding",
+                "value": null,
+                "answered_at": null
+            },
+            {
+                "question_id": "q8biii",
+                "question_type": "coding",
+                "value": null,
+                "answered_at": null
+            }
+        ]
+    },
+    {
+        "exam_id": "comp1023-final-f25",
+        "student_id": "stu-0012",
+        "responses": [
+            {
+                "question_id": "q1a",
+                "question_type": "mcq",
+                "value": "T",
+                "answered_at": null
+            },
+            {
+                "question_id": "q1b",
+                "question_type": "mcq",
+                "value": "T",
+                "answered_at": null
+            },
+            {
+                "question_id": "q1c",
+                "question_type": "mcq",
+                "value": "T",
+                "answered_at": null
+            },
+            {
+                "question_id": "q1d",
+                "question_type": "mcq",
+                "value": "T",
+                "answered_at": null
+            },
+            {
+                "question_id": "q1e",
+                "question_type": "mcq",
+                "value": "T",
+                "answered_at": null
+            },
+            {
+                "question_id": "q1f",
+                "question_type": "mcq",
+                "value": "T",
+                "answered_at": null
+            },
+            {
+                "question_id": "q1g",
+                "question_type": "mcq",
+                "value": "T",
+                "answered_at": null
+            },
+            {
+                "question_id": "q1h",
+                "question_type": "mcq",
+                "value": "T",
+                "answered_at": null
+            },
+            {
+                "question_id": "q1i",
+                "question_type": "mcq",
+                "value": "T",
+                "answered_at": null
+            },
+            {
+                "question_id": "q1j",
+                "question_type": "mcq",
+                "value": "T",
+                "answered_at": null
+            },
+            {
+                "question_id": "q2a",
+                "question_type": "short_answer",
+                "value": null,
+                "answered_at": null
+            },
+            {
+                "question_id": "q2b",
+                "question_type": "coding",
+                "value": null,
+                "answered_at": null
+            },
+            {
+                "question_id": "q2c",
+                "question_type": "coding",
+                "value": null,
+                "answered_at": null
+            },
+            {
+                "question_id": "q2d",
+                "question_type": "coding",
+                "value": null,
+                "answered_at": null
+            },
+            {
+                "question_id": "q3ai",
+                "question_type": "short_answer",
+                "value": "0",
+                "answered_at": null
+            },
+            {
+                "question_id": "q3aii_I",
+                "question_type": "short_answer",
+                "value": null,
+                "answered_at": null
+            },
+            {
+                "question_id": "q3aii_II",
+                "question_type": "short_answer",
+                "value": null,
+                "answered_at": null
+            },
+            {
+                "question_id": "q3aii_III",
+                "question_type": "short_answer",
+                "value": null,
+                "answered_at": null
+            },
+            {
+                "question_id": "q3bi",
+                "question_type": "short_answer",
+                "value": null,
+                "answered_at": null
+            },
+            {
+                "question_id": "q3bii_I",
+                "question_type": "coding",
+                "value": null,
+                "answered_at": null
+            },
+            {
+                "question_id": "q3bii_II",
+                "question_type": "coding",
+                "value": "Unknown Student",
+                "answered_at": null
+            },
+            {
+                "question_id": "q3biii_I",
+                "question_type": "coding",
+                "value": null,
+                "answered_at": null
+            },
+            {
+                "question_id": "q3biii_II",
+                "question_type": "coding",
+                "value": null,
+                "answered_at": null
+            },
+            {
+                "question_id": "q3biii_III",
+                "question_type": "coding",
+                "value": null,
+                "answered_at": null
+            },
+            {
+                "question_id": "q3biii_IV",
+                "question_type": "coding",
+                "value": null,
+                "answered_at": null
+            },
+            {
+                "question_id": "q4ai_1",
+                "question_type": "short_answer",
+                "value": {
+                    "row_1": {
+                        "x": null,
+                        "y": null
+                    },
+                    "row_2": {
+                        "x": null,
+                        "y": null
+                    },
+                    "row_3": {
+                        "x": null,
+                        "y": null
+                    },
+                    "row_4": {
+                        "x": null,
+                        "y": null
+                    }
+                },
+                "answered_at": null
+            },
+            {
+                "question_id": "q4ai_2",
+                "question_type": "short_answer",
+                "value": "??",
+                "answered_at": null
+            },
+            {
+                "question_id": "q4aii",
+                "question_type": "short_answer",
+                "value": null,
+                "answered_at": null
+            },
+            {
+                "question_id": "q4aiii",
+                "question_type": "short_answer",
+                "value": null,
+                "answered_at": null
+            },
+            {
+                "question_id": "q4b",
+                "question_type": "coding",
+                "value": null,
+                "answered_at": null
+            },
+            {
+                "question_id": "q5a",
+                "question_type": "short_answer",
+                "value": "0",
+                "answered_at": null
+            },
+            {
+                "question_id": "q5b",
+                "question_type": "coding",
+                "value": {
+                    "part_i": null,
+                    "part_ii": null,
+                    "part_iii": null
+                },
+                "answered_at": null
+            },
+            {
+                "question_id": "q6ai",
+                "question_type": "coding",
+                "value": null,
+                "answered_at": null
+            },
+            {
+                "question_id": "q6aii",
+                "question_type": "coding",
+                "value": null,
+                "answered_at": null
+            },
+            {
+                "question_id": "q6aiii",
+                "question_type": "coding",
+                "value": null,
+                "answered_at": null
+            },
+            {
+                "question_id": "q6b",
+                "question_type": "coding",
+                "value": null,
+                "answered_at": null
+            },
+            {
+                "question_id": "q7",
+                "question_type": "short_answer",
+                "value": null,
+                "answered_at": null
+            },
+            {
+                "question_id": "q8ai",
+                "question_type": "coding",
+                "value": null,
+                "answered_at": null
+            },
+            {
+                "question_id": "q8aii",
+                "question_type": "coding",
+                "value": null,
+                "answered_at": null
+            },
+            {
+                "question_id": "q8aiii",
+                "question_type": "coding",
+                "value": null,
+                "answered_at": null
+            },
+            {
+                "question_id": "q8bi",
+                "question_type": "coding",
+                "value": "0",
+                "answered_at": null
+            },
+            {
+                "question_id": "q8bii",
+                "question_type": "coding",
+                "value": null,
+                "answered_at": null
+            },
+            {
+                "question_id": "q8biii",
+                "question_type": "coding",
+                "value": null,
+                "answered_at": null
+            }
+        ]
+    }
+]

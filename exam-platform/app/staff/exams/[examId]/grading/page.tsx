@@ -520,7 +520,7 @@ function GradingDashboardContent({ examId }: { examId: string }) {
                 const rowBusy =
                   progress?.status === "queued" || progress?.status === "grading";
                 return (
-                  <tr key={sub.studentId}>
+                  <tr key={sub.studentId} style={{ verticalAlign: "middle" }}>
                     <td>
                       <div style={{ display: "grid", gap: 2 }}>
                         <strong>{sub.studentName ?? sub.studentId}</strong>
@@ -534,7 +534,7 @@ function GradingDashboardContent({ examId }: { examId: string }) {
                     <td>{new Date(sub.submittedAt).toLocaleString()}</td>
                     <td>{sub.responses.length} / {definition.questions.length}</td>
                     <td>
-                      <div style={{ minWidth: 220 }}>
+                      <div style={{ minWidth: 200, maxWidth: 280 }}>
                         <div
                           style={{
                             display: "flex",
@@ -601,8 +601,17 @@ function GradingDashboardContent({ examId }: { examId: string }) {
                         )}
                       </div>
                     </td>
-                    <td style={{ textAlign: "right" }}>
-                      <div style={{ display: "flex", gap: "var(--space-2)", justifyContent: "flex-end", alignItems: "center" }}>
+                    <td style={{ textAlign: "right", verticalAlign: "middle" }}>
+                      <div style={{ display: "flex", gap: "var(--space-2)", justifyContent: "flex-end", alignItems: "center", flexWrap: "wrap" }}>
+                        {sub.attemptId && (
+                          <Link
+                            href={`/staff/exams/${examId}/grading/${sub.attemptId}/answers`}
+                            className="button-ghost"
+                            style={{ fontSize: "0.85rem", textDecoration: "none" }}
+                          >
+                            View Answers
+                          </Link>
+                        )}
                         <button
                           className="button"
                           onClick={() => handleGrade(sub)}

@@ -129,6 +129,8 @@ function AttemptReviewContent({
 
   const currentQAllReviewed = useMemo(() => {
     if (!currentQ) return false;
+    // Deterministic questions (MCQ etc.) need no human review — always revealed
+    if (currentQ.lane === "deterministic" || currentQ.lane === "incomplete") return true;
     return currentQ.criterionResults.length === 0 ||
       currentQ.criterionResults.every((cr) => cr.overrideScore != null ||
         (criterionDraftScores[getDraftKey(currentQ.questionId, cr.criterionId)] ?? "").trim() !== "");
@@ -271,55 +273,71 @@ function AttemptReviewContent({
         </div>
       )}
 
-      {(() => {
-        const revealMap: Record<string, boolean> = {};
-        for (const qr of run.questionResults) {
-          revealMap[qr.questionId] =
-            qr.criterionResults.length === 0
-              ? true
-              : qr.criterionResults.every((cr) =>
-                cr.overrideScore != null ||
-                (criterionDraftScores[getDraftKey(qr.questionId, cr.criterionId)] ?? "").trim() !== ""
-              );
-        }
-        return (
-          <div style={{ display: "flex", alignItems: "center", gap: "var(--space-2)", marginBottom: "var(--space-2)", flexWrap: "wrap" }}>
-            <GradingSummaryCard run={run} revealedQuestions={revealMap} />
-            {run.questionResults.length > 1 && (
-              <div role="tablist" style={{ display: "flex", gap: "var(--space-1)", flexWrap: "wrap" }}>
-                {run.questionResults.map((qr, i) => (
-                  <button
-                    key={qr.questionId}
-                    type="button"
-                    role="tab"
-                    aria-selected={selectedQ === qr.questionId}
-                    className="button-ghost"
-                    onClick={() => { setSelectedQ(qr.questionId); setActiveCriterion(qr.criterionResults[0]?.criterionId ?? null); }}
-                    style={{
-                      padding: "2px var(--space-2)",
-                      fontSize: "0.78rem",
-                      border: selectedQ === qr.questionId ? "2px solid var(--primary)" : "1px solid var(--border-default)",
-                      background: selectedQ === qr.questionId ? "color-mix(in srgb, var(--primary) 8%, var(--surface-raised))" : "var(--surface-raised)",
-                      borderRadius: "var(--radius-sm)",
-                    }}
-                  >
-                    Q{i + 1}
-                  </button>
-                ))}
-              </div>
-            )}
-          </div>
-        );
-      })()}
-
-      {/* Selected question detail */}
+        {(() => {
+          const revealMap: Record<string, boolean> = {};
+          for (const qr of run.questionResults) {
+            // Deterministic and incomplete lanes need no human input — always reveal
+            if (qr.lane === "deterministic" || qr.lane === "incomplete") {
+              revealMap[qr.questionId] = true;
+            } else {
+              revealMap[qr.questionId] =
+                qr.criterionResults.length === 0
+                  ? true
+                  : qr.criterionResults.every((cr) =>
+                    cr.overrideScore != null ||
+                    (criterionDraftScores[getDraftKey(qr.questionId, cr.criterionId)] ?? "").trim() !== ""
+                  );
+            }
+          }
+          return (
+            <div style={{ display: "flex", alignItems: "center", gap: "var(--space-2)", marginBottom: "var(--space-2)", flexWrap: "wrap" }}>
+              <GradingSummaryCard run={run} revealedQuestions={revealMap} />
+              {run.questionResults.length > 1 && (
+                <div role="tablist" style={{ display: "flex", gap: "var(--space-1)", flexWrap: "wrap" }}>
+                  {run.questionResults.map((qr, i) => {
+                    const isDeterministic = qr.lane === "deterministic" || qr.lane === "incomplete";
+                    const isSelected = selectedQ === qr.questionId;
+                    return (
+                      <button
+                        key={qr.questionId}
+                        type="button"
+                        role="tab"
+                        aria-selected={isSelected}
+                        title={`${qr.questionId} · ${qr.questionType}${isDeterministic ? " · auto-graded" : ""}`}
+                        className="button-ghost"
+                        onClick={() => { setSelectedQ(qr.questionId); setActiveCriterion(qr.criterionResults[0]?.criterionId ?? null); }}
+                        style={{
+                          padding: "2px var(--space-2)",
+                          fontSize: "0.78rem",
+                          border: isSelected ? "2px solid var(--primary)" : "1px solid var(--border-default)",
+                          background: isSelected ? "color-mix(in srgb, var(--primary) 8%, var(--surface-raised))" : "var(--surface-raised)",
+                          borderRadius: "var(--radius-sm)",
+                          position: "relative",
+                        }}
+                      >
+                        Q{i + 1}
+                        {isDeterministic && (
+                          <span style={{ marginLeft: 3, fontSize: "0.65rem", color: "var(--success-text, #16a34a)", fontWeight: 700 }}>✓</span>
+                        )}
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+          );
+        })()}      {/* Selected question detail */}
       {currentQ && (
         <div style={{ display: "grid", gridTemplateColumns: "minmax(0, 1.45fr) minmax(460px, 1.15fr)", gap: "var(--space-5)", alignItems: "start", height: "calc(100vh - 160px)", minHeight: 480 }}>
           <div style={{ display: "grid", gap: "var(--space-4)", height: "100%", gridTemplateRows: "1fr", overflow: "hidden" }}>
             <div className="panel" style={{ padding: "var(--space-5)", overflow: "auto", minHeight: 0 }}>
               <div style={{ display: "flex", alignItems: "center", gap: "var(--space-2)", marginBottom: "var(--space-3)", flexWrap: "wrap" }}>
                 <span style={{ fontSize: "0.78rem", fontWeight: 700, letterSpacing: "0.04em", textTransform: "uppercase", color: "var(--text-muted)" }}>
-                  Student Answer {currentQAllReviewed ? "· Evidence Highlighted" : ""}
+                  {run.questionResults.findIndex((qr) => qr.questionId === currentQ.questionId) + 1 > 0
+                    ? `Q${run.questionResults.findIndex((qr) => qr.questionId === currentQ.questionId) + 1} · `
+                    : ""}
+                  {currentQ.questionId}
+                  {currentQAllReviewed ? " · Evidence Highlighted" : ""}
                 </span>
                 <span className="badge badge-info" style={{ fontSize: "0.75rem" }}>{currentQ.lane}</span>
                 {currentQAllReviewed ? (
@@ -343,10 +361,11 @@ function AttemptReviewContent({
               Criteria Breakdown ({currentQ.criterionResults.length})
             </h3>
             {currentQ.criterionResults.map((cr) => {
+              const isDeterministic = currentQ.lane === "deterministic" || currentQ.lane === "incomplete";
               const draftScore = getCriterionDraftScore(currentQ.questionId, cr);
               const draftReasoning = getCriterionDraftReasoning(currentQ.questionId, cr);
               const revealAiAssessment =
-                draftScore.trim() !== "" || cr.overrideScore != null;
+                isDeterministic || draftScore.trim() !== "" || cr.overrideScore != null;
 
               return (
                 <CriterionScoreCard
@@ -360,7 +379,7 @@ function AttemptReviewContent({
                     )
                   }
                 >
-                  {activeCriterion === cr.criterionId && (
+                  {activeCriterion === cr.criterionId && !isDeterministic && (
                     <div
                       style={{
                         paddingTop: "var(--space-4)",
@@ -438,6 +457,22 @@ function AttemptReviewContent({
                           Reset
                         </button>
                       </div>
+                    </div>
+                  )}
+                  {activeCriterion === cr.criterionId && isDeterministic && (
+                    <div
+                      style={{
+                        paddingTop: "var(--space-3)",
+                        borderTop: "1px solid var(--border-default)",
+                        display: "flex",
+                        alignItems: "center",
+                        gap: "var(--space-2)",
+                        fontSize: "0.84rem",
+                        color: "var(--success-text, #16a34a)",
+                      }}
+                    >
+                      <span style={{ fontSize: "1rem" }}>✓</span>
+                      <span>Auto-graded deterministically — no human review required.</span>
                     </div>
                   )}
                 </CriterionScoreCard>

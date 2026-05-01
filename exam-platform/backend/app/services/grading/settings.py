@@ -24,19 +24,19 @@ class GradingSettings:
     # ---- Model IDs (all configurable via env) -------------------------
     # Per-agent-type models
     short_answer_model: str = os.environ.get(
-        "GRADING_SHORT_ANSWER_MODEL", "deepseek/deepseek-v3.2"
+        "GRADING_SHORT_ANSWER_MODEL", "deepseek/deepseek-v4-flash"
     )
     math_model: str = os.environ.get(
         "GRADING_MATH_MODEL", "moonshotai/kimi-k2.5"
     )
     coding_model: str = os.environ.get(
-        "GRADING_CODING_MODEL", "deepseek/deepseek-v3.2"
+        "GRADING_CODING_MODEL", "deepseek/deepseek-v4-pro"
     )
     long_answer_model: str = os.environ.get(
-        "GRADING_LONG_ANSWER_MODEL", "deepseek/deepseek-v3.2"
+        "GRADING_LONG_ANSWER_MODEL", "deepseek/deepseek-v4-pro"
     )
     essay_model: str = os.environ.get(
-        "GRADING_ESSAY_MODEL", "deepseek/deepseek-v3.2"
+        "GRADING_ESSAY_MODEL", "deepseek/deepseek-v4-pro"
     )
     # Routing model (for future LLM-based routing)
     routing_model: str = os.environ.get(
@@ -44,25 +44,25 @@ class GradingSettings:
     )
     # Evidence highlighting & verification model
     evidence_model: str = os.environ.get(
-        "GRADING_EVIDENCE_MODEL", "deepseek/deepseek-v3.2"
+        "GRADING_EVIDENCE_MODEL", "deepseek/deepseek-v4-flash"
     )
     # Verification agent model
     verification_model: str = os.environ.get(
-        "GRADING_VERIFICATION_MODEL", "deepseek/deepseek-v3.2"
+        "GRADING_VERIFICATION_MODEL", "deepseek/deepseek-v4-flash"
     )
 
     # Legacy fallback models (used by lane-based routing)
     cheap_model: str = os.environ.get(
-        "GRADING_CHEAP_MODEL", "deepseek/deepseek-v3.2"
+        "GRADING_CHEAP_MODEL", "deepseek/deepseek-v4-flash"
     )
     quality_model: str = os.environ.get(
-        "GRADING_QUALITY_MODEL", "deepseek/deepseek-v3.2"
+        "GRADING_QUALITY_MODEL", "deepseek/deepseek-v4-pro"
     )
     rubric_gen_model: str = os.environ.get(
-        "GRADING_RUBRIC_MODEL", "deepseek/deepseek-v3.2"
+        "GRADING_RUBRIC_MODEL", "deepseek/deepseek-v4-pro"
     )
     rubric_gen_fallback_model: str = os.environ.get(
-        "GRADING_RUBRIC_FALLBACK_MODEL", "deepseek/deepseek-v3.2"
+        "GRADING_RUBRIC_FALLBACK_MODEL", "deepseek/deepseek-v4-flash"
     )
 
     # ---- Routing thresholds -------------------------------------------
@@ -74,12 +74,12 @@ class GradingSettings:
     )
 
     # ---- Concurrency --------------------------------------------------
-    cheap_concurrency: int = int(os.environ.get("GRADING_CHEAP_CONCURRENCY", "10"))
+    cheap_concurrency: int = int(os.environ.get("GRADING_CHEAP_CONCURRENCY", "3"))
     quality_concurrency: int = int(
-        os.environ.get("GRADING_QUALITY_CONCURRENCY", "3")
+        os.environ.get("GRADING_QUALITY_CONCURRENCY", "2")
     )
     embedding_concurrency: int = int(
-        os.environ.get("GRADING_EMBEDDING_CONCURRENCY", "5")
+        os.environ.get("GRADING_EMBEDDING_CONCURRENCY", "3")
     )
 
     # ---- Cost mode (low_cost | balanced | quality_first) ---------------

@@ -165,13 +165,23 @@ def _derive_short_answer_acceptable_answers(
 # ---- Node: Fan-out grading per question ------------------------------
 
 async def grade_questions_node(state: GradingState) -> GradingState:
-    """Grade all questions in parallel."""
+    """Grade all questions concurrently, bounded by a semaphore to avoid rate-limiting."""
     exam = state["exam"]
     attempt = state["attempt"]
     rubrics = state["rubrics"]
     mode = state["mode"]
+    settings = get_grading_settings()
+
     # Build lookup maps
     response_map: dict[str, Any] = {r.question_id: r for r in attempt.responses}
+
+    # Semaphore limits concurrent LLM requests to avoid 429s.
+    # Use quality_concurrency for quality/pro-model questions, cheap_concurrency otherwise.
+    semaphore = asyncio.Semaphore(settings.cheap_concurrency)
+
+    async def _guarded(coro):
+        async with semaphore:
+            return await coro
 
     # Create grading tasks
     tasks = []
@@ -211,12 +221,14 @@ async def grade_questions_node(state: GradingState) -> GradingState:
             continue
 
         tasks.append(
-            _grade_single_question(
-                question=question,
-                student_answer=answer_val,
-                rubric=rubric,
-                mode=mode,
-                use_cache=state.get("use_cache", True),
+            _guarded(
+                _grade_single_question(
+                    question=question,
+                    student_answer=answer_val,
+                    rubric=rubric,
+                    mode=mode,
+                    use_cache=state.get("use_cache", True),
+                )
             )
         )
         task_question_ids.append(question.id)
@@ -562,11 +574,17 @@ async def run_grading_streaming(
         )
         task_meta.append((question.id, question))
 
-    # Run all tasks concurrently, stream results as they finish
+    # Run all LLM tasks concurrently, bounded by semaphore, stream results as they finish.
+    semaphore = asyncio.Semaphore(settings.cheap_concurrency)
+
+    async def _guarded_stream(coro):
+        async with semaphore:
+            return await coro
+
     pending = set()
     task_to_meta: dict[asyncio.Task, tuple[str, ExamQuestionIn]] = {}
     for i, coro in enumerate(tasks):
-        t = asyncio.ensure_future(coro)
+        t = asyncio.ensure_future(_guarded_stream(coro))
         pending.add(t)
         task_to_meta[t] = task_meta[i]
 

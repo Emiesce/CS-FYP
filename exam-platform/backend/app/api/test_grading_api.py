@@ -26,6 +26,11 @@ from app.fixtures.comp1023_exam import (
     build_comp1023_exam,
     build_comp1023_rubrics,
 )
+from app.fixtures.comp1023_finals_exam import (
+    EXAM_ID as COMP1023_FINALS_EXAM_ID,
+    build_comp1023_finals_exam,
+    build_comp1023_finals_rubrics,
+)
 from app.fixtures.mgmt2110_exam import (
     EXAM_ID as MGMT2110_EXAM_ID,
     build_mgmt2110_exam,
@@ -63,6 +68,8 @@ def _get_exam(exam_id: str) -> ExamDefinitionOut:
     if exam_id not in _exam_cache:
         if exam_id == MGMT2110_EXAM_ID:
             _exam_cache[exam_id] = build_mgmt2110_exam()
+        elif exam_id == COMP1023_FINALS_EXAM_ID:
+            _exam_cache[exam_id] = build_comp1023_finals_exam()
         else:
             _exam_cache[exam_id] = build_comp1023_exam()
     return _exam_cache[exam_id]
@@ -71,6 +78,8 @@ def _get_exam(exam_id: str) -> ExamDefinitionOut:
 def _get_rubrics(exam_id: str):
     if exam_id == MGMT2110_EXAM_ID:
         return build_mgmt2110_rubrics()
+    if exam_id == COMP1023_FINALS_EXAM_ID:
+        return build_comp1023_finals_rubrics()
     return build_comp1023_rubrics()
 
 
